@@ -32,7 +32,7 @@ the GM's machine.
               ▼           ▼           ▼
         ┌──────────┐ ┌─────────┐ ┌──────────┐
         │ editor   │ │ browser │ │ tabletop │
-        │ (Tiptap) │ │ search  │ │ stt, dice│   … all plugins
+        │ (editor) │ │ search  │ │ stt, dice│   … all plugins
         └──────────┘ └─────────┘ └──────────┘
                           │
                  ┌────────▼─────────┐
@@ -84,8 +84,9 @@ Plugins come in three tiers:
 | **WASM** | `logic.wasm` on wazero — pure Go, sandboxed | Only declared capabilities, role-scoped | Yes |
 | **Vault CSS** | `Plugins/<id>/style.css` | Nothing; inert | Yes, by dropping a folder in |
 
-Any plugin may contribute browser UI, which runs in a sandboxed iframe and
-talks to the core over a role-scoped bridge.
+Any plugin may contribute browser UI, which runs in a **shadow root** in the
+app's document and talks to the core over a role-scoped bridge. A frame is
+reserved for embedding a third-party page.
 
 ## Layout
 

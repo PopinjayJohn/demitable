@@ -203,7 +203,7 @@ demitable/
     plugin/           host: registry · capabilities · WASM runtime · assets
     server/           routes · REST · WebSocket · embedded static assets
   plugins/            first-party plugins, compiled in
-    editor/           Tiptap editor plugin
+    editor/           CodeMirror editor plugin
     browser/          note browser, typed views, dashboards
     search/           literal + ranked search
     mcp/              MCP server over the vault
@@ -617,8 +617,10 @@ No file locks, ever — they break Obsidian.
 
 The app reads and writes what Obsidian writes (ADR-0006), which means agreeing
 with Obsidian's syntax, not just round-tripping our own output. The editor is
-a Tiptap plugin (ADR-0021), so the document model is structured — ProseMirror
-JSON in memory, **markdown on disk**. The JSON is never written to the vault.
+a CodeMirror plugin (ADR-0021), so the document is a **text buffer with
+structured blocks rendered as widgets** — the text on disk is the source, and
+the block widgets are views over the note's `data:`. Nothing but the text is
+ever written to the vault.
 
 | Syntax | Handling |
 |---|---|
@@ -987,9 +989,10 @@ The hard problems, in order:
   method that manages this risk is to *not design it up front*: write the
   editor as the first plugin against a provisional API, then a non-UI plugin
   against the result, and freeze it at `api: 1` only then.
-- **The editor plugin** (ADR-0021). Tiptap, the Obsidian syntax extensions,
-  the raw-node escape hatch, and the golden corpus that makes
-  byte-identical round-trip an automatable gate rather than a hope.
+- **The editor plugin** (ADR-0021). CodeMirror, the Obsidian syntax
+  extensions, the block-widget model, the raw-block escape hatch, and the
+  golden corpus that makes byte-identical round-trip an automatable gate
+  rather than a hope.
 - **Writing to the vault without losing the user's work** (§5.5). Everything
   downstream depends on getting this right.
 - **The formula engine.** Small language, safe evaluator, dependency-ordered
@@ -1128,7 +1131,7 @@ session write-back a second consumer, which keeps that contract honest.
 | **Two expression languages** (formulas + dice) is more surface than one | High | Shared lexer foundations, one safety model, both sandboxed; packs that need neither simply omit the block |
 | Player-facing wizard pulls phase-2 auth and review work forward | High | Accounts and ownership are now phase-1 scope (ADR-0009); the review workflow is app-level, not pack-level, so it does not complicate the pack format |
 | **WYSIWYG markdown mangles files** | High | Byte-identical golden corpus as a hard gate; raw-node escape hatch; re-parse verification on write (ADR-0021) |
-| Building a markdown editor is a big, dull chunk of phase 1 | Medium | Tiptap rather than a hand-rolled editor; the corpus test keeps the long tail honest; Obsidian remains a working fallback |
+| Building a markdown editor is a big, dull chunk of phase 1 | Medium | CodeMirror rather than a hand-rolled editor; the corpus test keeps the long tail honest; Obsidian remains a working fallback |
 | Frontmatter round-trip corrupts user files | Medium | Parse to `yaml.Node`, patch surgically, never re-serialise the whole block |
 | Roll-under and dice-pool systems fall outside the dice engine's first cut | Medium | Pack declares workflows; if a system cannot be expressed, the format gains a workflow kind rather than the engine gaining a special case |
 | STT quality on real game audio (overlap, accents, dice clatter) | Medium | Assistive mode; local models; player-side recording as a backup source |
@@ -1213,7 +1216,7 @@ with attribution, and there is no share-alike constraint on the repository.
   `demitable`.
 - **2026-10-21** — After ADR-0019…0022: the app is split into a **minimal
   core with every feature as a plugin**; three plugin tiers (compiled-in Go,
-  WASM on wazero, vault CSS); the editor becomes a **Tiptap** plugin held to
+  WASM on wazero, vault CSS); the editor becomes a **CodeMirror** plugin held to
   a byte-identical round-trip contract with a golden corpus; and the dice
   engine gains **symbol dice** via tables of faces, where tables are ordinary
   notes.

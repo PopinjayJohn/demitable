@@ -615,7 +615,8 @@ format was not generic enough and phase 2 waits.**
 6. The app runs as a single binary with no runtime dependencies.
 7. A player can join with a code, log in, and see exactly what they should.
 8. Every app-initiated write is journalled and revertible.
-9. An MCP client can read the campaign as typed data.
+9. A second, non-UI plugin (the campaign export) reads the campaign through
+   the API — and `api: 1` is frozen, because two plugins now exist.
 10. The Blades pack proves the format is not 5e-shaped (M12).
 11. **Every feature above the core is a plugin**, and the core runs with all
     of them disabled.
@@ -643,6 +644,8 @@ expose, all of these must hold:
 - [ ] The `Secure` cookie flag follows the configured public scheme.
 - [ ] CORS is off by default; the API is same-origin.
 - [ ] The MCP endpoint is off by default, and logs a warning if enabled.
+      *(MCP moves to phase 1.5; the import and the export plugin carry the
+      phase-1 exposure surface.)*
 - [ ] The app **starts and works with the network interface down**, and with
       DNS unavailable.
 - [ ] There is **no automatic update** path. The app may notice a release
