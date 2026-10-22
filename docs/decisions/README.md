@@ -102,6 +102,18 @@ Each layer is data or plugins rather than code, and each is replaceable
 without touching the layer above it. A new ruleset is a pack. A new monster
 is a note. A new feature is a plugin.
 
+## Research findings
+
+Three research passes are indexed as issues, with the full reports in
+`docs/research/`:
+
+| Report | Index | Covers |
+|---|---|---|
+| Player and GM needs | [#18](https://github.com/PopinjayJohn/demitable/issues/18) | 16 gaps in the player and GM experience |
+| Implementation risks | [#36](https://github.com/PopinjayJohn/demitable/issues/36) | The stack, measured |
+| Adversarial review | [#37](https://github.com/PopinjayJohn/demitable/issues/37) | Contradictions, undecided decisions, untestable criteria |
+| Shadow-DOM harness | [#32](https://github.com/PopinjayJohn/demitable/issues/32) | The empirical basis for ADR-0029 |
+
 ## A note on the plugin trust model
 
 Three decisions interact, and they are worth reading together because the
