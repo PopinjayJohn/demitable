@@ -51,8 +51,45 @@ view* — a capability object exposing exactly the operations the plugin's
 manifest declares, filtered by the caller's role.
 
 This is the same principle as the projection layer (ADR-0002), applied one
-level down. A plugin is not more trusted than the user who installed it just
-because it is code.
+level down.
+
+> **Amended by ADR-0027.** This rule constrains *data reach*, not *privilege*.
+> A plugin's **logic** is sandboxed; a plugin's **UI** is not — it runs in the
+> app's document and can read and change what the user sees, including GM-only
+> notes (ADR-0029). A plugin is therefore trusted at the privilege level of
+> whoever opened it.
+
+### The trust model, stated honestly
+
+> **A plugin is trusted at the privilege level of whoever opened it.** The
+> capability model constrains *accidental* overreach and provides role-scoped
+> instances. It is not a defence against a hostile plugin.
+
+This is the position ADR-0027's own import warning already took, and it is
+what Obsidian plugins and VS Code extensions take. It is defensible for a
+local tool whose user is the one installing the plugin.
+
+Concretely:
+
+- **Compiled-in plugins are the program.** They are trusted with everything.
+  Every first-party plugin is in this tier.
+- **A sandboxed plugin's *logic* cannot escape its capabilities.** That is a
+  real boundary, and it is what the WASM tier buys.
+- **A sandboxed plugin's *UI* is not sandboxed.** It runs same-origin, so it
+  can call the API directly and bypass the bridge. The role-scoped projection
+  still applies — a player-scoped instance cannot reach GM-only notes — but
+  the *capability* scoping does not.
+- **So a GM running a plugin is running code with the GM's authority**, and
+  the import warning says so.
+
+The consequence for the phase-1 definition of done: the claim that GM-only
+notes are "unreachable by plugins" is **withdrawn**. What remains true is that
+they are unreachable by a *player-scoped* plugin instance, and that a
+sandboxed plugin's *logic* cannot reach them.
+
+The alternative — giving plugin UI a real origin boundary — is what ADR-0029
+argued away, and it would cost back the native interaction the shadow-root
+model bought.
 
 ### Method: the API is not designed up front
 

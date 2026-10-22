@@ -233,10 +233,13 @@ because it will be.
 - The pipeline then:
   1. Reads the SRD mechanics JSON and the SRD markdown from the working
      directory.
-  2. **Filters to the SRD only** — `xphb`, `xdmg`, `xmm`. Non-SRD entities are
-     never written anywhere, and a non-SRD entity reaching the output is a
-     hard build error. This is the licence boundary (SRD 5.2.1 is CC-BY-4.0;
-     the rest of the corpus is not ours to ship).
+  2. **Filters to the SRD only** — by **`srdKeys` membership**, not by source
+     tag. Non-SRD entities are never written anywhere, and a non-SRD entity
+     reaching the output is a hard build error. This is the licence boundary
+     (SRD 5.2.1 and SRD 5.1 are CC-BY-4.0; the rest of the corpus is not
+     ours to ship). The source-tag rule alone is *not* a filter — it admits
+     2,628 keys `srdKeys` deliberately excludes, mostly the same entity
+     under the other generation's tag.
   3. Joins prose ↔ mechanics on `(type, name, source)`, normalising away
      `; subtitle` and parentheticals. Measured: 82.2% with a naive join,
      above 95% with normalisation.
@@ -620,7 +623,10 @@ format was not generic enough and phase 2 waits.**
 3. The vault round-trips without corruption, including unknown syntax —
    **byte-identical** for every golden-corpus fixture.
 4. A GM-only note, a GM-only property and an unapproved character are
-   provably unreachable by players, **and unreachable by plugins**.
+   provably unreachable by players, and unreachable by a **player-scoped**
+   plugin instance, and unreachable by a sandboxed plugin's **logic**.
+   *Not* unreachable by a plugin's UI or by a compiled-in plugin — plugins
+   are trusted at the user's privilege level (ADR-0019, ADR-0027).
 5. The 5e pack lints clean and produces correct values for a test character.
 6. The app runs as a single binary with no runtime dependencies.
 7. A player can join with a code, log in, and see exactly what they should.

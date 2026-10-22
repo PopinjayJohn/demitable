@@ -35,6 +35,7 @@ one means writing a new ADR that supersedes it.
 | [0029](0029-shadow-dom-isolation.md) | Plugin UI is isolated by shadow DOM, not by a frame | Accepted |
 | [0030](0030-sqlite-caches.md) | SQLite holds the derived caches — the search index and live session state | Accepted |
 | [0031](0031-internet-exposure.md) | The server may be internet-exposed, behind the GM's own TLS termination | Accepted |
+| [0032](0032-scope-discipline.md) | Fifteen things we will not build | Accepted |
 
 ## The shape of the decisions
 
@@ -84,8 +85,10 @@ tabletop does tokens, fog and initiative, and does not edit maps.
 Transcription is pluggable with a local default. The editor is a Tiptap plugin
 held to byte-identical round-trip.
 
-**Scope** — 0004. Phase 1 proves the schema with one pack end to end, and the
-whole thing ends with a real campaign.
+**Scope** — 0004, 0032. Phase 1 proves the schema with one pack end to end,
+and the whole thing ends with a real campaign. Fifteen things are explicitly
+out of bounds, so that a proposal to add one has to argue against a recorded
+decision rather than against nothing.
 
 ## The three-layer split
 

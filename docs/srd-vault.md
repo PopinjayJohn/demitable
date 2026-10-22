@@ -13,13 +13,63 @@
 | | Shape | Notes |
 |---|---|---|
 | `fixtures/compendium/**`, `fixtures/rules/**` | 1,692 Obsidian markdown files | **SRD only** — sources are `xphb` (712), `xdmg` (445), `xmm` (339) |
-| `fixtures/data/**.json` | 17,939 entities | The **full 5e corpus** — only 7,012 are SRD |
+| `fixtures/data/**.json` | ~26,900 records, 23,117 index keys | The **full 5e corpus**. The SRD subset is the 3,990 keys in `all-index.json` → `srdKeys` |
 | `fixtures/all-index.json` | `type\|name\|source` keys | `srdKeys` (3,990) is the authoritative SRD filter |
 | `fixtures/src-index.json` | SRD-resolution subset | Used by the renderer that produced the markdown |
 
 Every entity is split across two JSON files: `fluff-*.json` holds the prose
 (already rendered into the markdown body), and the mechanics file holds the
 structured fields.
+
+### 1.1 The filter is `srdKeys`, and the SRD *does* have backgrounds
+
+An earlier draft of this document claimed the SRD contained **zero**
+backgrounds. That was wrong, and it came from misreading `srdKeys`.
+
+Measured:
+
+```
+srdKeys                        : 3,990
+  of which x-sourced (2024)     : 2,034   (xphb, xdmg, xmm)
+  of which 2014-sourced         : 1,956   (phb 1167, dmg 466, mm 323)
+```
+
+**`srdKeys` lists 5 backgrounds**, and the SRD has **4**: Acolyte, Criminal,
+Sage and Soldier. `compendium/backgrounds/` holds exactly those four as
+`acolyte-xphb.md`, `criminal-xphb.md`, `sage-xphb.md`, `soldier-xphb.md`. The
+pack's `background` content type is correct, and the wizard's "pick
+background" step has data.
+
+The 16 `xphb` backgrounds in `data/backgrounds.json` are the full 2024 PHB
+list; the other 12 are not SRD content.
+
+**And the two filters are not two ways of saying the same thing.** The 2,628
+x-sourced keys that `srdKeys` excludes are almost all:
+
+- the *same entity under the other generation's tag* — `action|dash|phb` is in
+  `srdKeys`, `action|dash|xphb` is not; and
+- prose-only `*fluff` collections — `backgroundfluff|acolyte|xphb` is excluded
+  because `backgroundfluff` is not an entity collection.
+
+So **`srdKeys` is a deduplicated union of SRD 5.2.1 and SRD 5.1 content**, and
+the source-tag rule alone is **not a filter** — it admits 2,628 keys
+`srdKeys` deliberately excludes.
+
+**Therefore the build rule is: emit only entities whose key is in `srdKeys`.**
+The source-tag rule is not the licence boundary.
+
+### 1.2 The numbers the design should use
+
+| Quantity | Value | What it counts |
+|---|---|---|
+| Entities the pipeline emits | **1,692** | Markdown files in the output vault |
+| Of which, monsters | **658** | `monster` keys in `srdKeys` |
+| Of which, spells | **658** | `spell` keys in `srdKeys` |
+| JSON-side filter | **3,990** | `srdKeys` — deduplicated, both SRD generations |
+| Corpus totals | 23,117 keys / ~26,900 records | **Not** what we ship |
+
+The earlier figures of "7,012 entities, 4,469 monsters, 936 spells" were
+counts of the **whole corpus** and must not appear in the licence argument.
 
 ### The join
 

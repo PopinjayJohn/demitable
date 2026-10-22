@@ -337,6 +337,11 @@ over a role-scoped bridge (ADR-0020). A plugin may opt into **light DOM** —
 mounting into the app's own document — under an explicit `dom.inline`
 capability (ADR-0027).
 
+> **A plugin is trusted at the privilege level of whoever opened it.** The
+> capability model constrains *data reach* and gives role-scoped instances; it
+> is not a defence against a hostile plugin. A sandboxed plugin's *logic* is
+> confined; its *UI* is not.
+
 The privilege model, stated once and correctly:
 
 > **All plugin UI runs in the app's document, and therefore has the app's
@@ -1099,7 +1104,7 @@ session write-back a second consumer, which keeps that contract honest.
 | "System-agnostic" fails on weird systems (Fate, Blades, GURPS) | High | Schema invariants (§6.1) enforced by a linter; a deliberately different second pack is required before phase 2 is validated |
 | Concurrent edits between the app and Obsidian | High | Per-key writes, marked body sections, optimistic concurrency on save, watcher-based invalidation, no locks (§5.5) |
 | Visibility leak — a GM secret reaches a player | High | Projection layer is the single exit path; treat as a security boundary and test it as one |
-| **A plugin leaks GM-only data** through its own scope | High | The core never hands a plugin the vault — only a capability-scoped, role-scoped view. A plugin is not more trusted than the user who installed it |
+| **A plugin leaks GM-only data** through its own scope | High | **Accepted, not mitigated.** A plugin is trusted at the privilege level of whoever opened it (ADR-0019, ADR-0027). A sandboxed plugin's *logic* is capability-scoped and role-scoped; its *UI* is not sandboxed, and a compiled-in plugin is the program. The import warning says so plainly |
 | **Two expression languages** (formulas + dice) is more surface than one | High | Shared lexer foundations, one safety model, both sandboxed; packs that need neither simply omit the block |
 | Player-facing wizard pulls phase-2 auth and review work forward | High | Accounts and ownership are now phase-1 scope (ADR-0009); the review workflow is app-level, not pack-level, so it does not complicate the pack format |
 | **WYSIWYG markdown mangles files** | High | Byte-identical golden corpus as a hard gate; raw-node escape hatch; re-parse verification on write (ADR-0021) |

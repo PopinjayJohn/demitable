@@ -271,10 +271,12 @@ demitable.emit('note.opened', { uid })
 - `demitable.ready()` resolves after the core has applied the plugin's config
   and role.
 - Messages are namespaced by plugin id, so one plugin cannot forge another's.
-- The bridge is the **data** boundary. The **UI** boundary is the shadow root:
-  a plugin cannot reach the app's DOM by accident, and the app's styles do not
-  leak into it. But it shares the document, so it is not a security boundary
-  — see ADR-0029.
+- The bridge is the **sanctioned** data path. It is not the only one: plugin
+  UI shares the app's document and can call the API directly. The
+  role-scoped projection still applies — a player-scoped instance cannot
+  reach GM-only notes — but capability scoping does not. **A plugin is
+  trusted at the privilege level of whoever opened it** (ADR-0019,
+  ADR-0027).
 
 ### Events
 
