@@ -641,11 +641,26 @@ Three mechanisms make that rule hold under a WYSIWYG model (ADR-0021):
 1. **The raw-node escape hatch.** Any block the parser cannot represent
    becomes a `raw` node holding its source verbatim, serialized back
    untouched.
-2. **The golden corpus.** A directory of deliberately awkward markdown
-   fixtures. `parse → serialize` must be **byte-identical** for every one.
-   New syntax support arrives with a fixture.
-3. **Lossless-first editing.** An edit that cannot be expressed losslessly is
+2. **The buffer is the source.** The editor is CodeMirror 6 (ADR-0021) and
+   does not re-serialize — saving writes the buffer back. The contract is
+   satisfiable *by construction*, not by hoping a library round-trips. (It
+   does not: measured, no markdown library re-serializes byte-identically,
+   because CommonMark's parse is lossy by design.)
+3. **The golden corpus.** A directory of deliberately awkward markdown
+   fixtures. Every one must round-trip **byte-identically**. New syntax
+   support arrives with a fixture.
+4. **The raw-block escape hatch.** Any block the editor cannot represent
+   becomes an opaque block holding its source verbatim, written back
+   untouched. A plugin that cannot parse a block it matched simply declines
+   to match it.
+5. **Lossless-first editing.** An edit that cannot be expressed losslessly is
    rejected with an explanation, not silently applied.
+6. **Frontmatter is patched, never re-encoded.** A frontmatter write is a
+   surgical edit: the key's span is located in the original text and only
+   that value is replaced. Comments, key order, quoting, indentation and
+   CRLF all survive. The block is never re-serialised, because a
+   `yaml.Node` re-encode would destroy folded scalars, normalise CRLF, drop
+   the `---` marker and add a `!!merge` tag.
 
 And on the write side, the vault writer does not trust the editor: it
 re-parses the serialized output and compares it to what the editor produced. A
@@ -949,11 +964,16 @@ Deliverables, in the order the milestones build them:
 | The **plugin host** | registry, capabilities, tiers, surface hosts, the bridge (ADR-0019, ADR-0020, ADR-0027, ADR-0029) |
 | The **API contract** | `/api/v1`, the compute endpoints, the WebSocket protocol ([`api.md`](api.md)) |
 | The **accounts and projection** | local accounts, join codes, the trust boundary (ADR-0009) |
-| The **editor plugin** | Tiptap, the golden corpus, byte-identical round-trip (ADR-0021) |
+| The **editor plugin** | CodeMirror 6, block widgets, the golden corpus, byte-identical round-trip (ADR-0021) |
 | The **browser and search plugins** | typed views, dashboards, the two search indexes |
-| The **scaffolder and import** | `demitable init`, `demitable import <url>`, with SSRF defence (ADR-0025, ADR-0031) |
-| The **MCP plugin** | the campaign as typed data for an LLM client (ADR-0014) |
+| The **scaffolder** | `demitable init`, the templates, the demo campaign (ADR-0025) |
+| The **campaign export plugin** | the second, non-UI plugin — where `api: 1` freezes (ADR-0019) |
 | A **worked example campaign** | the acceptance test, exercising the projection layer |
+| The **Blades pack** | the format gate, run before the schema is frozen (ADR-0012) |
+
+Deferred to **phase 1.5**: the archive import endpoint (ADR-0025) and the
+MCP plugin (ADR-0014). The reasons are in
+[`phase-1-plan.md`](phase-1-plan.md) §"Phase 1.5".
 
 Plus the **Blades pack** as the format-validation gate (ADR-0012).
 

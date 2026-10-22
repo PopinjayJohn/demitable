@@ -1,5 +1,12 @@
 # Adversarial review — Demitable design set
 
+> **Note on ADR-0028.** The review noted that ADR-0028 was missing from the
+> sequence. It was never created: the numbering gap is permanent, because
+> ADR-0027 was rewritten in place when the shadow-DOM decision landed
+> (ADR-0029) and no separate ADR-0028 was ever written. The sequence now
+> runs 0001–0027, 0029–0032. The finding about *in-place amendments to
+> accepted ADRs* remains valid and is recorded as issue #37.
+
 Reviewed: `README.md`, `docs/design.md`, `docs/phase-1-plan.md`, `docs/tech-stack.md`,
 `docs/api.md`, `docs/plugin-api.md`, `docs/session-writeback.md`, `docs/srd-vault.md`,
 `docs/shadow-dom-verification.md`, `docs/operations.md`, `docs/decisions/README.md`,

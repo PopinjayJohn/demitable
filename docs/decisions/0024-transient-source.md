@@ -45,8 +45,21 @@ is committed — as a development artefact, and it does not ship.**
                     └────────────►  committed  ◄────────────┘
 ```
 
-After a successful build, `fixtures/` is deleted. It is never committed, and
-never shipped in the binary.
+`fixtures/` is never committed and never shipped in the binary.
+
+> **Amended 2026-10-22.** The corpus is **not** deleted after a successful
+> build. A **pinned, checksummed copy is retained outside git** — as a
+> release asset, or at a documented mirror with a recorded SHA-256 — and
+> `srdcheck` verifies it before the pipeline runs.
+>
+> The earlier rule ("delete it after the build") was unbuildable: the corpus
+> is manually acquired, so deleting it made the pipeline one-shot and made any
+> later enrichment bug permanently unfixable. Retaining a pinned copy also
+> makes the upstream's licence recordable, which is a precondition for
+> publishing the derived archive at all.
+>
+> The *working tree* copy is still transient — gitignored, and removable at
+> will — but the pinned copy is not.
 
 ### The corpus is manual
 
@@ -144,9 +157,22 @@ later would be additive.
 
 ### How users get content instead
 
-Not from us. ADR-0025 adds `demitable import <url>`, which downloads an
-archive. The SRD content is distributed the same way any community content is:
-as an archive at a URL, with its terms attached.
+**Not from us — a community member hosts the archive.**
+
+We document the format and the build, and a community member publishes and
+hosts the enriched archive at a stable URL. We host no index, no registry and
+no artefact of our own. This is ADR-0011's position taken literally: the
+project distributes *how to build* the content, not the content itself.
+
+The consequence is honest and worth stating: **a new user gets no content
+until someone publishes it.** The first-run experience is therefore "find a
+community-hosted archive, download it, and unzip it into the vault" — and
+because the archive is a zip of plain files, that needs no server feature at
+all. `demitable import <url>` (ADR-0025) is a convenience that arrives later,
+not the distribution mechanism.
+
+The archive carries its terms with it: licence and attribution are in the
+manifest, inside the archive, and in every emitted note.
 
 This is why the licence consequence below is not a product problem. The
 template is a development artefact in our repository, where attribution and
@@ -196,6 +222,13 @@ the repository may be shared.
 The corpus is manually acquired, so its terms cannot be auto-discovered from
 a licence file beside it — they are **recorded in the repository**, next to
 the output they govern, in `docs/srd-vault.md` §2.5 and in the pack header.
+
+Because a pinned copy is now retained (see §The lifecycle), the record can be
+*verified* rather than remembered: `srdcheck` checks the upstream repository
+URL, the commit hash, the licence file's verbatim text and its SPDX identifier
+alongside the corpus inventory. **If those cannot be pinned, the archive is
+not published.** That is the licence boundary's actual precondition, and it
+is now a build step rather than a note.
 
 **The licence boundary is enforced in the build regardless**: only `xphb`,
 `xdmg` and `xmm` entities may reach the output, and a non-SRD entity is a

@@ -35,8 +35,10 @@
 | Frontend framework | Svelte | 5.x (runes) |
 | Build tool | Vite | 8.x |
 | Svelte plugin | `@sveltejs/vite-plugin-svelte` | 7.x |
-| Editor | Tiptap + ProseMirror | 3.x |
-| Source view | CodeMirror | 6.x |
+| Editor | CodeMirror | 6.x |
+| Block widgets | CodeMirror `Decoration.replace` / `.widget` | 6.x |
+| Markdown (browser) | `remark` / `micromark` | latest |
+| Tiptap / ProseMirror | *optional* — a plugin may ship a Tiptap surface | 3.x |
 | Markdown parsing | `marked` | latest |
 | WASM runtime | wazero | latest |
 | Database | `modernc.org/sqlite` | latest — **pure Go, no cgo**, FTS5 built in |
@@ -141,13 +143,20 @@ with client-side routing is the smaller, faster thing.
 
 | Piece | Choice | Why |
 |---|---|---|
-| Rich editor | **Tiptap 3** + ProseMirror | The document is structured, not a string. Custom nodes and marks for wikilinks, embeds, callouts and comments; node views for real content (ADR-0021) |
-| Markdown | `@tiptap/markdown` | Tiptap's own bidirectional extension, with custom tokenizers. **Beta** — known round-trip bugs — so the editor plugin must be able to swap it out |
-| Source view | **CodeMirror 6** | A code editor is the right tool for raw markdown source, which is the surface a markdown-literate user expects to be able to drop into |
-| Preview | `marked` | Consistent with Tiptap's own parser, so a preview and the editor agree |
+| Editor | **CodeMirror 6** | The buffer *is* the source, so the byte-identical round-trip contract holds by construction rather than by hope. Measured: no markdown library re-serializes byte-identically, because CommonMark's parse is lossy by design (ADR-0021) |
+| Structured content | **Block widgets** — `Decoration.replace` for a block, `Decoration.widget` for inline | Obsidian's model, and our compatibility target already proves it works. Plugins contribute structured content this way |
+| Character sheet | A **form panel** rendered from the pack's `views.sheet` | The pack already declares the layout, so the sheet, the print view and any future client all render from one declaration |
+| Markdown (browser) | `remark` / `micromark` | Retains byte offsets on every AST node, so a minimal splice is computable |
+| Tiptap / ProseMirror | *optional* | Not a dependency of the editor plugin. A plugin may ship a Tiptap-based surface through the extension registry; it is not the prose editor, and it does not carry the byte-identity contract |
 
 The editor is a **compiled-in plugin mounted in light DOM** (ADR-0021,
 ADR-0027) — it is the app's own content surface, not an isolated one.
+
+**A Go markdown parser is still needed**, for the FTS5 body preprocessing and
+the link checker, which both run in the core process. The JavaScript parser
+above cannot serve them. See
+[`docs/research/implementation-risks.md`](research/implementation-risks.md)
+§3.19.
 
 ---
 
@@ -330,9 +339,10 @@ settles. Full evidence:
 | **SQLite as the source of truth** | A second store means a second source of truth, and a sync problem | The vault *is* the database. **SQLite is used — but only for derived caches outside the vault** (ADR-0030) |
 | **Postgres or any server database** | A server to run, a network to depend on, an account to manage | The app is one local process and one file |
 | **A JS markdown parser in Go** | Would need a JavaScript runtime in the core process | The parser lives in the browser, where the editor is |
-| **CodeMirror for the note body** | It is an excellent code editor and a poor prose editor | Prose with embedded structured blocks wants ProseMirror (ADR-0021) |
+| **Tiptap as the prose editor** | An excellent structured editor, and a lossy markdown serialiser | The byte-identical contract cannot be met by re-serializing markdown, by any library (ADR-0021) |
 | **A JS interpreter for plugin conditions** | A large dependency in the core process, and a much weaker sandbox than the formula engine | The `when` condition reuses the formula language (ADR-0003) |
-| **Monaco** | Large, and aimed at code | CodeMirror 6 covers the source view |
+| **Monaco** | Large, and aimed at code | CodeMirror 6 covers the editor |
+| **A Go markdown parser written from scratch** | A parser is a parser | One is still needed for the FTS indexer and link checker, but it is a known quantity, not a research project |
 
 ---
 

@@ -68,7 +68,8 @@ Six ideas hold it together:
 
 | Phase | Name | Deliverable |
 |---|---|---|
-| 1 | The Wiki | Core, plugin host, vault schema, packs, the editor plugin, accounts, projection, MCP, a worked campaign |
+| 1 | The Wiki | Core, plugin host, vault schema, packs, the editor plugin, accounts, projection, the export plugin, the Blades gate, a worked campaign |
+| 1.5 | — | Archive import, the MCP plugin, and whatever phase 1 taught us to change |
 | 2 | Campaign Manager | Character creation wizard (GM and players), character sheets, encounter planner and runner, dice |
 | 3 | The Table | 2D VTT: maps, tokens, fog of war, initiative, player web client |
 | 4 | The Session | Speech-to-text recording, session logs, mood-driven music |

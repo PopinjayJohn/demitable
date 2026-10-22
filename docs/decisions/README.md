@@ -25,7 +25,7 @@ one means writing a new ADR that supersedes it.
 | [0018](0018-transcription.md) | Transcription is pluggable, with a local engine as the default | Accepted |
 | [0019](0019-core-and-plugins.md) | The app is a minimal core; every feature ships as a plugin | Accepted |
 | [0020](0020-plugin-tiers.md) | Three plugin tiers — compiled-in, WASM, and vault CSS | Accepted |
-| [0021](0021-tiptap-editor.md) | The editor is a Tiptap plugin, held to a byte-identical round-trip contract | Accepted |
+| [0021](0021-editor.md) | The editor is CodeMirror 6 with block widgets, held to a byte-identical round-trip contract | Accepted, amended 2026-10-22 |
 | [0022](0022-symbol-dice.md) | The dice engine supports symbol dice, via tables of faces | Accepted |
 | [0023](0023-pack-mechanics-content-in-vault.md) | The pack holds mechanics; the content is vault notes | Accepted |
 | [0024](0024-transient-source.md) | The SRD source is transient; the enriched output is a development artefact | Accepted |
@@ -82,8 +82,9 @@ prudent, and an import warns before installing plugins.
 **Craft** — 0008, 0013, 0016, 0018, 0021. Dice are pack-defined mechanics the
 app actually rolls. Search is literal for names and ranked for prose. The
 tabletop does tokens, fog and initiative, and does not edit maps.
-Transcription is pluggable with a local default. The editor is a Tiptap plugin
-held to byte-identical round-trip.
+Transcription is pluggable with a local default. The editor is CodeMirror 6
+with block widgets, held to byte-identical round-trip — a change forced by
+measurement, since no markdown library can re-serialize byte-identically.
 
 **Scope** — 0004, 0032. Phase 1 proves the schema with one pack end to end,
 and the whole thing ends with a real campaign. Fifteen things are explicitly

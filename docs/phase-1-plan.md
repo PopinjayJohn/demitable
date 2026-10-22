@@ -363,30 +363,35 @@ capability *model* is not.
 ### M7 — The editor plugin
 
 **Work**
-- `plugins/editor/` — a Tiptap plugin (ADR-0021), **compiled in** and mounted
-  in **light DOM** (ADR-0027, ADR-0029). It is not in a shadow root and not
-  in an iframe: the editor is the app's own content surface, it must work on
-  first run, and focus, IME, clipboard and the native spellcheck UI all
-  suffer behind a boundary.
-- `@tiptap/markdown` for parse/serialize, plus custom nodes and marks for
-  Obsidian syntax: wikilink (with alias and heading forms), embed, block
-  reference, callout, comment mark, and a **raw node** for anything the
-  parser cannot represent.
-- Frontmatter handled outside the document, in a structured form panel.
+- `plugins/editor/` — a **CodeMirror 6** plugin (ADR-0021), compiled in and
+  mounted in **light DOM** (ADR-0027, ADR-0029). The editor is the app's own
+  content surface, it must work on first run, and focus, IME, clipboard and
+  the native spellcheck UI all suffer behind a boundary.
+- **The buffer is the source.** The editor does not re-serialize; saving
+  writes the buffer back. This is what makes the byte-identical contract
+  satisfiable by construction (ADR-0021).
+- **Block widgets** for structured content: `Decoration.replace` for a
+  block, `Decoration.widget` for an inline element. This is Obsidian's
+  model, and it is the sanctioned way for a plugin to contribute structured
+  content to a note.
+- **The character sheet is a form panel**, rendered from the pack's
+  `views.sheet` — not a document.
+- **Frontmatter is a structured form panel**, patched surgically and never
+  re-encoded.
 - **The golden corpus**: a directory of deliberately awkward markdown
-  fixtures. `parse → serialize` must be byte-identical for every one.
-- Write-side verification: re-parse the serialized output and compare to the
-  editor's document. A mismatch blocks the write and shows a diff.
-- Extension registry so other plugins can add syntax.
-- A source view alongside the rich view, because people who know markdown
-  expect to see it.
+  fixtures. Every one must round-trip byte-identically.
+- Write-side verification: re-parse the serialized output and compare it to
+  the editor's document. A mismatch blocks the write and shows a diff.
+- An extension registry so other plugins can contribute block and inline
+  widgets.
+- A source view alongside, because people who know markdown expect to see it.
 
 **Done when**
 - Every corpus fixture round-trips byte-identically.
 - A note containing an unknown Dataview block is preserved exactly through
   open → edit elsewhere → save.
 - A lossy edit is **rejected with an explanation**, not silently applied.
-- A plugin can register a custom inline node and it round-trips.
+- A plugin can contribute a block widget, and it renders in the note.
 - The editor is usable with no plugins installed beyond it, and it mounts
   into the note surface in light DOM, with no frame boundary.
 - **A shadow-root plugin surface exists and works**: a plugin's styles are
@@ -484,47 +489,18 @@ capability *model* is not.
 
 ---
 
-### M10 — Scaffolding, archive import, and the worked example
+### M10 — Scaffolding, the demo campaign, and the worked example
 
 **Work**
 - `internal/scaffold`: create a campaign — folders, `Home.md`, one template
   per note type, an installed pack, an example character.
-- **`demitable import <url>`** (ADR-0025):
-  - `demitable import <url>` — download an archive and merge it into a
-    vault. Flags: `--vault`, `--new`, `--force`, `--skip`,
-    `--include-plugins`, `--no-plugins`, `--insecure`.
-  - An optional `demitable-import.json` manifest at the archive root: id,
-    name, version, kind, target path, required packs and minimum app version,
-    licence and attribution. `requires` is checked before anything is
-    written.
-  - **SSRF defence** (ADR-0031) — the server fetches arbitrary URLs, so on an
-    internet-exposed server it is a request-forgery primitive:
-    - **https only**, unless `--allow-http-import` is passed;
-    - **private, loopback and link-local ranges refused after DNS
-      resolution** — `127/8`, `10/8`, `172.16/12`, `192.168/16`, `169.254/16`,
-      `::1`, `fc00::/7`, `fe80::/10`;
-    - **the connection is made to the resolved address**, so a DNS rebinding
-      attack cannot resolve to a public IP, pass the check, and reconnect to
-      a private one;
-    - size, time and content-type caps, and a hard timeout;
-    - redirects followed at most a few times, and **re-checked at each hop**;
-    - the import is **disabled by default** and enabled per installation.
-  - **Extraction safety** — this is the security-sensitive part:
-    - unpack to a **temporary directory**, validate the whole tree, and only
-      then move it into the vault, so a failed or hostile archive never
-      leaves a half-imported vault;
-    - refuse absolute paths, `..` segments and symlinks;
-    - cap entry count, total uncompressed size and compression ratio, so a
-      zip bomb is rejected before it is written;
-    - verify a declared checksum **before** extraction.
-  - **`.demitable/` and `.git/` entries are always rejected and reported**,
-    never imported. An imported `players.yaml` would otherwise grant an
-    outsider's accounts access to the vault.
-  - **Plugin bundles are installed with a warning.** The warning names each
-    bundle, its version and its declared capabilities, and states that a
-    plugin runs with the permissions of whoever opens it. Interactive imports
-    require confirmation; non-interactive ones skip plugins unless
-    `--include-plugins` is passed.
+- **The archive import** (`demitable import <url>`, ADR-0025) has
+  **moved to phase 1.5.** It is security-sensitive, network-facing, and its
+  only phase-1 user would be the maintainer publishing the archive — which a
+  community member now does. Phase 1 distributes content by **unzipping a
+  downloaded archive into the vault**, which needs no server feature at all.
+  The SSRF defence, the extraction safety rules and the plugin warning move
+  with it.
 - **The demo campaign** (`dev/demo-campaign/`) — a small campaign beside the
   SRD vault. Not filler: it exists to **exercise the projection layer** over
   content notes, so it must contain a visited location *and* an unvisited
@@ -565,27 +541,35 @@ capability *model* is not.
 
 ---
 
-### M11 — MCP plugin
+### M11 — The campaign export plugin (the second plugin)
 
 **Work**
-- `plugins/mcp/`: streamable HTTP transport on `/mcp`.
-- Resources: `demitable://note/<uid>`, `demitable://character/<uid>` (with
-  **computed formula values**), `demitable://pack/<id>`,
-  `demitable://campaign`.
-- Tools (read-only): `search_notes`, `get_character`, `list_by`,
-  `get_links`, `resolve_reference`, `evaluate_formula`.
-- **The GM's full view**, not the player projection. MCP is a GM-side tool.
-- Off by default. When enabled, requires a token printed at startup.
-- `.demitable/` is excluded from every resource and from search results.
+- `plugins/export/`: a **non-UI** plugin that walks the campaign through the
+  core API and produces a static, self-contained archive — a single HTML
+  document, or a directory of HTML plus assets.
+- It exercises the API the way a *reader* would: notes, computed character
+  values, the link graph, and assets. It reads nothing the editor did not
+  already read, and it writes nothing at all.
+- Exports the campaign's public material only, honouring the projection: a
+  player-scoped export contains what a player may see.
 
 **Done when**
-- A client can list characters with computed values and ask for backlinks.
-- The endpoint is unreachable without a token, and is off by default.
-- No GM-only filtering is applied — and the ADR says so explicitly, so the
-  behaviour is documented rather than accidental.
+- An export of the demo campaign contains every note the exporting role may
+  see, and nothing it may not.
+- The export renders without the app — a static HTML file, no server, no
+  JavaScript required to read it.
+- The export is a *second, independent* consumer of the API, so the API is
+  exercised by something the editor did not shape.
 
 **Note:** this is the second, **non-UI** plugin, and its purpose is to prove
-the plugin API is not accidentally editor-shaped (ADR-0019).
+the plugin API is not accidentally editor-shaped (ADR-0019). It is also the
+milestone at which **`api: 1` is frozen** — by then two plugins have been
+written against it, one of them with no relation to the editor.
+
+**The MCP plugin has moved to phase 1.5.** It drags an external protocol into
+phase 1 for a feature the design itself rates Medium risk and which is off by
+default, and any second non-UI plugin would have served the same purpose.
+It remains a good plugin to write — it is just not one to write *first*.
 
 ---
 
@@ -670,8 +654,11 @@ This list is deliberately checkable rather than aspirational, because
 ## Sequencing and parallelism
 
 ```
-M0 ──► M1 ──┬──► M7 (editor plugin) ──┬──► M10 ──► M11 (MCP)
-            └──► M2 ──► M3 ──► M4 ────┘      ▲
+M0 ──► M1 ──┬──► M7 (editor plugin) ──┬──► M10 ──► M11 (export plugin)
+            └──► M2 ──► M3 ──► M4 ────┘      ▲          │
+                        │                      │          ▼
+                        ├──► M12 (Blades gate) │      api:1 frozen
+                        │    └─ gates phase 2  │
                         │                      │
                         └──► M6 (plugin host) ─┘
                                   │
@@ -679,24 +666,45 @@ M8 (accounts, roles, projection) ◄┘
         │
 M9 (browser + search plugins) ◄──┘
 
-M5  (SRD pipeline) ── depends on M1 (index), M2, M4
+M5 (SRD pipeline) ── depends on M1 (index), M2, M4
         │                └── produces the golden corpus, the pack
         │                    validation suite and the link checker
         ▼
-M12 (Blades pack) ── depends on M2, M3, M4 ── gates phase 2
+M5 ──► M7        the editor needs the golden corpus, so M5 precedes M7
 ```
 
 **M6 must precede M7.** The plugin host exists so the editor can be written
 against it, and the editor is what shapes the API.
 
 **M2 → M3 → M4** and **M1 → M7** are largely independent and can run in
-parallel. M8 needs M1's index and M4's pack visibility declarations. M12
-needs M2, M3 and M4, and it gates phase 2 rather than blocking M9 or M10.
+parallel. M8 needs M1's index and M4's pack visibility declarations.
 
 **M5 sits early on purpose.** The SRD vault is the project's test corpus, and
-the editor's golden corpus does not exist until it does. Running M5 before
-M7 turns the editor milestone from "build an editor and hope" into "build an
+the editor's golden corpus does not exist until it does. Running M5 before M7
+turns the editor milestone from "build an editor and hope" into "build an
 editor against 1,692 files that already break it".
+
+**M12 — the Blades gate — now runs immediately after M4**, before the editor
+and before the schema is frozen by the 5e pack. A gate that fires *after* the
+thing it is gating is not a gate. If clocks and harm tracks have no home in
+the schema, we want to know that in week six, not in month nine.
+
+**M11 is where `api: 1` freezes.** By then two plugins exist, one of them
+with no relation to the editor.
+
+## Phase 1.5 — what was deferred, and why
+
+| Deferred | Why | ADR |
+|---|---|---|
+| **Archive import** (`demitable import <url>`) | Security-sensitive, network-facing, off by default, and its only phase-1 user would have been us publishing an archive that a community member now hosts. Content reaches phase-1 users by **unzipping a downloaded archive**, which needs no server feature at all | 0025 |
+| **The MCP plugin** | Drags an external protocol into phase 1 for a Medium-risk, off-by-default feature. Any second non-UI plugin proves the API is not editor-shaped — the campaign export plugin does that, and better | 0014 |
+
+**The editor stays in phase 1.** The adversarial review's recommendation to
+defer it was predicated on it costing 12–16 weeks of Tiptap work
+([#35](https://github.com/PopinjayJohn/demitable/issues/35)). With
+CodeMirror 6 and block widgets it is a fraction of that, and ADR-0006's
+argument — the editor is the product's floor, and building it later means
+retrofitting it into every feature — applies with *more* force, not less.
 
 ## Open items to resolve during M1–M6
 

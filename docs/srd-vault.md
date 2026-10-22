@@ -121,12 +121,23 @@ them *development* purposes:
   pipeline (§3).
 
 **None of it ships.** The SRD content is not installed by the scaffolder and
-not bundled in the binary. Users get content the same way they get any
-community content — by importing an archive from a URL
-(`demitable import <url>`, ADR-0025). That is also how the distribution
-channel for the SRD content works, and it keeps the licence question where it
-belongs: attached to the archive that carries the content, not to a release
-artefact.
+not bundled in the binary.
+
+**A community member hosts the archive.** We document the format and the
+build; somebody else publishes and hosts the enriched archive at a stable
+URL. We host no index, no registry and no artefact of our own — ADR-0011's
+position taken literally. The project distributes *how to build* the content,
+not the content.
+
+The consequence is worth stating plainly: **a new user gets no content until
+someone publishes it.** The first-run experience is therefore "download the
+archive and unzip it into the vault" — which, because the archive is a zip of
+plain files, needs no server feature at all. `demitable import <url>`
+(ADR-0025) is a convenience that arrives in phase 1.5, not the distribution
+mechanism.
+
+The licence travels with the content: in the manifest, inside the archive, and
+in every emitted note.
 
 ### 2.1 The source is transient
 
@@ -145,8 +156,20 @@ artefact.
                  └────────────►  committed  ◄────────────┘
 ```
 
-After a successful build, `fixtures/` is deleted. It is never committed and
-never shipped in the binary.
+`fixtures/` is never committed and never shipped in the binary.
+
+**A pinned, checksummed copy is retained outside git** — as a release asset,
+or at a documented mirror with a recorded SHA-256 — and `srdcheck` verifies
+it before the pipeline runs. The working-tree copy is transient; the pinned
+copy is not, because the corpus is manually acquired and deleting it would
+make the pipeline one-shot and any later enrichment bug unfixable
+(ADR-0024).
+
+Because the copy is retained, the upstream's licence can be *verified* rather
+than remembered: `srdcheck` checks the upstream repository URL, the commit
+hash, the licence file's verbatim text and its SPDX identifier alongside the
+corpus inventory. **If those cannot be pinned, the archive is not
+published.**
 
 The reason is the licence, and the numbers make it plain: the corpus is
 17,939 entities of which only **7,012 are SRD**. The other 10,927 belong to
