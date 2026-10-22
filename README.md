@@ -1,0 +1,152 @@
+# Demitable
+
+**Two make a full table.**
+
+A TTRPG **system-agnostic, Obsidian-compatible** campaign operating system.
+
+Your campaign lives as plain markdown in a plain directory. A local server
+turns that directory into a game — character sheets, encounter planning, a 2D
+table, recorded sessions — and a projection layer keeps the GM's secrets on
+the GM's machine.
+
+> **Status:** design phase. This repo contains the design, not code.
+> Read [`docs/design.md`](docs/design.md) for the living design document,
+> [`docs/phase-1-plan.md`](docs/phase-1-plan.md) for the build plan, and
+> [`docs/decisions/`](docs/decisions/) for why it is shaped this way.
+
+## The shape of it
+
+```
+   Browser — GM                 Browser — Player
+   campaign, sheets,            character, board,
+   encounters, sessions         dice log, discovered lore
+           │                             │
+           └── HTTP + WebSocket ─────────┘
+                          │
+                 ┌────────▼─────────┐
+                 │  Core (Go)       │  vault · packs · formulas
+                 │  single binary   │  dice · projection · plugin host
+                 └────────┬─────────┘
+                          │
+              ┌───────────┼───────────┐
+              ▼           ▼           ▼
+        ┌──────────┐ ┌─────────┐ ┌──────────┐
+        │ editor   │ │ browser │ │ tabletop │
+        │ (Tiptap) │ │ search  │ │ stt, dice│   … all plugins
+        └──────────┘ └─────────┘ └──────────┘
+                          │
+                 ┌────────▼─────────┐
+                 │  A vault         │  markdown · YAML · assets
+                 │  (a directory)   │
+                 └──────────────────┘
+```
+
+Six ideas hold it together:
+
+1. **Markdown is the database.** The frontmatter schema is the API. Anything
+   you can write by hand, the app can read.
+2. **Live state is a cache, not a source of truth.** Tonight's token positions
+   are disposable. The vault is the record.
+3. **The game system is data, not code.** A system pack is a YAML file. Adding
+   D&D 5e, Blades in the Dark, or a homebrew ruleset means adding a file.
+4. **The pack holds mechanics; the vault holds content.** A pack says what a
+   class *is*. The vault holds the barbarian. The SRD — 7,000 entities — is a
+   vault template, not a pack.
+5. **The server is the trust boundary.** The vault never leaves the GM's
+   machine; players get filtered projections of it.
+6. **The app is a core plus plugins.** Everything you experience is a plugin —
+   the editor, the browser, the tabletop. The core never hands a plugin the
+   vault.
+7. **Plugin UI is isolated by a shadow root, not a frame.** A frame was never
+   a security boundary — only a style and layout one — and it broke keyboard,
+   IME, clipboard and drag-and-drop. So a monster can be dragged from the
+   bestiary onto the map.
+8. **Obsidian is one client, not the host.** The app edits the same
+   Obsidian-compatible files Obsidian does.
+
+## Phases
+
+| Phase | Name | Deliverable |
+|---|---|---|
+| 1 | The Wiki | Core, plugin host, vault schema, packs, the editor plugin, accounts, projection, MCP, a worked campaign |
+| 2 | Campaign Manager | Character creation wizard (GM and players), character sheets, encounter planner and runner, dice |
+| 3 | The Table | 2D VTT: maps, tokens, fog of war, initiative, player web client |
+| 4 | The Session | Speech-to-text recording, session logs, mood-driven music |
+
+## Plugins
+
+Plugins come in three tiers:
+
+| Tier | What it is | Trusted with | Installable at runtime |
+|---|---|---|---|
+| **Compiled-in** | Go source linked into the binary | Everything | No |
+| **WASM** | `logic.wasm` on wazero — pure Go, sandboxed | Only declared capabilities, role-scoped | Yes |
+| **Vault CSS** | `Plugins/<id>/style.css` | Nothing; inert | Yes, by dropping a folder in |
+
+Any plugin may contribute browser UI, which runs in a sandboxed iframe and
+talks to the core over a role-scoped bridge.
+
+## Layout
+
+```
+docs/design.md            the living design document
+docs/phase-1-plan.md      milestones and acceptance criteria
+docs/tech-stack.md        the complete stack, with reasons
+docs/api.md               the API contract — what a client may rely on
+docs/operations.md        running it 24/7, exposed, and safely
+docs/plugin-api.md        the plugin API — provisional by design
+docs/session-writeback.md the write-back contract and visibility rules
+docs/srd-vault.md         the SRD content vault: pipeline and validation
+docs/shadow-dom-verification.md
+                          what was actually tested about plugin isolation
+docs/decisions/           architecture decision records, one per decision
+
+packs/                    system packs — mechanics and content shapes (ships)
+dev/                      development artefacts: the SRD vault and the demo
+                          campaign. Never shipped
+tools/                    build-time tools, not shipped in the binary
+fixtures/                 transient SRD source corpus — gitignored, deleted
+                          after the build
+```
+
+## Getting a vault
+
+```
+demitable init my-campaign                      # an empty campaign
+demitable import https://example.org/content.zip  # merge in an archive
+demitable --vault ~/vaults/my-campaign         # open one you already have
+```
+
+Content is distributed as **archives at a URL**, not from a registry we
+operate. The archive carries its own licence and attribution in an optional
+manifest, and the URL is wherever the author wants it.
+
+Two things an import will not do:
+
+- **`.demitable/` is never imported.** It holds accounts and passphrase
+  hashes. An imported `players.yaml` would grant an outsider's accounts
+  access to your vault. Those entries are rejected and reported.
+- **Plugins are installed with a warning.** A plugin is executable code, and
+  it runs with the permissions of whoever opens it — for the GM, that means
+  the whole vault. The warning names each bundle and its capabilities;
+  interactive imports ask first, and non-interactive ones skip plugins
+  unless told otherwise.
+
+Unpacking is the security-sensitive part: the archive is unpacked to a temp
+directory, the whole tree is validated — path traversal, absolute paths,
+symlinks and zip bombs all refused — and only then moved into the vault.
+
+## Working agreement
+
+Decisions are recorded as ADRs in `docs/decisions/` so the reasoning survives
+and can be revisited. An ADR is immutable; changing a decision means writing a
+new one that supersedes it. Open questions live at the end of
+`docs/design.md`.
+
+## Naming
+
+The project is **Demitable** — a demi-table is half a table, and two of them
+make a full table, which is exactly what a party of players is. The name also
+plays on *demiplane*, where campaign things are half-hidden until you need
+them. The binary is `demitable`; the vault's app-private folder is
+`.demitable/`.
