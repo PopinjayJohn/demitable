@@ -279,9 +279,10 @@ The core supports the current major and the previous one.
 | `playwright` | latest | E2E, and the verification harness |
 
 **Dependency updates:** automated for patch and minor, manual for major.
-Monthly, via Dependabot or Renovate. A major bump to `wazero`, `yaml.v3` or
-the Tiptap packages is reviewed by hand, because each touches a load-bearing
-invariant.
+Monthly, via Dependabot or Renovate. A major bump to `wazero`, `yaml.v3`,
+`modernc.org/sqlite` or the CodeMirror packages is reviewed by hand, because
+each touches a load-bearing invariant. Tiptap is optional now (ADR-0021), so
+it is not on this list.
 
 ### The one open question: TypeScript 7 — settled
 
