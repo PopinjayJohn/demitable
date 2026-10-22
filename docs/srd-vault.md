@@ -320,7 +320,14 @@ Then the pack-specific scalars under `data:`. Per content type:
 
 **Long prose stays in the body.** A monster's `trait`, `action`, `reaction` and
 `legendary` entries are prose and are already rendered there — they are not
-duplicated into frontmatter. A class's feature descriptions likewise stay in
+duplicated into frontmatter.
+
+**The stat block is preserved verbatim.** The corpus's monsters already carry
+`ad-statblock` blocks — 355 of them — in the community's own dialect, along
+with 204 `^statblock` block references. The pipeline does not convert them
+(ADR-0036): it is already the community's format, and its version is *prose* —
+a stat block a human reads. The *structured* mechanics come from the JSON and
+land in the note's `data:`, which is what the tabletop turns into a token. A class's feature descriptions likewise stay in
 the class body; the frontmatter carries only an *index*:
 
 ```yaml

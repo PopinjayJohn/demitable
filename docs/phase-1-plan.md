@@ -238,11 +238,17 @@ because it will be.
 - **An `inventory` field on characters**
   ([#15](https://github.com/PopinjayJohn/demitable/issues/15)) — the schema
   change, so it lands in phase 1 rather than being retrofitted.
-- **Secrets in the schema** (ADR-0035): the `revealed` field on a note, the
-  block-identity rule, and the `secret` content declaration. The projection
-  must **strip** unrevealed secret blocks, which makes it a block-aware
-  filter rather than a pure note-level one — the one piece of code whose job
-  is to be obviously correct, so it grows.
+- **Secrets in the schema** (ADR-0035, ADR-0036): the `revealed` field on
+  a note, the block-identity rule, and the `secrets` vocabulary — which
+  callout types and which YAML keys mean "GM-only" is pack configuration,
+  not a hardcoded list, so a GM's own admonition custom types keep working.
+  The projection must **strip** unrevealed secret blocks, which makes it a
+  block-aware filter rather than a pure note-level one — the one piece of
+  code whose job is to be obviously correct, so it grows.
+- **The bestiary reads two stat block dialects** (ADR-0036): the corpus's
+  `ad-statblock`, which is *prose* and stays prose, and the community's
+  `statblock`, which is *structured YAML* and seeds a token directly. A
+  homebrew monster the GM wrote last night must work with no import step.
 - The **D&D 5e SRD 5.2 pack**, as data: attributes, resources (hp, hp_max,
   ac, speed, initiative, spell slots by level, exhaustion), formulas
   (ability modifiers, proficiency bonus, max HP, DC, saves, initiative,
@@ -439,6 +445,12 @@ capability *model* is not.
   rendered as a callout, and a `secret` one renders with the GM's reveal
   affordance. It must round-trip **byte-identically** like everything else —
   including the fold marker (`-`/`+`) and any trailing `^blockid`.
+- **The community's block formats are native, not imported** (ADR-0036):
+  Obsidian callouts (with admonition's types and aliases), `ad-*` code
+  blocks, and `statblock` blocks. The corpus is *already* in these dialects
+  — 355 `ad-statblock` blocks, 204 `^blockid` references — so this is
+  reading what we already have. A `statblock` renders as a live stat block
+  widget.
 - **The character sheet is a form panel**, rendered from the pack's
   `views.sheet` — not a document.
 - **Frontmatter is a structured form panel**, patched surgically and never

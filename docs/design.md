@@ -584,10 +584,15 @@ points from players. `gm` on a property is absolute.
 revealing it is a **journalled event** (ADR-0015), and it can target
 everyone, one player, or the shared display.
 
-A **secret** is an Obsidian `> [!secret]` callout inside a note, or an
-explicitly marked block. It is a **deferred grant** rather than a deny, and it
-can be promoted in place. Two things follow from that distinction: the
-absolute deny of rule 2 is untouched, and a secret is giveable later.
+A **secret** is any **block marked GM-only**: an Obsidian callout of a
+secret type (`> [!secret]`), an admonition code block (` ```ad-secret `), a
+`gm: true` option on any code block including a `statblock`, or an explicit
+marker block. The vocabulary is **pack configuration**, so a GM who already
+uses admonition's custom types keeps them (ADR-0036).
+
+A secret is a **deferred grant** rather than a deny, and it can be promoted in
+place. Two things follow from that distinction: the absolute deny of rule 2 is
+untouched, and a secret is giveable later.
 
 **The secret's text is stripped server-side.** It is never serialised into a
 non-GM response, so a player who inspects the network, the DOM, or the
@@ -645,6 +650,9 @@ ever written to the vault.
 | `#tags` and `tags:` | Both respected; one tag browser covers both |
 | `> [!callout]` | Rendered in preview |
 | `> [!secret]` | A **secret callout** — GM-only until revealed, and the reveal is broadcast live (ADR-0035) |
+| ` ```ad-<type> ` | Admonition code block, with YAML options at the top of the block (ADR-0036) |
+| ` ```statblock ` | A community stat block, in structured YAML — read by the bestiary (ADR-0036) |
+| `^blockid` | An Obsidian block reference. The preferred stable id for a block (ADR-0036) |
 | Frontmatter | Parsed, edited in a form panel, **preserved verbatim on round-trip** |
 | `%%comments%%` | Preserved, hidden in preview |
 | Dataview / Bases blocks | Left untouched, shown as source, never executed |

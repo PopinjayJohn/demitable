@@ -39,6 +39,7 @@ one means writing a new ADR that supersedes it.
 | [0033](0033-campaign-and-grants.md) | The campaign dimension, grant sets, and a completed visibility model | Accepted |
 | [0034](0034-accessibility-and-localisation.md) | Accessibility and localisation are design constraints, not a later pass | Accepted |
 | [0035](0035-secret-callouts.md) | Secrets are `[!secret]` callouts, revealed in realtime | Accepted |
+| [0036](0036-community-formats.md) | The community's stat block and admonition formats are the native formats | Accepted |
 
 ## The shape of the decisions
 

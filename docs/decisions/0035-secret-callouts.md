@@ -32,6 +32,12 @@ a file write with a delay, and on macOS the watcher's backstop is a
 
 ### Syntax
 
+> **Specified in [ADR-0036](0036-community-formats.md)**: a secret is
+> *any block marked GM-only*, recognised across the community's own
+> syntaxes — a callout type, an `ad-*` code block, a `gm: true` option on
+> any code block including `statblock`, or an explicit marker block. The
+> vocabulary is pack configuration, not a hardcoded list.
+
 A secret is a **callout of type `secret`**:
 
 ```markdown
@@ -69,11 +75,16 @@ it.
   ^vaultkey` gives the block a stable id the author chooses, using Obsidian's
   own block-reference syntax.
 
-**The trade, stated plainly:** editing a revealed secret's *text* changes its
-hash, so **the block reverts to hidden**. That is a defensible rule — if the
-GM changes what the secret says, it is a different secret and the party
-should see the new wording — but it is surprising, and a revealed secret
-should get an explicit `^id` if the GM expects to keep editing it.
+> **Amended by [ADR-0036](0036-community-formats.md)**: the block reference
+> is now the **preferred** form, not the fallback. The SRD corpus already
+> uses `^statblock` references on 204 blocks, so most real blocks will have
+> an explicit id, and the hash's weakness rarely applies.
+
+**The remaining trade, stated plainly:** a secret with *only* a hash id
+reverts to hidden if its text is edited — if the GM changes what the secret
+says, it is a different secret and the party should see the new wording. That
+is defensible but surprising, so a secret the GM expects to keep editing
+should carry an explicit `^id`.
 
 ### The reveal is a live event, not a file write
 
