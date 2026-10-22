@@ -36,6 +36,8 @@ one means writing a new ADR that supersedes it.
 | [0030](0030-sqlite-caches.md) | SQLite holds the derived caches — the search index and live session state | Accepted |
 | [0031](0031-internet-exposure.md) | The server may be internet-exposed, behind the GM's own TLS termination | Accepted |
 | [0032](0032-scope-discipline.md) | Fifteen things we will not build | Accepted |
+| [0033](0033-campaign-and-grants.md) | The campaign dimension, grant sets, and a completed visibility model | Accepted |
+| [0034](0034-accessibility-and-localisation.md) | Accessibility and localisation are design constraints, not a later pass | Accepted |
 
 ## The shape of the decisions
 

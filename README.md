@@ -99,6 +99,8 @@ docs/operations.md        running it 24/7, exposed, and safely
 docs/plugin-api.md        the plugin API — provisional by design
 docs/session-writeback.md the write-back contract and visibility rules
 docs/srd-vault.md         the SRD content vault: pipeline and validation
+docs/research-findings.md  every research finding, and where it lands
+docs/research/             the three research reports, in full
 docs/shadow-dom-verification.md
                           what was actually tested about plugin isolation
 docs/decisions/           architecture decision records, one per decision

@@ -102,6 +102,39 @@ serves the shell on one port and no second process is needed.
   - **WAL checkpointing on a schedule**, so `search.db-wal` does not grow
     without bound over months. And **session retention**: old sessions are
     pruned, because a 24/7 server accumulates them (ADR-0031).
+  - **The DSN pragmas and a bounded pool**
+    ([#27](https://github.com/PopinjayJohn/demitable/issues/27)):
+    `journal_mode(wal)`, `busy_timeout(5000)`, `synchronous(NORMAL)`, and
+    `SetMaxOpenConns(1)` on the writer. Measured: without them, 243 of 400
+    concurrent writes failed with "database is locked". Never mix
+    `db.Conn()` with `db.Exec()` on a one-connection pool — it deadlocks.
+  - **A polling watcher as the primary mechanism on macOS and the universal
+    backstop everywhere**
+    ([#28](https://github.com/PopinjayJohn/demitable/issues/28)). fsnotify's
+    kqueue backend opens one file descriptor **per file**, so a 50,000-note
+    vault cannot be watched on macOS at all. Watch directories, debounce,
+    re-read, compare a **content hash** rather than an mtime, reconcile
+    removals by `stat`, and run a periodic full rescan.
+  - **Type-aware frontmatter emission**
+    ([#29](https://github.com/PopinjayJohn/demitable/issues/29)): emit
+    booleans as `true`/`false` and never as `yes`/`no`; always quote
+    wikilinks in properties, or YAML reads them as nested lists; keep
+    frontmatter flat; key property names case-insensitively; and emit the
+    YAML *type* that matches `.obsidian/types.json`, not an equal-looking
+    string.
+  - **A vault is untrusted input**
+    ([#33](https://github.com/PopinjayJohn/demitable/issues/33)): budgets for
+    file size, frontmatter size, depth and key count; never `node.Decode`
+    untrusted YAML into a Go value; resolve every served path with
+    `EvalSymlinks` and verify it is still under the vault root.
+  - **A Go markdown parser** for the FTS5 body preprocessing and the link
+    checker, both of which run in the core process
+    ([#33](https://github.com/PopinjayJohn/demitable/issues/33)). The
+    JavaScript parser cannot serve them.
+  - **A `campaign` field on every note** (ADR-0033), and the scratch log the
+    in-session capture needs
+    ([#5](https://github.com/PopinjayJohn/demitable/issues/5)) — session-tier,
+    disposable, reconciled into the write-back at the end.
 - `internal/journal`
   - Append-only journal under `.demitable/journal/`, one file per day.
   - Content-addressed prior versions under `.demitable/blobs/`.
@@ -197,6 +230,14 @@ because it will be.
   - Linter: enforce the **schema invariants** (§6.1 of the design doc).
   - Registry: built-in packs (embedded) + packs in `Packs/` in the vault,
     which shadow built-ins by id.
+- **Content declarations gain a `visibility` default per content type**
+  (ADR-0033): `spell` and the character-creation content is `party`; `monster`,
+  `item` and the rules content is `gm`. This is what stops the whole SRD
+  bestiary from shipping player-visible and enumerable
+  ([#21](https://github.com/PopinjayJohn/demitable/issues/21)).
+- **An `inventory` field on characters**
+  ([#15](https://github.com/PopinjayJohn/demitable/issues/15)) — the schema
+  change, so it lands in phase 1 rather than being retrofitted.
 - The **D&D 5e SRD 5.2 pack**, as data: attributes, resources (hp, hp_max,
   ac, speed, initiative, spell slots by level, exhaustion), formulas
   (ability modifiers, proficiency bonus, max HP, DC, saves, initiative,
@@ -311,6 +352,21 @@ attributes each, which is exactly what a round-trip test needs.
     Compiled-in plugins have it implicitly; a WASM plugin must declare it.
     It controls *style and layout participation*, not privilege — all plugin
     UI runs in the app's document.
+  - **The wazero runtime, configured defensively**
+    ([#26](https://github.com/PopinjayJohn/demitable/issues/26)):
+    `WithCloseOnContextDone(true)` is **mandatory** — wazero has no fuel
+    meter and no epoch ticker in any release, and `Runtime.Close()` does
+    **not** stop a spinning guest, so a runaway plugin is a hung server
+    without it. Plus a per-call context deadline the host owns, a
+    `WithMemoryLimitPages` cap (the default is 4 GiB per instance), an
+    explicit `WithCoreFeatures(api.CoreFeaturesV2)`, and a test that a module
+    importing `wasi_thread_start` fails to instantiate.
+  - **The ABI version handshake**
+    ([#31](https://github.com/PopinjayJohn/demitable/issues/31)): a
+    `demitable_abi_version()` export checked before any other call, a
+    host-side supported **range**, dispatch on the guest's version, an
+    `abi:` field in `plugin.yaml`, and a golden ABI test that imports every
+    host function the host offers.
   - **Surface hosts** (ADR-0029): the app provides named host elements; the
     default host carries a **shadow root**, and plugin styles are contained
     while custom properties on `:root` inherit in. The import warning calls
@@ -385,6 +441,17 @@ capability *model* is not.
 - An extension registry so other plugins can contribute block and inline
   widgets.
 - A source view alongside, because people who know markdown expect to see it.
+- **The cross-browser harness, committed to the repository**
+  ([#32](https://github.com/PopinjayJohn/demitable/issues/32)). The
+  verification is Chromium-only today, and `ShadowRoot.getSelection()` does
+  not exist in Firefox or Safari. The harness runs against Chromium, Firefox
+  and WebKit in CI and asserts all ten rules in
+  [`shadow-dom-verification.md`](shadow-dom-verification.md) §4 in each.
+- **A sanitisation policy for rendered markdown**
+  ([#33](https://github.com/PopinjayJohn/demitable/issues/33)). The app
+  renders a GM's *and* a player's files, alongside plugin UI that is trusted
+  with the app's privileges, and the SRD corpus contains raw HTML. Something
+  has to sanitise, strip or sandbox the renderer before the editor ships.
 
 **Done when**
 - Every corpus fixture round-trips byte-identically.
@@ -507,6 +574,12 @@ capability *model* is not.
   one, a GM-only note, a character in `draft`, a played encounter using an
   SRD monster, a session log, a `table` note, and an asset. The full spec is
   in [`srd-vault.md`](srd-vault.md) §8.
+- **A published schema and starter Bases**
+  ([#13](https://github.com/PopinjayJohn/demitable/issues/13)): a
+  machine-readable `schema.md` listing every universal field, its type and
+  its vocabulary — the formal version of the community's "Vault Conventions"
+  note — plus starter Bases and Dataview queries shipped with the
+  scaffolder, so a new vault comes with working views.
 - Templates: parameterised note templates used by "new note" and by the
   phase-2 wizard.
 - **The example campaign**: a real, small campaign used as the acceptance
@@ -597,6 +670,14 @@ It remains a good plugin to write — it is just not one to write *first*.
 format was not generic enough and phase 2 waits.**
 
 ---
+
+## Where the research findings land
+
+Every finding from the three research passes, and the phase and milestone it
+is assigned to, is tabulated in
+[`research-findings.md`](research-findings.md). The assignments above are the
+phase-1 rows of that table; the phase-2, 3 and 4 rows name the milestone
+each gap still needs.
 
 ## Cross-cutting
 

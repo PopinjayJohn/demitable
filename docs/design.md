@@ -449,6 +449,7 @@ a link.
 | `event` | Timeline event | `Notes/World/Timeline/` |
 | `table` | A set of faces — symbol dice, random tables, oracle decks | `Tables/` |
 | `content` | A pack-declared content object — a class, a species, a spell, a monster | `Notes/Content/` |
+| `handout` | A prop revealed to the table, with a journalled reveal event | `Notes/Handouts/` |
 | `home` | Campaign dashboard / MOC | `Notes/Home.md` |
 
 Folders are a **human convention**, not a machine contract. The machine reads
@@ -468,10 +469,13 @@ type: character      # note type
 uid: 01JBX8K2M9Q      # stable identity, never changes
 name: Ilia Vane
 system: dnd5e        # which pack interprets this entity
+campaign: stormdark  # which campaign this belongs to; absent = personal
 kind: pc             # pc | npc | creature
 status: active       # free-ish vocabulary, defined per type
 owner: p_8f2a        # player id, absent for GM-created notes
 workflow: active     # draft | submitted | active | retired
+visibility: party    # public | party | owner | gm
+grants: [p_91bc]     # additional parties who may see this note
 faction: "[[Saltmarsh Cartel]]"
 location: "[[The Drowned Quarter]]"
 portrait: Assets/Portraits/ilia-vane.png
@@ -528,65 +532,67 @@ to uids, and can therefore tell us "the GM renamed this note, follow it".
 
 ### 5.4 The visibility model
 
-Required by ADR-0002. Visibility lives on the note and, optionally, on
-individual properties.
+Settled in [ADR-0033](decisions/0033-campaign-and-grants.md). A note's
+visibility is resolved in this order; the first rule that applies wins.
 
-**Note level** (`visibility`):
+**1. Scope.** A note with `campaign: X` is visible only to members of X, plus
+the GM. A note with no campaign is visible to the GM, and to anyone
+explicitly granted. One vault can hold any number of campaigns, and
+`visibility: party` means **"all players in this note's campaign"** — not "in
+this session". That distinction is the leak the old model had.
 
-| Value | Who can see it |
+**2. The absolute deny.** `visibility: gm` — on a note, or on a property of
+one — is **never** serialised into a non-GM response. No grant overrides it.
+This is what makes the model predictable, and it is why a *revealable secret*
+is a different field rather than a note-level `gm`.
+
+**3. The workflow gate.** A note whose `workflow` is `draft` or `submitted` is
+visible **only to its owner and the GM**, regardless of its visibility and
+regardless of any grant. A grant-suppressing deny.
+
+**4. The base level.**
+
+| `visibility` | Who |
 |---|---|
-| `public` | Anyone with the URL — including between sessions, if the server exposes a campfire view |
-| `party` | All players in the session |
-| `owner` | The player who owns this entity, plus the GM |
-| `gm` | Only the GM. Never serialised into a player response |
+| `public` | Anyone, authenticated or not — a link is enough |
+| `party` | All members of the note's campaign |
+| `owner` | The note's `owner`, and the GM |
+| `gm` | The GM only. Never serialised to a non-GM role |
 
-**Property level** — packs can declare that a resource is private:
+**5. Grants.** `grants: [p_8f2a, p_91bc]` — *additional* parties who may
+see the note, on top of the base level. A grant never overrides rules 2 or 3.
 
-```yaml
-# in the pack
-resources:
-  - key: hp
-    label: Hit Points
-    visibility: owner      # owner + GM only
-  - key: mana
-    label: Mana
-    visibility: party
-```
+**6. The default**, when `visibility` is absent:
 
-**Masking** — a value can be shown differently to different audiences:
+- a note **with** a campaign defaults to `party`;
+- a note **without** one defaults to `gm`.
 
-```yaml
-data:
-  attributes:
-    cha: 8
-  display:
-    cha:
-      owner: 8
-      party: "??"
-```
+So a note inside a campaign is shared with the table unless it says otherwise,
+and a note outside one is private unless it says otherwise. The UI must show
+the *effective* visibility on every note.
 
-**Resolution — grants and one absolute deny.** Formally stated in
-[`session-writeback.md`](session-writeback.md), because discovery interacts
-with it:
+**7. Property level.** A property may declare its own visibility, in the
+pack, and **inherits the note's** otherwise. `owner` on a property resolves
+against the note's `owner`; **if the note has no owner, it falls back to the
+note's visibility.** Without that rule the shipped 5e pack hid every NPC's hit
+points from players. `gm` on a property is absolute.
 
-> A note is visible to a player if **any grant** applies. `gm` is an absolute
-> **deny** that overrides every grant.
+**8. Masking.** `display:` overrides the rendered value per audience, applied
+**last** — after grants and denies have decided whether a value is present.
 
-| Grants | Source |
-|---|---|
-| Public | `visibility: public` |
-| Party | `visibility: party` |
-| Owner | `visibility: owner` and the caller owns the note |
-| Discovery | the note's uid appears in a character the caller owns, in `discovered` |
-| Type-level | a core rule, e.g. a player's own character note |
+**Reveals.** A **handout** is a note whose visibility is mutable at runtime;
+revealing it is a **journalled event** (ADR-0015), and it can target
+everyone, one player, or the shared display. A **secret block** inside a
+shared note is a deferred grant rather than a deny, and can be promoted in
+place.
 
-| Denies | Source |
-|---|---|
-| GM | `visibility: gm` — **absolute**, regardless of discovery or ownership |
+**Content visibility is declared by the pack**, per content type, so the SRD
+ships with the right defaults — `spell` is `party`, `monster` is `gm` — rather
+than with an accident.
 
-The deny is absolute on purpose: a GM-only note that a character once
-discovered must still be hidden, or "discovered" becomes a way to leak
-secrets, and a secret that leaks once is a secret that leaks.
+**Why this needs a UI.** Six rules in order is more than one lookup. The
+app needs a **"why can this role see this note?" inspector**, or the
+complexity will bite in the wrong places.
 
 ### 5.5 Write semantics
 

@@ -198,30 +198,34 @@ knows them.
 
 ## 6. The visibility model, formalised
 
-ADR-0002 and design doc §5.4 describe the visibility levels. The write-back
-contract needs a precise version, because discovery interacts with them.
+**Completed by [ADR-0033](decisions/0033-campaign-and-grants.md)**, which
+is now authoritative. It adds the campaign dimension, grant sets, revealable
+secrets, the default, and the no-owner fallback.
 
-**A note is visible to a player if any *grant* applies. `gm` is an absolute
-*deny* that overrides every grant.**
+> **A note is visible to a player if any *grant* applies. `gm` is an absolute
+> *deny* that overrides every grant.**
 
 ### Grants
 
 | Grant | Source |
 |---|---|
 | Public | `visibility: public` |
-| Party | `visibility: party` |
+| Party | `visibility: party` — all members of the note's **campaign** |
 | Owner | `visibility: owner` and the caller owns the note |
+| Explicit | `grants: [p_8f2a]` — named parties, on top of the base level |
 | Discovery | the note's uid appears in a character the caller owns, in `discovered` |
-| Type-level | a core-defined rule, e.g. a player's own character note |
+| Type-level | a core rule, e.g. a player's own character note |
 
 ### Denies
 
 | Deny | Source |
 |---|---|
-| GM | `visibility: gm` — **absolute**, regardless of discovery or ownership |
+| GM | `visibility: gm` — **absolute**, regardless of discovery, ownership or grants |
+| Workflow | `workflow: draft` or `submitted` — owner and GM only, regardless of visibility or grants |
+| Campaign | the note's `campaign` is one the caller does not belong to |
 
-The deny is absolute on purpose. A GM-only note that a character once
-discovered must still be hidden — otherwise "discovered" becomes a way to leak
+The deny is absolute on purpose: a GM-only note that a character once
+discovered must still be hidden, or "discovered" becomes a way to leak
 secrets, and a secret that leaks once is a secret that leaks.
 
 ### Property-level
@@ -229,6 +233,16 @@ secrets, and a secret that leaks once is a secret that leaks.
 Property-level visibility (a pack declaring `hp` visible to its owner) applies
 within a visible note, in the same order: a property marked `gm` is never
 serialised into a player response.
+
+**A property with no owner falls back to the note's visibility.** Without
+that rule the shipped 5e pack hid every NPC's hit points from players, because
+`hp` was owner-scoped and GM-created NPCs have no owner.
+
+### The default
+
+A note **with** a campaign defaults to `party`; a note **without** one
+defaults to `gm`. A missing `visibility` is never left to whatever the code
+happens to do.
 
 ---
 
