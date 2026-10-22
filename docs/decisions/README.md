@@ -38,6 +38,7 @@ one means writing a new ADR that supersedes it.
 | [0032](0032-scope-discipline.md) | Fifteen things we will not build | Accepted |
 | [0033](0033-campaign-and-grants.md) | The campaign dimension, grant sets, and a completed visibility model | Accepted |
 | [0034](0034-accessibility-and-localisation.md) | Accessibility and localisation are design constraints, not a later pass | Accepted |
+| [0035](0035-secret-callouts.md) | Secrets are `[!secret]` callouts, revealed in realtime | Accepted |
 
 ## The shape of the decisions
 

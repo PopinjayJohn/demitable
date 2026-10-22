@@ -238,6 +238,11 @@ because it will be.
 - **An `inventory` field on characters**
   ([#15](https://github.com/PopinjayJohn/demitable/issues/15)) — the schema
   change, so it lands in phase 1 rather than being retrofitted.
+- **Secrets in the schema** (ADR-0035): the `revealed` field on a note, the
+  block-identity rule, and the `secret` content declaration. The projection
+  must **strip** unrevealed secret blocks, which makes it a block-aware
+  filter rather than a pure note-level one — the one piece of code whose job
+  is to be obviously correct, so it grows.
 - The **D&D 5e SRD 5.2 pack**, as data: attributes, resources (hp, hp_max,
   ac, speed, initiative, spell slots by level, exhaustion), formulas
   (ability modifiers, proficiency bonus, max HP, DC, saves, initiative,
@@ -430,6 +435,10 @@ capability *model* is not.
   block, `Decoration.widget` for an inline element. This is Obsidian's
   model, and it is the sanctioned way for a plugin to contribute structured
   content to a note.
+- **Callout support, including `> [!secret]`** (ADR-0035). The callout is
+  rendered as a callout, and a `secret` one renders with the GM's reveal
+  affordance. It must round-trip **byte-identically** like everything else —
+  including the fold marker (`-`/`+`) and any trailing `^blockid`.
 - **The character sheet is a form panel**, rendered from the pack's
   `views.sheet` — not a document.
 - **Frontmatter is a structured form panel**, patched surgically and never

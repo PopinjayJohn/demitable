@@ -19,12 +19,12 @@ that must be written**, so the work is not lost when those plans are made.
 | # | Gap | Lands in |
 |---|---|---|
 | [2](https://github.com/PopinjayJohn/demitable/issues/2) | The second screen and the shared device (hot seat) | **Phase 3** — new milestone: the display mode. Changes the projection layer's *shape*, so the **seat-scoped projection** decision is recorded and the shape is settled in phase 3's plan |
-| [3](https://github.com/PopinjayJohn/demitable/issues/3) | Handouts — "reveal this to the table" | **Phase 1** — ADR-0033, `handout` note type, `grants`, the reveal event. **Phase 2** — the reveal UI |
+| [3](https://github.com/PopinjayJohn/demitable/issues/3) | Handouts — "reveal this to the table" | **Phase 1** — ADR-0033, the `handout` note type, `grants`, the reveal event. **Phase 2** — the reveal UI |
 | [4](https://github.com/PopinjayJohn/demitable/issues/4) | No chat, no in-game message channel | **Phase 3** — new milestone: table chat. GM→player is a `visibility: owner` note, so it needs no new mechanism |
 | [5](https://github.com/PopinjayJohn/demitable/issues/5) | Nothing captures the session *during* the session | **Phase 1** — M1's session store gains a scratch log (it is session-tier and disposable). **Phase 2** — the reconciliation step at session end |
 | [6](https://github.com/PopinjayJohn/demitable/issues/6) | The player-facing surface is too thin | **Phase 2** — new milestone: the player journal, the party roster, per-player annotations |
 | [7](https://github.com/PopinjayJohn/demitable/issues/7) | No pre-session ritual | **Phase 2** — new milestone: the auto-recap, the campaign charter, house rules, safety tools |
-| [8](https://github.com/PopinjayJohn/demitable/issues/8) | "Blind" content at paragraph level | **Phase 1** — ADR-0033, secret blocks, the deferred-grant distinction. **Phase 3** — the reveal UI |
+| [8](https://github.com/PopinjayJohn/demitable/issues/8) | "Blind" content at paragraph level | **Phase 1** — ADR-0035, the `> [!secret]` callout, block identity, server-side stripping, the `revealed` field, and the WebSocket `secret.reveal` command. **Phase 2** — the GM's reveal control and the durable write-back. **Phase 3** — the shared display showing a reveal |
 | [9](https://github.com/PopinjayJohn/demitable/issues/9) | Tables are GM-side only | **Phase 2** — new milestone: blind rolls, player-initiated rolls, eligible-player rolls |
 | [10](https://github.com/PopinjayJohn/demitable/issues/10) | No portable character sheet | **Phase 2** — new milestone: the print and PDF export of the pack's `views.sheet` |
 | [11](https://github.com/PopinjayJohn/demitable/issues/11) | No campaign dimension | **Phase 1** — ADR-0033, the `campaign` field, and `party` scoped to a campaign. **M1, M4, M8** |

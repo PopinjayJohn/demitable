@@ -582,9 +582,18 @@ points from players. `gm` on a property is absolute.
 
 **Reveals.** A **handout** is a note whose visibility is mutable at runtime;
 revealing it is a **journalled event** (ADR-0015), and it can target
-everyone, one player, or the shared display. A **secret block** inside a
-shared note is a deferred grant rather than a deny, and can be promoted in
-place.
+everyone, one player, or the shared display.
+
+A **secret** is an Obsidian `> [!secret]` callout inside a note, or an
+explicitly marked block. It is a **deferred grant** rather than a deny, and it
+can be promoted in place. Two things follow from that distinction: the
+absolute deny of rule 2 is untouched, and a secret is giveable later.
+
+**The secret's text is stripped server-side.** It is never serialised into a
+non-GM response, so a player who inspects the network, the DOM, or the
+WebSocket frames sees nothing. The reveal itself is a **live broadcast** over
+the WebSocket, not a file write — the table sees it as it happens, rather than
+after a watcher round trip. See [ADR-0035](decisions/0035-secret-callouts.md).
 
 **Content visibility is declared by the pack**, per content type, so the SRD
 ships with the right defaults — `spell` is `party`, `monster` is `gm` — rather
@@ -635,6 +644,7 @@ ever written to the vault.
 | `[[note#^blockid]]` | Block references resolve and are linkable |
 | `#tags` and `tags:` | Both respected; one tag browser covers both |
 | `> [!callout]` | Rendered in preview |
+| `> [!secret]` | A **secret callout** — GM-only until revealed, and the reveal is broadcast live (ADR-0035) |
 | Frontmatter | Parsed, edited in a form panel, **preserved verbatim on round-trip** |
 | `%%comments%%` | Preserved, hidden in preview |
 | Dataview / Bases blocks | Left untouched, shown as source, never executed |

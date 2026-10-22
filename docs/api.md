@@ -302,6 +302,7 @@ commands. Both directions use one envelope:
 | `session.patch` | a delta against the last state |
 | `roll.result` | a roll that happened, with full provenance |
 | `note.saved` | a note was written, by anyone |
+| `secret.revealed` | a secret was revealed — `{ note_uid, block_id, audience, by }` |
 | `error` | `{ code, message }` |
 
 ### Client → server
@@ -311,12 +312,22 @@ commands. Both directions use one envelope:
 | `session.command` | move a token, change HP, add a condition, reorder initiative |
 | `roll.request` | ask the server to roll |
 | `note.command` | a structured edit to a note |
+| `secret.reveal` | reveal a secret — `{ note_uid, block_id, audience }` |
 | `ping` | keepalive |
 
 **The client never sends authoritative state.** It sends *intents*, and the
 server applies them and broadcasts the result. That is what keeps a player
 from setting a token's HP by guessing the message format, and it is what makes
 the WebSocket protocol safe to expose to a native app.
+
+**A secret reveal is an intent, not a state change.** The GM sends
+`secret.reveal`; the server applies it, persists it to the session tier, and
+broadcasts `secret.revealed` to everyone. The server is authoritative, so
+clients cannot diverge — and because the text was never sent to a non-GM
+client, a reveal is a *permission* change rather than a data transfer.
+
+Clients **refetch the note** on a `secret.revealed` event. One note is cheap,
+and it avoids a second serialisation path that could drift from the first.
 
 ### Reconnection
 

@@ -145,6 +145,11 @@ A **secret block** inside a note that is itself visible to the party. It has
 its own visibility until it is revealed, and revealing it promotes it in
 place.
 
+> **Specified in [ADR-0035](0035-secret-callouts.md)**: the syntax is
+> Obsidian's `> [!secret]` callout, the reveal is a live WebSocket broadcast
+> rather than a file write, and the text is stripped server-side so it never
+> reaches a non-GM client.
+
 - It is a **different field** from note-level `visibility`, deliberately, so
   the absolute deny of rule 2 is not weakened. A note is never "partly gm".
 - It lives in the body, in a marked block, so it round-trips through the
