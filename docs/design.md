@@ -541,6 +541,10 @@ explicitly granted. One vault can hold any number of campaigns, and
 `visibility: party` means **"all players in this note's campaign"** — not "in
 this session". That distinction is the leak the old model had.
 
+A **campaign is a note** (ADR-0037), and it is what defines its members. So
+for a campaign note, `party` resolves against **its own `members` list** —
+one rule, and "party" finally means something.
+
 **2. The absolute deny.** `visibility: gm` — on a note, or on a property of
 one — is **never** serialised into a non-GM response. No grant overrides it.
 This is what makes the model predictable, and it is why a *revealable secret*

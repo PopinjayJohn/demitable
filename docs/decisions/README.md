@@ -40,6 +40,7 @@ one means writing a new ADR that supersedes it.
 | [0034](0034-accessibility-and-localisation.md) | Accessibility and localisation are design constraints, not a later pass | Accepted |
 | [0035](0035-secret-callouts.md) | Secrets are `[!secret]` callouts, revealed in realtime | Accepted |
 | [0036](0036-community-formats.md) | The community's stat block and admonition formats are the native formats | Accepted |
+| [0037](0037-campaign-is-a-note.md) | A campaign is a first-class note | Accepted |
 
 ## The shape of the decisions
 
