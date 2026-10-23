@@ -42,6 +42,7 @@ one means writing a new ADR that supersedes it.
 | [0036](0036-community-formats.md) | The community's stat block and admonition formats are the native formats | Accepted |
 | [0037](0037-campaign-is-a-note.md) | A campaign is a first-class note | Accepted |
 | [0038](0038-seats-and-code-spaces.md) | Two credentials in disjoint code spaces, and principals instead of roles | Accepted |
+| [0039](0039-partial-apply.md) | The write-back is a partial apply with per-key conflict reporting | Accepted |
 
 ## The shape of the decisions
 
