@@ -27,6 +27,7 @@ Read in this order. Everything else is detail.
 | [`docs/threat-model.md`](docs/threat-model.md) | **What is defended and what is not.** Read this before touching the projection or the logs |
 | [`docs/design-system.md`](docs/design-system.md) | The token layer, the type scale, the colour rules |
 | [`docs/phase-0-report.md`](docs/phase-0-report.md) | What phase 0 found, and the three lessons it would tell the next person |
+| [`docs/phase-1-brief.md`](docs/phase-1-brief.md) | The brief for the phase-1 orchestration agent |
 
 **The phase map** — [`docs/phase-plan.md`](docs/phase-plan.md) — says what
 each phase contains. Phase 1 is the MVP; phase 0 is done.
