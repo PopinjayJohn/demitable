@@ -6,7 +6,7 @@
   query language)
 - **Origin:** phase 0, question 6 — *does FTS5 over the real corpus put the
   right note first?* The evidence is
-  [`spikes/measurement/`](../spikes/measurement/README.md), fourteen result
+  [`spikes/measurement/`](../../spikes/measurement/README.md), fourteen result
   files, and an index over the 1,692-file corpus.
 
 ## Context

@@ -13,7 +13,7 @@
 > **Origin:** phase 0, question 5 — *what does the manifest actually need
 > to say, and does the bridge carry what a plugin needs?* The evidence is
 > two real plugins written against the manifest, and
-> [`spikes/plugin-host/`](../spikes/plugin-host/README.md).
+> [`spikes/plugin-host/`](../../spikes/plugin-host/README.md).
 
 ## Decision
 

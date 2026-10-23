@@ -270,6 +270,29 @@ needs the schema to have already been corrected by everything above it.
 
 ---
 
+## 4a. What happened
+
+**The phase is complete.** All ten questions were answered, and the answers
+are in [`phase-0-report.md`](phase-0-report.md).
+
+| | |
+|---|---|
+| Questions answered | **10 of 10** |
+| Findings | **51** |
+| Contradictions between accepted ADRs | **14** |
+| Criteria that turned out to fail | **1** |
+| New ADRs | **8** (0049–0057) |
+| ADRs amended | **6** |
+| Promoted code | `internal/vault/frontmatter/` — 56 tests |
+
+**The phase's own question** — *is the design settled enough to build, and is
+the phase-1 estimate real?* — is answered in the report: the design is
+settled enough to build, and **the estimate was not real**. One performance
+criterion fails, and three accepted ADRs say something other than what they
+were supposed to say.
+
+---
+
 ## 5. What phase 0 decides
 
 At the end of it, these are answered — and each answer changes something

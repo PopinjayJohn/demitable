@@ -6,7 +6,7 @@
   criteria, and the phase-1 plan's watcher acceptance criteria
 - **Origin:** phase 0, questions 7 and 9 — *does the watcher see everything,
   on every platform*, and *what do the numbers actually cost?* The evidence
-  is [`spikes/measurement/`](../spikes/measurement/README.md) §2 and §3.
+  is [`spikes/measurement/`](../../spikes/measurement/README.md) §2 and §3.
 
 ## Context
 

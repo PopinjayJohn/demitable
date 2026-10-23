@@ -38,7 +38,7 @@ const (
 
 // Capability is one entry in the vocabulary.
 type Capability struct {
-	ID string
+	ID   string
 	Kind Kind
 	// Host is the host function name. Empty unless Kind is Invocable.
 	Host string

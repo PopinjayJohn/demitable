@@ -8,7 +8,7 @@
 - **Extends:** ADR-0035 (secret reveals), ADR-0036 (secret syntaxes),
   ADR-0037 (campaigns are notes)
 - **Addresses:** the twenty findings of
-> [`spikes/projection/`](../spikes/projection/README.md), and the phase-1
+> [`spikes/projection/`](../../spikes/projection/README.md), and the phase-1
 > criterion "a GM-only note is provably unreachable by a player"
 
 > **Origin:** phase 0, question 2 — *does the visibility model produce the

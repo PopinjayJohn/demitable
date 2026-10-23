@@ -130,14 +130,14 @@ type ConfigField struct {
 // The mount points. Which of them are open to plugins, and which are
 // reserved, is a manifest question and not a host question — see README §6.
 const (
-	MountNoteHeader  = "note.header"
-	MountNoteSidebar = "note.sidebar"
-	MountNoteBody    = "note.body"
-	MountSidebarLeft = "sidebar.left"
+	MountNoteHeader   = "note.header"
+	MountNoteSidebar  = "note.sidebar"
+	MountNoteBody     = "note.body"
+	MountSidebarLeft  = "sidebar.left"
 	MountSidebarRight = "sidebar.right"
-	MountPanelBottom = "panel.bottom"
-	MountDialog      = "dialog"
-	MountCommand     = "command"
+	MountPanelBottom  = "panel.bottom"
+	MountDialog       = "dialog"
+	MountCommand      = "command"
 )
 
 // MountPoints is the whole list of mount points.

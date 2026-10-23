@@ -99,6 +99,7 @@ docs/design.md            the living design document
 docs/phase-plan.md        the canonical phase map, and what moved
 docs/phase-0-plan.md      phase 0: the ten questions
 docs/phase-0-brief.md     phase 0: the brief for the phase-0 agent
+docs/phase-0-report.md    what phase 0 found, and what changed
 docs/corpus-provenance.md the corpus's provenance, and why it is pinned by hash
 docs/threat-model.md    what is defended, and what is explicitly not
 docs/design-system.md   the token layer, the type scale, the colour rules

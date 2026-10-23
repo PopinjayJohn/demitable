@@ -38,8 +38,8 @@ func Manifest() *manifest.Manifest {
 		},
 		Provides: []manifest.Provides{
 			{
-				ID:            "export",
-				Kind:          manifest.KindService,
+				ID:             "export",
+				Kind:           manifest.KindService,
 				ServiceVersion: "1.0.0",
 			},
 		},

@@ -36,13 +36,13 @@ type Note struct {
 // not visible to a principal who does not own the note. This struct is the
 // shape the bridge hands back, never the raw note.
 type NoteView struct {
-	UID        string   `json:"uid"`
-	Type       string   `json:"type"`
-	Title      string   `json:"title"`
-	Body       string   `json:"body,omitempty"`
-	Path       string   `json:"path"`
-	Tags       []string `json:"tags,omitempty"`
-	Date       string   `json:"date,omitempty"`
+	UID   string   `json:"uid"`
+	Type  string   `json:"type"`
+	Title string   `json:"title"`
+	Body  string   `json:"body,omitempty"`
+	Path  string   `json:"path"`
+	Tags  []string `json:"tags,omitempty"`
+	Date  string   `json:"date,omitempty"`
 	// Inherited fields: visible at the note's base visibility.
 	Campaign   string `json:"campaign,omitempty"`
 	Visibility string `json:"visibility,omitempty"`
@@ -172,13 +172,13 @@ func matches(n Note, filter string) bool {
 
 // Visible applies the projection rules of ADR-0033, in order.
 //
-//	1. scope     — a campaign note belongs to its campaign
-//	2. deny      — visibility: gm is never serialised to a non-GM role
-//	3. workflow  — draft and submitted are owner-and-GM only
-//	4. base      — public / party / owner / private
-//	5. grants    — additional parties, never overriding 2 or 3
-//	6. default   — a campaign note defaults to party; a campaign-less note
-//	                defaults to gm
+//  1. scope     — a campaign note belongs to its campaign
+//  2. deny      — visibility: gm is never serialised to a non-GM role
+//  3. workflow  — draft and submitted are owner-and-GM only
+//  4. base      — public / party / owner / private
+//  5. grants    — additional parties, never overriding 2 or 3
+//  6. default   — a campaign note defaults to party; a campaign-less note
+//     defaults to gm
 func Visible(p Principal, n Note) bool {
 	if p.IsGM() {
 		return true
@@ -239,13 +239,13 @@ func Demo() *Store {
 			Body: "GM ONLY: the toll-keeper is the duke's cousin, and he is lying."},
 		Note{UID: "n-character-1", Type: "character", Title: "Ilia Vance",
 			Path: "Notes/Characters/Ilia Vance.md", Campaign: "stormdark", Visibility: "party",
-			Player: "p_aria",
-			Grants: []string{"n-session-1", "n-location-1"},
+			Player:     "p_aria",
+			Grants:     []string{"n-session-1", "n-location-1"},
 			Discovered: []string{"n-location-1", "n-character-2"}},
 		Note{UID: "n-character-2", Type: "character", Title: "The Toll-Keeper",
 			Path: "Notes/Characters/Toll-Keeper.md", Campaign: "stormdark", Visibility: "gm",
 			Owner: "p_aria",
-			Body: "GM ONLY: it is the duke's cousin."},
+			Body:  "GM ONLY: it is the duke's cousin."},
 		Note{UID: "n-location-1", Type: "location", Title: "The Salt Road",
 			Path: "Notes/World/Locations/Salt Road.md", Campaign: "stormdark", Visibility: "party"},
 	)
