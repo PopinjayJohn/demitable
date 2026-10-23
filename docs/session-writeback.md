@@ -59,79 +59,64 @@ ADR-0017 promised.
 
 ## 2. The write-back transaction
 
-All seven kinds of change are applied as **one batch at the end of the
-session**, not incrementally during play.
+**A partial apply, with conflict detection and reporting per key.** Settled in
+[ADR-0039](decisions/0039-partial-apply.md).
 
-### Why a batch
+> **Atomicity is per note, per key.** A character's hit points are never
+> half-updated, and a note is never left half-written. It is *not* a property
+> of the batch.
 
-- **Atomicity.** A session either lands completely or not at all. A crash
-  halfway through must not leave half the party at 3 HP and half at 27.
-- **One revert.** The whole session's changes undo with one action. This is
-  the "undo the session write-back" operation from ADR-0015.
-- **A preview.** The GM sees exactly what will change before it changes.
+For each key the session touched: write it if the file's current value still
+equals the session's base value; otherwise skip it and report it. Everything
+else in the file is untouched, and the rest of the batch still lands.
 
-### The batch
+### The write order
 
-```json
-{
-  "batchId": "01JBX…",
-  "sessionId": "ses_7f2a",
-  "actor": "gm",
-  "source": "session-writeback",
-  "operations": [
-    { "op": "update", "uid": "…", "path": "Notes/Characters/Ilia Vane.md",
-      "base": { "sha256": "9f2a…" },
-      "changes": [ { "key": "data.resources.hp", "from": 27, "to": 23 } ] },
-    { "op": "update", "uid": "…", "path": "…",
-      "base": { "sha256": "4c71…" },
-      "changes": [ { "key": "discovered", "from": [], "to": [ … ] } ] }
-  ]
-}
-```
+1. **Resolve.** For every touched key, compare the file's current value with
+   the session's base value. Produce the set of writes and the set of
+   conflicts.
+2. **Preview.** Show the GM exactly what will be written and every conflict.
+   **The preview runs the identical resolution and produces the identical
+   result** — it is the same code path, not a parallel one, so it cannot lie
+   about what will happen.
+3. **Apply.** Each write goes through the ordinary per-key write path, so
+   the journal, the watcher and the frontmatter surgery behave exactly as they
+   do for any other write.
+4. **Journal.** One entry per file, all sharing the batch id, so the batch
+   reverts as a unit.
 
-`base` is the content hash of the file **as it was when the session started**.
-It is the basis for conflict detection.
+### Recovery
 
-### Write order
+There is no staging directory — a session batch touches several directories
+and a cross-directory atomic move does not exist. The journal is the record of
+intent and recovery uses it.
 
-1. **Validate.** Every target note still exists and its current hash matches
-   `base`. If any does not, the whole batch is aborted and the conflicts are
-   reported. Nothing is written.
-2. **Dry run.** Produce a per-file diff and show it to the GM.
-3. **Apply.** Each file is written through the ordinary per-key write path, so
-   the journal, the watcher and the frontmatter surgery all behave exactly as
-   they do for any other write.
-4. **Journal.** One journal entry per file, all sharing the batch id, so the
-   batch reverts atomically.
-
----
+If an apply fails partway, the journal already holds entries for the files that
+landed. The app reports **which files landed and which did not**, and the GM
+can re-run the batch. A partial apply is a normal outcome, not an exceptional
+one.
 
 ## 3. Conflicts
 
-A conflict is a file whose hash no longer matches `base` — the GM edited it in
-Obsidian during the session, or another device wrote to it.
+> A conflict is **per key**, not per file.
 
-### Per-key compare-and-swap
+For each key the session touched:
 
-A conflict does **not** mean the batch fails. It means the app and the human
-disagree, and only about the keys the session actually touched.
+| The file's current value | Action |
+|---|---|
+| Equals the session's base value | **Write** the session's value |
+| Differs from the base, and already equals what the session wants | **Not a conflict.** Nothing to write |
+| Differs from the base value | **Conflict.** Skip the key, report it, and let the GM choose: the session's value, the human's value, or a third |
 
-So for each changed key:
+Everything else in the file is untouched. A file with three touched keys
+where one conflicts gets two keys written and one reported.
 
-| Current file value | Session's base value | Action |
-|---|---|---|
-| equals base | — | Write the session's value |
-| differs | — | **Conflict.** The session's value is not written. The key is reported, and the human's value is kept |
-| — | differs from base | The key was changed by something else *and* by the session. Same as above — a conflict |
-
-The result: the app writes only the keys it is confident about, and leaves the
-human's edits to keys it did not touch completely alone. A character sheet the
-GM edited by hand during the session keeps the GM's edits, and the session's
-HP update lands only if the GM did not also set HP by hand.
+A GM editing an unrelated field during a session costs nothing, because
+conflict detection is not per file.
 
 ### Reporting
 
-A conflicting batch is never silent. The GM sees, per file:
+A conflicting batch is never silent:
 
 ```
 Ilia Vane.md
@@ -140,32 +125,38 @@ Ilia Vane.md
   ✓ discovered            [] → [2 locations]
 ```
 
-And can resolve the conflict by taking the session's value, keeping theirs,
-or setting a third value.
-
-### Aborting
-
-The GM may abort a batch entirely. The abort itself is journalled.
-
----
+The GM can resolve conflicts individually or in bulk. A session that touched
+forty keys and conflicted on twelve produces a twelve-item list, so the UI has
+to make it scannable.
 
 ## 4. Idempotency
 
-Re-running a write-back for a session that has already been written must not
-apply anything twice.
+A batch carries a `batchId` and a `revision`, and the journal records the
+revision that was applied.
 
-Each batch carries a `batchId` and a `sessionId`. The journal records both. On
-a repeat, the core detects the batch id already present and:
+- A repeat with the **same** revision is **skipped**: "this session has
+  already been written back."
+- A repeat with a **higher** revision is a **re-apply**: the previous
+  revision is reverted first, then the new one applied. The revert writes a
+  **tombstone** marking that revision as undone.
 
-- **skips** by default, reporting "this session has already been written back",
-- or **re-applies** on explicit request, which first reverts the previous
-  batch and then applies the new one.
+The tombstone is what makes the two states distinguishable. Without it, a
+revert-then-re-apply leaves the same batch id in the journal, and "already
+written back" is indistinguishable from "written back, undone, written back".
 
-A double-written character sheet — damage applied twice — is the kind of bug
-that destroys trust in a campaign tool, so the skip is the default and the
-re-apply is deliberate.
+### Reverting
 
----
+Two operations, not three:
+
+| Operation | Meaning |
+|---|---|
+| **Revert a batch** | Undo every journal entry sharing a `batchId`, in reverse order |
+| **Revert one entry** | Undo a single change |
+
+"As of a timestamp" is **dropped**. It swept in unrelated changes — anything
+the GM made in the same window — and it was a second, subtly different
+notion of the same idea. "Undo everything since Tuesday" is a filter over
+entries, not a separate mechanism.
 
 ## 5. Discovery records
 
@@ -256,8 +247,14 @@ This is the answer to the question the write journal was designed to answer
 app does it, which is strictly better than being able to answer it
 afterwards.
 
-The preview is rendered by a plugin, not by the core, because presentation is
-a plugin concern. The data is a core service.
+**The preview runs the identical resolution as the apply**, so it cannot lie
+about what will happen. This matters more than it sounds: the preview is the
+journal's question asked *before* the app acts on it, and a preview that is a
+separate code path is a preview that can be wrong.
+
+The preview is *rendered* by a plugin, because presentation is a plugin
+concern. The *data* is a core service, and it is the same service the apply
+uses.
 
 ---
 
@@ -272,8 +269,8 @@ a plugin concern. The data is a core service.
   but the UI must make the distinction matter. *Default: both, recorded
   separately — `visited` and `heard-of` are different facts and a player
   should be able to know of a place they have never been.*
-- **Failure recovery.** If the batch fails validation halfway through
-  applying — a disk error, say — what is the recovery? The journal must be
-  sufficient to reconstruct the intended end state. *Default: the batch is
-  applied to a staging directory and moved into place, so a partial apply is
-  impossible rather than recoverable.*
+- **Failure recovery.** *Settled by ADR-0039: recovery is journal-based.*
+  There is no staging directory — a session batch touches several
+  directories and a cross-directory atomic move does not exist. The journal
+  records what landed, the app reports which files landed and which did not,
+  and the GM can re-run the batch.
