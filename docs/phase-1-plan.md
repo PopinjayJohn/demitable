@@ -102,6 +102,13 @@ schema · the export plugin.
 **M1d — the store.** SQLite, FTS5, the `notes` table.
 **M1e — the watcher.** Debounce, hash-compare, rescan backstop.
 
+> **M1a's frontmatter half already exists.** Phase 0 promoted the extractor
+> into `internal/vault/frontmatter/` — 69 tests, and a corpus audit that
+> measures the round-trip contract against the 1,692 real files. M1a wires it
+> into the vault service; it does not write it again. Read
+> [ADR-0049](decisions/0049-frontmatter-io-contract.md) before changing
+> anything in that package.
+
 **Done when**
 - A generated vault of 5,000 notes, each with 40 unknown frontmatter keys and
   a 2 KB body, is fully indexed — frontmatter parsed to `yaml.Node`, link
