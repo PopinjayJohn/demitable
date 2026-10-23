@@ -360,3 +360,208 @@ decided in the sixth decimal place.
   doubles.
 
 See [`adr-proposal.md`](adr-proposal.md).
+
+---
+
+## 2. The watcher spike (question 7)
+
+> *Does the watcher see everything, on every platform?*
+
+Code: [`watcher/`](watcher/). The driver is
+[`watcher/cmd/watcher/`](watcher/cmd/watcher/), with the commands `rescan`,
+`atomic`, `fdcount`, `chmod`, `macos` and `limits`.
+
+### The answer, in three sentences
+
+**The polling watcher sees an Obsidian-style atomic save — the temp-file
+rename over the original — in 577 µs on Linux, and the watch survives it.**
+**It holds zero file descriptors per note**, and the fsnotify watcher holds
+one per *directory* on Linux (0.0000 per note), so the macOS kqueue landmine
+is avoided by not using fsnotify there at all. **A full rescan of the
+1,693-note corpus costs 9 ms stat-only or 52 ms with content hashes**, so a
+30-second rescan interval is a **0.03% / 0.17% duty cycle** — the interval is
+set by measurement rather than by guess.
+
+### 2.1 The atomic save
+
+The acceptance test writes a note the way Obsidian does: a temporary file in
+the same directory, then a rename over the original. The rename is atomic on
+POSIX, so a reader never sees a half-written file — and, critically, **the
+inode of the path changes**.
+
+```
+mode dir   watching [/tmp/opencode/wt-test]
+  SAW THE TARGET PATH after 577µs
+  event: CREATE   .demitable-save-499323348    419µs after the rename
+  event: WRITE    .demitable-save-499323348    520µs after the rename
+  event: RENAME   .demitable-save-499323348    565µs after the rename
+  event: CREATE   atomic-test.md               577µs after the rename
+  RESULT: the change WAS seen on the target path
+  content on disk after the save: "# Original\n\nthe REPLACED body, written by a temp file and renamed over the top"
+  second atomic save:
+  SAW THE TARGET PATH again after 222µs
+  RESULT: the second change WAS seen — the watch survived
+```
+
+Two things matter here. The watcher sees the change **on the target path**,
+not only on the temporary file — an implementation that only watched the
+inode, or that ignored `RENAME`, would miss it. And **the watch survives
+the rename**: a second atomic save is seen too, 222 µs later.
+
+### 2.2 File descriptors
+
+The macOS landmine is that fsnotify's kqueue backend opens **one file
+descriptor per file**, so a 50,000-note vault means EMFILE. Measured here:
+
+| Strategy | fds | per note |
+|---|---|---|
+| The polling watcher | **+0** for 1,693 notes | **0.0000** |
+| fsnotify (inotify), watching 31 directories | +0 | **0.0000** |
+| fsnotify, watching 1,693 *files* | +0 | **0.0000** |
+
+`RLIMIT_NOFILE` on this machine is 524,288.
+
+Linux's inotify needs no descriptor per watched path, which is why the third
+row is also zero. **That is exactly why the macOS number cannot be inferred
+from the Linux one**: the same fsnotify call opens a descriptor per *file*
+on macOS's kqueue backend and none on Linux's inotify. The `macos` command
+in the driver exists to be run on a Mac, where it prints the same table and
+warns if the ratio exceeds 0.5 fds per note.
+
+**What was verified here is the polling watcher's number — zero — and the
+mechanism by which the macOS risk is avoided: by not using fsnotify there.**
+
+### 2.3 The rescan interval
+
+A full rescan of the corpus, five runs each:
+
+| | Median | Per note |
+|---|---|---|
+| stat only (size, mtime, inode) | **8.999 ms** | 5.3 µs |
+| stat + SHA-256 | **51.779 ms** | 30.6 µs |
+
+Duty cycle at each candidate interval:
+
+| Interval | stat only | stat + hash |
+|---|---|---|
+| 1 s | 0.90% | 5.18% |
+| 5 s | 0.18% | 1.04% |
+| 15 s | 0.06% | 0.35% |
+| **30 s** | **0.03%** | **0.17%** |
+| 60 s | 0.015% | 0.086% |
+
+**30 seconds is chosen by measurement.** The phase-1 plan says "a full
+rescan every 30–60 s"; the upper end is indistinguishable from the lower
+end on duty cycle, and 30 s is the safer of the two.
+
+### 2.4 What the removal looks like
+
+The phase-1 plan says the watcher must "reconcile a removal reported as
+`CHMOD` by stat-ing the path". On Linux, with the directory watched, the
+removal came through as **`REMOVE`** — directly — even while the file was
+still open elsewhere:
+
+```
+deleting a file that is open elsewhere:
+  event while the file is still open: REMOVE   chmod-test.md
+closing the descriptor:
+  stat of the path says it is gone -> the watcher must treat this as a REMOVAL
+```
+
+So the `CHMOD` case is a kqueue artefact rather than a general one. The
+rule stands — stat the path on a `CHMOD` — but on Linux it is a belt to
+braces rather than the mechanism.
+
+### 2.5 What this spike did not do
+
+- It did not run on macOS. The `macos` command is written so the same
+  binary can be run there, and it prints the three assertions that matter,
+  but **the macOS numbers are not measured**.
+- It did not test the native IME, a real drag gesture, or a vault being
+  edited by Obsidian while the watcher runs.
+- It did not measure the watcher against a vault with **writes** happening
+  concurrently with rescans — only single-threaded changes.
+
+---
+
+## 3. The baselines (question 9)
+
+> *What do the numbers actually cost?*
+
+### The answer, in three sentences
+
+**The phase-1 criterion fails: 5,000 notes take 1.23 s to index, not the
+1 s the plan allows.** **The index is not the cost — it is 12% of it**
+(144 ms of 1.23 s); the other 88% is walking the tree, reading 5,000
+files, parsing each one's frontmatter and goldmark-parsing 4.35 MB of
+markdown. **The real corpus is not the problem: 1,693 notes index in
+0.30 s**, comfortably inside any budget.
+
+### 3.1 The criterion, and what it actually measures
+
+The phase-1 plan says:
+
+> A generated vault of 5,000 notes, each with 40 unknown frontmatter keys
+> and a 2 KB body, is fully indexed — frontmatter parsed to `yaml.Node`,
+> link graph built, FTS5 populated — **in under 1 s wall clock, p95 over 5
+> runs**, on the CI runner.
+
+The generator is committed at [`gen/`](gen/) and is driven by
+[`gen/cmd/genvault/`](gen/cmd/genvault/), because the plan says it must be
+committed.
+
+The measured breakdown, five runs each, on the machine above:
+
+| | 5,000 generated notes | 1,693 real notes |
+|---|---|---|
+| **load** — walk, read, frontmatter, markdown, link graph | **1,077–1,102 ms** | **206–218 ms** |
+| **insert** — the FTS5 insert | **144–151 ms** | **83–111 ms** |
+| **wall clock** | **1,228–1,248 ms** | **294–317 ms** |
+| index size (db + wal + shm) | 6,799,360 B | 4,251,648 B |
+| peak RSS | **78.9 MiB** | — |
+
+### 3.2 The finding
+
+**The criterion fails by about 23%, and it fails for a reason nobody
+expected.** The insert is 144 ms; the *load* is 1,080 ms. The plan's
+criterion implicitly assumes the index is the expensive part, because that
+is the part a reader thinks of as "indexing".
+
+It is not. **88% of the cost is parsing.** Reading 5,000 files, splitting
+each one's frontmatter, and goldmark-parsing 4.35 MB of markdown to
+extract prose, headings, links and the community's content fences is an
+order of magnitude more expensive than putting the result into FTS5.
+
+That has two consequences for phase 1:
+
+- **The criterion has to move, or the work has to be parallelised.** The
+  obvious lever is that the corpus's own shape makes the load cheap: a
+  note's body only has to be parsed once, and the result cached. But the
+  plan says the caches are rebuildable from the vault, so a cold index pays
+  this cost every time.
+- **The criterion should be restated in terms of the thing that is
+  expensive.** "Index 5,000 notes in under 1 s" is the wrong measurement.
+  "Parse 5,000 notes in under 1 s, and insert them in under 250 ms" says
+  where the budget goes, and it is the shape of the thing that has to be
+  fast.
+
+**The real corpus is comfortably inside budget.** 1,693 notes in 0.30 s, and
+the corpus is what a real GM's vault resembles. The 5,000-note case is the
+plan's own stress case, and it is a synthetic one: 40 unknown frontmatter
+keys and a 2 KB body per note.
+
+### 3.3 Queries
+
+A 15-query sweep against the indexed corpus takes **239–246 ms** — but that
+is dominated by the corpus load the command performs to build the link
+resolver, not by the queries. **A single FTS5 query is sub-millisecond**,
+and the two-index partition does not measurably affect single-query latency.
+
+### 3.4 What this spike did not do
+
+- It did not measure a **cold** index with a cold page cache.
+- It did not measure **incremental** indexing — one note changed, the index
+  updated — which is what the watcher actually drives in production.
+- It did not measure **memory at steady state**, only peak RSS during the
+  index build.
+- It did not measure the **search + projection** combination, only search.

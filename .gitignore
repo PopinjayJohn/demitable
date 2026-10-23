@@ -2,7 +2,8 @@
 # re-fetched from its upstream and enriched into a vault by the pipeline.
 /fixtures/
 
-# Spike binaries.
-/spikes/**/search
-/spikes/**/watcher
-/spikes/**/baselines
+# The spike scripts build with `go run .`, so no binaries are produced.
+# These rules used to ignore the *binaries* named search, watcher and
+# baselines - but gitignore matches directories too, so they silently
+# excluded the whole spikes/measurement/search and
+# spikes/measurement/watcher source packages from the repository.

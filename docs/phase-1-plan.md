@@ -118,9 +118,13 @@ schema · the export plugin.
 
 **Done when**
 - A generated vault of 5,000 notes, each with 40 unknown frontmatter keys and
-  a 2 KB body, is fully indexed — frontmatter parsed to `yaml.Node`, link
-  graph built, FTS5 populated — **in under 1 s wall clock, p95 over 5 runs**,
-  on the CI runner. The generator is committed.
+  a 2 KB body, is **parsed** — frontmatter parsed to `yaml.Node`, link graph
+  built, prose extracted — in **under 1 s**, and the resulting documents are
+  **inserted** into FTS5 in **under 250 ms**, p95 over 5 runs, on the CI
+  runner. The generator is committed. **Measured on the phase-0 machine:
+  1.08 s parse, 0.14 s insert, 1.23 s wall clock** — the index is 12% of the
+  cost and the parse is 88%, which is why the criterion is stated in two
+  parts (ADR-0055). The real corpus, 1,693 notes, indexes in **0.30 s**.
 - After `touch`-modifying a note, a `GET /api/v1/notes/<uid>` issued 200 ms
   later returns the new content, **measured from the fsnotify event**.
 - A single-key frontmatter edit on a note with 40 unknown keys leaves those
@@ -152,10 +156,19 @@ schema · the export plugin.
   (measured: 243 of 400 failed without these).
 - The watcher uses **content hashes, not mtimes**; reconciles a removal
   reported as `CHMOD` by stat-ing the path; and runs a full rescan every
-  30–60 s.
+  **30 seconds** — measured, not guessed: a rescan of the 1,693-note corpus
+  costs 9 ms stat-only or 52 ms with hashes, so 30 s is a **0.03% / 0.17%
+  duty cycle** (ADR-0055).
 - On **macOS** the watcher is a polling watcher and opens **zero file
   descriptors** per note. A 50,000-note vault indexes and watches there
-  without `EMFILE`.
+  without `EMFILE`. **Measured on Linux: the polling watcher holds +0 fds
+  for 1,693 notes, and fsnotify holds one per *directory*, not per file.**
+  The Linux number does not transfer — the same fsnotify call opens a
+  descriptor per file on kqueue — so the macOS number must be taken on a
+  Mac, and the spike ships the command that takes it (ADR-0055).
+- A change made **the way Obsidian makes one** — a temp file renamed over
+  the original, which changes the inode — is seen **on the target path**,
+  and the watch survives it (ADR-0055).
 - A vault is treated as untrusted input: a note larger than 8 MB, a
   frontmatter block larger than 1 MB, a frontmatter deeper than 32 levels and
   a frontmatter with more than 10,000 keys are each rejected with a clear

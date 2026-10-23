@@ -58,6 +58,7 @@ one means writing a new ADR that supersedes it.
 | [0052](0052-the-projection-consequences-belong-in-the-ui.md) | The projection's consequences belong in the UI | Accepted |
 | [0053](0053-the-renderer-renders-constructs-not-documents.md) | The renderer renders constructs, not documents | Accepted |
 | [0054](0054-the-search-index-measured.md) | The search index, measured — headings, columns, and content fences | Accepted |
+| [0055](0055-the-watcher-and-the-index-measured.md) | The watcher and the index, measured — and one criterion that fails | Accepted |
 
 ## The shape of the decisions
 

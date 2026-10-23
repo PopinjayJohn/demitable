@@ -187,10 +187,12 @@ func cmdIndex(args []string) {
 	schema := fs.String("schema", "cols", "body|cols|headings")
 	fs.Parse(args)
 
+	loadStart := time.Now()
 	notes, err := loadCorpus(*root)
 	if err != nil {
 		fatal(err)
 	}
+	loadTime := time.Since(loadStart)
 	os.Remove(*dbPath)
 	f, err := corpus.OpenFTS(*dbPath)
 	if err != nil {
@@ -227,7 +229,9 @@ func cmdIndex(args []string) {
 	}
 	fmt.Printf("notes           %d\n", len(notes))
 	fmt.Printf("body bytes      %d\n", bodyBytes)
+	fmt.Printf("load time      %v (walk, read, frontmatter, markdown, link graph)\n", loadTime)
 	fmt.Printf("insert time     %v (total %v)\n", d, total)
+	fmt.Printf("WALL CLOCK      %v (load + insert)\n", loadTime+total)
 	fmt.Printf("db size         %d bytes (db+wal+shm)\n", size)
 	fmt.Printf("schema          %s\n", *schema)
 	fmt.Printf("community kept  %v\n", *keep)

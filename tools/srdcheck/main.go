@@ -146,6 +146,13 @@ func doVerify(root, out string) error {
 // that it does not depend on the filesystem's ordering or on the walk's
 // timing. A file that is added, removed or changed changes the hash.
 func compute(root string) (*Provenance, error) {
+	// Resolve the root first. filepath.WalkDir does not follow a symlinked
+	// root: it reports the link itself as a file and never descends, so a
+	// corpus reached through a symlink would hash as an empty directory
+	// and then fail on a read.
+	if resolved, err := filepath.EvalSymlinks(root); err == nil {
+		root = resolved
+	}
 	var paths []string
 	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
