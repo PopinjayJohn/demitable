@@ -78,7 +78,7 @@ func (b *Block) Apply(sets ...Set) ([]byte, error) {
 // several keys are set the offsets have to be recomputed against the bytes
 // as they stand. The block is therefore re-parsed for each set.
 func (b *Block) setOne(inner []byte, s Set) ([]byte, error) {
-	cur, err := parseInner(inner, b.EOL, b.Indent)
+	cur, err := parseInner(inner, b.EOL, b.Indent, b.SeqIndent)
 	if err != nil {
 		return nil, err
 	}
@@ -115,11 +115,22 @@ func (b *Block) append(key string, v Value) ([]byte, error) {
 	if len(out) > 0 && !strings.HasSuffix(string(out), eol) {
 		out = append(out, eol...)
 	}
-	st := style{eol: eol, indentUnit: b.Indent, indent: b.Indent}
-	body := renderLines(v, b.Indent, st)
+	st := style{eol: eol, indentUnit: b.Indent}
+	// A new key sits at the block's own top level, so its content is
+	// written at the top level's indentation.
+	base := ""
+	if isBlockCollection(v) {
+		base = b.SeqIndent
+		if v.Kind == KindMap {
+			base = b.Indent
+		}
+	}
+	body := renderLines(v, base, st)
 	text := key + ":"
-	if len(body) == 1 && !strings.Contains(body[0], eol) {
-		text += " " + strings.TrimPrefix(body[0], b.Indent)
+	if isBlockCollection(v) {
+		text += eol + strings.Join(body, eol)
+	} else if len(body) == 1 && !strings.Contains(body[0], eol) {
+		text += " " + strings.TrimPrefix(body[0], base)
 	} else {
 		text += eol + strings.Join(body, eol)
 	}
@@ -133,7 +144,7 @@ func (b *Block) append(key string, v Value) ([]byte, error) {
 // verify re-parses patched bytes and checks that nothing but the requested
 // keys changed.
 func (b *Block) verify(inner []byte, sets []Set) error {
-	cur, err := parseInner(inner, b.EOL, b.Indent)
+	cur, err := parseInner(inner, b.EOL, b.Indent, b.SeqIndent)
 	if err != nil {
 		return fmt.Errorf("frontmatter: the patched block did not parse: %w", err)
 	}
@@ -203,6 +214,11 @@ type valueRegion struct {
 	// firstLine and lastLine are the 0-based line indexes of the value's
 	// first and last data lines.
 	firstLine, lastLine int
+	// keyIndent is the key's own indentation, in columns.
+	keyIndent int
+	// valueIsMap reports that the value is a mapping, which YAML requires
+	// to be indented further than its key.
+	valueIsMap bool
 	// isBlock reports whether the value occupies more than one line.
 	isBlock bool
 	// leadingComments and innerComments are the comment-only lines inside
@@ -229,7 +245,10 @@ func (b *Block) regionOf(f *Field) (*valueRegion, error) {
 	keyIndent := lt.indent(keyLine)
 
 	v := f.ValueNode
-	reg := &valueRegion{start: colonEnd}
+	reg := &valueRegion{start: colonEnd, keyIndent: keyIndent}
+	if v != nil {
+		reg.valueIsMap = v.Kind == yaml.MappingNode
+	}
 
 	switch {
 	case v == nil || (v.Kind == yaml.ScalarNode && v.Tag == "!!null"):
@@ -383,14 +402,17 @@ func (b *Block) collectComments(reg *valueRegion) {
 
 // renderReplacement builds the text that replaces a value's span.
 func (b *Block) renderReplacement(reg *valueRegion, v Value) ([]byte, error) {
-	st := style{eol: b.EOL, indentUnit: b.Indent, indent: b.Indent}
-	body := renderLines(v, b.Indent, st)
+	st := style{eol: b.EOL, indentUnit: b.Indent}
+	// The value's content is written at the key's own indentation, plus
+	// whatever the block's sequence style adds.
+	base := b.keyIndentOf(reg)
+	body := renderLines(v, base, st)
 	if len(body) == 0 {
 		body = []string{"null"}
 	}
 	// The first body line carries the indent; the replacement places it
 	// after the key's own separator.
-	first := strings.TrimPrefix(body[0], b.Indent)
+	first := strings.TrimPrefix(body[0], base)
 
 	var out []string
 	if len(reg.leadingComments) > 0 {
@@ -403,7 +425,11 @@ func (b *Block) renderReplacement(reg *valueRegion, v Value) ([]byte, error) {
 	}
 
 	var text string
-	if len(body) == 1 && !strings.Contains(body[0], b.EOL) {
+	if isBlockCollection(v) {
+		// A list or a map is always written in block style, on its own
+		// lines. `key: - item` is not YAML.
+		text = b.EOL + strings.Join(body, b.EOL)
+	} else if len(body) == 1 && !strings.Contains(body[0], b.EOL) {
 		text = " " + first
 	} else {
 		text = b.EOL + strings.Join(body, b.EOL)
@@ -412,6 +438,34 @@ func (b *Block) renderReplacement(reg *valueRegion, v Value) ([]byte, error) {
 		text += b.EOL + strings.Join(reg.innerComments, b.EOL)
 	}
 	return []byte(text), nil
+}
+
+// isBlockCollection reports whether a value must be written in block style.
+//
+// A list or a map cannot follow its key on the same line: `key: - item` is
+// not a valid YAML value, and `key: {a: 1}` is a flow mapping, which is a
+// different style from the one the corpus uses.
+func isBlockCollection(v Value) bool {
+	switch v.Kind {
+	case KindList:
+		return true
+	case KindMap:
+		return true
+	}
+	return false
+}
+
+// keyIndentOf returns the indentation a value's content is written at.
+//
+// It is the key's own indentation, plus the block's sequence style for a
+// list. A nested mapping is written one step further in, because YAML
+// requires a mapping under a key to be indented more than the key.
+func (b *Block) keyIndentOf(reg *valueRegion) string {
+	base := strings.Repeat(" ", reg.keyIndent)
+	if reg.valueIsMap {
+		return base + b.Indent
+	}
+	return base + b.SeqIndent
 }
 
 // renderLines renders a value as a list of lines, each fully indented.
@@ -423,8 +477,8 @@ func renderLines(v Value, indent string, st style) []string {
 	case KindList:
 		var out []string
 		for _, e := range v.List {
-			sub := renderLines(e, indent+"  ", st)
-			out = append(out, indent+"- "+strings.TrimPrefix(sub[0], indent+"  "))
+			sub := renderLines(e, indent+st.indentUnit, st)
+			out = append(out, indent+"- "+strings.TrimPrefix(sub[0], indent+st.indentUnit))
 			out = append(out, sub[1:]...)
 		}
 		if len(out) == 0 {
@@ -473,17 +527,18 @@ func lineOf(lt *lineTable, off int) int {
 }
 
 // parseInner parses frontmatter inner bytes into a block.
-func parseInner(inner []byte, eol, indent string) (*Block, error) {
+func parseInner(inner []byte, eol, indent, seqIndent string) (*Block, error) {
 	var node yaml.Node
 	if err := yaml.Unmarshal(inner, &node); err != nil {
 		return nil, fmt.Errorf("frontmatter: the block did not parse: %w", err)
 	}
 	b := &Block{
-		Inner:  inner,
-		EOL:    eol,
-		Indent: indent,
-		Doc:    &node,
-		lines:  newLineTable(inner),
+		Inner:     inner,
+		EOL:       eol,
+		Indent:    indent,
+		SeqIndent: seqIndent,
+		Doc:       &node,
+		lines:     newLineTable(inner),
 	}
 	b.collect()
 	b.computeSpans()

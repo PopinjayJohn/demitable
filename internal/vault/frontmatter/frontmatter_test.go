@@ -283,7 +283,9 @@ func TestSurgicalWriteReplacesScalarWithBlockSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Set: %v", err)
 	}
-	want := "tags:\n  - x\n  - y\nother: keep\n"
+	// The block had no sequence to learn a style from, so the writer uses
+	// the compact style — the one every file in the SRD corpus uses.
+	want := "tags:\n- x\n- y\nother: keep\n"
 	if got := string(inner); got != want {
 		t.Fatalf("got %q want %q", got, want)
 	}
@@ -309,9 +311,69 @@ func TestSurgicalWriteReplacesFlowSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Set: %v", err)
 	}
-	want := "tags:\n  - x\n  - y\nother: keep\n"
+	want := "tags:\n- x\n- y\nother: keep\n"
 	if got := string(inner); got != want {
 		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
+// TestWriterPreservesTheBlocksSequenceStyle pins the rule that a list is
+// written in the style of the block it is written into.
+//
+// The SRD corpus uses the compact style — the items sit at the same column
+// as their key — in all 1,692 of its files. A block that uses the indented
+// style keeps it. Only a block with no sequence at all falls back to the
+// default, which is the compact style.
+func TestWriterPreservesTheBlocksSequenceStyle(t *testing.T) {
+	cases := []struct {
+		name string
+		src  string
+		want string
+	}{
+		{
+			name: "compact",
+			src:  "---\ntags:\n- a\nother: keep\n---\n",
+			want: "tags:\n- x\n- y\nother: keep\n",
+		},
+		{
+			name: "indented",
+			src:  "---\ntags:\n  - a\nother: keep\n---\n",
+			want: "tags:\n  - x\n  - y\nother: keep\n",
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			doc := mustParse(t, c.src)
+			inner, err := doc.Block.Set("tags", Strings("x", "y"))
+			if err != nil {
+				t.Fatalf("Set: %v", err)
+			}
+			if got := string(inner); got != c.want {
+				t.Fatalf("got %q want %q", got, c.want)
+			}
+		})
+	}
+}
+
+// TestWriterNeverInlinesAList pins a bug the corpus audit found.
+//
+// A one-item list rendered as a single line was written as `key: - item`,
+// which is not YAML. The parser then refused it.
+func TestWriterNeverInlinesAList(t *testing.T) {
+	doc := mustParse(t, "---\n---\n")
+	inner, err := doc.Block.Set("tags", Strings("only"))
+	if err != nil {
+		t.Fatalf("Set: %v", err)
+	}
+	want := "tags:\n- only\n"
+	if got := string(inner); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+	// And it reads back as a list, not as a string.
+	doc2 := mustParse(t, "---\n"+string(inner)+"---\n")
+	v, ok := doc2.Block.Get("tags")
+	if !ok || v.Kind != KindList || len(v.List) != 1 {
+		t.Fatalf("read back as %v", v)
 	}
 }
 
@@ -413,7 +475,7 @@ func TestWriterQuotesWikilinksInAList(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Set: %v", err)
 	}
-	want := "related:\n  - \"[[A]]\"\n  - \"[[B]]\"\n"
+	want := "related:\n- \"[[A]]\"\n- \"[[B]]\"\n"
 	if got := string(inner); got != want {
 		t.Fatalf("got %q want %q", got, want)
 	}

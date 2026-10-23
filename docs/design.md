@@ -486,13 +486,21 @@ kind: pc             # pc | npc | creature
 player: p_8f2a       # the player account that owns this note
 workflow: active     # draft | submitted | active | retired
 visibility: party    # public | party | owner | gm
-grants: [p_91bc]     # additional parties who may see this note
+grants:              # additional parties who may see this note
+- p_91bc
 faction: "[[Saltmarsh Cartel]]"
 location: "[[The Drowned Quarter]]"
 portrait: Assets/Portraits/ilia-vane.png
-visibility: party    # public | party | owner | gm  (see 5.4)
-tags: [npc, rival, harbor]
+tags:
+- npc
+- rival
+- harbor
 ```
+
+The lists are written in **block style**, in the style the block already
+uses — which is the compact style above, the one every file in the SRD
+corpus uses. The writer never writes a flow list, and never inlines a list
+on its key's line. See [ADR-0049](decisions/0049-frontmatter-io-contract.md).
 
 For `type: content`, `content_type` names the pack-declared kind — `class`,
 `species`, `spell`, `monster` — and `system` scopes it to the pack that

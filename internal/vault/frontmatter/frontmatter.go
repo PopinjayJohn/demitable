@@ -71,6 +71,18 @@ type Block struct {
 	// It is inferred from the block's own nested collections and defaults
 	// to two spaces.
 	Indent string
+	// SeqIndent is the indentation of a block sequence's items, relative
+	// to the key that owns the sequence.
+	//
+	// It is empty for the compact style, where the items sit at the same
+	// column as their key:
+	//
+	//	tags:
+	//	- npc
+	//
+	// which is what Obsidian writes and what the whole SRD corpus uses.
+	// It is the indent unit for the indented style.
+	SeqIndent string
 	// Doc is the parsed document node.
 	Doc *yaml.Node
 	// Fields are the top-level mapping's entries, in document order.
@@ -175,6 +187,7 @@ func Parse(data []byte) (*Document, error) {
 		EOL:   dominantEOL(inner, close),
 	}
 	blk.Indent = detectIndent(inner)
+	blk.SeqIndent = detectSeqIndent(inner)
 
 	var node yaml.Node
 	if err := yaml.Unmarshal(inner, &node); err != nil {
@@ -260,6 +273,57 @@ func dominantEOL(inner, close []byte) string {
 		return "\r\n"
 	}
 	return "\n"
+}
+
+// detectSeqIndent infers how a block sequence is indented relative to the
+// key that owns it.
+//
+// YAML allows a block sequence to sit at the same column as its key, and
+// that is the style Obsidian writes and the style the whole SRD corpus uses.
+// A writer that put the items one step in would change every line of every
+// list it touched, which is exactly what a surgical write must not do.
+func detectSeqIndent(inner []byte) string {
+	lines := strings.Split(string(inner), "\n")
+	keyIndent := -1
+	counts := map[string]int{}
+	for _, line := range lines {
+		trimmed := strings.TrimLeft(line, " ")
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		indent := len(line) - len(trimmed)
+		if strings.HasPrefix(trimmed, "- ") || trimmed == "-" {
+			if keyIndent < 0 {
+				continue
+			}
+			rel := indent - keyIndent
+			if rel < 0 {
+				rel = 0
+			}
+			counts[strings.Repeat(" ", rel)]++
+			continue
+		}
+		// A key line. It owns the sequence items that follow it.
+		if !strings.Contains(trimmed, ":") {
+			continue
+		}
+		keyIndent = indent
+	}
+	if len(counts) == 0 {
+		return ""
+	}
+	best, bestN := "", 0
+	for sp, n := range counts {
+		// A compact sequence wins over an indented one, because it is
+		// the style Obsidian writes.
+		if sp == "" {
+			return ""
+		}
+		if n > bestN || (n == bestN && sp < best) {
+			best, bestN = sp, n
+		}
+	}
+	return best
 }
 
 // detectIndent infers the block's indentation unit from its nested
