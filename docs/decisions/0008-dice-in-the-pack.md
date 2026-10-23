@@ -136,10 +136,15 @@ him").
 **Neutral:**
 
 - The dice engine does not need to be in phase 1. It is phase 2 work
-  > **Amended 2026-10-23.** The **engine** is phase 1 — M3 — because the
+  > **Amended twice.**
+  >
+  > *2026-10-23.* The **engine** was moved to phase 1 (M3), because the
   > Blades format gate (ADR-0012) requires a dice-pool roll to prove the
   > format is generic. The **runner** — the interface, the shared log, the
-  > roll workflows — is phase 2. The pack format is settled in phase 1; the
-  > table is played in phase 2., and the
+  > roll workflows — was phase 2.
+  >
+  > *2026-10-23, later.* Phase 1 was cut to an MVP, and **the whole dice
+  > engine moved to phase 2**, along with the 5e pack and the Blades gate.
+  > Phase 1 has no dice at all. See [`phase-plan.md`](../phase-plan.md)., and the
   pack format can gain its `dice:` block in phase 2 without invalidating
   phase-1 packs — a pack without a `dice:` block simply has no roll workflows.

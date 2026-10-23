@@ -4,7 +4,10 @@
   Tiptap/ProseMirror. Measurement showed the byte-identical contract cannot
   be met by re-serializing markdown, by any library, so the editor is now
   CodeMirror 6. See [`docs/editor-architecture.md`](../editor-architecture.md)
-  for the full evidence.
+  for the full evidence. **Amended again 2026-10-23**: the phase-1 cut moves
+  the *rich* layer — block widgets, the extension registry, the cross-browser
+  harness — to **phase 2**. Phase 1 ships CodeMirror source editing with a
+  live preview, where the buffer *is* the file.
 - **Date:** 2026-10-21
 
 ## Context

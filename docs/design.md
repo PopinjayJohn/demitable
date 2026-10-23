@@ -1008,169 +1008,53 @@ content vault.
 
 ## 7. The phases in detail
 
-### Phase 1 — The Wiki *(ADR-0004: schema + one pack, end to end)*
+**The canonical phase map is [`phase-plan.md`](phase-plan.md).** This section
+gives the shape; the phase map says what is in each phase and what moved.
 
-Deliverables, in the order the milestones build them:
+### Phase 1 — The Wiki (MVP)
 
-| | |
-|---|---|
-| The schema (§5) | note types, the frontmatter contract, the visibility model, write semantics |
-| The **core services** | the formula engine, the dice engine, the pack loader and linter |
-| The **5e pack** | mechanics and content declarations, plus the SRD content vault (ADR-0023) |
-| The **plugin host** | registry, capabilities, tiers, surface hosts, the bridge (ADR-0019, ADR-0020, ADR-0027, ADR-0029) |
-| The **API contract** | `/api/v1`, the compute endpoints, the WebSocket protocol ([`api.md`](api.md)) |
-| The **accounts and projection** | local accounts, join codes, the trust boundary (ADR-0009) |
-| The **editor plugin** | CodeMirror 6, block widgets, the golden corpus, byte-identical round-trip (ADR-0021) |
-| The **browser and search plugins** | typed views, dashboards, the two search indexes |
-| The **scaffolder** | `demitable init`, the templates, the demo campaign (ADR-0025) |
-| The **campaign export plugin** | the second, non-UI plugin — where `api: 1` freezes (ADR-0019) |
-| A **worked example campaign** | the acceptance test, exercising the projection layer |
-| The **Blades pack** | the format gate, run before the schema is frozen (ADR-0012) |
+> **A campaign wiki, with secrets.**
 
-Deferred to **phase 1.5**: the archive import endpoint (ADR-0025) and the
-MCP plugin (ADR-0014). The reasons are in
-[`phase-1-plan.md`](phase-1-plan.md) §"Phase 1.5".
+The core UI/UX, the vault service, the user system, and markdown. The
+campaign is the product: a GM browses and writes it, and their players get a
+filtered view of the same thing.
 
-Plus the **Blades pack** as the format-validation gate (ADR-0012).
+The core declares the campaign's own vocabulary — `campaign`, `location`,
+`faction`, `item`, `quest`, `session`, `handout`, `message`, `journal`,
+`table`. A **pack** declares the system's vocabulary under `type: content`
+with a `content_type` and a `system` (ADR-0033). Phase 1's pack format is a
+**deliberate subset**: content type declarations, typed fields, and the
+visibility default. No formulas, no resources, no dice.
 
-The full milestone breakdown, with acceptance criteria, is in
-[`phase-1-plan.md`](phase-1-plan.md).
+The editor is CodeMirror with a live preview, so the buffer *is* the file and
+the round-trip contract holds by construction (ADR-0021). The plugin host has
+its shape — registry, capabilities, services, surface hosts, a bridge — with
+compiled-in plugins only; the WASM sandbox is phase 2 (ADR-0020).
 
-The hard problems, in order:
+The phase-1 exit criteria are in
+[`phase-1-plan.md`](phase-1-plan.md): eight milestones, twenty-one
+sub-milestones, ~37–49 weeks full-time.
 
-- **The plugin API** (ADR-0019). The highest-risk artifact in the project,
-  because everything depends on it and changing it breaks everything. The
-  method that manages this risk is to *not design it up front*: write the
-  editor as the first plugin against a provisional API, then a non-UI plugin
-  against the result, and freeze it at `api: 1` only then.
-- **The editor plugin** (ADR-0021). CodeMirror, the Obsidian syntax
-  extensions, the block-widget model, the raw-block escape hatch, and the
-  golden corpus that makes byte-identical round-trip an automatable gate
-  rather than a hope.
-- **Writing to the vault without losing the user's work** (§5.5). Everything
-  downstream depends on getting this right.
-- **The formula engine.** Small language, safe evaluator, dependency-ordered
-  resolution, cycle detection, and a validator that reports pack errors
-  before the pack is ever used.
-- **The vault index.** Parse frontmatter, build uid/alias/link indexes, keep
-  them fresh via the watcher. This is also what the projection layer queries.
-- **Visibility filtering.** Correctness here is a security property: a leak of
-  a GM-only note is a failure of the product, not a bug.
-- **The write journal** (ADR-0015), which must cover every write path the app
-  has — including the ones added later.
+### Phase 2 — The System
 
-Out of scope for phase 1: dice rolling UI, encounters, the board, audio,
-player-facing character creation.
+The rules layer. The pack format completed — resources, formulas, dice,
+sheets — the 5e pack, the SRD content vault and the Blades gate, the
+creation wizard and character sheets, the rich editor's block widgets and
+extension registry, the WASM plugin tier, and the query language.
 
-### Phase 2 — Campaign Manager
+This is where the **system-agnostic** claim is proved, by the Blades gate
+(ADR-0012).
 
-**Character creation wizard, used by the GM and by players.** Driven entirely
-by the pack: steps, choices and point-allocation rules come from the pack's
-YAML. The wizard *writes a character note*. It does not live in a database.
-Output is frontmatter a sheet renders, plus a human-readable sheet section in
-the note body.
+### Phase 3 — The Table
 
-Two paths through the same wizard (ADR-0009):
-
-- **GM** — creates a character and approves it in one step. Also creates NPCs,
-  which use a lighter path: a statline plus a couple of traits, because the
-  NPC side is where a GM actually feels the volume.
-- **Player** — drafts a character in `draft`, visible only to them and the GM,
-  then submits it. The GM reviews and approves; on approval it becomes
-  `active` and visible to the party per its own `visibility`. A rejected
-  character returns to `draft` with feedback.
-
-**Character sheets.** Two representations on purpose:
-- `data:` frontmatter — structured, queryable, machine-written.
-- A rendered sheet in the note body — human-editable, holds freeform notes,
-  survives without the app.
-
-The app provides a live editor view; the note body is the durable fallback.
-
-**Encounter planner.** Pick a location → pull candidate NPCs and factions from
-the vault → build the group → budget it against the pack's difficulty model →
-produce an `encounter` note with initiative order, tactics, and map reference.
-
-**Encounter runner.** Live initiative tracker, HP and conditions, a shared
-**dice log** using the pack's workflows (§6.2), and on close, write-back to
-the participants' character notes via §5.5.
-
-The hard part of phase 2 is the **difficulty model**, which is entirely
-system-specific — and it is exactly what the pack's `difficulty` block exists
-to solve. The second hard part is the dice engine, which must serve
-d20-family, dice-pool and roll-under systems from one implementation.
-
-### Phase 3 — The Table (2D VTT)
-
-A live board in the player web client, plus an encounter plan in the vault.
-The two are the same data: the encounter note is the plan; the server holds the
-live state.
-
-**MVP, and no more** (ADR-0016):
-grid and hex snap · image map background · tokens with portrait, HP and
-conditions · fog of war (reveal + GM-only layer) · initiative sidebar · dice log
-· measurement · player view with pan and zoom.
-
-Deliberately excluded: **map editing** (walls, doors, regions), dynamic
-lighting, line-of-sight rules, 3D anything, in-map scripting. The GM brings a
-map image; map authoring is a second application layered on the first, and
-Foundry's scene editor is a project of its own. "2D" is the constraint that
-makes this tractable.
-
-Maps live as attachments in the vault (`Assets/Maps/`) referenced from the
-encounter note, so a campaign with 200 maps still syncs as files.
-
-The player client is a **PWA** — players open a URL on their phone, join with
-a session token, see the board. Nobody installs anything. This is the single
-biggest adoption lever in the project.
+Live play. Sessions, seats, the session tier, the scratch log, the encounter
+runner, the 2D tabletop with fog, the shared display, chat, and the session
+write-back contract (ADR-0039).
 
 ### Phase 4 — The Session
 
-**Recording.** Desktop capture (system audio + mic) → a timestamped transcript.
-
-**Transcription is pluggable, with a local engine as the default**
-(ADR-0018): `whisper.cpp` spawned as a sidecar and driven over JSON on stdio,
-with `faster-whisper` and cloud providers as configurable alternatives. Local
-by default, and it must be: a session contains unrehearsed player speech and
-the GM's unreleased secrets. Player consent is a design requirement, not a
-checkbox in settings.
-
-**Live mode is a stretch goal, not the baseline.** On real game audio —
-overlapping speech, dice, table talk, accents — a local model is not
-dependable enough to caption live. The baseline is record, transcribe after,
-review, log.
-
-**Speaker attribution.** Manual tagging in a review UI (click a name on a
-segment). Manual is more accurate than automatic diarization and always
-available. Auto-diarization later, optional.
-
-**Session log.** Transcript → structured summary (scenes, NPCs introduced,
-decisions, loot, loose threads) → written into the session note via the marked
-section from §5.5. An LLM does this, using whatever model the user brings
-(local Ollama or a hosted key). This is where AI earns its place: not
-generating content, but *filing* it into a schema.
-
-**Music from mood.** The mood signal comes from transcript pace, volume and
-sentiment; explicit GM cue markers; and optionally a tension state the
-encounter runner tracks. It maps onto a **music library** of local files with a
-metadata sidecar: mood tags, intensity, duration, loop points. Auto-queue with
-crossfade.
-
-**Assistive by default.** The system suggests a cue; the GM taps to accept.
-Full auto is a setting people will want and will immediately complain about. A
-table that fades to the wrong track mid-dialogue is worse than no music.
-
-### Between sessions
-
-Players are not locked out of the app between sessions (ADR-0017). A player can
-log in and see their character, fully editable by them, plus a read-only view
-of the campaign filtered by the same projection rules used during a session —
-the locations they have visited, the NPCs they have met, the quests they are
-party to, and anything marked `visibility: party`. Nothing else.
-
-This makes the projection layer do real work continuously rather than only
-under pressure at game time, so its bugs surface early. It also gives the
-session write-back a second consumer, which keeps that contract honest.
+Recording, transcription, session logs, and mood-driven music (ADR-0018,
+ADR-0034).
 
 ## 8. Risks
 

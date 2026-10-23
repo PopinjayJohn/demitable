@@ -1,6 +1,10 @@
 # ADR-0014: An MCP server over the vault ships in phase 1
 
-- **Status:** Accepted
+- **Status:** Accepted, then **deferred to phase 1.5** by the phase-1 cut.
+  The MCP endpoint drags an external protocol into the first release for a
+  Medium-risk, off-by-default feature, and any second non-UI plugin proves
+  the API is not editor-shaped — the export plugin does that, in phase 1.
+  See [`phase-plan.md`](../phase-plan.md).
 - **Date:** 2026-10-21
 
 ## Context

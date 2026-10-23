@@ -95,6 +95,14 @@ unknown-to-us syntax is the worst failure this editor can have.
 
 ## Note
 
-This ADR makes phase 1 noticeably larger. That is accepted deliberately: the
+This ADR made phase 1 noticeably larger. That was accepted deliberately: the
 editor is the product's floor, and building it after phase 2 would mean
 retrofitting it into every feature.
+
+> **Amended 2026-10-23.** Phase 1 was cut to an MVP, and the editor was
+> **halved**: phase 1 ships CodeMirror source editing with a live preview,
+> where the buffer *is* the file and the round-trip contract is satisfied
+> trivially. The rich layer — block widgets, the extension registry, the
+> cross-browser harness — moves to phase 2 (ADR-0021). The editor is still
+> in phase 1, because it is the product's floor; it is just not the expensive
+> version of itself yet.

@@ -1,8 +1,10 @@
 # ADR-0007: The first system pack is D&D 5e (SRD 5.2), with schema invariants to prevent 5e-shaped assumptions
 
 - **Status:** Accepted, amended by ADR-0023 — the pack holds *mechanics* only;
-  the SRD *content* ships as an enriched vault template, not inside the pack.
-  See [`srd-vault.md`](../srd-vault.md).
+  the SRD *content* ships as an enriched vault template, not inside the pack —
+  and by the phase-1 cut, which moved the **5e pack and the linter to phase
+  2**. Phase 1 ships a minimal pack format with an example pack. See
+  [`phase-plan.md`](../phase-plan.md).
 - **Date:** 2026-10-21
 
 ## Context
@@ -40,7 +42,7 @@ regardless of the system:
 7. Difficulty is modelled by the **pack**, in the pack's own terms. The app
    must not assume an XP budget.
 
-These are enforced by a **pack linter** in phase 1: a pack that assumes a
+These are enforced by a **pack linter** in phase 2: a pack that assumes a
 resource exists where the schema provides none, or that hard-codes
 level-based maths in the wrong layer, fails lint.
 

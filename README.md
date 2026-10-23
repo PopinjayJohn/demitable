@@ -68,11 +68,14 @@ Six ideas hold it together:
 
 | Phase | Name | Deliverable |
 |---|---|---|
-| 1 | The Wiki | Core, plugin host, vault schema, packs, the editor plugin, accounts, projection, the export plugin, the Blades gate, a worked campaign |
+| 1 | The Wiki (MVP) | Core UI/UX, the vault, the user system, markdown. A campaign wiki, with secrets |
 | 1.5 | — | Archive import, the MCP plugin, and whatever phase 1 taught us to change |
-| 2 | Campaign Manager | Character creation wizard (GM and players), character sheets, encounter planner and runner, dice |
-| 3 | The Table | 2D VTT: maps, tokens, fog of war, initiative, player web client |
+| 2 | The System | Pack format completed, formula and dice engines, the 5e pack and SRD content, the Blades gate, the creation wizard, character sheets, the rich editor |
+| 3 | The Table | Live sessions, the encounter runner, the 2D tabletop, chat, the shared display |
 | 4 | The Session | Speech-to-text recording, session logs, mood-driven music |
+
+The canonical map, including what moved and why, is
+[`docs/phase-plan.md`](docs/phase-plan.md).
 
 ## Plugins
 
@@ -92,7 +95,8 @@ reserved for embedding a third-party page.
 
 ```
 docs/design.md            the living design document
-docs/phase-1-plan.md      milestones and acceptance criteria
+docs/phase-plan.md        the canonical phase map, and what moved
+docs/phase-1-plan.md      phase 1: milestones and acceptance criteria
 docs/tech-stack.md        the complete stack, with reasons
 docs/api.md               the API contract — what a client may rely on
 docs/operations.md        running it 24/7, exposed, and safely

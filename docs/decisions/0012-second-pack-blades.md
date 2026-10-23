@@ -1,6 +1,9 @@
 # ADR-0012: The second pack is Blades in the Dark, as a format proof
 
-- **Status:** Accepted
+- **Status:** Accepted, amended by the phase-1 cut — the Blades gate is
+  **phase 2**'s gate, not phase 1's, because the 5e pack and the formula
+  and dice engines moved there with it. See
+  [`phase-plan.md`](../phase-plan.md).
 - **Date:** 2026-10-21
 
 ## Context

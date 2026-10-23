@@ -2,6 +2,7 @@
 
 - **Status:** Accepted, amended by ADR-0025 (content reaches users through
   `demitable import <url>` — an archive at a URL — not through the app) and
+  by the phase-1 cut, which moved the SRD content vault to **phase 2** and
   by the amendment below (the enriched vault is *published*, not bundled)
 - **Date:** 2026-10-22
 - **Amended 2026-10-22:** the corpus is **version 2.28.1 and only manually
