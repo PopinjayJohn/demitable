@@ -1,6 +1,9 @@
 # ADR-0030: SQLite holds the derived caches — the search index and live session state
 
 - **Status:** Accepted
+- **Amended by:** ADR-0054 — the FTS5 table gains a column per boosted or
+  filtered field, and the community's content fences are indexed as prose
+  rather than skipped as code
 - **Date:** 2026-10-22
 - **Amends:** ADR-0004 (Rule 2) and ADR-0013 (search)
 

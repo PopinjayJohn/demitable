@@ -1,6 +1,8 @@
 # ADR-0013: Search is literal for names and links, ranked for body text
 
-- **Status:** Accepted, amended by **ADR-0030** — the ranked body index is
+- **Status:** Accepted
+- **Amended by:** ADR-0054 — the literal index also covers the note's section
+  headings, amended by **ADR-0030** — the ranked body index is
   SQLite FTS5, persisted outside the vault; the literal index stays in memory
 - **Date:** 2026-10-21
 
