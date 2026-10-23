@@ -37,7 +37,17 @@ Phase 1 delivers:
    populated, used as the acceptance test.
 
 The schema is considered validated when a complete character can be created,
-edited, rolled and re-read without any of it needing to be hand-fixed.
+edited, **formula-evaluated** and re-read without any of it needing to be
+hand-fixed.
+
+> **Amended 2026-10-23.** "Rolled" was ambiguous, and three documents
+> disagreed about it: this ADR said a character is "rolled", ADR-0008 said
+> the dice engine is phase 2 work, and the phase-1 plan had the dice engine
+> as a phase-1 milestone. The boundary is now: the **dice engine** is phase 1
+> (M3), because the Blades format gate (ADR-0012) needs a dice-pool roll to
+> prove the format is generic. The **dice runner** — the interface, the
+> shared log, the roll workflows — is phase 2. A character is
+> *formula-evaluated* in phase 1, and *rolled* in phase 2.
 
 ## Consequences
 

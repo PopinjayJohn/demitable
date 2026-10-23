@@ -45,6 +45,12 @@ one means writing a new ADR that supersedes it.
 | [0039](0039-partial-apply.md) | The write-back is a partial apply with per-key conflict reporting | Accepted |
 | [0040](0040-frontmatter-field-namespace.md) | The app's frontmatter fields are bare, with a tightened reserved set | Accepted |
 | [0041](0041-one-server-one-vault.md) | One server serves one vault, and that vault holds many campaigns | Accepted |
+| [0042](0042-formula-context-model.md) | Formulas are evaluated against an explicit, layered scope | Accepted |
+| [0043](0043-markdown-processing.md) | Markdown is read in three places, and the write path uses no parser at all | Accepted |
+| [0044](0044-segments-and-scales.md) | The core schema expresses segmented tracks and severity scales | Accepted |
+| [0045](0045-plugin-abi-and-freeze.md) | The plugin ABI, the capability mapping, and the `api: 1` freeze | Accepted |
+| [0046](0046-surface-contract.md) | The app provides the shadow host, and the core renders plugin config | Accepted |
+| [0047](0047-query-language.md) | One fixed predicate language for `list_by`, shared by REST and MCP | Accepted |
 
 ## The shape of the decisions
 
@@ -94,6 +100,13 @@ tabletop does tokens, fog and initiative, and does not edit maps.
 Transcription is pluggable with a local default. The editor is CodeMirror 6
 with block widgets, held to byte-identical round-trip — a change forced by
 measurement, since no markdown library can re-serialize byte-identically.
+
+**The blocking decisions** — 0042…0047, all settled before phase 1 starts:
+the formula language's layered scope; the three markdown readers and the
+parser-free write path; pools and tracks, flags and scales in the core schema;
+the plugin ABI, the capability mapping and the `api: 1` freeze; the shadow
+host contract and the config UI; and one query language shared by REST and
+MCP.
 
 **Scope** — 0004, 0032. Phase 1 proves the schema with one pack end to end,
 and the whole thing ends with a real campaign. Fifteen things are explicitly

@@ -1200,41 +1200,37 @@ session write-back a second consumer, which keeps that contract honest.
 
 ## 9. Open questions
 
-1. **Maps and assets** — settled in ADR-0026: served by the core, filtered by
-   the projection, cached by clients.
-2. **Vault access model** — one vault per campaign, or can a campaign span
-   several vaults? *Default: one vault per campaign. A GM running three
-   campaigns opens three vaults.*
-3. **Session write-back** — settled in
-   [`session-writeback.md`](session-writeback.md): one note per session, the
-   world is the GM's, and the remaining items carry defaults.
-4. **The plugin API's concrete surface** — deliberately provisional. See
-   [`plugin-api.md`](plugin-api.md); its own open questions are at the end.
-5. **The third pack** — Savage Worlds (ADR-0007). A fourth pack for a system
-   the maintainers actually play should follow before the project is
-   public-facing.
-6. **Phase 2, 3 and 4 plans** — milestone plans exist for phase 1 only.
-7. **Plugin UI depth** — settled: iframes for surfaces, plus in-document web
-   components under an explicit `dom.inline` capability (ADR-0027).
-8. **Updating content from the remote** — an import is a one-shot operation.
-   Whether the app should offer an "update" affordance that re-fetches a
-   known URL is deliberately undecided: the app should not decide when a
-   user's campaign changes underneath them.
-9. **The API contract** — drafted in [`api.md`](api.md); the endpoint list
-   needs to become a real OpenAPI document, and the query language for
-   `list_by` needs defining. The MCP plugin and the REST API should share
-   that one language.
-10. **A native client** — the contract enables one; the SDK is a separate
-   product decision, not an implication.
-11. **Deployment recipes** — drafted in [`operations.md`](operations.md):
-    Caddy, nginx and tunnel setups, a `systemd` unit, the exposure flag, and
-    the check before exposing. Still to write: the "how to secure this" guide
-    for a non-sysadmin GM, and the multi-campaign routing story.
-12. **Session retention** on a server that runs for months.
+**Closed.** The four pre-phase-1 decisions and the six blocking decisions
+are all settled:
 
-**Settled:** the SRD corpus is version 2.28.1, manually acquired, and both it
-and the SRD itself are CC-BY-4.0 — so the enriched vault redistributes freely
-with attribution, and there is no share-alike constraint on the repository.
+| | |
+|---|---|
+| A campaign is a first-class note | ADR-0037 |
+| Two credentials in disjoint code spaces; principals, not roles | ADR-0038 |
+| The write-back is a partial apply with per-key conflict reporting | ADR-0039 |
+| The frontmatter fields are bare, with a tightened reserved set | ADR-0040 |
+| One server serves one vault; the vault holds many campaigns | ADR-0041 |
+| The formula language's layered scope | ADR-0042 |
+| Three markdown readers, and a parser-free write path | ADR-0043 |
+| Pools and tracks, flags and scales, in the core schema | ADR-0044 |
+| The plugin ABI, the capability mapping, the `api: 1` freeze | ADR-0045 |
+| The shadow host contract and the config UI | ADR-0046 |
+| One query language for `list_by`, shared by REST and MCP | ADR-0047 |
+
+**Still open, and they are product decisions rather than technical ones.**
+Each is cheaper as a schema decision now than as a feature later:
+
+1. **The scratch log** — an in-session capture tier, so the GM can catch
+   "the Duke's steward was named Harlan" at minute 40 rather than at the end.
+2. **Chat** — a table channel, GM→player, player→GM, and an OOC marker.
+3. **The shared display mode** — one screen for the party, with the GM
+   pointing it at things. This changes the projection's *shape*, so it is a
+   phase-1 decision whether or not the feature is phase 3.
+4. **The personal player journal** — the player's own prose, which players
+   ask for by name.
+5. **The campaign lifecycle** — handover to a new GM, retirement, archival.
+6. **Whether the SRD vault stays a development artefact** or is published as
+   an importable archive for users. The licence permits either.
 
 ## 10. Change log
 
@@ -1321,3 +1317,11 @@ with attribution, and there is no share-alike constraint on the repository.
   campaigns** (ADR-0041). The vault is the unit of everything — backup, sync,
   sharing, and the trust boundary — and the accounts file lives inside it, so
   it travels with the campaign. The URL carries the campaign, not the vault.
+- **2026-10-23** — The plan was **rewritten**: thirteen milestones became
+  thirty-seven named sub-milestones, every "Done when" is a checkable
+  predicate with a fixture or a threshold, the sequencing diagram was
+  corrected, and **the timeline is now stated honestly** — ~70–90 weeks
+  full-time, or ~3.5–4.5 years part-time, for phase 1 alone. The phase
+  boundary was fixed across three documents that disagreed about it
+  (ADR-0004, ADR-0008, and the plan), and the six blocking decisions were
+  settled as ADR-0042…ADR-0047.

@@ -1,0 +1,79 @@
+# Demitable — project summary and assessment
+
+## What the project is
+
+Demitable ("two make a full table") is a design-phase TTRPG campaign operating system: a single Go binary + Svelte SPA that turns a plain markdown directory into a game — character sheets, encounter planning, a 2D table, recorded sessions — with a server-side projection layer that keeps the GM's secrets off players' machines. It is system-agnostic (game systems are YAML "packs": D&D 5e first, Blades in the Dark as the format proof), Obsidian-compatible (the vault is just files), and plugin-based (core + compiled-in/WASM/vault-CSS plugins). There is no code yet — only design docs, ADRs, and research reports.
+
+Phases: 1 Wiki (core, schema, packs, editor, accounts, projection, export plugin, Blades gate, worked campaign) → 1.5 (archive import, MCP) → 2 Campaign Manager (creation wizard, sheets, encounters, dice) → 3 The Table (2D VTT, player client) → 4 The Session (STT, logs, music).
+
+---
+
+## 1. Can a new player join, create their character, and immediately be in the game?
+
+Partially — the foundations land in phase 1, the player-facing experience lands in phases 2–3.
+
+What phase 1 delivers for a player:
+- Local accounts, join codes (single-use, 24h), session cookies + bearer tokens, rate limiting (M8, ADR-0009).
+- Character ownership and a review workflow: a player drafts a character (draft → submitted → GM approves → active), visible only to them and the GM until approved (ADR-0009).
+- Projection: a player sees their own draft, another player's draft as nothing, and active characters per visibility (M8, ADR-0033).
+- Between sessions, a player can log in and read their character plus a filtered view of the campaign (locations visited, NPCs met, party-visible notes) (ADR-0017).
+
+What is not in phase 1:
+- The character-creation wizard itself is explicitly phase 2 ("player-facing character creation" is out of scope for phase 1; only the accounts and review workflow are in scope).
+- The player client (PWA, board, pan/zoom, dice log) is phase 3.
+- No chat, no handout-reveal concept (only recently added as a note type in ADR-0033), no personal player journal, no portable/printable sheet, no shared-display mode for in-person tables — all flagged as gaps in the player/GM needs research (G2, G3, G5, G9, G1).
+
+So a new player can join and be seen by the system in phase 1, but cannot create a character or play at the table until phases 2–3. The "immediately be in the game" bar is not met by phase 1.
+
+## 2. Does a GM have all the tools to plan, prepare, and run a session?
+
+Strong for authoring/planning; incomplete for running; several table staples are gaps.
+
+Phase 1 gives the GM: the vault wiki (typed views, dashboards, backlinks, search), the byte-identical editor, packs/formulas/dice engine, accounts and projection, scaffolding, the export plugin. Phase 2 adds: character creation (GM path, lighter NPC path), character sheets, the encounter planner (location → NPCs/factions → budget against the pack's difficulty model → encounter note) and the encounter runner (initiative, HP/conditions, shared dice log, write-back). Phase 3 adds the 2D board; phase 4 adds recording/transcription/music.
+
+Gaps the research (G1–G10) flags as real and partly unaddressed:
+- Handouts — only recently modelled as a handout note type with journalled reveals and per-player grants (ADR-0033); the "push to the table" UX is still phase 2/3.
+- No chat / private message channel (G3) — not yet in the plan.
+- No in-session capture (G4) — the write-back contract batches everything at session end; a "scratch log" tier was proposed but not adopted.
+- No pre-session ritual (G6) — no recap, session-zero, safety tools, house rules, scheduling.
+- Shared display / in-person play (G1) — the player client assumes one device per player; no GM-controlled shared view.
+- Campaign lifecycle (G10) — one server = one vault = one campaign was the assumption; ADR-0033/0037 recently added a campaign field and campaign-as-a-note to allow many campaigns per vault, but handover, retirement, and archival are still open.
+- Portable sheets (PDF) (G9), blind rolls / player-initiated rolls (G8), paragraph-level secrets (G7, now partially addressed by secret callouts in ADR-0035).
+
+Verdict: the GM is exceptionally well served for knowledge management and planning (this is the product's core strength), adequately served for running once phases 2–3 ship, but missing several staples that rival tools treat as first-class.
+
+## 3. Is the phase 1 implementation plan solid?
+
+No — not as written. The architecture and stack are sound, but the plan needs substantial rework.
+
+The adversarial review (and the implementation-risks report) identify, among others:
+
+- Scope incoherence. Milestones reference phases 2/3 features (M10 "an SRD monster becomes a token", "an SRD class appears as a wizard option"; M12 proof 6 "the encounter planner"; M5's SSRF and round-trip criteria). ADR-0004 says "rolled" (dice) is in phase 1; ADR-0008 says the dice engine is phase 2; the plan has M3 (dice engine) in phase 1. Three documents disagree on the phase boundary.
+- Milestones are too large. The 13 milestones decompose into ~35. Estimated ~70–90 weeks full-time, ~3.5–4.5 years part-time — and the design nowhere says so.
+- Sequencing diagram has wrong/missing edges (M6→M7 missing, M5/M7 ordering, M8/M9→M10 missing, etc.).
+- Many "Done when" criteria are untestable ("usable", "correctly", "the same numbers", "without touching the docs").
+- ~50 open decisions the plan assumes are settled: formula context/scope model, WASM ABI, api: 1 freeze mechanism, shadow-host contract, query language for list_by, Blades clock/harm representation in the core schema, sanitisation policy, Go markdown parser, campaign merge layout, graceful shutdown, exposure-checklist ownership, seat/guest identity (which has no ADR at all), import enablement flag, GM authentication flow, and more.
+- The editor architecture as written cannot meet its own contract. @tiptap/markdown round-trips 1/46 fixtures; no markdown library round-trips byte-identically (CommonMark's parse is lossy by design). The fix is CodeMirror 6 + a position-aware parser with splicing (the plan was amended to CodeMirror, but the round-trip strategy still needs settling).
+- Write-back atomicity contradicts itself (§2 all-or-nothing vs §3 partial-apply), and the "staging directory" recovery default is unimplementable across directories.
+- Visibility model was incomplete (default, property-level grants, no-owner case, workflow gating, public vs auth) — now substantially closed by ADR-0033/0037/0034, which is good but happened late.
+- Plugin trust model claims (b) implements (a) — the DoD says GM-only notes are unreachable by plugins, but compiled-in plugins are trusted with everything and plugin UI runs in the app's document.
+- Licence boundary numbers are wrong — the SRD count (7,012) matches the whole corpus, not the SRD subset (3,990 per srdKeys); zero backgrounds in the SRD despite a background content type and a wizard step for it.
+- Cross-browser shadow harness is not in the repository and is positioned after the plugin host, contrary to ADR-0029.
+- ADR hygiene issues — missing ADR-0028, in-place amendments to accepted ADRs, nine decisions existing only as change-log lines, contradictions table of 49 items.
+
+What is solid: the core stack is validated (modernc.org/sqlite, wazero, fsnotify mitigations, FTS5), the four-rule architectural thesis is coherent, the visibility/campaign model is now well-specified (ADR-0033/0037), and the recent ADRs (0034–0037) closed many of the gaps the research found. The plan needs restructuring, not abandonment — but it is not currently buildable as written.
+
+---
+
+## Recommendations
+
+1. Rewrite the phase-1 plan before any code is written. Split the 13 milestones into the ~35 sub-milestones the decomposition implies, re-point every cross-phase criterion to its owning phase, and rewrite each "Done when" as a checkable predicate with fixtures and thresholds.
+2. Fix the phase boundary first. Amend ADR-0004 to drop "rolled" (or define it as formula-evaluated), amend ADR-0008 to distinguish the dice engine (phase 1, M3) from the dice runner (phase 2), and remove tokens/wizard/encounter-planner language from phase-1 acceptance criteria.
+3. Resolve the blocking open decisions as ADRs before M1/M2. Formula context/scope model, the Go markdown parser choice, Blades clock/harm representation (or an explicit core schema change), the WASM ABI and capability→host-function mapping, the api: 1 freeze and shim mechanism, the shadow-host contract, the list_by query language, and the seat/guest identity model (which needs its own ADR).
+4. Settle the editor architecture explicitly. Adopt CodeMirror 6 + a position-aware parser with source splicing, and define the round-trip contract as "splice, never re-serialize" — then update ADR-0021 accordingly. Drop @tiptap/markdown from the critical path.
+5. Fix the write-back contract. Choose partial-apply with per-key conflict reporting (it matches M1's compare-and-swap), remove the staging-directory default, and define batch revert by id with a (batchId, revision) idempotency key.
+6. Correct the SRD/licence numbers and the background content type. Recompute the SRD set from srdKeys, make M5's acceptance criteria numeric against it, and either drop background from the pack's content declarations or document where background content comes from. Pin the upstream corpus URL, commit hash, and licence text in srdcheck.
+7. Put the exposure checklist, the cross-browser harness, and graceful shutdown under named milestones with owners and "Done when" criteria, and add seat/session-code threat-model items to the exposure checklist.
+8. Honest the plugin trust model. Adopt position (a) — plugins are trusted with the vault when running as the GM; the capability model constrains accidental overreach, not hostile plugins — and delete "unreachable by plugins" from the phase-1 DoD, or else re-argue shadow DOM as a real origin boundary.
+9. Address the player/GM gaps before they become retrofit work. Adopt (or explicitly reject) the proposed scratch log, handout reveal UX, chat, shared-display mode, personal player journal, and campaign lifecycle model — each is cheaper as a schema decision now than as a feature later.
+10. Set expectations on scope and timeline. State honestly that phase 1 is ~70–90 weeks of full-time work (or ~3.5–4.5 years part-time) and that all four phases are a multi-year effort. A 35-milestone phase 1 with no timeline is the single largest credibility risk in the document set.
