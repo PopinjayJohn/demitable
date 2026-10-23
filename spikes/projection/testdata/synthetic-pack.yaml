@@ -1,0 +1,54 @@
+id: example
+name: Example
+version: 1.0.0
+
+# The pack declares the visibility of each content type and of each property
+# (ADR-0033, ADR-0040).
+#
+# The content type's `visibility` is a *write-time* default: the SRD
+# enrichment applies it to the notes it emits. It is NOT a projection-time
+# fallback, which is the point of `content/owlbear.md` in the synthetic
+# corpus.
+
+content:
+  - id: character
+    label: Character
+    visibility: party
+    fields:
+      - { key: resources.hp, label: Hit Points, type: number, visibility: owner }
+      - { key: resources.true-name, label: True Name, type: text, visibility: gm }
+      - { key: attributes.str, label: Strength, type: number }
+      - { key: allegiance, label: Allegiance, type: text }
+
+  - id: location
+    label: Location
+    visibility: party
+    fields:
+      - { key: population, label: Population, type: number }
+      - { key: traits, label: Traits, type: list }
+
+  - id: quest
+    label: Quest
+    visibility: party
+    fields:
+      - { key: steps, label: Steps, type: list }
+
+  - id: monster
+    label: Monster
+    visibility: gm
+    fields:
+      - { key: ac, label: Armour Class, type: number }
+
+  - id: spell
+    label: Spell
+    visibility: party
+
+  - id: item
+    label: Item
+    visibility: gm
+
+  - id: table
+    label: Table
+    visibility: party
+    fields:
+      - { key: faces, label: Faces, type: list }
