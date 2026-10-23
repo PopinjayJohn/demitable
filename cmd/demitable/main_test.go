@@ -12,13 +12,16 @@ func TestHealthz(t *testing.T) {
 	srv := httptest.NewServer(mux(t.Context(), nil))
 	defer srv.Close()
 
-	resp, err := http.Get(srv.URL + "/healthz")
+	resp, err := http.Get(srv.URL + "/api/health")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d", resp.StatusCode)
+	}
+	if ct := resp.Header.Get("Content-Type"); !strings.Contains(ct, "application/json") {
+		t.Errorf("content-type = %q", ct)
 	}
 	var body map[string]string
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
@@ -29,19 +32,17 @@ func TestHealthz(t *testing.T) {
 	}
 }
 
-func TestRootSaysThePhaseHasNotStarted(t *testing.T) {
+func TestHealthzAlias(t *testing.T) {
 	srv := httptest.NewServer(mux(t.Context(), nil))
 	defer srv.Close()
 
-	resp, err := http.Get(srv.URL + "/")
+	resp, err := http.Get(srv.URL + "/healthz")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
-	buf := make([]byte, 256)
-	n, _ := resp.Body.Read(buf)
-	if !strings.Contains(string(buf[:n]), "Phase 1 has not started") {
-		t.Errorf("body = %q", buf[:n])
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("status = %d", resp.StatusCode)
 	}
 }
 
