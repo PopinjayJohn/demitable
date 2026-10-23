@@ -23,11 +23,6 @@ func corpusFiles(t *testing.T) []string {
 	if root == "" {
 		root = corpusRoot
 	}
-	// Resolve symlinks so a worktree that links fixtures/ at the corpus
-	// still yields a walkable directory.
-	if resolved, err := filepath.EvalSymlinks(root); err == nil {
-		root = resolved
-	}
 	if _, err := os.Stat(root); err != nil {
 		t.Skipf("no corpus at %s; the corpus is a transient build input", root)
 	}

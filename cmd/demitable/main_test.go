@@ -9,7 +9,7 @@ import (
 )
 
 func TestHealthz(t *testing.T) {
-	srv := httptest.NewServer(mux(t.Context(), nil))
+	srv := httptest.NewServer(mux())
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/api/health")
@@ -33,7 +33,7 @@ func TestHealthz(t *testing.T) {
 }
 
 func TestHealthzAlias(t *testing.T) {
-	srv := httptest.NewServer(mux(t.Context(), nil))
+	srv := httptest.NewServer(mux())
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/healthz")
@@ -47,7 +47,7 @@ func TestHealthzAlias(t *testing.T) {
 }
 
 func TestAnUnknownPathIs404(t *testing.T) {
-	srv := httptest.NewServer(mux(t.Context(), nil))
+	srv := httptest.NewServer(mux())
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/nope")

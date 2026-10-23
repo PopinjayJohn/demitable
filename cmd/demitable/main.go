@@ -27,10 +27,6 @@ import (
 // version is stamped at build time with -ldflags "-X main.version=...".
 var version = "dev"
 
-// currentConfig is the active configuration, consulted by mux and other
-// package-level helpers. It is set during run before the server starts.
-var currentConfig config.Config
-
 func main() {
 	if err := run(os.Args[1:]); err != nil {
 		fmt.Fprintln(os.Stderr, "demitable:", err)
@@ -51,14 +47,11 @@ func run(args []string) error {
 	fs.BoolVar(&cfg.NoImport, "no-import", false, "disable archive import entirely")
 	fs.StringVar(&cfg.LogLevel, "log-level", "info", "debug, info, warn or error")
 	fs.StringVar(&cfg.LogFormat, "log-format", "text", "text or json")
-	auditPath := fs.String("audit-log", "", "the audit log's path; empty disables it")
-	cfg.AuditLog = *auditPath
+	fs.StringVar(&cfg.AuditLog, "audit-log", "", "the audit log's path; empty disables it")
 	showVersion := fs.Bool("version", false, "print the version and exit")
-	// keep audit path in cfg via closure below by re-reading flag value
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	cfg.AuditLog = *auditPath
 	if *showVersion {
 		fmt.Println("demitable", version)
 		return nil
@@ -66,8 +59,6 @@ func run(args []string) error {
 	if err := cfg.Validate(); err != nil {
 		return err
 	}
-	currentConfig = cfg
-
 	log, err := logging.NewStderr(logging.Config{Level: cfg.LogLevel, Format: cfg.LogFormat})
 	if err != nil {
 		return err
@@ -92,6 +83,9 @@ func run(args []string) error {
 	defer stop()
 
 	logger := log.With("version", version)
+	if audit != nil {
+		logger.Warn("audit log is opened but no events are recorded yet")
+	}
 	logger.Info("starting", "vault", cfg.Vault)
 
 	ln, err := net.Listen("tcp", cfg.BindAddr())
@@ -115,7 +109,7 @@ func run(args []string) error {
 	}
 
 	srv := &http.Server{
-		Handler:           mux(ctx, audit),
+		Handler:           mux(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -191,7 +185,7 @@ func registerFallback(m *http.ServeMux) {
 }
 
 // mux is the HTTP surface.
-func mux(ctx context.Context, audit *logging.Audit) http.Handler {
+func mux() http.Handler {
 	m := http.NewServeMux()
 	m.HandleFunc("GET /api/health", server.HealthHandler)
 	m.HandleFunc("GET /healthz", server.HealthHandler)
@@ -205,7 +199,5 @@ func mux(ctx context.Context, audit *logging.Audit) http.Handler {
 	} else {
 		registerFallback(m)
 	}
-	_ = ctx
-	_ = audit
 	return m
 }

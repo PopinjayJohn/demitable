@@ -22,6 +22,16 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: svelte-check
+        working-directory: web
+        run: |
+          npm ci
+          npm run check
       - name: gofmt
         run: |
           out=$(gofmt -l .)

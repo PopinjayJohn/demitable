@@ -56,20 +56,6 @@ func Open(path string) (*Store, error) {
 	return &Store{db: db, path: path}, nil
 }
 
-// OpenDB is an alias for Open.
-func OpenDB(path string) (*Store, error) { return Open(path) }
-
-// New is an alias for Open.
-func New(path string) (*Store, error) { return Open(path) }
-
-// OpenCache opens (or creates) name inside dir.
-func OpenCache(dir, name string) (*Store, error) {
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return nil, fmt.Errorf("store: mkdir: %w", err)
-	}
-	return Open(filepath.Join(dir, name))
-}
-
 // DB returns the underlying *sql.DB.
 func (s *Store) DB() *sql.DB { return s.db }
 
@@ -94,9 +80,6 @@ func DataDir() (string, error) {
 	if v := os.Getenv("DEMITABLE_DATA_DIR"); v != "" {
 		return v, nil
 	}
-	if v := os.Getenv("DEMITABLE_HOME"); v != "" {
-		return v, nil
-	}
 	if v := os.Getenv("XDG_DATA_HOME"); v != "" {
 		return filepath.Join(v, "demitable"), nil
 	}
@@ -105,13 +88,4 @@ func DataDir() (string, error) {
 		return "", fmt.Errorf("store: home dir: %w", err)
 	}
 	return filepath.Join(home, ".local", "share", "demitable"), nil
-}
-
-// VaultDir returns the per-vault cache directory.
-func VaultDir(vaultID string) (string, error) {
-	base, err := DataDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(base, "vaults", vaultID), nil
 }
