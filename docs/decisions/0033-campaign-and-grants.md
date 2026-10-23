@@ -115,6 +115,15 @@ pack. It **inherits the note's** otherwise.
   have no player.
 - `gm` on a property is absolute, like rule 2.
 
+> **Amended by ADR-0050, decision D5.** The reserved fields are not
+> pack-declared, so the same fallback applies to them — **with two
+> exceptions**, because the fallback leaks. `discovered` and `grants` are
+> `owner`-scoped: the note's `player`, and the GM. Every other reserved
+> field inherits the note's visibility.
+>
+> Without this, a party-visible character note published the *names* of
+> places the party had not found.
+
 **8. Masking.** `display:` overrides the rendered value per audience. Applied
 **last**, after grants and denies have decided *whether* a value is present.
 
@@ -125,10 +134,15 @@ whose reveal is an **event**.
 
 ```yaml
 type: handout
-campaign: stormdark
-visibility: gm
+campaign: "[[Stormdark]]"
+visibility: gm         # before the reveal
 grants: [p_8f2a]      # after the reveal
 ```
+
+> **Amended by ADR-0050, decision D7.** The two states are **one state or the
+> other**, not one block. Rule 2 is absolute, so a handout that stays `gm`
+> after a reveal reveals nothing. Before the reveal it is `gm` with no grants;
+> after it, it is `party`, or `owner` plus `grants`.
 
 - A handout is normally `gm` and becomes visible to the table when the GM
   reveals it.

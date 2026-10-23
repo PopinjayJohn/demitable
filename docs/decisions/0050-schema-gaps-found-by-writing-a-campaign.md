@@ -1,29 +1,26 @@
 # ADR-0050: The schema needs a discovery state, a reserved-layer visibility, and an honest field list
 
-> **Status:** Proposed. Not accepted, not landed. The orchestrator lands
-> this in `docs/decisions/`.
->
-> **Numbering.** This is numbered 0050 because
-> `internal/vault/frontmatter/value.go` already cites an "ADR-0049" for
-> the Go-versus-js-yaml scalar measurement, and there is no ADR-0049 in
-> `docs/decisions/`. If 0049 was never written, renumber this to 0049.
->
+- **Status:** Accepted
+- **Date:** 2026-10-23
+- **Amends:** ADR-0033 (the visibility model), ADR-0040 (the frontmatter
+  field namespace), ADR-0037 (a campaign is a note), ADR-0035 (secret
+  callouts), ADR-0048 (display, chat and journals), ADR-0009 (the
+  character review workflow), ADR-0049 (the frontmatter I/O contract)
+- **Extends:** design doc §5.1 (note types), §5.2 (the frontmatter
+  contract) and §5.4 (the visibility model)
+- **Addresses:** the gaps found by writing a campaign by hand, in phase 0
+  question 8
+
 > **Origin.** Phase 0, question 8: *what is the schema missing?* The
 > evidence is a written campaign — `dev/demo-campaign/vault/` — and a
 > projection test over it, `dev/demo-campaign/projection_test.go`. Every
 > decision below was forced by a specific note in that campaign; the
 > README in that directory cites the note.
-
-- **Amends:** ADR-0033 (the visibility model), ADR-0040 (the frontmatter
-  field namespace), ADR-0037 (a campaign is a note), ADR-0035 (secret
-  callouts), ADR-0048 (display, chat and journals), ADR-0009 (the
-  character review workflow)
-- **Extends:** design doc §5.2 (the frontmatter contract) and §5.4 (the
-  visibility model)
-- **Addresses:** the gaps found by writing a campaign by hand, in phase 0
-  question 8
-
----
+>
+> **A schema you have never used is a schema you have not tested.** Eleven
+> of the twenty-one notes needed a field, a value or a shape the twelve
+> reserved names do not provide, and one gap could not be closed by any
+> field at all.
 
 ## Context
 

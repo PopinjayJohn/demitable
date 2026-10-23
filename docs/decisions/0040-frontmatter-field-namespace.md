@@ -85,6 +85,15 @@ The **visibility value** stays `owner`, because there it names a
 *relationship* — "the note's `player`" — and `visibility: player` would read
 as "visible to players", which is `party`.
 
+### Each reserved field has a visibility
+
+> **Amended by ADR-0050, decision D5.** The reserved set declares a
+> visibility per field. `discovered` and `grants` are `owner`-scoped; every
+> other reserved field inherits the note's visibility. A note with no
+> `player` falls back to the note's visibility, so a GM-created note's
+> lists are as visible as the note is — which is right, because there is
+> nobody else they could be hiding from.
+
 ### The app never writes a field it does not understand
 
 If a note already has a field in the reserved set with a value the app does

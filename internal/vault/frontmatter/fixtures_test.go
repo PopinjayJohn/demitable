@@ -47,6 +47,32 @@ func TestFixturesParse(t *testing.T) {
 	}
 }
 
+// TestBooleanIsOnlyReportedForAReservedField pins ADR-0050's decision D11.
+//
+// The extractor must not ask questions about the schema it cannot see. A
+// GM's own `dark_mode: true` is a perfectly good boolean and the app has no
+// opinion about it. A boolean in a *reserved* field is a value the app
+// cannot use, because the reserved field's declared type is not boolean.
+func TestBooleanIsOnlyReportedForAReservedField(t *testing.T) {
+	doc := mustParse(t, "---\ndark_mode: true\nname: Ilia Vane\n---\n")
+	kinds := map[IssueKind]bool{}
+	for _, iss := range doc.Block.Issues {
+		kinds[iss.Kind] = true
+	}
+	if kinds[IssueBool] {
+		t.Fatalf("an unreserved boolean should not be reported, got %v", doc.Block.Issues)
+	}
+
+	doc = mustParse(t, "---\nworkflow: true\n---\n")
+	kinds = map[IssueKind]bool{}
+	for _, iss := range doc.Block.Issues {
+		kinds[iss.Kind] = true
+	}
+	if !kinds[IssueBool] {
+		t.Fatalf("a boolean in a reserved field should be reported, got %v", doc.Block.Issues)
+	}
+}
+
 func TestFixtureTypical(t *testing.T) {
 	doc, err := Parse(readFixture(t, "typical.md"))
 	if err != nil {

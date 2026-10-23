@@ -168,19 +168,22 @@ This is a **universal** field, not a pack-specific one. It is app-level —
 
 ```yaml
 discovered:
-  - uid: 01JBX8K2M9Q
-    type: location
-    at: 2026-10-21T19:04:00Z
-    how: visited
-  - uid: 01JBX9P4R2L
-    type: character
-    at: 2026-10-21T19:41:00Z
-    how: met
+  - "[[The Drowned Quarter]]"
+  - "[[Ilia Vane]]"
 ```
 
-`how` is a short free-text or a small vocabulary (`visited`, `met`,
-`heard-of`, `fought`, `served-by`). Packs may extend the vocabulary but the
-field itself is universal.
+A **flat list of note references**, and that is a change: the records this
+used to be — `uid`, `type`, `at`, `how` — are not writable. The reserved
+layer is simple-typed, because Obsidian's Bases cannot query nested
+properties (ADR-0040), and the extractor's writer flattens a list of maps
+to strings.
+
+**The consequence is stated rather than hidden.** The `how` of a discovery —
+`visited`, `met`, `heard-of` — and the `at` of it have nowhere to live, and
+the open question in §8 ("is a location discovered when the character enters
+it, when they learn of it, or both?") is unanswerable until they do. If the
+granularity is needed, it becomes a **separate note type**, not a nested
+field in a reserved one (ADR-0050, decision D4).
 
 Records are appended, never removed. A character who once met an NPC still
 knows them.
@@ -204,7 +207,7 @@ secrets, the default, and the no-owner fallback.
 | Party | `visibility: party` — all members of the note's **campaign** |
 | Owner | `visibility: owner` and the caller owns the note |
 | Explicit | `grants: [p_8f2a]` — named parties, on top of the base level |
-| Discovery | the note's uid appears in a character the caller owns, in `discovered` |
+| Discovery | the note is `visibility: discovered` and its uid appears in a character the caller owns, in `discovered` |
 | Type-level | a core rule, e.g. a player's own character note |
 
 ### Denies
@@ -214,6 +217,17 @@ secrets, the default, and the no-owner fallback.
 | GM | `visibility: gm` — **absolute**, regardless of discovery, ownership or grants |
 | Workflow | `workflow: draft` or `submitted` — owner and GM only, regardless of visibility or grants |
 | Campaign | the note's `campaign` is one the caller does not belong to |
+
+> **Amended by ADR-0050.** A note that is `visibility: discovered` is *not*
+> denied by the GM rule, so the Discovery grant above is reachable. Before
+> this, a discovery-gated note had to be `gm`, and `gm` is an absolute deny
+> that no grant overrides — so the grant could never fire.
+>
+> The campaign deny is absolute: a note inside a campaign may not leak out
+> of it. `public` therefore means "not private to the party", not "outside
+> the boundary". A `public` note **with** a campaign is public within that
+> campaign; a `public` note with **no** campaign is public absolutely, and
+> is the only kind of note an anonymous caller can see.
 
 The deny is absolute on purpose: a GM-only note that a character once
 discovered must still be hidden, or "discovered" becomes a way to leak

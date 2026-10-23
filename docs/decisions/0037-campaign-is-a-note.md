@@ -34,12 +34,21 @@ and the two could disagree.
 ---
 type: campaign
 name: Stormdark
-campaign: stormdark        # its own id, for self-reference
+campaign: "[[Stormdark]]"    # its own link, for self-reference
 visibility: party
 members: [p_8f2a, p_91bc]
 packs: [dnd5e]
 ---
 ```
+
+> **Amended by ADR-0050, decisions D1 and D2.** `campaign:` holds a **link to
+> the campaign note**, not a slug. Nothing resolves a slug: identity must not
+> move with renames, and resolution goes through the vault index, which maps
+> filenames and aliases to uids. Every other reference in the vault is a
+> wikilink.
+>
+> `campaign` is also now a **note type** in design §5.1's table, so phase
+> 1's M7a creates the campaign note rather than skipping it.
 
 A campaign note is the campaign's **definition and its home**. It carries:
 

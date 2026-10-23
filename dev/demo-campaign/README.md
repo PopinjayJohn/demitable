@@ -18,9 +18,10 @@ grant that
 grant source is **unreachable text**. The reserved layer needs its own
 visibility defaults, and the visibility vocabulary needs one more value.
 
-Everything below is the evidence. The corrections are proposed in
-[`adr-proposal.md`](adr-proposal.md); none of them has been applied to
-`docs/`.
+Everything below is the evidence. The corrections are landed in
+[ADR-0050](../../docs/decisions/0050-schema-gaps-found-by-writing-a-campaign.md),
+which amends ADR-0033, ADR-0037, ADR-0035, ADR-0037, ADR-0040, ADR-0048 and
+ADR-0009, and the design document's §5.1, §5.2 and §5.4.
 
 ---
 
@@ -29,7 +30,6 @@ Everything below is the evidence. The corrections are proposed in
 ```
 dev/demo-campaign/
   README.md              this file
-  adr-proposal.md        the corrections, in the ADR format
   doc.go                 package doc
   projection_test.go     the projection test over the campaign
   vault/                 the campaign itself — phase 1's demo campaign
@@ -128,7 +128,7 @@ Three of these are the interesting ones:
 ## Every schema correction
 
 Each of these was forced by a specific note in the campaign. The
-proposals are written up in [`adr-proposal.md`](adr-proposal.md); this is
+proposals are written up in [`docs/decisions/0050-schema-gaps-found-by-writing-a-campaign.md`](../../docs/decisions/0050-schema-gaps-found-by-writing-a-campaign.md); this is
 the short form.
 
 ### 1. `campaign:` must be a link, not a slug

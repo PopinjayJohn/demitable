@@ -414,12 +414,21 @@ func (b *Block) collectValue(f *Field) {
 			Message: "value is a timestamp; it decodes as a date, not a string",
 		})
 	case "!!bool":
-		b.Issues = append(b.Issues, Issue{
-			Kind:    IssueBool,
-			Key:     f.Key,
-			Line:    v.Line,
-			Message: "value is a boolean",
-		})
+		// A boolean is only worth reporting when the app *owns* the
+		// field. A GM's own `dark_mode: true` is a perfectly good
+		// boolean, and the app has no opinion about it. A boolean in a
+		// reserved field is a value the app cannot use, because the
+		// reserved field's declared type is not boolean.
+		//
+		// See ADR-0050, decision D11.
+		if r, reserved := ReservedByName[strings.ToLower(f.Key)]; reserved && r.Kind != KindBool {
+			b.Issues = append(b.Issues, Issue{
+				Kind:    IssueBool,
+				Key:     f.Key,
+				Line:    v.Line,
+				Message: "value is a boolean; the field is reserved and does not hold one",
+			})
+		}
 	case "!!null":
 		// A null value is a key with no value. Not an issue.
 	}

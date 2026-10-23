@@ -462,6 +462,8 @@ a link.
 | `handout` | A prop revealed to the table, with a journalled reveal event | `Notes/Handouts/` |
 | `message` | A chat message. Channel and audience come from its visibility (ADR-0048) | `Campaigns/<id>/Chat/` |
 | `journal` | A player's personal journal (ADR-0048) | `Campaigns/<id>/Journals/` |
+| `document` | A thing that is simply there — a notice, a letter, a wanted poster, a ledger page | `Notes/Documents/` |
+| `campaign` | The campaign itself: its members, its packs, its home | `Campaigns/<id>/` |
 | `home` | Campaign dashboard / MOC | `Notes/Home.md` |
 
 Folders are a **human convention**, not a machine contract. The machine reads
@@ -481,26 +483,41 @@ type: character      # note type
 uid: 01JBX8K2M9Q      # stable identity, never changes
 name: Ilia Vane
 system: dnd5e        # which pack interprets this entity
-campaign: stormdark  # which campaign this belongs to; absent = personal
+campaign: "[[Stormdark]]"   # which campaign this belongs to; absent = personal
 kind: pc             # pc | npc | creature
 player: p_8f2a       # the player account that owns this note
 workflow: active     # draft | submitted | active | retired
-visibility: party    # public | party | owner | gm
+visibility: party    # public | party | owner | private | discovered | gm
 grants:              # additional parties who may see this note
 - p_91bc
-faction: "[[Saltmarsh Cartel]]"
-location: "[[The Drowned Quarter]]"
-portrait: Assets/Portraits/ilia-vane.png
-tags:
-- npc
-- rival
-- harbor
+discovered:          # what this character has seen and met
+- "[[The Drowned Quarter]]"
 ```
 
 The lists are written in **block style**, in the style the block already
 uses — which is the compact style above, the one every file in the SRD
 corpus uses. The writer never writes a flow list, and never inlines a list
 on its key's line. See [ADR-0049](decisions/0049-frontmatter-io-contract.md).
+
+`campaign:` holds a **link to the campaign note**, not a slug, because
+nothing resolves a slug — identity must not move with renames, and
+resolution goes through the vault index.
+
+**Everything outside the twelve reserved names is the GM's own.** A
+reference to another note (`faction`, `location`), a reference to an asset
+(`portrait`), a `status`, a `date`, a `tags` list — the app leaves them
+alone, exactly as it leaves a GM's `status: alive` alone. The app does not
+read them, so a pack's filters cannot filter by them, and M7c's published
+schema has to say which ones the app understands and which ones it merely
+carries.
+
+Two of them have a required spelling, and both are traps:
+
+- **a date must be a quoted string.** An unquoted `2026-03-14` is a YAML
+  timestamp, which resolves to a date where a string was meant, and which
+  the extractor reports.
+- **a boolean in a reserved field is an issue; a boolean in a GM's own field
+  is not.** The extractor asks questions only about the fields the app owns.
 
 For `type: content`, `content_type` names the pack-declared kind — `class`,
 `species`, `spell`, `monster` — and `system` scopes it to the pack that
@@ -589,7 +606,17 @@ regardless of any grant. A grant-suppressing deny.
 | `party` | All members of the note's campaign |
 | `owner` | The note's `player`, and the GM |
 | `private` | The note's `player`, and nobody else — not even the GM |
+| `discovered` | The GM, and any principal who owns a character whose `discovered` list names this note |
 | `gm` | The GM only. Never serialised to a non-GM role |
+
+`discovered` is the state **between** `party` and `gm` (ADR-0050): the
+party may legitimately not know that a thing exists yet, and finding out is
+an event. Without it, an undiscovered location has to be `gm` — which makes
+it invisible for ever — and the discovery grant is unreachable text.
+
+**An unknown `visibility` value fails closed.** A note whose `visibility` is
+not in the vocabulary is treated as `gm`. The projection must never guess
+that an unrecognised value means *more* visible.
 
 **5. Grants.** `grants: [p_8f2a, p_91bc]` — *additional* parties who may
 see the note, on top of the base level. A grant never overrides rules 2 or 3.
@@ -608,6 +635,18 @@ pack, and **inherits the note's** otherwise. `owner` on a property resolves
 against the note's `player`; **if the note has no player, it falls back to the
 note's visibility.** Without that rule the shipped 5e pack hid every NPC's hit
 points from players. `gm` on a property is absolute.
+
+The **reserved fields** are not pack-declared, so the same fallback applies
+to them — with two exceptions, because the fallback leaks (ADR-0050):
+
+| Field | Visibility |
+|---|---|
+| `discovered` | `owner` — the note's `player`, and the GM |
+| `grants` | `owner` — the note's `player`, and the GM |
+| every other reserved field | the note's visibility |
+
+Without this, a party-visible character note published the *names* of places
+the party had not found.
 
 **8. Masking.** `display:` overrides the rendered value per audience, applied
 **last** — after grants and denies have decided whether a value is present.

@@ -179,7 +179,7 @@ var ReservedFields = []Reserved{
 	{Name: "kind", Kind: KindString, Vocabulary: []string{"pc", "npc", "creature"}},
 	{Name: "player", Kind: KindString},
 	{Name: "workflow", Kind: KindString, Vocabulary: []string{"draft", "submitted", "active", "retired"}},
-	{Name: "visibility", Kind: KindString, Vocabulary: []string{"public", "party", "owner", "private", "gm"}},
+	{Name: "visibility", Kind: KindString, Vocabulary: []string{"public", "party", "owner", "private", "discovered", "gm"}},
 	{Name: "grants", Kind: KindList, List: true},
 	{Name: "revealed", Kind: KindList, List: true},
 	{Name: "discovered", Kind: KindList, List: true},

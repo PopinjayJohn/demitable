@@ -82,6 +82,13 @@ a character, and it does not vary by ruleset.
 | `active` | Per the note's own `visibility` — normally `party` | Author (proposed changes), GM |
 | `retired` | Author, GM | GM |
 
+> **Amended by ADR-0050, decision D6.** The `retired` row above is **not** a
+> visibility gate. ADR-0033's rule 3 gates `draft` and `submitted` only, and
+> a GM closing a quest must not silently remove it from the players' board.
+> A retired note keeps the visibility it had. The rule 3 gate is about who
+> may *speak for* a thing — a player's own character — not about whether it
+> disappears.
+
 The GM creates characters and approves them in one step. A player submits and
 waits — a wait that is socially useful, because the GM's review is where
 character concepts get discussed at the table.

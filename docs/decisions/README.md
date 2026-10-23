@@ -53,6 +53,7 @@ one means writing a new ADR that supersedes it.
 | [0047](0047-query-language.md) | One fixed predicate language for `list_by`, shared by REST and MCP | Accepted |
 | [0048](0048-display-chat-and-journals.md) | A display principal, chat as notes, and the rest of the projection's shape | Accepted |
 | [0049](0049-frontmatter-io-contract.md) | What a frontmatter write must preserve, measured against the corpus | Accepted |
+| [0050](0050-schema-gaps-found-by-writing-a-campaign.md) | The schema needs a discovery state, a reserved-layer visibility, and an honest field list | Accepted |
 
 ## The shape of the decisions
 
