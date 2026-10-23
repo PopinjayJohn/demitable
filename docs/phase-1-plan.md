@@ -87,6 +87,19 @@ schema · the export plugin.
 **M0a** — Go module, `cmd/demitable`, the server serving `web/dist` via
 `go:embed`, the Svelte shell, the config surface.
 
+> **Where M0 starts.** The repository already has the Go module, the
+> `cmd/demitable` entrypoint, the `Makefile` and the CI workflow. The
+> entrypoint today sets up the logger and the audit log (ADR-0058), answers
+> `GET /healthz`, and shuts down cleanly on `SIGTERM` — which is the
+> graceful-shutdown criterion below, proved early rather than at the end.
+> It cross-compiles for all five platforms under 12 MB with `CGO_ENABLED=0`,
+> and `make release` builds the matrix.
+>
+> **Still to do:** the config surface below, `--vault`, `--port 0`,
+> `--no-browser`, the `go:embed` of `web/dist`, the Svelte shell, and
+> `GET /api/health` (the endpoint is at `/healthz` today; the plan's path is
+> the one that ships).
+
 **Done when**
 - `go build ./cmd/demitable` produces a binary; started with `--vault <tmp>
   --port 0 --no-browser`, it serves `GET /` containing the built bundle's
