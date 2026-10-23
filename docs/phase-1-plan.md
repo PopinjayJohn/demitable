@@ -158,7 +158,10 @@ schema · the export plugin.
 
 ### M2 — The minimal pack format
 
-**M2a** — the loader, the content type declarations, the example pack.
+**M2a** — the loader, the content type declarations, the example pack. The
+example pack's content type `id` matches the demo campaign's `system:`, and
+it declares **at least one owner-scoped and one gm-scoped resource**, or
+M5c's property test passes vacuously (ADR-0050).
 
 Phase 1's pack format is a **deliberate subset**: it declares content types
 and their typed fields, and it carries the visibility default. **No formulas,
@@ -280,6 +283,19 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
   a member id that does not exist is tolerated rather than fatal.
 - A note with `visibility: private` is visible to its `player` and to nobody
   else, not even the GM (ADR-0048).
+- A note with `visibility: discovered` is visible to the GM and to any
+  principal who owns a character whose `discovered` list names it — and to
+  nobody else (ADR-0050).
+- **An unrecognised `visibility` value fails closed**: it is treated as
+  `gm`. The projection must never guess that an unknown value means *more*
+  visible.
+- The reserved fields declare a visibility per field: `discovered` and
+  `grants` are `owner`-scoped, everything else inherits the note's
+  (ADR-0050). A note with no `player` falls back to the note's visibility.
+- **Obsidian's `%%comments%%` are stripped from a non-GM projection**
+  (ADR-0050). They are hidden in preview but were serialised into the
+  projection, which makes them the most likely place for a GM's aside to
+  leak by accident.
 - A note in `workflow: draft` is visible to its owner and the GM **and to
   nobody else**, regardless of its `visibility` and its grants.
 - A **display principal** — the shared screen for the party — resolves to
@@ -292,6 +308,14 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
   contains no field whose visibility is `gm`, and no `owner` field for a
   caller who does not own the note. **The GM principal is asserted
   separately** — it *does* contain every `gm` field.
+- **The demo campaign's expectation tables are adopted**: the exact note set
+  each of six principals may see, in both directions, from
+  `dev/demo-campaign/projection_test.go`. Two assertions are added to them:
+  **no GM-only character is named anywhere in a player's view**, and **no
+  unrevealed secret's text appears in any non-GM projection**.
+- The example pack declares **at least one owner-scoped and one gm-scoped
+  resource**, or the property test iterates over nothing and passes
+  vacuously (ADR-0050).
 - The count returned by a query reflects what was **returned**, not what
   matched, so it is not an oracle for what is hidden.
 - An FTS query from a player runs against the **player index**, so a term
@@ -322,7 +346,8 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
 ### M7 — Scaffolding, the demo campaign, the published schema
 
 **M7a** — the scaffolder and the templates.
-**M7b** — the demo campaign.
+**M7b** — the demo campaign — `dev/demo-campaign/vault/`, already written in
+phase 0, unchanged.
 **M7c** — the published schema and starter Bases.
 
 **Done when**
@@ -336,9 +361,14 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
 - The demo campaign contains **both** a visited and an unvisited location, a
   GM-only note, a character in `draft`, a session log, a `table` note and an
   asset — and the projection test over it passes in both directions.
-- The published `schema.md` lists every reserved field, its type and its
-  vocabulary, and the starter Bases and Dataview queries work against a
-  freshly scaffolded vault.
+- The published `schema.md` lists every reserved field, **its visibility**,
+  its type and its vocabulary, and the starter Bases and Dataview queries
+  work against a freshly scaffolded vault (ADR-0050).
+- The published schema says that `campaign:` holds a **link** to the
+  campaign note, that `discovered` is a **flat list** of note references,
+  that `campaign` and `document` are note types, and that a GM-owned `date`
+  must be a **quoted string** — an unquoted one is a YAML timestamp
+  (ADR-0050).
 
 ### M8 — The export plugin
 
