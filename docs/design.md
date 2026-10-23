@@ -1297,3 +1297,13 @@ with attribution, and there is no share-alike constraint on the repository.
   files — but the attack surface does, so `--expose` tightens the defaults
   and the **import endpoint must defend against SSRF**. Two new rules: the
   server must not require a browser, and local use stays the default.
+- **2026-10-23** — The four pre-phase-1 decisions. **A campaign is a
+  first-class note** (ADR-0037). **Two credentials in disjoint code spaces,
+  and principals instead of roles** (ADR-0038) — a campaign code and a
+  session code, accepted by different endpoints, and the role enum replaced
+  by a principal so a guest seat can hold a character. **The write-back is
+  a partial apply with per-key conflict reporting** (ADR-0039), with
+  journal-based recovery and a preview that runs the identical resolution
+  as the apply. **The frontmatter fields are bare, with a tightened
+  reserved set** (ADR-0040) — `owner` becomes `player` and the generic
+  `status` is gone, so a GM's own `status: alive` is left alone.
