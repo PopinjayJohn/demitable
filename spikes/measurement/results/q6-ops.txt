@@ -1,0 +1,56 @@
+=== the utterances, and the smallest predicate that answers each ===
+  all the characters in this campaign            type == "character" and campaign == "stormdark"      == and     corpus can exercise
+  the characters I own                           player == "p_8f2a" and type == "character"           == and     corpus can exercise
+  notes that are still in draft                  workflow == "draft"                                  ==         corpus can exercise
+  the GM-only notes                              visibility == "gm"                                   ==         corpus can exercise
+  notes tagged npc                               tags contains "npc"                                  contains   corpus can exercise
+  anything that mentions Ilia                    name contains "Ilia"                                 contains   synthetic only
+  the notes that mention a given player          grants contains "p_8f2a"                             contains   synthetic only
+  spells of level 3 or higher                    data.attributes.level >= 3                           >=         synthetic only
+  spells of level exactly 3                      data.attributes.level == 3                           ==         synthetic only
+  spells below level 3                           data.attributes.level < 3                            <          synthetic only
+  spells at most level 3                         data.attributes.level <= 3                           <=         synthetic only
+  monsters with armour class over 15             data.attributes.armor_class > 15                     >          synthetic only
+  notes that are not characters                  type != "character"                                  !=         corpus can exercise
+  characters and NPCs                            type == "character" or type == "npc"                 == or      corpus can exercise
+  characters, or NPCs that are tagged boss       type == "character" or (type == "npc" and tags contains "boss") == or and contains () synthetic only
+  notes of one of several types                  type in ["character", "npc", "faction"]              in ==      corpus can exercise
+  notes that are not yet revealed                not (revealed contains "s_42")                       not contains () synthetic only
+  the note with this uid                         uid == "01HQ8R..."                                   ==         corpus can exercise
+  notes of this kind, but not that one           type == "character" and name != "Ilia Vane"          == and !=  synthetic only
+  notes whose tag list has the whole tag monster/cr/1-4 tags contains "monster/cr/1-4"                       contains   corpus can exercise
+  notes whose preview mode mentions prev         obsidianUIMode contains "prev"                       contains   corpus can exercise
+
+=== operator tally ===
+  !=         used  2 times  (1 exercisable against the corpus)  in ADR-0047
+  ()         used  2 times  (0 exercisable against the corpus)  in ADR-0047
+  <          used  1 times  (0 exercisable against the corpus)  in ADR-0047
+  <=         used  1 times  (0 exercisable against the corpus)  in ADR-0047
+  ==         used 10 times  (7 exercisable against the corpus)  in ADR-0047
+  >          used  1 times  (0 exercisable against the corpus)  in ADR-0047
+  >=         used  1 times  (0 exercisable against the corpus)  in ADR-0047
+  and        used  4 times  (2 exercisable against the corpus)  in ADR-0047
+  contains   used  7 times  (3 exercisable against the corpus)  in ADR-0047
+  in         used  1 times  (1 exercisable against the corpus)  in ADR-0047
+  not        used  1 times  (0 exercisable against the corpus)  in ADR-0047
+  or         used  2 times  (1 exercisable against the corpus)  in ADR-0047
+
+operators ADR-0047 declares that no utterance needed: 
+operators an utterance needed that ADR-0047 does not declare: 
+
+=== what the corpus's own frontmatter can exercise ===
+  aliases          1663 notes  map[list:1663]
+  cssclasses       1692 notes  map[list:1692]
+  obsidianUIMode   1692 notes  map[scalar:1692]
+  tags             1662 notes  map[list:1662]
+  -> none of these is a universal field, so `type`, `campaign`, `visibility`,
+     `player`, `workflow`, `uid` and `data.*` are unexercisable by the corpus.
+
+=== the corpus pins down `contains` for two different field shapes ===
+  tags          is a YAML list of strings: contains is LIST MEMBERSHIP.
+                The values are hierarchical (monster/cr/1-4), so under a
+                substring reading `contains "monster/cr"` would be a hit
+                and `contains "monster/cr/1-4"` a different one.
+  obsidianUIMode is a scalar string: contains is SUBSTRING.
+  One operator, two semantics, decided by the field's type — which is
+  what ADR-0040's type registry is for.

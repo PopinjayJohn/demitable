@@ -1,0 +1,18 @@
+literal index: 8313 distinct keys over 1693 notes
+
+  goblin                 -> 1st    (prefix)  9 hits; first: Goblin Minion; Goblin Boss; Goblin Warrior
+  goblin warrior         -> 1st    (exact)  4 hits; first: Goblin Warrior; Deck of Illusions; Hobgoblin Warrior
+  hobgoblin              -> 1st    (prefix)  6 hits; first: Hobgoblin Captain; Hobgoblin Warrior; Deck of Illusions
+  thunderwave            -> 1st    (exact)  13 hits; first: Thunderwave; Thunderwave; Index of Spells
+  magic missile          -> 1st    (exact)  2 hits; first: Magic Missile; Wand of Magic Missiles
+  fire bolt              -> 1st    (exact)  1 hits; first: Fire Bolt
+  longbow                -> 1st    (exact)  17 hits; first: Longbow; Longbow; Energy Bow
+  shillelagh             -> 1st    (exact)  8 hits; first: Shillelagh; Shillelagh; Spells for College of Lore
+  barbarian              -> 1st    (exact)  10 hits; first: Barbarian; Barbarian; Path of the Berserker
+  druid                  -> 1st    (exact)  155 hits; first: Druid; Druid; Deck of Illusions
+  stealth                -> 1st    (exact)  15 hits; first: Skills; Criminal; Barbarian
+  sleight of hand        -> 1st    (exact)  1 hits; first: Skills
+  insight                -> 1st    (exact)  20 hits; first: Skills; Index of Items; Ioun Stone
+  darkvision             -> #7     (exact)  31 hits; first: Dragonborn; Dwarf; Elf
+  gob                    -> 1st    (prefix)  9 hits; first: Goblin Minion; Goblin Boss; Goblin Warrior
+  first place: 14/15

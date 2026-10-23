@@ -1,0 +1,54 @@
+
+### ADR-0030 verbatim (uid, body)   (index 3878912 bytes)
+  goblin                 -> #2     goblin-warrior-xmm.md | goblin-boss-xmm.md | goblin-minion-xmm.md
+  goblin warrior         -> #2     goblin-warrior-xmm.md
+  hobgoblin              -> 1st    hobgoblin-warrior-xmm.md | hobgoblin-captain-xmm.md
+  thunderwave            -> 1st    spells/thunderwave-xphb.md
+  magic missile          -> 1st    spells/magic-missile-xphb.md
+  fire bolt              -> 1st    spells/fire-bolt-xphb.md
+  longbow                -> 1st    items/longbow-xphb.md
+  shillelagh             -> 1st    spells/shillelagh-xphb.md
+  barbarian              -> #2     classes/barbarian-xphb.md
+  druid                  -> 1st    classes/druid-xphb.md | bestiary/humanoid/druid-xmm.md
+  stealth                -> MISS   rules/skills.md
+  sleight of hand        -> MISS   rules/skills.md
+  insight                -> MISS   rules/skills.md
+  darkvision             -> 1st    spells/darkvision-xphb.md | rules/senses.md
+  gob                    -> 1st    goblin-warrior-xmm.md | goblin-boss-xmm.md | goblin-minion-xmm.md
+  first place: 9/15
+
+### + title/aliases/tags columns   (index 4186112 bytes)
+  goblin                 -> 1st    goblin-warrior-xmm.md | goblin-boss-xmm.md | goblin-minion-xmm.md
+  goblin warrior         -> #2     goblin-warrior-xmm.md
+  hobgoblin              -> 1st    hobgoblin-warrior-xmm.md | hobgoblin-captain-xmm.md
+  thunderwave            -> 1st    spells/thunderwave-xphb.md
+  magic missile          -> 1st    spells/magic-missile-xphb.md
+  fire bolt              -> 1st    spells/fire-bolt-xphb.md
+  longbow                -> 1st    items/longbow-xphb.md
+  shillelagh             -> 1st    spells/shillelagh-xphb.md
+  barbarian              -> 1st    classes/barbarian-xphb.md
+  druid                  -> 1st    classes/druid-xphb.md | bestiary/humanoid/druid-xmm.md
+  stealth                -> MISS   rules/skills.md
+  sleight of hand        -> MISS   rules/skills.md
+  insight                -> MISS   rules/skills.md
+  darkvision             -> 1st    spells/darkvision-xphb.md | rules/senses.md
+  gob                    -> 1st    goblin-warrior-xmm.md | goblin-boss-xmm.md | goblin-minion-xmm.md
+  first place: 11/15
+
+### + headings column   (index 4284416 bytes)
+  goblin                 -> 1st    goblin-warrior-xmm.md | goblin-boss-xmm.md | goblin-minion-xmm.md
+  goblin warrior         -> 1st    goblin-warrior-xmm.md
+  hobgoblin              -> 1st    hobgoblin-warrior-xmm.md | hobgoblin-captain-xmm.md
+  thunderwave            -> 1st    spells/thunderwave-xphb.md
+  magic missile          -> 1st    spells/magic-missile-xphb.md
+  fire bolt              -> 1st    spells/fire-bolt-xphb.md
+  longbow                -> 1st    items/longbow-xphb.md
+  shillelagh             -> 1st    spells/shillelagh-xphb.md
+  barbarian              -> 1st    classes/barbarian-xphb.md
+  druid                  -> 1st    classes/druid-xphb.md | bestiary/humanoid/druid-xmm.md
+  stealth                -> MISS   rules/skills.md
+  sleight of hand        -> #4     rules/skills.md
+  insight                -> #2     rules/skills.md
+  darkvision             -> 1st    spells/darkvision-xphb.md | rules/senses.md
+  gob                    -> 1st    goblin-warrior-xmm.md | goblin-boss-xmm.md | goblin-minion-xmm.md
+  first place: 12/15

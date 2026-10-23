@@ -1,0 +1,6 @@
+notes           9
+body bytes      4135
+insert time     586.346µs (total 588.822µs)
+db size         77824 bytes (db+wal+shm)
+schema          headings
+community kept  true
