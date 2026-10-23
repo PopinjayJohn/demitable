@@ -65,6 +65,28 @@ has to supersede a recorded decision rather than re-argue it.
 
 ---
 
+## 4. The phase-0 findings
+
+Phase 0 answered ten questions by building disposable spikes. Its findings
+are the first ones that came from **running** something rather than reading
+something, and they are the ones with measurements attached.
+
+| # | Finding | Lands in |
+|---|---|---|
+| **P0-a** | The frontmatter extractor was never run, and it had a `for` loop with no post statement in its column-to-byte conversion — so every byte span the writer computed was wrong. **Phase 1's M1a would have shipped it** | **Phase 1** — fixed, and the round-trip contract is now a test: patching one field of each of the 1,692 real files leaves every other byte unchanged, in 1,692 of 1,692 cases ([ADR-0049](decisions/0049-frontmatter-io-contract.md)) |
+| **P0-b** | **The SRD corpus cannot validate our schema.** Its 1,692 frontmatter blocks hold only four top-level keys, all Obsidian-native; not one of our twelve reserved fields appears anywhere, and there is no comment, block scalar, anchor, merge key, flow collection, nested mapping, wikilink in a property or CRLF file in the whole corpus | **Phase 1** — the extractor carries twelve fixtures of its own for the constructs the corpus lacks, and the corpus is a *test corpus*, not a deliverable |
+| **P0-c** | A **one-item list** was written as `key: - item`, which is not YAML — the parser then refused the app's own output | **Phase 1** — a list or map is never inlined, and the block's own sequence style is reproduced ([ADR-0049](decisions/0049-frontmatter-io-contract.md)) |
+| **P0-d** | **The schema has no state between "the party knows this" and "the GM knows this".** `gm` is an absolute deny, so an undiscovered location had to be `gm` — invisible for ever — and the Discovery grant in `session-writeback.md` §6 was **unreachable text** | **Phase 1** — a sixth visibility value, `discovered`; an unknown value fails closed ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+| **P0-e** | **The reserved layer had no visibility of its own**, so a party-visible character note published the *names* of places the party had not found | **Phase 1** — `discovered` and `grants` are `owner`-scoped; everything else inherits ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+| **P0-f** | **Obsidian's `%%comments%%` leak.** They are hidden in preview but were serialised into the projection — the most likely place for a GM's aside to be written by accident | **Phase 1** — stripped from non-GM projections ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+| **P0-g** | ADR-0033's own handout example — `visibility: gm` *and* `grants` in one block — is **invisible to the player it was granted to**, because rule 2 is absolute. A reveal that leaves the note `gm` reveals nothing | **Phase 1** — a handout's two states are one state or the other ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+| **P0-h** | `campaign: stormdark` is a slug, and **nothing resolves a slug** — identity must not move with renames, and resolution goes through the vault index | **Phase 1** — `campaign:` holds a link to the campaign note, and `campaign` is a note type ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+| **P0-i** | Three documents disagreed about `discovered`'s shape: ADR-0040 (simple-typed), `session-writeback.md` §5 (a list of records), and the extractor (which flattens maps to strings on write) | **Phase 1** — a flat list of note references, and the loss of the `how`/`at` granularity is stated rather than hidden ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+| **P0-j** | **`srdcheck` had nothing to verify.** The documents promised it would check the upstream URL, the commit hash and the licence text, and none of those values was recorded. Looking for the upstream found that **its canonical repository is no longer publicly resolvable** — only unofficial forks remain, all MIT-licensed at the repository level, which covers the tool and not the data | **Phase 2** — the pin is a hash of the *artifact*, not a commit in a fork; the licence never rested on the upstream ([corpus-provenance.md](corpus-provenance.md)) |
+| **P0-k** | The extractor reported **every** top-level boolean as an issue, so a GM's own `dark_mode: true` was reported as unclean — the extractor was asking a question about the schema it has no way to see the answer to | **Phase 1** — booleans are reported only for fields the app owns ([ADR-0050](decisions/0050-schema-gaps-found-by-writing-a-campaign.md)) |
+
+---
+
 ## What is still open
 
 - **The write-back transaction model** ([#23](https://github.com/PopinjayJohn/demitable/issues/23)).
