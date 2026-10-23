@@ -1,0 +1,38 @@
+# The export plugin — the non-UI plugin of the spike.
+#
+# This file is the canonical YAML for a manifest that the compiled-in tier
+# writes as a Go literal. A test asserts the two are the same manifest.
+
+id: demitable.export
+name: Campaign export
+version: 0.1.0
+api: 1
+description: Exports the campaign as a static HTML document.
+author: Demitable
+
+capabilities:
+  - id: vault.read
+  - id: vault.query
+  - id: log
+
+provides:
+  - id: export
+    kind: service
+    version: 1.0.0
+
+consumes:
+  - service: vault
+    version: ">=1.0.0 <2.0.0"
+
+config:
+  - key: format
+    type: select
+    label: Export format
+    default: html
+    options:
+      - html
+      - markdown
+  - key: title
+    type: text
+    label: Document title
+    default: Campaign export
