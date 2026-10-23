@@ -1,6 +1,9 @@
 # ADR-0038: Two credentials in disjoint code spaces, and principals instead of roles
 
 - **Status:** Accepted
+- **Amended by:** ADR-0057 — a seat's binding is part of the seat's
+  identity rather than a grant, so it survives the workflow gate; and the
+  campaign boundary constrains the *base level* rather than the grants
 - **Date:** 2026-10-23
 - **Extends:** ADR-0009 (accounts), ADR-0017 (between-sessions access),
   ADR-0033 (the visibility model), ADR-0037 (a campaign is a note)

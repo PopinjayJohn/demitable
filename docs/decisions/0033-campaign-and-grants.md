@@ -1,6 +1,11 @@
 # ADR-0033: The campaign dimension, grant sets, and a completed visibility model
 
-- **Status:** Accepted, amended by ADR-0040 (the `owner` field is now
+- **Status:** Accepted
+- **Amended by:** ADR-0057 — the model computes *audiences* (the
+  intersection of narrowing constraints, then widening grants) rather than
+  adjudicating an ordered rule list, because "the first rule that applies
+  wins" meant some rules never ran and the rules that lost were the
+  narrowing ones, amended by ADR-0040 (the `owner` field is now
   `player`, and the generic `status` field is gone)
 - **Date:** 2026-10-22
 - **Amends:** ADR-0002 (trust boundary), ADR-0009 (accounts),

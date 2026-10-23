@@ -1,6 +1,10 @@
 # ADR-0045: The plugin ABI, the capability mapping, and the `api: 1` freeze
 
 - **Status:** Accepted
+- **Amended by:** ADR-0056 — capabilities come in three kinds, so
+  "a capability with no host function does not exist" is false; the host
+  primitives are part of the freeze; the manifest field is `api`, not
+  `abi`; and the freeze lands at M8, not M11
 - **Date:** 2026-10-23
 - **Extends:** ADR-0020 (the tiers) and ADR-0031 (exposure)
 - **Addresses:** a blocking open decision — the ABI shape, the

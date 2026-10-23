@@ -216,10 +216,18 @@ content:
 
 ### M3 — The plugin host's core
 
-**M3a** — registry, capabilities, services.
-**M3b** — surface hosts, the bridge, the shell.
-**M3c** — the API contract.
-**M3d** — the compiled-in plugin registration path.
+**M3a** — registry, capabilities, services. Capabilities come in **three
+kinds** — invocable, subscription, declaration — and the four host
+primitives (`context.get`, `pref.get`, `pref.set`, `command.register`) are
+frozen with `api: 1` (ADR-0056).
+**M3b** — surface hosts, the bridge, the shell. The bridge hands out a
+**projected `NoteView`**, never a raw note: the owner-scoped fields
+(`player`, `grants`, `discovered`) are stripped unless the principal is the
+GM or the note's player (ADR-0056).
+**M3c** — the API contract. The manifest field is **`api`**, not `abi`, and
+the host checks it **before loading the module** (ADR-0056).
+**M3d** — the compiled-in plugin registration path, manifest-driven
+(ADR-0056).
 
 **No WASM in phase 1.** The sandbox is phase 2 (ADR-0020, ADR-0045). What
 phase 1 has is the *shape* of a plugin host — a manifest, a capability
@@ -302,7 +310,23 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
 - A campaign note's `party` resolves against **its own `members` list**, and
   a member id that does not exist is tolerated rather than fatal.
 - A note with `visibility: private` is visible to its `player` and to nobody
-  else, not even the GM (ADR-0048).
+  else, not even the GM (ADR-0048, ADR-0057).
+- **The projection computes audiences, not rule verdicts** (ADR-0057): the
+  audience is the intersection of every applicable constraint, then widened
+  by the grants that are permitted to widen it. The property-level `owner`
+  rule **includes the GM**, so a GM can see a player's hit points — which
+  ADR-0002 requires and ADR-0033's rule 7 did not deliver.
+- A seat's **binding is part of the seat's identity**, not a grant, so it
+  survives the workflow gate: a guest may play a character still in draft,
+  because the GM assigned it (ADR-0057).
+- `visibility: party` on a note with **no campaign** is a **linter error**,
+  not a silent black hole. A `visibility:` value outside the vocabulary is
+  both a linter error and a read-time fail-closed (ADR-0057).
+- The reserved fields carry **their own visibility**: `player`, `workflow`,
+  `grants` and `revealed` to the note's `player` and the GM, `discovered` to
+  the note's `player` alone, and `type`, `uid`, `name`, `system`,
+  `campaign`, `kind` and `visibility` to everyone who can see the note
+  (ADR-0057, extending ADR-0050's table).
 - A note with `visibility: discovered` is visible to the GM and to any
   principal who owns a character whose `discovered` list names it — and to
   nobody else (ADR-0050).
@@ -483,6 +507,12 @@ Carried forward from the previous plan, and settled by decision:
 - The plugin ABI, the capability mapping, the `api: 1` freeze — ADR-0045;
   the *vocabulary* is phase 1, the WASM host functions are phase 2.
 - The shadow host contract and the config UI — ADR-0046, phase 1.
+- The plugin ABI freeze — ADR-0045, amended by **ADR-0056**: capabilities
+  come in three kinds (invocable, subscription, declaration), the host
+  primitives (`context.get`, `pref.get`, `pref.set`, `command.register`)
+  are part of `api: 1`, the manifest field is `api`, and the freeze lands
+  at **M8** — the export plugin is the second, non-UI consumer that
+  ADR-0019 requires for a freeze.
 - The query language — ADR-0047, phase 2.
 - The seat and guest identity — ADR-0038; the *account* and *campaign* are
   phase 1, the *seat* is phase 3.

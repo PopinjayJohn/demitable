@@ -59,6 +59,8 @@ one means writing a new ADR that supersedes it.
 | [0053](0053-the-renderer-renders-constructs-not-documents.md) | The renderer renders constructs, not documents | Accepted |
 | [0054](0054-the-search-index-measured.md) | The search index, measured — headings, columns, and content fences | Accepted |
 | [0055](0055-the-watcher-and-the-index-measured.md) | The watcher and the index, measured — and one criterion that fails | Accepted |
+| [0056](0056-the-plugin-manifest-and-the-api-1-freeze.md) | The plugin manifest, the capability kinds, and the `api: 1` freeze | Accepted |
+| [0057](0057-the-visibility-model-computes-audiences.md) | The visibility model computes audiences, not rule verdicts | Accepted |
 
 ## The shape of the decisions
 
