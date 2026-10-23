@@ -16,3 +16,6 @@
 /web/dist/
 /internal/server/webdist/*
 !/internal/server/webdist/.gitkeep
+
+# fixtures may be a symlink in a worktree
+/fixtures
