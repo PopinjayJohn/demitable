@@ -1,0 +1,178 @@
+vault: 1693 notes; player p_8f2a sees 524; 1169 are GM-only
+  GM-only gmreference      114
+  GM-only item             647
+  GM-only monster          370
+  GM-only optionalfeature  38
+
+=== "stealth" ===
+  GM index, first 10 (X = hidden from the player):
+   X  1. Mithral Armor                              compendium/items/mithral-armor-xdmg.md         bm25   -4.0887
+   X  2. Adamantine Armor                           compendium/items/adamantine-armor-xdmg.md      bm25   -4.0663
+   X  3. +1 Armor                                   compendium/items/1-armor-xdmg.md               bm25   -4.0422
+   X  4. +3 Armor                                   compendium/items/3-armor-xdmg.md               bm25   -4.0422
+   X  5. +2 Armor                                   compendium/items/2-armor-xdmg.md               bm25   -4.0401
+   X  6. Armor of Acid Resistance                   compendium/items/armor-of-acid-resistance-xdmg.md bm25   -3.9408
+   X  7. Armor of Cold Resistance                   compendium/items/armor-of-cold-resistance-xdmg.md bm25   -3.9408
+   X  8. Armor of Fire Resistance                   compendium/items/armor-of-fire-resistance-xdmg.md bm25   -3.9408
+   X  9. Armor of Force Resistance                  compendium/items/armor-of-force-resistance-xdmg.md bm25   -3.9408
+   X 10. Armor of Lightning Resistance              compendium/items/armor-of-lightning-resistance-xdmg.md bm25   -3.9408
+  player index, first 10, with the displacement against the GM index:
+       1. Skills                                     rules/skills.md                                bm25   -5.4352
+       2. Pass without Trace                         compendium/spells/pass-without-trace-xphb.md   bm25   -4.9450
+       3. Criminal                                   compendium/backgrounds/criminal-xphb.md        bm25   -4.5297
+       4. Thief                                      compendium/classes/rogue-xphb-thief-xphb.md    bm25   -4.3794
+       5. Rogue                                      compendium/classes/rogue-xphb.md               bm25   -3.6880
+       6. Ranger                                     compendium/classes/ranger-xphb.md              bm25   -2.3035
+       7. Barbarian                                  compendium/classes/barbarian-xphb.md           bm25   -1.0759
+       8. Monk                                       compendium/classes/monk-xphb.md                bm25   -0.9732
+       9. Actions                                    rules/actions.md                               bm25   -0.9584
+
+=== "insight" ===
+  GM index, first 10 (X = hidden from the player):
+   X  1. Ioun Stone, Insight                        compendium/items/ioun-stone-insight-xdmg.md    bm25   -7.4142
+      2. Skills                                     rules/skills.md                                bm25   -4.6609
+   X  3. Ioun Stone                                 compendium/items/ioun-stone-xdmg.md            bm25   -4.6045
+   X  4. Tome of Understanding                      compendium/items/tome-of-understanding-xdmg.md bm25   -4.5137
+   X  5. Nothic                                     compendium/bestiary/aberration/nothic-xmm.md   bm25   -4.0845
+      6. True Strike                                compendium/spells/true-strike-xphb.md          bm25   -3.7018
+      7. Acolyte                                    compendium/backgrounds/acolyte-xphb.md         bm25   -3.6943
+   X  8. Actions                                    compendium/tables/actions-xphb.md              bm25   -3.6721
+   X  9. Raven                                      compendium/bestiary/beast/raven-xmm.md         bm25   -3.5928
+   X 10. Noble                                      compendium/bestiary/humanoid/noble-xmm.md      bm25   -3.5237
+  player index, first 10, with the displacement against the GM index:
+       1. Skills                                     rules/skills.md                                bm25   -4.8465  gm-rank  2 ->  1 (-1)  bm25   -4.6609 ->   -4.8465 (-4.0%)
+       2. True Strike                                compendium/spells/true-strike-xphb.md          bm25   -3.8573  gm-rank  6 ->  2 (-4)  bm25   -3.7018 ->   -3.8573 (-4.2%)
+       3. Acolyte                                    compendium/backgrounds/acolyte-xphb.md         bm25   -3.8498  gm-rank  7 ->  3 (-4)  bm25   -3.6943 ->   -3.8498 (-4.2%)
+       4. Ranger                                     compendium/classes/ranger-xphb.md              bm25   -2.0540
+       5. Elf                                        compendium/races/elf-xphb.md                   bm25   -1.9694
+       6. Rogue                                      compendium/classes/rogue-xphb.md               bm25   -1.7582
+       7. Fighter                                    compendium/classes/fighter-xphb.md             bm25   -1.1253
+       8. Cleric                                     compendium/classes/cleric-xphb.md              bm25   -0.9726
+       9. Wizard                                     compendium/classes/wizard-xphb.md              bm25   -0.9501
+      10. Sorcerer                                   compendium/classes/sorcerer-xphb.md            bm25   -0.9322
+  displacement: max 4 positions (True Strike), mean 3.00 over 3 notes
+
+=== "sleight of hand" ===
+  GM index, first 10 (X = hidden from the player):
+   X  1. Manacles                                   compendium/items/manacles-xphb.md              bm25  -12.8645
+   X  2. Gloves of Thievery                         compendium/items/gloves-of-thievery-xdmg.md    bm25  -11.2710
+   X  3. Lock                                       compendium/items/lock-xphb.md                  bm25  -10.9974
+      4. Skills                                     rules/skills.md                                bm25  -10.3763
+   X  5. Rope                                       compendium/items/rope-xphb.md                  bm25   -9.4436
+      6. Criminal                                   compendium/backgrounds/criminal-xphb.md        bm25   -8.6429
+   X  7. Spy                                        compendium/bestiary/humanoid/spy-xmm.md        bm25   -8.3523
+      8. Thief                                      compendium/classes/rogue-xphb-thief-xphb.md    bm25   -8.3143
+   X  9. Poisoned Needle                            compendium/traps-hazards/poisoned-needle-xdmg.md bm25   -7.5123
+   X 10. Skill List; Skills                         compendium/tables/skill-list-skills-xphb.md    bm25   -7.3103
+  player index, first 10, with the displacement against the GM index:
+       1. Skills                                     rules/skills.md                                bm25  -10.5710  gm-rank  4 ->  1 (-3)  bm25  -10.3763 ->  -10.5710 (-1.9%)
+       2. Criminal                                   compendium/backgrounds/criminal-xphb.md        bm25   -8.8098  gm-rank  6 ->  2 (-4)  bm25   -8.6429 ->   -8.8098 (-1.9%)
+       3. Thief                                      compendium/classes/rogue-xphb-thief-xphb.md    bm25   -8.5175  gm-rank  8 ->  3 (-5)  bm25   -8.3143 ->   -8.5175 (-2.4%)
+       4. Mage Hand                                  compendium/spells/mage-hand-xphb.md            bm25   -6.3315  gm-rank 13 ->  4 (-9)  bm25   -5.9737 ->   -6.3315 (-6.0%)
+       5. Arcane Hand                                compendium/spells/arcane-hand-xphb.md          bm25   -6.2850  gm-rank 14 ->  5 (-9)  bm25   -5.9264 ->   -6.2850 (-6.1%)
+       6. Warrior of the Open Hand                   compendium/classes/monk-xphb-warrior-of-the-open-hand-xphb.md bm25   -6.0557  gm-rank 16 ->  6 (-10)  bm25   -5.7012 ->   -6.0557 (-6.2%)
+       7. Rogue                                      compendium/classes/rogue-xphb.md               bm25   -5.9492  gm-rank 15 ->  7 (-8)  bm25   -5.7110 ->   -5.9492 (-4.2%)
+       8. Grappling                                  rules/variant-rules/grappling-xphb.md          bm25   -5.1508  gm-rank 17 ->  8 (-9)  bm25   -4.8261 ->   -5.1508 (-6.7%)
+       9. Thaumaturgy                                compendium/spells/thaumaturgy-xphb.md          bm25   -4.7297  gm-rank 19 ->  9 (-10)  bm25   -4.4199 ->   -4.7297 (-7.0%)
+      10. Index of Classes                           compendium/classes/classes.md                  bm25   -4.2922
+  displacement: max 10 positions (Warrior of the Open Hand), mean 7.44 over 9 notes
+
+=== "barbarian" ===
+  GM index, first 10 (X = hidden from the player):
+      1. Barbarian                                  compendium/classes/barbarian-xphb.md           bm25   -9.9695
+      2. Index of Classes                           compendium/classes/classes.md                  bm25   -9.0940
+      3. Path of the Berserker                      compendium/classes/barbarian-xphb-path-of-the-berserker-xphb.md bm25   -7.2454
+   X  4. Level 1 Hit Points by Class                compendium/tables/level-1-hit-points-by-class-xphb.md bm25   -7.2302
+   X  5. Adjust Hit Points and Hit Point Dice; Fixed Hit Points by Class compendium/tables/adjust-hit-points-and-hit-point-dice-fixed-hit-points-by-class-xphb.md bm25   -6.8056
+   X  6. Choose a Class; Class Overview             compendium/tables/choose-a-class-class-overview-xphb.md bm25   -6.8056
+   X  7. Assign Ability Scores; Standard Array by Class compendium/tables/assign-ability-scores-standard-array-by-class-xphb.md bm25   -6.2268
+      8. Multiclassing                              rules/variant-rules/multiclassing-xphb.md      bm25   -1.8979
+  player index, first 10, with the displacement against the GM index:
+       1. Barbarian                                  compendium/classes/barbarian-xphb.md           bm25   -9.0158  gm-rank  1 ->  1 (+0)  bm25   -9.9695 ->   -9.0158 (+9.6%)
+       2. Index of Classes                           compendium/classes/classes.md                  bm25   -8.2090  gm-rank  2 ->  2 (+0)  bm25   -9.0940 ->   -8.2090 (+9.7%)
+       3. Path of the Berserker                      compendium/classes/barbarian-xphb-path-of-the-berserker-xphb.md bm25   -6.6115  gm-rank  3 ->  3 (+0)  bm25   -7.2454 ->   -6.6115 (+8.7%)
+       4. Multiclassing                              rules/variant-rules/multiclassing-xphb.md      bm25   -1.7746  gm-rank  8 ->  4 (-4)  bm25   -1.8979 ->   -1.7746 (+6.5%)
+  displacement: max 4 positions (Multiclassing), mean 1.00 over 4 notes
+
+=== "darkvision" ===
+  GM index, first 10 (X = hidden from the player):
+      1. Darkvision                                 compendium/spells/darkvision-xphb.md           bm25   -3.8382
+   X  2. Goggles of Night                           compendium/items/goggles-of-night-xdmg.md      bm25   -3.1436
+      3. Orc                                        compendium/races/orc-xphb.md                   bm25   -2.8817
+      4. Senses                                     rules/senses.md                                bm25   -2.8687
+      5. Dwarf                                      compendium/races/dwarf-xphb.md                 bm25   -2.8283
+   X  6. Belt of Dwarvenkind                        compendium/items/belt-of-dwarvenkind-xdmg.md   bm25   -2.6724
+      7. Gnome                                      compendium/races/gnome-xphb.md                 bm25   -2.5973
+      8. Dragonborn                                 compendium/races/dragonborn-xphb.md            bm25   -2.5814
+      9. Tiefling                                   compendium/races/tiefling-xphb.md              bm25   -2.4807
+   X 10. Eyes of Minute Seeing                      compendium/items/eyes-of-minute-seeing-xdmg.md bm25   -2.4725
+  player index, first 10, with the displacement against the GM index:
+       1. Darkvision                                 compendium/spells/darkvision-xphb.md           bm25   -7.7002  gm-rank  1 ->  1 (+0)  bm25   -3.8382 ->   -7.7002 (-100.6%)
+       2. Orc                                        compendium/races/orc-xphb.md                   bm25   -5.8407  gm-rank  3 ->  2 (-1)  bm25   -2.8817 ->   -5.8407 (-102.7%)
+       3. Senses                                     rules/senses.md                                bm25   -5.8154  gm-rank  4 ->  3 (-1)  bm25   -2.8687 ->   -5.8154 (-102.7%)
+       4. Dwarf                                      compendium/races/dwarf-xphb.md                 bm25   -5.7367  gm-rank  5 ->  4 (-1)  bm25   -2.8283 ->   -5.7367 (-102.8%)
+       5. Gnome                                      compendium/races/gnome-xphb.md                 bm25   -5.2847  gm-rank  7 ->  5 (-2)  bm25   -2.5973 ->   -5.2847 (-103.5%)
+       6. Dragonborn                                 compendium/races/dragonborn-xphb.md            bm25   -5.2537  gm-rank  8 ->  6 (-2)  bm25   -2.5814 ->   -5.2537 (-103.5%)
+       7. Tiefling                                   compendium/races/tiefling-xphb.md              bm25   -5.0557  gm-rank  9 ->  7 (-2)  bm25   -2.4807 ->   -5.0557 (-103.8%)
+       8. Elf                                        compendium/races/elf-xphb.md                   bm25   -5.0113  gm-rank 11 ->  8 (-3)  bm25   -2.4570 ->   -5.0113 (-104.0%)
+       9. Arcane Eye                                 compendium/spells/arcane-eye-xphb.md           bm25   -4.2085  gm-rank 15 ->  9 (-6)  bm25   -2.0655 ->   -4.2085 (-103.7%)
+      10. Darkness                                   compendium/spells/darkness-xphb.md             bm25   -3.8613
+  displacement: max 6 positions (Arcane Eye), mean 2.00 over 9 notes
+
+=== "thunderwave" ===
+  GM index, first 10 (X = hidden from the player):
+      1. Thunderwave                                compendium/spells/thunderwave-xphb.md          bm25   -9.9725
+   X  2. Evocation Spells                           compendium/lists/list-spells-school-evocation.md bm25   -5.4354
+   X  3. Spells for Magic Initiate                  compendium/lists/list-spells-feats-magic-initiate-xphb.md bm25   -5.2228
+   X  4. Spells for Evoker                          compendium/lists/list-spells-classes-evoker-xphb.md bm25   -4.3237
+   X  5. Bard Spells                                compendium/lists/list-spells-classes-bard.md   bm25   -4.2800
+   X  6. Druid Spells                               compendium/lists/list-spells-classes-druid.md  bm25   -4.2160
+   X  7. Sorcerer Spells                            compendium/lists/list-spells-classes-sorcerer.md bm25   -4.1743
+   X  8. Druid                                      compendium/bestiary/humanoid/druid-xmm.md      bm25   -3.8395
+   X  9. Wizard Spells                              compendium/lists/list-spells-classes-wizard.md bm25   -3.3658
+     10. Index of Spells                            compendium/spells/spells.md                    bm25   -2.6461
+  player index, first 10, with the displacement against the GM index:
+       1. Thunderwave                                compendium/spells/thunderwave-xphb.md          bm25   -9.8417  gm-rank  1 ->  1 (+0)  bm25   -9.9725 ->   -9.8417 (+1.3%)
+       2. Index of Spells                            compendium/spells/spells.md                    bm25   -2.6972  gm-rank 10 ->  2 (-8)  bm25   -2.6461 ->   -2.6972 (-1.9%)
+       3. Wizard                                     compendium/classes/wizard-xphb.md              bm25   -1.2675  gm-rank 12 ->  3 (-9)  bm25   -1.2323 ->   -1.2675 (-2.9%)
+       4. Druid                                      compendium/classes/druid-xphb.md               bm25   -1.0913  gm-rank 13 ->  4 (-9)  bm25   -1.0598 ->   -1.0913 (-3.0%)
+  displacement: max 9 positions (Wizard), mean 6.50 over 4 notes
+
+=== "magic missile" ===
+  GM index, first 10 (X = hidden from the player):
+      1. Magic Missile                              compendium/spells/magic-missile-xphb.md        bm25  -11.0337
+   X  2. Shield of Missile Attraction               compendium/items/shield-of-missile-attraction-xdmg.md bm25  -10.2875
+   X  3. Gloves of Missile Snaring                  compendium/items/gloves-of-missile-snaring-xdmg.md bm25   -9.2549
+      4. Shield                                     compendium/spells/shield-xphb.md               bm25   -8.4610
+   X  5. Brooch of Shielding                        compendium/items/brooch-of-shielding-xdmg.md   bm25   -7.5706
+   X  6. Wand of Magic Missiles                     compendium/items/wand-of-magic-missiles-xdmg.md bm25   -7.1843
+   X  7. Spells for Magic Initiate                  compendium/lists/list-spells-feats-magic-initiate-xphb.md bm25   -6.6269
+   X  8. Robe of Stars                              compendium/items/robe-of-stars-xdmg.md         bm25   -6.3367
+   X  9. Evocation Spells                           compendium/lists/list-spells-school-evocation.md bm25   -5.9648
+   X 10. Sorcerer Spells                            compendium/lists/list-spells-classes-sorcerer.md bm25   -5.2253
+  player index, first 10, with the displacement against the GM index:
+       1. Magic Missile                              compendium/spells/magic-missile-xphb.md        bm25  -11.5189  gm-rank  1 ->  1 (+0)  bm25  -11.0337 ->  -11.5189 (-4.4%)
+       2. Shield                                     compendium/spells/shield-xphb.md               bm25   -8.8679  gm-rank  4 ->  2 (-2)  bm25   -8.4610 ->   -8.8679 (-4.8%)
+       3. Index of Spells                            compendium/spells/spells.md                    bm25   -3.9384  gm-rank 14 ->  3 (-11)  bm25   -3.8402 ->   -3.9384 (-2.6%)
+       4. Wizard                                     compendium/classes/wizard-xphb.md              bm25   -2.2847  gm-rank 20 ->  4 (-16)  bm25   -2.2841 ->   -2.2847 (-0.0%)
+       5. Magic Weapon                               compendium/spells/magic-weapon-xphb.md         bm25   -1.6074
+       6. Detect Magic                               compendium/spells/detect-magic-xphb.md         bm25   -1.6000
+       7. Magic Initiate                             compendium/feats/magic-initiate-xphb.md        bm25   -1.5873
+       8. Dispel Magic                               compendium/spells/dispel-magic-xphb.md         bm25   -1.5858
+       9. Arcanist's Magic Aura                      compendium/spells/arcanists-magic-aura-xphb.md bm25   -1.5856
+      10. Magic Circle                               compendium/spells/magic-circle-xphb.md         bm25   -1.5612
+  displacement: max 16 positions (Wizard), mean 7.25 over 4 notes
+
+=== "goblin" ===
+  GM index, first 10 (X = hidden from the player):
+   X  1. Goblin Minion                              compendium/bestiary/fey/goblin-minion-xmm.md   bm25   -9.7909
+   X  2. Goblin Boss                                compendium/bestiary/fey/goblin-boss-xmm.md     bm25   -9.7648
+   X  3. Goblin Warrior                             compendium/bestiary/fey/goblin-warrior-xmm.md  bm25   -9.7337
+   X  4. Index of Fey                               compendium/bestiary/fey/fey.md                 bm25   -9.1496
+   X  5. Choose Languages; Standard Languages       compendium/tables/choose-languages-standard-languages-xphb.md bm25   -6.6806
+   X  6. Deck of Illusions                          compendium/decks/deck-of-illusions-xdmg.md     bm25   -6.2428
+   X  7. Worg                                       compendium/bestiary/fey/worg-xmm.md            bm25   -4.9190
+   X  8. Hobgoblin Warrior                          compendium/bestiary/fey/hobgoblin-warrior-xmm.md bm25   -4.6010
+   X  9. Bugbear Warrior                            compendium/bestiary/fey/bugbear-warrior-xmm.md bm25   -4.4450
+   X 10. Bugbear Stalker                            compendium/bestiary/fey/bugbear-stalker-xmm.md bm25   -4.2584
+  player index, first 10, with the displacement against the GM index:

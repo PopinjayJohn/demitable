@@ -1,0 +1,20 @@
+
+=== "goblin warrior"  -> terms [goblin warrior] ===
+  OR   5 hits: Goblin Warrior Index of Fey Deck of Illusions Bugbear Warrior Hobgoblin Warrior
+  AND  5 hits: Goblin Warrior Index of Fey Deck of Illusions Bugbear Warrior Hobgoblin Warrior
+
+=== "magic missile"  -> terms [magic missile] ===
+  OR   5 hits: Magic Missile Shield of Missile Attraction Gloves of Missile Snaring Shield Brooch of Shielding
+  AND  5 hits: Magic Missile Shield of Missile Attraction Shield Brooch of Shielding Wand of Magic Missiles
+
+=== "sleight of hand"  -> terms [sleight hand] ===
+  OR   5 hits: Manacles Gloves of Thievery Lock Skills Rope
+  AND  5 hits: Manacles Gloves of Thievery Lock Skills Rope
+
+=== "fire bolt"  -> terms [fire bolt] ===
+  OR   5 hits: Fire Bolt Evocation Spells Spells for Magic Initiate Spells for Elf Sorcerer Spells
+  AND  5 hits: Fire Bolt Evocation Spells Spells for Magic Initiate Spells for Elf Sorcerer Spells
+
+=== "the duke's letter"  -> terms [duke letter] ===
+  OR   2 hits: Cultist Cultist Fanatic
+  AND  0 hits:

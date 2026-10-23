@@ -1,0 +1,6 @@
+query terms: [duke letter]
+  OR:
+    1. Cultist                                  compendium/bestiary/humanoid/cultist-xmm.md    bm25    -3.860597
+    2. Cultist Fanatic                          compendium/bestiary/humanoid/cultist-fanatic-xmm.md bm25    -3.654754
+  term "duke"     matches 0 notes
+  term "letter"   matches 2 notes

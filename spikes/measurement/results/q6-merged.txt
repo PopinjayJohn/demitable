@@ -1,0 +1,18 @@
+query                  literal  ranked   merged  
+goblin                 1st      1st      1st     
+goblin warrior         1st      1st      1st     
+hobgoblin              1st      1st      1st     
+thunderwave            1st      1st      1st     
+magic missile          1st      1st      1st     
+fire bolt              1st      1st      1st     
+longbow                1st      1st      1st     
+shillelagh             1st      1st      1st     
+barbarian              1st      1st      1st     
+druid                  1st      1st      1st     
+stealth                1st      MISS     1st     
+sleight of hand        1st      #4       1st     
+insight                1st      #2       1st     
+darkvision             #7       1st      #7      
+gob                    1st      1st      1st     
+
+first place: literal 14/15, ranked 12/15, merged 14/15

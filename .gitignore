@@ -1,3 +1,8 @@
 # The SRD corpus is a transient build input. It is not committed; it is
 # re-fetched from its upstream and enriched into a vault by the pipeline.
 /fixtures/
+
+# Spike binaries.
+/spikes/**/search
+/spikes/**/watcher
+/spikes/**/baselines

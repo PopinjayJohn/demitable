@@ -1,0 +1,47 @@
+
+=== "the duke's letter" ===  given
+  [MISS]
+   1. The Duke's Letter                              The Duke's Letter.md                                 bm25    -0.000004
+   2. Duke Reynard                                   Duke Reynard.md                                      bm25    -0.000004
+   3. Session 3 — the Toll Road                      Session 3 - the Toll Road.md                         bm25    -0.000003
+   4. Greymoor                                       Greymoor.md                                          bm25    -0.000002
+   5. Ilia Vane                                      Ilia Vane.md                                         bm25    -0.000002
+
+=== "duke" ===  given
+  [MISS]
+   1. Duke Reynard                                   Duke Reynard.md                                      bm25    -0.000002
+   2. The Duke's Letter                              The Duke's Letter.md                                 bm25    -0.000002
+   3. Goblins of the Wastes                          Goblins of the Wastes.md                             bm25    -0.000002
+   4. Sela Thorn                                     Sela Thorn.md                                        bm25    -0.000001
+   5. Ilia Vane                                      Ilia Vane.md                                         bm25    -0.000001
+
+=== "goblin" ===  given
+  [MISS]
+   1. Goblin Ambush at the Second Bridge             Goblin Ambush at the Second Bridge.md                bm25    -0.000002
+   2. Goblins of the Wastes                          Goblins of the Wastes.md                             bm25    -0.000002
+   3. The Toll Road                                  The Toll Road.md                                     bm25    -0.000002
+   4. Session 3 — the Toll Road                      Session 3 - the Toll Road.md                         bm25    -0.000001
+   5. Greymoor                                       Greymoor.md                                          bm25    -0.000001
+
+=== "toll road" ===  given
+  [MISS]
+   1. The Toll Road                                  The Toll Road.md                                     bm25    -0.000004
+   2. Session 3 — the Toll Road                      Session 3 - the Toll Road.md                         bm25    -0.000004
+   3. Greymoor                                       Greymoor.md                                          bm25    -0.000003
+   4. The Duke's Letter                              The Duke's Letter.md                                 bm25    -0.000003
+   5. Goblins of the Wastes                          Goblins of the Wastes.md                             bm25    -0.000003
+
+=== "letter" ===  given
+  [MISS]
+   1. The Duke's Letter                              The Duke's Letter.md                                 bm25    -0.000002
+   2. Duke Reynard                                   Duke Reynard.md                                      bm25    -0.000002
+   3. Session 3 — the Toll Road                      Session 3 - the Toll Road.md                         bm25    -0.000001
+   4. Greymoor                                       Greymoor.md                                          bm25    -0.000001
+   5. Ilia Vane                                      Ilia Vane.md                                         bm25    -0.000001
+
+=== "thistle" ===  given
+  [MISS]
+   1. The Duke's Letter                              The Duke's Letter.md                                 bm25    -0.260166
+   2. Sela Thorn                                     Sela Thorn.md                                        bm25    -0.218623
+   3. Session 3 — the Toll Road                      Session 3 - the Toll Road.md                         bm25    -0.200971
+   4. Duke Reynard                                   Duke Reynard.md                                      bm25    -0.160048

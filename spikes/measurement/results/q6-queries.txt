@@ -1,0 +1,166 @@
+
+=== "goblin" ===  the goblin entry
+  [1st ]
+   1. Goblin Minion                                  compendium/bestiary/fey/goblin-minion-xmm.md         bm25    -9.790910
+   2. Goblin Boss                                    compendium/bestiary/fey/goblin-boss-xmm.md           bm25    -9.764806
+   3. Goblin Warrior                                 compendium/bestiary/fey/goblin-warrior-xmm.md        bm25    -9.733745
+   4. Index of Fey                                   compendium/bestiary/fey/fey.md                       bm25    -9.149562
+   5. Choose Languages; Standard Languages           compendium/tables/choose-languages-standard-languages-xphb.md bm25    -6.680586
+   6. Deck of Illusions                              compendium/decks/deck-of-illusions-xdmg.md           bm25    -6.242804
+   7. Worg                                           compendium/bestiary/fey/worg-xmm.md                  bm25    -4.918964
+   8. Hobgoblin Warrior                              compendium/bestiary/fey/hobgoblin-warrior-xmm.md     bm25    -4.600986
+
+=== "goblin warrior" ===  a specific goblin
+  [1st ]
+   1. Goblin Warrior                                 compendium/bestiary/fey/goblin-warrior-xmm.md        bm25   -17.779718
+   2. Index of Fey                                   compendium/bestiary/fey/fey.md                       bm25   -17.211774
+   3. Deck of Illusions                              compendium/decks/deck-of-illusions-xdmg.md           bm25   -14.328804
+   4. Bugbear Warrior                                compendium/bestiary/fey/bugbear-warrior-xmm.md       bm25   -12.792965
+   5. Hobgoblin Warrior                              compendium/bestiary/fey/hobgoblin-warrior-xmm.md     bm25   -12.427292
+   6. Deck of Illusions                              compendium/items/deck-of-illusions-xdmg.md           bm25   -10.450897
+   7. Goblin Minion                                  compendium/bestiary/fey/goblin-minion-xmm.md         bm25    -9.790910
+   8. Goblin Boss                                    compendium/bestiary/fey/goblin-boss-xmm.md           bm25    -9.764806
+
+=== "hobgoblin" ===  a specific hobgoblin
+  [1st ]
+   1. Hobgoblin Captain                              compendium/bestiary/fey/hobgoblin-captain-xmm.md     bm25   -11.662178
+   2. Hobgoblin Warrior                              compendium/bestiary/fey/hobgoblin-warrior-xmm.md     bm25   -11.557524
+   3. Index of Fey                                   compendium/bestiary/fey/fey.md                       bm25   -10.161002
+   4. Deck of Illusions                              compendium/decks/deck-of-illusions-xdmg.md           bm25    -7.410950
+   5. Deck of Illusions                              compendium/items/deck-of-illusions-xdmg.md           bm25    -4.297782
+
+=== "thunderwave" ===  a spell
+  [1st ]
+   1. Thunderwave                                    compendium/spells/thunderwave-xphb.md                bm25    -9.972469
+   2. Evocation Spells                               compendium/lists/list-spells-school-evocation.md     bm25    -5.435361
+   3. Spells for Magic Initiate                      compendium/lists/list-spells-feats-magic-initiate-xphb.md bm25    -5.222759
+   4. Spells for Evoker                              compendium/lists/list-spells-classes-evoker-xphb.md  bm25    -4.323744
+   5. Bard Spells                                    compendium/lists/list-spells-classes-bard.md         bm25    -4.279978
+   6. Druid Spells                                   compendium/lists/list-spells-classes-druid.md        bm25    -4.215965
+   7. Sorcerer Spells                                compendium/lists/list-spells-classes-sorcerer.md     bm25    -4.174343
+   8. Druid                                          compendium/bestiary/humanoid/druid-xmm.md            bm25    -3.839512
+
+=== "magic missile" ===  a spell
+  [1st ]
+   1. Magic Missile                                  compendium/spells/magic-missile-xphb.md              bm25   -11.033705
+   2. Shield of Missile Attraction                   compendium/items/shield-of-missile-attraction-xdmg.md bm25   -10.287495
+   3. Gloves of Missile Snaring                      compendium/items/gloves-of-missile-snaring-xdmg.md   bm25    -9.254915
+   4. Shield                                         compendium/spells/shield-xphb.md                     bm25    -8.461012
+   5. Brooch of Shielding                            compendium/items/brooch-of-shielding-xdmg.md         bm25    -7.570571
+   6. Wand of Magic Missiles                         compendium/items/wand-of-magic-missiles-xdmg.md      bm25    -7.184297
+   7. Spells for Magic Initiate                      compendium/lists/list-spells-feats-magic-initiate-xphb.md bm25    -6.626931
+   8. Robe of Stars                                  compendium/items/robe-of-stars-xdmg.md               bm25    -6.336731
+
+=== "fire bolt" ===  a spell
+  [1st ]
+   1. Fire Bolt                                      compendium/spells/fire-bolt-xphb.md                  bm25   -11.316890
+   2. Evocation Spells                               compendium/lists/list-spells-school-evocation.md     bm25    -9.459071
+   3. Spells for Magic Initiate                      compendium/lists/list-spells-feats-magic-initiate-xphb.md bm25    -7.909616
+   4. Spells for Elf                                 compendium/lists/list-spells-races-elf-xphb.md       bm25    -7.785903
+   5. Sorcerer Spells                                compendium/lists/list-spells-classes-sorcerer.md     bm25    -7.464176
+   6. Spells for Tiefling                            compendium/lists/list-spells-races-tiefling-xphb.md  bm25    -7.373372
+   7. Spells for Evoker                              compendium/lists/list-spells-classes-evoker-xphb.md  bm25    -7.359794
+   8. Crossbow Bolt Case                             compendium/items/crossbow-bolt-case-xphb.md          bm25    -7.356889
+
+=== "longbow" ===  an item
+  [1st ]
+   1. Longbow                                        compendium/items/longbow-xphb.md                     bm25    -9.192201
+   2. Oathbow                                        compendium/items/oathbow-xdmg.md                     bm25    -8.532462
+   3. Energy Bow                                     compendium/items/energy-bow-xdmg.md                  bm25    -8.097857
+   4. Scout                                          compendium/bestiary/humanoid/scout-xmm.md            bm25    -6.763832
+   5. +1 Weapon                                      compendium/items/1-weapon-xdmg.md                    bm25    -6.596649
+   6. +2 Weapon                                      compendium/items/2-weapon-xdmg.md                    bm25    -6.596649
+   7. +3 Weapon                                      compendium/items/3-weapon-xdmg.md                    bm25    -6.593449
+   8. Vicious Weapon                                 compendium/items/vicious-weapon-xdmg.md              bm25    -6.492670
+
+=== "shillelagh" ===  a spell
+  [1st ]
+   1. Shillelagh                                     compendium/spells/shillelagh-xphb.md                 bm25   -11.219714
+   2. Spells for Pact of the Tome                    compendium/lists/list-spells-optional-features-pact-of-the-tome-xphb.md bm25    -6.801042
+   3. Transmutation Spells                           compendium/lists/list-spells-school-transmutation.md bm25    -6.154376
+   4. Spells for Magic Initiate                      compendium/lists/list-spells-feats-magic-initiate-xphb.md bm25    -5.862971
+   5. Druid Spells                                   compendium/lists/list-spells-classes-druid.md        bm25    -4.732763
+   6. Index of Spells                                compendium/spells/spells.md                          bm25    -2.970475
+   7. Spells for College of Lore                     compendium/lists/list-spells-classes-college-of-lore-xphb.md bm25    -2.119401
+
+=== "barbarian" ===  a class
+  [1st ]
+   1. Barbarian                                      compendium/classes/barbarian-xphb.md                 bm25    -9.969468
+   2. Index of Classes                               compendium/classes/classes.md                        bm25    -9.093995
+   3. Path of the Berserker                          compendium/classes/barbarian-xphb-path-of-the-berserker-xphb.md bm25    -7.245370
+   4. Level 1 Hit Points by Class                    compendium/tables/level-1-hit-points-by-class-xphb.md bm25    -7.230155
+   5. Adjust Hit Points and Hit Point Dice; Fixed Hit Points by Class compendium/tables/adjust-hit-points-and-hit-point-dice-fixed-hit-points-by-class-xphb.md bm25    -6.805634
+   6. Choose a Class; Class Overview                 compendium/tables/choose-a-class-class-overview-xphb.md bm25    -6.805634
+   7. Assign Ability Scores; Standard Array by Class compendium/tables/assign-ability-scores-standard-array-by-class-xphb.md bm25    -6.226757
+   8. Multiclassing                                  rules/variant-rules/multiclassing-xphb.md            bm25    -1.897876
+
+=== "druid" ===  a class — or the monster
+  [1st ]
+   1. Druid                                          compendium/bestiary/humanoid/druid-xmm.md            bm25    -4.554652
+   2. Druid Spells                                   compendium/lists/list-spells-classes-druid.md        bm25    -4.476504
+   3. Druid                                          compendium/classes/druid-xphb.md                     bm25    -4.282217
+   4. Guidance                                       compendium/spells/guidance-xphb.md                   bm25    -3.956320
+   5. Healing Word                                   compendium/spells/healing-word-xphb.md               bm25    -3.885972
+   6. Spare the Dying                                compendium/spells/spare-the-dying-xphb.md            bm25    -3.881658
+   7. Purify Food and Drink                          compendium/spells/purify-food-and-drink-xphb.md      bm25    -3.851728
+   8. Cure Wounds                                    compendium/spells/cure-wounds-xphb.md                bm25    -3.843261
+
+=== "stealth" ===  the Stealth skill, which lives in one note under a heading
+  [MISS]
+   1. Mithral Armor                                  compendium/items/mithral-armor-xdmg.md               bm25    -4.088695
+   2. Adamantine Armor                               compendium/items/adamantine-armor-xdmg.md            bm25    -4.066321
+   3. +1 Armor                                       compendium/items/1-armor-xdmg.md                     bm25    -4.042233
+   4. +3 Armor                                       compendium/items/3-armor-xdmg.md                     bm25    -4.042233
+   5. +2 Armor                                       compendium/items/2-armor-xdmg.md                     bm25    -4.040110
+   6. Armor of Acid Resistance                       compendium/items/armor-of-acid-resistance-xdmg.md    bm25    -3.940770
+   7. Armor of Cold Resistance                       compendium/items/armor-of-cold-resistance-xdmg.md    bm25    -3.940770
+   8. Armor of Fire Resistance                       compendium/items/armor-of-fire-resistance-xdmg.md    bm25    -3.940770
+
+=== "sleight of hand" ===  the Sleight of Hand skill
+  [#4  ]
+   1. Manacles                                       compendium/items/manacles-xphb.md                    bm25   -12.864463
+   2. Gloves of Thievery                             compendium/items/gloves-of-thievery-xdmg.md          bm25   -11.271021
+   3. Lock                                           compendium/items/lock-xphb.md                        bm25   -10.997417
+   4. Skills                                         rules/skills.md                                      bm25   -10.376323
+   5. Rope                                           compendium/items/rope-xphb.md                        bm25    -9.443649
+   6. Criminal                                       compendium/backgrounds/criminal-xphb.md              bm25    -8.642918
+   7. Spy                                            compendium/bestiary/humanoid/spy-xmm.md              bm25    -8.352282
+   8. Thief                                          compendium/classes/rogue-xphb-thief-xphb.md          bm25    -8.314329
+
+=== "insight" ===  the Insight skill
+  [#2  ]
+   1. Ioun Stone, Insight                            compendium/items/ioun-stone-insight-xdmg.md          bm25    -7.414169
+   2. Skills                                         rules/skills.md                                      bm25    -4.660874
+   3. Ioun Stone                                     compendium/items/ioun-stone-xdmg.md                  bm25    -4.604534
+   4. Tome of Understanding                          compendium/items/tome-of-understanding-xdmg.md       bm25    -4.513749
+   5. Nothic                                         compendium/bestiary/aberration/nothic-xmm.md         bm25    -4.084475
+   6. True Strike                                    compendium/spells/true-strike-xphb.md                bm25    -3.701779
+   7. Acolyte                                        compendium/backgrounds/acolyte-xphb.md               bm25    -3.694312
+   8. Actions                                        compendium/tables/actions-xphb.md                    bm25    -3.672090
+
+=== "darkvision" ===  the Darkvision spell or the sense
+  [1st ]
+   1. Darkvision                                     compendium/spells/darkvision-xphb.md                 bm25    -3.838179
+   2. Goggles of Night                               compendium/items/goggles-of-night-xdmg.md            bm25    -3.143624
+   3. Orc                                            compendium/races/orc-xphb.md                         bm25    -2.881738
+   4. Senses                                         rules/senses.md                                      bm25    -2.868736
+   5. Dwarf                                          compendium/races/dwarf-xphb.md                       bm25    -2.828327
+   6. Belt of Dwarvenkind                            compendium/items/belt-of-dwarvenkind-xdmg.md         bm25    -2.672383
+   7. Gnome                                          compendium/races/gnome-xphb.md                       bm25    -2.597266
+   8. Dragonborn                                     compendium/races/dragonborn-xphb.md                  bm25    -2.581449
+
+=== "the duke's letter" ===  a phrase the GM types
+  [MISS]
+   1. Cultist                                        compendium/bestiary/humanoid/cultist-xmm.md          bm25    -3.860597
+   2. Cultist Fanatic                                compendium/bestiary/humanoid/cultist-fanatic-xmm.md  bm25    -3.654754
+
+=== "gob" ===  a half-typed word
+  [1st ]
+   1. Goblin Minion                                  compendium/bestiary/fey/goblin-minion-xmm.md         bm25    -9.767558
+   2. Goblin Boss                                    compendium/bestiary/fey/goblin-boss-xmm.md           bm25    -9.735674
+   3. Goblin Warrior                                 compendium/bestiary/fey/goblin-warrior-xmm.md        bm25    -9.728986
+   4. Index of Fey                                   compendium/bestiary/fey/fey.md                       bm25    -8.885286
+   5. Choose Languages; Standard Languages           compendium/tables/choose-languages-standard-languages-xphb.md bm25    -7.962896
+   6. Bugbear Warrior                                compendium/bestiary/fey/bugbear-warrior-xmm.md       bm25    -7.651966
+   7. Bugbear Stalker                                compendium/bestiary/fey/bugbear-stalker-xmm.md       bm25    -7.506255
+   8. Hobgoblin Warrior                              compendium/bestiary/fey/hobgoblin-warrior-xmm.md     bm25    -6.768701

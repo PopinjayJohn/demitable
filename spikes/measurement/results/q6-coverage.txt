@@ -1,0 +1,5 @@
+notes                     1693
+tokens, raw markdown      413267
+tokens after stripping     249937  (60.5% of raw)
+tokens with ad-statblock  315440  (+26.2%)
+notes affected by keeping 355 (21.0%)
