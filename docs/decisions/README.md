@@ -63,6 +63,7 @@ one means writing a new ADR that supersedes it.
 | [0057](0057-the-visibility-model-computes-audiences.md) | The visibility model computes audiences, not rule verdicts | Accepted |
 | [0058](0058-structured-logging-and-the-audit-log.md) | Structured logging with `log/slog`, and a separate audit log | Accepted |
 | [0059](0059-the-phase-map-is-re-cut.md) | The phase map is re-cut — four phases become five, and 1.5 is abolished | Accepted |
+| [0060](0060-the-binary-has-no-size-limit.md) | The binary has no size limit — the invariant is one file with no runtime dependencies | Accepted |
 
 ## The shape of the decisions
 

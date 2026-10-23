@@ -97,13 +97,27 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           go build -trimpath -ldflags "-s -w" -o dist/demitable ./cmd/demitable
-      - name: the binary is small
+      - name: the binary is self-contained
         run: |
+          # The size is reported, not gated (ADR-0060). What is checked is
+          # the invariant that matters: one file, no cgo, no runtime
+          # dependencies (ADR-0005).
           size=$(stat -c %s dist/demitable)
           echo "binary: $size bytes"
-          if [ "$size" -gt 12582912 ]; then
-            echo "the binary is over 12 MB; the phase-1 plan requires under 12 MB"
+          if ! go version -m dist/demitable | grep -q 'CGO_ENABLED=0'; then
+            echo "the binary was not built with CGO_ENABLED=0"
+            go version -m dist/demitable || true
             exit 1
+          fi
+          # A cgo-linked binary would need libraries the user does not have.
+          # Only ELF can be checked this way on a Linux runner; the build
+          # settings above cover the other four formats.
+          if [ "${{ matrix.goos }}" = "linux" ]; then
+            if ldd dist/demitable 2>&1 | grep -qv 'not a dynamic executable'; then
+              echo "the binary has dynamic library dependencies:"
+              ldd dist/demitable || true
+              exit 1
+            fi
           fi
 
   smoke:

@@ -65,7 +65,7 @@ Read these, in this order, before dispatching anything.
 
 | Read | For |
 |---|---|
-| [`docs/decisions/README.md`](decisions/README.md) | **The index of 58 ADRs.** The decisions live here |
+| [`docs/decisions/README.md`](decisions/README.md) | **The index of 59 ADRs.** The decisions live here |
 | [`docs/phase-1-plan.md`](phase-1-plan.md) | **What to build.** Eight milestones, twenty-one sub-milestones, each with a checkable "Done when" predicate |
 | [`docs/design.md`](design.md) | The living design: the vault schema, the visibility model, the phases |
 | [`docs/tech-stack.md`](tech-stack.md) | The stack, the package layout, and the logging rules |

@@ -94,7 +94,7 @@ schema · the export plugin.
 > entrypoint today sets up the logger and the audit log (ADR-0058), answers
 > `GET /healthz`, and shuts down cleanly on `SIGTERM` — which is the
 > graceful-shutdown criterion below, proved early rather than at the end.
-> It cross-compiles for all five platforms under 12 MB with `CGO_ENABLED=0`,
+> It cross-compiles for all five platforms with `CGO_ENABLED=0`,
 > and `make release` builds the matrix.
 >
 > **Still to do:** the config surface below, `--vault`, `--port 0`,
@@ -112,7 +112,9 @@ schema · the export plugin.
   (ADR-0031, ADR-0025). The import itself is phase 2; the flags are here
   so the deployment story is settled before anything is exposed.
 - `CGO_ENABLED=0` builds succeed for `linux/amd64`, `linux/arm64`,
-  `darwin/amd64`, `darwin/arm64`, `windows/amd64`, each under 12 MB.
+  `darwin/amd64`, `darwin/arm64`, `windows/amd64`, each **statically
+  linked** — one file, no runtime dependencies (ADR-0060). **There is no
+  size limit**; the size is reported, not gated.
 - Graceful shutdown on `SIGTERM`: in-flight writes finish, the SQLite WAL is
   checkpointed, and the process exits 0.
 

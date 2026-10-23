@@ -18,7 +18,7 @@ Read in this order. Everything else is detail.
 
 | Read | For |
 |---|---|
-| [`docs/decisions/README.md`](docs/decisions/README.md) | **The index of 57 ADRs.** The decisions live here, and the ADR index says what each one decided |
+| [`docs/decisions/README.md`](docs/decisions/README.md) | **The index of 59 ADRs.** The decisions live here, and the ADR index says what each one decided |
 | [`docs/phase-1-plan.md`](docs/phase-1-plan.md) | **What to build.** The MVP's milestones, each with a checkable "Done when" predicate |
 | [`docs/design.md`](docs/design.md) | The living design: the vault schema, the visibility model, the phases |
 | [`docs/tech-stack.md`](docs/tech-stack.md) | The stack, the package layout, and the logging rules |
