@@ -337,6 +337,13 @@ when" is a thing a script can assert, not a thing a reader has to agree with.
   separately** — it *does* contain every `gm` field.
 - A note in `workflow: draft` is visible to its owner and the GM **and to
   nobody else**, regardless of its `visibility` and its grants.
+- A **display principal** — the shared screen for the party — resolves to
+  **party-visible content only**. It never sees `owner`-scoped, granted or
+  character-discovered content, and it is **not** the union of what the party
+  members can see, because that union would leak one player's private note to
+  the rest (ADR-0048).
+- A note with `visibility: private` is visible to its `player` and to nobody
+  else, not even the GM.
 - The count returned by a query reflects what was **returned**, not what
   matched, so it is not an oracle for what is hidden.
 - An FTS query from a player runs against the **player index**, so a term

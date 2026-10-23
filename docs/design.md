@@ -460,6 +460,8 @@ a link.
 | `table` | A set of faces — symbol dice, random tables, oracle decks | `Tables/` |
 | `content` | A pack-declared content object — a class, a species, a spell, a monster | `Notes/Content/` |
 | `handout` | A prop revealed to the table, with a journalled reveal event | `Notes/Handouts/` |
+| `message` | A chat message. Channel and audience come from its visibility (ADR-0048) | `Campaigns/<id>/Chat/` |
+| `journal` | A player's personal journal (ADR-0048) | `Campaigns/<id>/Journals/` |
 | `home` | Campaign dashboard / MOC | `Notes/Home.md` |
 
 Folders are a **human convention**, not a machine contract. The machine reads
@@ -577,7 +579,8 @@ regardless of any grant. A grant-suppressing deny.
 |---|---|
 | `public` | Anyone, authenticated or not — a link is enough |
 | `party` | All members of the note's campaign |
-| `owner` | The note's `owner`, and the GM |
+| `owner` | The note's `player`, and the GM |
+| `private` | The note's `player`, and nobody else — not even the GM |
 | `gm` | The GM only. Never serialised to a non-GM role |
 
 **5. Grants.** `grants: [p_8f2a, p_91bc]` — *additional* parties who may
@@ -620,6 +623,12 @@ non-GM response, so a player who inspects the network, the DOM, or the
 WebSocket frames sees nothing. The reveal itself is a **live broadcast** over
 the WebSocket, not a file write — the table sees it as it happens, rather than
 after a watcher round trip. See [ADR-0035](decisions/0035-secret-callouts.md).
+
+**A display is a principal** (ADR-0048). A shared screen for the party
+resolves to **party-visible content only** — never `owner`-scoped, never
+granted, never discovered by one particular character. The union of what the
+party members can see would leak one player's private note to the rest, so
+the display is not the union.
 
 **Content visibility is declared by the pack**, per content type, so the SRD
 ships with the right defaults — `spell` is `party`, `monster` is `gm` — rather
@@ -1218,19 +1227,25 @@ are all settled:
 | One query language for `list_by`, shared by REST and MCP | ADR-0047 |
 
 **Still open, and they are product decisions rather than technical ones.**
-Each is cheaper as a schema decision now than as a feature later:
+Each is cheaper as a schema decision now than as a feature later, and the
+schema decisions are now made (ADR-0048): a **display principal** that sees
+party-visible content only; **chat as notes**, so it is searchable and
+archivable; a **`private` visibility value**, so a personal journal is
+possible; a **scratch log** as a third, disposable state tier; and the
+**campaign lifecycle** as operations on notes — retirement, handover by
+export, archival.
 
-1. **The scratch log** — an in-session capture tier, so the GM can catch
-   "the Duke's steward was named Harlan" at minute 40 rather than at the end.
-2. **Chat** — a table channel, GM→player, player→GM, and an OOC marker.
-3. **The shared display mode** — one screen for the party, with the GM
-   pointing it at things. This changes the projection's *shape*, so it is a
-   phase-1 decision whether or not the feature is phase 3.
-4. **The personal player journal** — the player's own prose, which players
-   ask for by name.
-5. **The campaign lifecycle** — handover to a new GM, retirement, archival.
-6. **Whether the SRD vault stays a development artefact** or is published as
-   an importable archive for users. The licence permits either.
+What remains is the *scope* of phase 1 itself, and one product judgement
+about it:
+
+1. **Phase 1 is ~70–90 weeks full-time, or ~3.5–4.5 years part-time.**
+   The plan now says so. The question is whether to cut scope to match a
+   smaller appetite — the two named candidates are the SRD pipeline (M5) and
+   the plugin host's WASM tier (M6c).
+2. **The "immediately be in the game" bar.** A new player can join, sit, and
+   be seen in phase 1, but cannot *create* a character until phase 2, because
+   the creation wizard is phase 2. Moving the wizard into phase 1 would meet
+   the bar earlier and would make the demo campaign a real session.
 
 ## 10. Change log
 
@@ -1325,3 +1340,11 @@ Each is cheaper as a schema decision now than as a feature later:
   boundary was fixed across three documents that disagreed about it
   (ADR-0004, ADR-0008, and the plan), and the six blocking decisions were
   settled as ADR-0042…ADR-0047.
+- **2026-10-23** — **The projection gains a display principal, chat becomes
+  notes, and the player/GM gaps are settled as schema** (ADR-0048): a shared
+  screen sees party-visible content only — not the union of what the party
+  can see, which would leak one player's private note to the rest; a
+  `private` visibility value so a personal journal is possible; a scratch log
+  as a third disposable state tier; and the campaign lifecycle as operations on
+  notes. None of this builds a feature — it fixes the shape so the features
+  are cheap when they arrive.
