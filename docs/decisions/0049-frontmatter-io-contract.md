@@ -56,7 +56,7 @@ Obsidian's vault-wide property types — is absent from the test data.
 
 So the extractor needed a second corpus of its own, and the package now
 carries twelve fixtures in `internal/vault/frontmatter/testdata/`, one per
-construct the SRD corpus lacks. The corpus proves the parser handles real
+construct the SRD corpus lacks, alongside the corpus itself as a test. The corpus proves the parser handles real
 files; the fixtures prove it handles hard ones. **A schema you have never
 used is a schema you have not tested** — and the same is true of a parser.
 
