@@ -165,16 +165,28 @@ copy is not, because the corpus is manually acquired and deleting it would
 make the pipeline one-shot and any later enrichment bug unfixable
 (ADR-0024).
 
-Because the copy is retained, the upstream's licence can be *verified* rather
-than remembered: `srdcheck` checks the upstream repository URL, the commit
-hash, the licence file's verbatim text and its SPDX identifier alongside the
-corpus inventory. **If those cannot be pinned, the archive is not
-published.**
+The pin is a **hash of the corpus**, not a repository URL and a commit hash.
+That is not a stylistic choice: the upstream's canonical repository is no
+longer publicly resolvable, so a commit hash could only ever have been
+pinned against an unofficial mirror, and a hash of a mirror is not
+evidence of anything. A hash of the artifact is, and it survives the
+upstream disappearing — which it already has. `srdcheck` verifies the tree,
+the markdown tree and the data tree against
+[`tools/srdcheck/provenance.json`](../tools/srdcheck/provenance.json), and
+reads the corpus's version out of the corpus's own changelog, so the version
+is self-declared by the artifact rather than asserted by this repository.
 
-The reason is the licence, and the numbers make it plain: the corpus is
-17,939 entities of which only **7,012 are SRD**. The other 10,927 belong to
-copyrighted sourcebooks. Developing against the corpus would mean developing
-against content we do not own.
+The licence does not rest on the upstream at all. The published vault ships
+only the SRD subset, and the SRD's own terms — CC-BY-4.0, Wizards of the
+Coast — are authoritative and independently checkable. The upstream's terms
+matter only for the non-SRD material, and the build ships none of it. See
+[`corpus-provenance.md`](corpus-provenance.md) for the full record and the
+reasoning.
+
+The reason the filter exists at all is the licence, and the numbers make it
+plain: the corpus's data holds 23,117 entities, of which only **3,990 are
+SRD**. The other 19,127 belong to copyrighted sourcebooks. Developing
+against the corpus would mean developing against content we do not own.
 
 ### 2.2 The corpus is manual
 
@@ -275,7 +287,7 @@ non-SRD entity reaching the output remains a hard error.
 
 The reason is that it costs nothing and removes an entire category of doubt:
 every byte we emit traces back to the SRD, whatever the upstream's licence
-file happens to say. The 10,927 non-SRD entities have no use to us — they
+file happens to say. The 19,127 non-SRD entities have no use to us — they
 belong to sourcebooks we cannot ship, and they would bloat the output by an
 order of magnitude.
 
@@ -546,7 +558,7 @@ The SRD vault does four jobs at once, which is why it is worth the pipeline:
 2. **It is the golden corpus for the editor** (ADR-0021). Real-world
    markdown with real-world bugs, which is exactly what a hand-made fixture
    set lacks.
-3. **It is the pack's validation suite.** 7,012 entities exercising the
+3. **It is the pack's validation suite.** 3,990 entities exercising the
    `content:` schemas and the formula language.
 4. **It is the demo.** A new user opens a world.
 

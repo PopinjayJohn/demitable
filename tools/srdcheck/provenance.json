@@ -1,0 +1,12 @@
+{
+  "corpusVersion": "2.28.1",
+  "corpusReleased": "2026-05-24",
+  "treeSha256": "fb62b33304e1e07d99310f3cc00caecdf2343d784a07785a07c247c2b34bec1f",
+  "markdownSha256": "7ccdb2ca0dc628444e825d8ea782e993f43f0dd0ee9541b2c5c8f51eb644dc11",
+  "dataSha256": "7d116247f8d21f97d1b8cd40dc613a6c9770f80dafae0b81260df35eb21af194",
+  "fileCount": 2192,
+  "markdownCount": 1693,
+  "contentLicence": "CC-BY-4.0",
+  "spdxId": "CC-BY-4.0",
+  "acquisition": "manual"
+}

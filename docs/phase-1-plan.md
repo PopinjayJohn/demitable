@@ -117,6 +117,16 @@ schema · the export plugin.
   (ADR-0021).
 - A duplicate key is detected on load, and the writer refuses to patch rather
   than patching the wrong occurrence.
+- **Measured against the SRD corpus** (phase 0, ADR-0049): patching one
+  field of each of the 1,692 real files leaves **every other byte of the
+  block unchanged**, in 1,692 of 1,692 cases. The corpus audit is committed
+  and runs as part of the suite.
+- A list or a map is **never written on its key's line** — `key: - item` is
+  not YAML — and the block's own sequence style is reproduced, compact or
+  indented (ADR-0049).
+- A string is quoted exactly when yaml.v3 or js-yaml would not read it back
+  as a string; the YAML 1.1 boolean words (`yes`, `no`, `on`, `off`, `y`,
+  `n`) are deliberately left plain (ADR-0049).
 - Reverting a journal entry restores the prior bytes exactly; reverting a
   batch reverts every entry sharing its `batchId`, in reverse order.
 - An asset a player may not see returns **404, not 403**; the same asset

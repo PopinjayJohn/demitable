@@ -99,6 +99,7 @@ docs/design.md            the living design document
 docs/phase-plan.md        the canonical phase map, and what moved
 docs/phase-0-plan.md      phase 0: the ten questions
 docs/phase-0-brief.md     phase 0: the brief for the phase-0 agent
+docs/corpus-provenance.md the corpus's provenance, and why it is pinned by hash
 docs/phase-1-plan.md      phase 1: milestones and acceptance criteria
 docs/tech-stack.md        the complete stack, with reasons
 docs/api.md               the API contract — what a client may rely on
