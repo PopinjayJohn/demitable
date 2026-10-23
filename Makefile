@@ -40,7 +40,9 @@ ifdef HAVE_WEB
 	npm --prefix $(WEB_DIR) ci
 	npm --prefix $(WEB_DIR) run build
 	rm -rf internal/server/webdist
-	cp -r $(WEB_DIR)/dist internal/server/webdist
+	mkdir -p internal/server/webdist
+	cp -r $(WEB_DIR)/dist/. internal/server/webdist/
+	touch internal/server/webdist/.gitkeep
 endif
 	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -trimpath -ldflags "-s -w" -o $(BIN) $(PKG)
 	@echo "built $(BIN)"
@@ -128,6 +130,14 @@ endif
 .PHONY: release
 release: ## cross-compile the binary for every supported platform
 	@mkdir -p dist
+ifdef HAVE_WEB
+	npm --prefix $(WEB_DIR) ci
+	npm --prefix $(WEB_DIR) run build
+	rm -rf internal/server/webdist
+	mkdir -p internal/server/webdist
+	cp -r $(WEB_DIR)/dist/. internal/server/webdist/
+	touch internal/server/webdist/.gitkeep
+endif
 	@for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64; do \
 		goos=$${target%/*}; goarch=$${target#*/}; \
 		out=dist/demitable-$$goos-$$goarch; \
