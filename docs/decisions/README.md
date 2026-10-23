@@ -44,6 +44,7 @@ one means writing a new ADR that supersedes it.
 | [0038](0038-seats-and-code-spaces.md) | Two credentials in disjoint code spaces, and principals instead of roles | Accepted |
 | [0039](0039-partial-apply.md) | The write-back is a partial apply with per-key conflict reporting | Accepted |
 | [0040](0040-frontmatter-field-namespace.md) | The app's frontmatter fields are bare, with a tightened reserved set | Accepted |
+| [0041](0041-one-server-one-vault.md) | One server serves one vault, and that vault holds many campaigns | Accepted |
 
 ## The shape of the decisions
 

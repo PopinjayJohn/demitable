@@ -398,6 +398,16 @@ after resolution, DNS rebinding prevented by connecting to the resolved
 address, and size, time and redirect caps — because a server that fetches
 arbitrary URLs from the internet is a request-forgery primitive.
 
+### One server, one vault
+
+A server process serves **exactly one vault**, and that vault holds any number
+of campaigns (ADR-0037, ADR-0041). The vault is the unit of everything —
+backup, sync, sharing, and the trust boundary — and the accounts file lives
+inside it, so it travels with the campaign.
+
+The URL carries the **campaign**, not the vault. A GM with several campaigns
+runs several processes; a reverse proxy can give the players one URL.
+
 ### Distribution: an archive at a URL
 
 ADR-0011 ruled out an operated package registry, because packs contain
@@ -1307,3 +1317,7 @@ with attribution, and there is no share-alike constraint on the repository.
   as the apply. **The frontmatter fields are bare, with a tightened
   reserved set** (ADR-0040) — `owner` becomes `player` and the generic
   `status` is gone, so a GM's own `status: alive` is left alone.
+- **2026-10-23** — **One server serves one vault, and that vault holds many
+  campaigns** (ADR-0041). The vault is the unit of everything — backup, sync,
+  sharing, and the trust boundary — and the accounts file lives inside it, so
+  it travels with the campaign. The URL carries the campaign, not the vault.

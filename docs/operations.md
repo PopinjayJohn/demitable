@@ -267,8 +267,11 @@ that matter most to you:
 
 ## 10. What this document does not cover
 
-- **Multiple campaigns on one server.** The app serves one vault per process.
-  Run two processes on two ports, or a reverse proxy that routes by path.
+- **Multiple campaigns on one server.** The app serves one vault per process
+  (ADR-0041), and a vault may hold several campaigns. Run one process per
+  vault — on separate ports — and let your reverse proxy route by port or
+  path so the players still see one URL. The campaign, not the vault, is what
+  a join code names.
 - **High availability.** One process, one machine. If it goes down, the table
   waits. A campaign is not a business.
 - **A native mobile app.** The API is designed so one is possible; it does
