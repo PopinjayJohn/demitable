@@ -1,0 +1,10 @@
+---
+base: &base
+  x: 1
+  y: 2
+child:
+  <<: *base
+  z: 3
+ref: *base
+---
+body

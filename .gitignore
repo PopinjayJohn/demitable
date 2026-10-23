@@ -1,26 +1,3 @@
-# The SRD source corpus is a build input, never committed.
-# Fetched by tools/srdfetch, consumed by tools/srdenrich, deleted after the
-# build. See docs/decisions/0024-transient-source.md.
+# The SRD corpus is a transient build input. It is not committed; it is
+# re-fetched from its upstream and enriched into a vault by the pipeline.
 /fixtures/
-
-# Build output
-/web/dist/
-/internal/server/webdist/*
-!/internal/server/webdist/.gitkeep
-/demitable
-/spng
-
-# The committed outputs are NOT ignored:
-#   packs/dnd5e.yaml
-#   templates/dnd5e-srd/
-
-# Go
-*.test
-*.out
-/vendor/
-
-# Editor and OS
-.DS_Store
-*.swp
-.idea/
-.vscode/
