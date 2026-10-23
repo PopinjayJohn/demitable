@@ -1,9 +1,14 @@
 # The threat model — what is actually being protected, from whom, and by what?
 
-- **Phase 0, question 10 of 10** — disposable deliverable: the *answer* is the deliverable, the code behind it would be thrown away.
-- **Status:** written 2026-10-23, as phase 0's answer to *“What is actually being protected, from whom, and by what?”*
+- **Status:** written 2026-10-23 as phase 0's answer to *“What is actually being
+  protected, from whom, and by what?”*, and **made the source of truth** for
+  what the app defends by [ADR-0051](decisions/0051-threat-model-and-not-defended-list.md).
+- **This document is living.** The phase-1 exposure checklist is **derived from
+  it**, and the not-defended list is binding: phase 1 must either close an item
+  on it or record it as an accepted risk with the milestone that owns the
+  closure.
 - **Scope of this document:** the projection as the trust boundary, the phase-1 exposure posture, the credentials, the vault as untrusted input, the plugin tiers, and — most importantly — **the things that are not defended**.
-- **Sources:** [`docs/phase-0-plan.md`](../../docs/phase-0-plan.md) §2.10 · [`docs/phase-1-plan.md`](../../docs/phase-1-plan.md) §5 · [`docs/phase-0-brief.md`](../../docs/phase-0-brief.md) §10 · the ADRs ADR-0002 through ADR-0050 · [`docs/research/adversarial-review.md`](../../docs/research/adversarial-review.md) §1–§3 · [`docs/design.md`](../../docs/design.md) §3–§6, §8–§9.
+- **Sources:** [`docs/phase-0-plan.md`(phase-0-plan.md) §2.10 · [`docs/phase-1-plan.md`(phase-1-plan.md) §5 · [`docs/phase-0-brief.md`(phase-0-brief.md) §10 · the ADRs ADR-0002 through ADR-0050 · [`docs/research/adversarial-review.md`(research/adversarial-review.md) §1–§3 · [`docs/design.md`(design.md) §3–§6, §8–§9.
 
 ---
 
@@ -72,7 +77,7 @@ Resolution order, first match wins (ADR-0033, amended by ADR-0050/D13, ADR-0048)
 
 ## 4. The credentials — two in disjoint code spaces, plus the GM secret
 
-Per [ADR-0038](../../docs/decisions/0038-seats-and-code-spaces.md) and [ADR-0009](../../docs/decisions/0009-player-accounts.md):
+Per [ADR-0038(decisions/0038-seats-and-code-spaces.md) and [ADR-0009(decisions/0009-player-accounts.md):
 
 | Credential | Accepted by | Scope | Lifetime | Exchanges for | Invalidated by |
 |---|---|---|---|---|---|
@@ -152,7 +157,7 @@ The phase-0 threat model, being honest about the remainder:
 
 ## 10. The phase-1 exposure checklist — adjudicated
 
-Source: [`docs/phase-1-plan.md`](../../docs/phase-1-plan.md) §5.
+Source: [`docs/phase-1-plan.md`(phase-1-plan.md) §5.
 
 Verdicts under the threat model written here:
 

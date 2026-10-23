@@ -54,6 +54,7 @@ one means writing a new ADR that supersedes it.
 | [0048](0048-display-chat-and-journals.md) | A display principal, chat as notes, and the rest of the projection's shape | Accepted |
 | [0049](0049-frontmatter-io-contract.md) | What a frontmatter write must preserve, measured against the corpus | Accepted |
 | [0050](0050-schema-gaps-found-by-writing-a-campaign.md) | The schema needs a discovery state, a reserved-layer visibility, and an honest field list | Accepted |
+| [0051](0051-threat-model-and-not-defended-list.md) | The threat model, the not-defended list, and the derived phase-1 exposure checklist | Accepted |
 
 ## The shape of the decisions
 

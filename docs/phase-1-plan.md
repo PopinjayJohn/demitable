@@ -11,6 +11,13 @@
 > search it, and see their players' filtered view of it; a GM-only note is
 > provably unreachable by a player; and the app never damages a file it
 > cannot undo.
+>
+> **And one thing it does not claim.** A GM-only note is unreachable by a
+> *player*, not by a *plugin*. A compiled-in plugin is the program, and a
+> plugin's UI runs in the app's document with the app's privileges
+> (ADR-0029). The capability model constrains accidental overreach; it is
+> not a defence against a hostile plugin. See
+> [`threat-model.md`](threat-model.md) §8–§9.
 
 Phase membership and what moved: [`phase-plan.md`](phase-plan.md).
 
@@ -417,10 +424,24 @@ The app may be internet-exposed (ADR-0031). Before it is declared safe to
 expose, each item must hold, **and the milestone that owns it must be
 complete**. The import rows are phase 1.5, because the import is.
 
+> **This checklist is derived from [`threat-model.md`](threat-model.md)**, and
+> that document is its source of truth (ADR-0051). Every row below maps to a
+> section of the threat model, and every defence in the threat model maps to a
+> row or a milestone criterion. The rows the model exposes but the checklist
+> lacked — the session code, the GM secret, the audit log, the credential
+> windows and the MCP token — were added in phase 0, question 10.
+>
+> The threat model's **not-defended list is binding**. An item on it is an
+> accepted risk or a known gap, and phase 1 must either close it or record it
+> as accepted, with the milestone that owns the closure.
+
 | Check | Owner |
 |---|---|
 | Authentication is rate-limited and backed off on every auth endpoint | M5 |
 | **A campaign code is single-use, expires, and accepted only by the account endpoint** | M5 |
+| **The session-code endpoint is rate-limited and counts attempts** | Phase 3 |
+| **The GM secret is rotatable, and rotation invalidates outstanding sessions** | M5 |
+| **Every read of a GM-only note is written to the audit log** | M5 |
 | **A guest seat sees its bound character, the live table, and nothing else** | Phase 3 |
 | **A seat token grants nothing outside its session** | Phase 3 |
 | The GM authenticates with a credential, not by being local | M5 |
@@ -428,7 +449,9 @@ complete**. The import rows are phase 1.5, because the import is.
 | Forwarded headers are trusted only from a configured proxy address | M3 |
 | The `Secure` cookie flag follows the configured public scheme | M5 |
 | CORS is off by default; the API is same-origin | M3 |
-| The MCP endpoint is off by default, and logs a warning if enabled | Phase 1.5 |
+| **A player's FTS query is filtered before BM25/IDF ranking, so a GM-only note cannot shift a visible note's rank** | M1d / M6 |
+| **Markdown is sanitised before the editor renders it** | M4 |
+| The MCP endpoint is off by default, token-gated, and logs a warning if enabled | Phase 1.5 |
 | The import refuses a private address and refuses to reconnect elsewhere | Phase 1.5 |
 | The import requires https and is off unless explicitly enabled | Phase 1.5 |
 | The app starts and works with the network interface down, and with DNS unavailable | M0 |

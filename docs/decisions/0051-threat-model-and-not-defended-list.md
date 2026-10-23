@@ -1,6 +1,6 @@
-# ADR-0051 (proposed): The threat model, the not-defended list, and the derived phase-1 exposure checklist
+# ADR-0051: The threat model, the not-defended list, and the derived phase-1 exposure checklist
 
-- **Status:** Proposed — phase 0, question 10 wrote this document; the orchestrator lands the ADR
+- **Status:** Accepted
 - **Date:** 2026-10-23
 - **Extends:** ADR-0002 (the trust boundary), ADR-0009 (accounts), ADR-0031 (internet exposure),
   ADR-0033 (the visibility model), ADR-0035 (secrets), ADR-0038 (two credentials), ADR-0020/0027/0029
@@ -13,7 +13,7 @@
 
 Phase 0, question 10 asked: *What is actually being protected, from whom, and by what?*
 
-The phase-0 deliverable is [`spikes/threat-model/README.md`](README.md). It states the assets
+The phase-0 deliverable is [`docs/threat-model.md`](../threat-model.md). It states the assets
 (GM-only vault content, secret blocks, private player content, credentials), the actors, the
 boundary (server-side projection), the mitigations, and — the part the brief asked for and the
 phase-0 research then stress-tested — **the things that are not defended**, stated plainly.

@@ -203,7 +203,7 @@ defaults are dangerous.**
 | Auth rate limiting | on | on, stricter |
 | Audit log | auth events | auth events, plus reads of GM-only notes |
 | Public base URL | optional | **required** |
-| Archive import | allowed | allowed, with SSRF defence always on |
+| Archive import | **off unless enabled** | off unless enabled; https only unless `--allow-http-import`; SSRF defence always on |
 
 **Use `--expose` only if the app is directly reachable from the internet.**
 If it is behind a proxy or a tunnel, leave it off and use `--trust-proxy`.

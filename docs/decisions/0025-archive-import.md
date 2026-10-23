@@ -48,7 +48,7 @@ demitable import <url>
   --skip                keep existing files and skip conflicts
   --include-plugins     install plugin bundles without prompting
   --no-plugins          refuse plugin bundles entirely
-  --insecure            allow plain http (default: https only)
+  --allow-http-import   allow plain http (default: https only)
 ```
 
 `--new` creates a vault rather than merging into one. Without a manifest the
