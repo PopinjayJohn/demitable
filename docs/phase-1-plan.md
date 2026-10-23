@@ -523,14 +523,21 @@ capability *model* is not.
     credential like any other, not "it is localhost".
   - **An audit log** of authentication events, and — under `--expose` — of
     reads of GM-only notes.
-  - **Sessions and seats** (ADR-0009, [`api.md`](api.md) §3): a seat is who
-    is at this table right now, playing this character or watching. A
-    **session code** — short, unambiguous, rotating per session — lets a
-    guest take a seat without an account; an account holder joins with their
-    passphrase and chooses a character. A seat is **not** a privilege: the
-    projection applies to it, and a seat naming a character the caller does
-    not own is rejected. The token a join returns is scoped to that session
-    and that seat.
+  - **Sessions and seats** (ADR-0038, [`api.md`](api.md) §3): a seat is who
+    is at this table right now, playing this character or watching. A seat
+    binds to a character, and **that character is implicitly visible to the
+    seat**. A seat is **not** a privilege: the projection applies to it, and
+    a seat naming a character the caller may not play is rejected.
+  - **Two credentials in disjoint code spaces** (ADR-0038): a **campaign**
+    join code (eight characters, 24 hours, single use) creates an account
+    and a campaign membership; a **session** code (six characters, rotating
+    per session) creates a guest seat with no account and no passphrase.
+    Different endpoints, different stores, different lengths — a session code
+    read aloud over voice chat cannot be redeemed as an account.
+  - **Principals, not roles** (ADR-0038): the projection resolves against a
+    `gm`, `account`, `seat` or `anonymous` principal. The role enum goes
+    away, and with it the contradiction where a guest seat was in no role at
+    all — and could therefore not hold a character.
 - `internal/projection`
   - Role model: `gm`, `player`, and later `observer`.
   - Visibility evaluation per §5.4: note-level `visibility`, property-level

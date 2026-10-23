@@ -55,20 +55,31 @@ log.
 
 ## 2. Authentication
 
-Two flows, one authorization model. The server accepts **either** a session
-cookie or a bearer token on every request.
+**Two credentials, in disjoint code spaces** (ADR-0038). The server accepts
+**either** a session cookie or a bearer token on every request.
 
 ```
 POST /api/v1/auth/join      { code }              → { token, expires_at, player }
 POST /api/v1/auth/login     { player, passphrase } → { token, expires_at, player }
 POST /api/v1/auth/gm        { secret }             → { token, expires_at, role: "gm" }
+POST /api/v1/sessions/:id/join { code }           → { token, expires_at, seat }
 ```
 
-- **The join code** is the one-time code from ADR-0009. The player exchanges
-  it for a passphrase, and the passphrase for a token.
+| | Campaign join code | Session code |
+|---|---|---|
+| Scope | One campaign | One session |
+| Lifetime | 24 hours, single use | The session |
+| Exchanges for | An **account** and a campaign membership | A **guest seat** |
+| Ends with | Never | The session ends |
+
+**They are accepted by different endpoints and validated against different
+stores.** A campaign code presented to the session endpoint is not a code that
+endpoint knows. Their lengths differ — eight characters against six — so they
+are not confusable by eye or by voice either.
+
 - **The GM secret** lives in the vault's `.demitable/config.yaml` and is
-  printed at startup. It is a long-lived token scoped to `role: gm`, and it is
-  what a native GM app presents.
+  printed at startup. It is a long-lived token scoped to the `gm` principal,
+  and it is what a native GM app presents.
 - **The browser app uses the cookie.** The same endpoints set it. The native
   app ignores the cookie and stores the token.
 - **Tokens are bearer tokens.** `Authorization: Bearer <token>`. They expire;
@@ -77,13 +88,43 @@ POST /api/v1/auth/gm        { secret }             → { token, expires_at, role
   because the browser WebSocket API cannot set headers. A native client may
   use the header instead; both are accepted.
 
-### The role is fixed at authentication
+### Principals, not roles
 
-The role determines the projection for every subsequent request. A player
-token can never be upgraded to a GM token by a request — the GM secret is
-needed, and it is a different credential. A player-scoped client cannot ask for
-GM-only data, because the server filters by the *token's* role, not by a
+The projection resolves against a **principal**, not a role enum:
+
+| Principal | Who it is | Resolves against |
+|---|---|---|
+| `gm` | The vault's owner | Everything — the GM's view is never filtered |
+| `account` | An account, by id | Its campaign memberships, its owned notes, its grants |
+| `seat` | A session seat, by id | Its bound character, and the grants made to it |
+| `anonymous` | No credential | `visibility: public` only |
+
+**A principal says who is asking; the visibility model says what they may
+see.** An account and a seat differ only in how they resolve — one through
+campaign membership and ownership, the other through its character binding
+and its grants.
+
+A principal cannot be upgraded by a request. A seat token cannot become an
+account token, and neither can become `gm`: that needs the GM secret, which
+is a different credential. And a player-scoped client cannot ask for GM-only
+data, because the server filters by the *principal's* resolution, not by a
 parameter in the request.
+
+### A seat binds to a character
+
+- an **account seat** — one of the account's own characters, or one the GM
+  assigned to it;
+- a **guest seat** — a character the GM assigned in advance, since a guest
+  owns nothing;
+- a **spectator seat** — no character, for someone watching.
+
+**The seat's bound character is implicitly visible to that seat**, as if the
+seat had been granted it. That is the seat-scoped projection, and it is what
+makes the guest case work: a guest sees their character and nothing else.
+
+A guest seat does **not** see campaign notes — a guest is not a campaign
+member. It sees the session's live state, which is the table rather than the
+campaign, and anything explicitly granted to it.
 
 ---
 
@@ -166,7 +207,8 @@ POST /api/v1/sessions/:id/join
 
 - The **session code** is what the GM reads out, or types into a chat. It is
   short, unambiguous (no `O`/`0`, `I`/`1`, `L`), shown on the GM's screen,
-  and **rotates per session**.
+  and **rotates per session**. It is six characters, against the campaign
+  code's eight, so the two are not confusable by eye or by voice.
 - An **account holder** joins with their passphrase instead, and chooses which
   of their characters to sit as. If they have no character, they take a
   spectator seat.
@@ -179,15 +221,23 @@ POST /api/v1/sessions/:id/join
 
 #### Seats and characters
 
+A seat names the character being played:
+
 | Seat | Character | Visibility |
 |---|---|---|
-| `player` | One of the player's own characters | The owner sees it; other players see it only if the character is `party` or `public` |
-| `player` | An NPC played by the GM | As the NPC's own visibility says |
+| `account` | One of the account's own characters | The owner sees it; other players see it only if the character is `party` or `public` |
+| `account` | A character the GM assigned to the seat | As the character's own visibility says |
+| `guest` | A character the GM assigned in advance — a guest owns nothing | The character is implicitly visible to that seat |
 | `spectator` | None | The board and the public view only |
 | `gm` | The GM's own, if any | Everything |
 
-A seat naming a character the caller does not own is rejected — the
-projection still applies to a seat, because a seat is not a privilege.
+**The seat's bound character is implicitly visible to that seat**, as if the
+seat had been granted it. That is what makes the guest case work: a guest
+sees their character, and nothing else.
+
+A seat naming a character the caller may not play is rejected — the
+projection still applies to a seat, because a seat is not a privilege. The
+GM can assign a character to a seat in advance, which is how a guest gets one.
 
 The GM can add seats in advance, so a player who arrives late can be seated
 without the GM re-sharing the code.

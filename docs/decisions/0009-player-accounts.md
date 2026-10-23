@@ -1,6 +1,8 @@
 # ADR-0009: Player accounts, character ownership, and a character review workflow
 
-- **Status:** Accepted
+- **Status:** Accepted, extended by ADR-0037 (a campaign is a note) and
+  ADR-0038 (the account join code is campaign-scoped; a session code is a
+  second, separate credential)
 - **Date:** 2026-10-21
 
 ## Context
@@ -82,6 +84,13 @@ a character, and it does not vary by ruleset.
 The GM creates characters and approves them in one step. A player submits and
 waits — a wait that is socially useful, because the GM's review is where
 character concepts get discussed at the table.
+
+> **Amended by ADR-0038.** The "one-time join code" here is the
+> **campaign** join code, scoped to one campaign, valid 24 hours and single
+> use. It is one of **two** credentials, in **disjoint code spaces**: the
+> other is the **session** code, which creates a session-scoped guest seat.
+> They are accepted by different endpoints and validated against different
+> stores, and their lengths differ, so neither can be redeemed as the other.
 
 ### Accounts and seats are different things
 

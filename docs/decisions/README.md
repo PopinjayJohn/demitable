@@ -41,6 +41,7 @@ one means writing a new ADR that supersedes it.
 | [0035](0035-secret-callouts.md) | Secrets are `[!secret]` callouts, revealed in realtime | Accepted |
 | [0036](0036-community-formats.md) | The community's stat block and admonition formats are the native formats | Accepted |
 | [0037](0037-campaign-is-a-note.md) | A campaign is a first-class note | Accepted |
+| [0038](0038-seats-and-code-spaces.md) | Two credentials in disjoint code spaces, and principals instead of roles | Accepted |
 
 ## The shape of the decisions
 
