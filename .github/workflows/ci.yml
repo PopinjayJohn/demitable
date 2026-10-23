@@ -27,21 +27,8 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - name: svelte-check
-        working-directory: web
-        run: |
-          npm ci
-          npm run check
-      - name: gofmt
-        run: |
-          out=$(gofmt -l .)
-          if [ -n "$out" ]; then
-            echo "these files are not gofmt'd:"
-            echo "$out"
-            exit 1
-          fi
-      - name: go vet
-        run: go vet ./...
+      - name: make lint
+        run: make lint
 
   test:
     name: test
@@ -52,6 +39,22 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: build frontend
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: sync frontend into embed dir
+        run: |
+          rm -rf internal/server/webdist
+          mkdir -p internal/server/webdist
+          cp -r web/dist/. internal/server/webdist/
+          touch internal/server/webdist/.gitkeep
       # The corpus is a transient build input and is not in the repository.
       # The suites that need it skip themselves; see the corpus job below.
       - name: go test

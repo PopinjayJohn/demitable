@@ -87,12 +87,16 @@ bench: ## the Go benchmarks
 # --- lint and format --------------------------------------------------------
 
 .PHONY: lint
-lint: ## gofmt check and go vet
+lint: ## gofmt check, go vet, and the frontend type check
 	@out=$$(gofmt -l . 2>/dev/null); \
 	if [ -n "$$out" ]; then \
 		echo "these files are not gofmt'd:"; echo "$$out"; exit 1; \
 	fi
 	$(GO) vet ./...
+ifdef HAVE_WEB
+	npm --prefix $(WEB_DIR) ci
+	npm --prefix $(WEB_DIR) run check
+endif
 
 .PHONY: fmt
 fmt: ## gofmt the tree

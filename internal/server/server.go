@@ -3,7 +3,6 @@ package server
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
 	"net/http"
 )
@@ -21,13 +20,4 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(`{"status":"ok"}`))
-}
-
-// StaticHandler serves the embedded bundle.
-func StaticHandler() (http.Handler, error) {
-	sub, err := WebFS()
-	if err != nil {
-		return nil, fmt.Errorf("server: web fs: %w", err)
-	}
-	return http.FileServer(http.FS(sub)), nil
 }
