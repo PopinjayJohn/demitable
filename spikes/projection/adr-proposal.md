@@ -4,10 +4,17 @@
 > `docs/decisions/`; the orchestrator lands the ADRs, so that there is one
 > place where the decision set is decided.
 >
-> **Proposed numbers:** 0050 (this file) and 0051
-> ([`../threat-model/adr-proposal.md`](../threat-model/adr-proposal.md)).
-> 0049 is already claimed by the extractor's js-yaml measurement. Confirm
-> the numbers at landing.
+> **Status update (post-landing).** The numbers 0050 and 0051 are now taken by
+> two ADRs that landed after this proposal was written:
+> [ADR-0050 (schema gaps found by writing a campaign)](../../docs/decisions/0050-schema-gaps-found-by-writing-a-campaign.md)
+> and [ADR-0051 (threat model)](../../docs/decisions/0051-threat-model-and-not-defended-list.md).
+> ADR-0050 absorbed several of the amendments below (D3 `discovered`, D5
+> reserved-layer visibility, D6 retired, D7 handout states, D8 revealed
+> audience, D12 comments, D13 public-in-campaign); ADR-0051 absorbed the
+> plugin-UI-trust position. The amendments that remain open are listed in the
+> table at the end of §Consequences' neighbour section. The proposal's
+> *substance* (the audience-set rewrite) is untouched; only the numbering and
+> the "already decided" status of some amendments changed.
 
 ---
 
@@ -132,36 +139,36 @@ case are inexpressible.
 
 ### The amendments this forces
 
-**A1 — `owner` includes the GM, at both levels.**
+**A1 — `owner` includes the GM, at both levels.** *(still open — ADR-0050 D5 scoped only the reserved fields `discovered` and `grants` to player+GM; pack-declared `owner` (rule 7) still omits the GM, so finding 9 survives)*
 Rule 7 becomes: *"`owner` on a property resolves against the note's
 `player` **and the GM**. If the note has no `player`, the property falls
 back to the note's visibility."* This matches ADR-0002 and rule 4, and it
 makes the GM able to see a player's hit points, which is the GM's job.
 
-**A2 — `private` excludes the GM, always.**
+**A2 — `private` excludes the GM, always.** *(partially landed — ADR-0050 D3 keeps `private` excluding the GM; the amendment to ADR-0038's "GM's view is never filtered" is still open, so finding 6 survives)*
 Rule 4 becomes: *"`private` — the note's `player`, and nobody else, not even
 the GM."* And ADR-0038's "the GM's view is never filtered" is amended to
 "the GM's view is filtered by exactly one thing: `visibility: private`."
 
-**A3 — `workflow: retired` is gated.**
+**A3 — `workflow: retired` is gated.** *(resolved the other way — ADR-0050 D6 lands on ADR-0033's side: retired is NOT a visibility gate; finding 8 resolved)*
 ADR-0009's workflow table is right and ADR-0033's rule 3 was incomplete:
 `retired` joins `draft` and `submitted` in the gate. A retired character is
 the author's and the GM's.
 
-**A4 — a seat's binding is not a grant.**
+**A4 — a seat's binding is not a grant.** *(still open — finding 14/15 survive)*
 ADR-0038's "as if the seat had been granted it" is replaced: **the seat's
 bound character is part of the seat's identity, and the workflow gate
 applies to accounts, not to the seat the GM assigned.** A guest may play a
 character that is still in draft, because the GM assigned it.
 
-**A5 — the campaign filters the base level, not the grants.**
+**A5 — the campaign filters the base level, not the grants.** *(still open — finding 14 survives; ADR-0050's "does not settle" list leaves the guest's cross-campaign grant open)*
 Rule 1 becomes: *"A note with `campaign: X` resolves its `party` and
 `owner` audiences inside X. A grant, a discovery or a seat binding may
 cross that boundary; the GM has said so explicitly by writing the id down."*
 This is the one place where the campaign is not a hard boundary, and it is
 recorded as a decision rather than left to the order of two rules.
 
-**A6 — a note-level owner fallback, and two write-time errors.**
+**A6 — a note-level owner fallback, and two write-time errors.** *(partially landed — ADR-0050 D3 lands the "unknown value fails closed" write-time error and the `discovered` value; the `party`-with-no-`campaign` linter error and the note-level `owner` fallback are still open)*
 * `visibility: owner` on a note with no `player` falls back to the note's
   campaign scope (`party`), mirroring rule 7's property fallback.
 * `visibility: party` on a note with no `campaign` is a **linter error**.
@@ -170,7 +177,7 @@ recorded as a decision rather than left to the order of two rules.
 * A `visibility:` value outside the vocabulary is a **linter error** and a
   read-time fail-closed.
 
-**A7 — the reserved fields get visibility rules.**
+**A7 — the reserved fields get visibility rules.** *(partially landed — ADR-0050 D5 lands the table, but only for `discovered` and `grants` (`owner`-scoped); the other ten fields inherit the note's visibility, which is the landed decision)*
 ADR-0040's twelve names are universal, so no pack can declare them, and
 today they all inherit the note's visibility. They should not:
 
@@ -187,7 +194,7 @@ today they all inherit the note's visibility. They should not:
 This is the smallest change that stops a party-visible player character from
 publishing its owner's discovery list to the table.
 
-**A8 — `revealed:` carries an audience.**
+**A8 — `revealed:` carries an audience.** *(landed — ADR-0050 D8, with `players:` absent meaning the whole campaign; finding 16 fixed)*
 ADR-0035's durable record becomes:
 
 ```yaml
@@ -200,13 +207,13 @@ and the secret block's id is **scoped to its note** — because the corpus has
 355 blocks that all carry the id `^statblock`, and a global id list would
 reveal all 355 at once.
 
-**A9 — the pack's content-type default is a projection-time fallback.**
+**A9 — the pack's content-type default is a projection-time fallback.** *(still open — finding 2 survives)*
 The projection falls back to the pack's declared `visibility:` for a
 `content_type` when the note carries no `visibility:` of its own. Today it
 does not, and the measured consequence of that omission is the entire SRD
 going to one player.
 
-**A10 — masking gets a syntax, and the audiences are named.**
+**A10 — masking gets a syntax, and the audiences are named.** *(still open — finding 18 survives)*
 `display:` is a map on the property, keyed by audience:
 
 ```yaml
@@ -224,7 +231,7 @@ is an exception to ADR-0040's "simple-typed, top-level, Bases-queryable"
 rule and must be recorded as one — or masking moves to a sibling field
 (`str_display`), which keeps the type simple at the cost of the shape.
 
-**A11 — ADR-0035's block-id example is corrected.**
+**A11 — ADR-0035's block-id example is corrected.** *(partially landed — ADR-0050 D12 specifies comment stripping, but block-id location is still unspecified; finding 17 survives)*
 Obsidian writes a block reference on the line **after** the block. All 614
 of the corpus's block references are written that way, and ADR-0035's
 example (`> [!secret] The key ^vaultkey`) is not. The example is corrected,

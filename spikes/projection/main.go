@@ -1,5 +1,5 @@
 // Command projection runs the visibility model of ADR-0033 (as amended by
-// ADR-0037, ADR-0038, ADR-0040 and ADR-0048) over a vault, and writes the
+// ADR-0037, ADR-0038, ADR-0040, ADR-0048 and ADR-0050) over a vault, and writes the
 // per-principal visibility diff.
 //
 // It is a disposable spike. Its answer is the report it writes, not the code.
