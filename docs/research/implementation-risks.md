@@ -650,7 +650,7 @@ rich editor at ~50k words and fall back to the source view beyond that.**
 
 Source: [MDN browser-compat-data v8.1.6](https://github.com/mdn/browser-compat-data)
 (Sept 2026 browser data). The project's
-[shadow-dom-verification.md](shadow-dom-verification.md) was run in
+[shadow-dom-verification.md](../shadow-dom-verification.md) was run in
 **Chromium 156 only** — that is the gap.
 
 | Feature | Chrome | Edge | Firefox | Safari | iOS Safari | Verdict |
