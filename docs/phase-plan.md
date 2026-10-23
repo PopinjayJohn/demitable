@@ -37,7 +37,17 @@ sit on top of a schema that phase 1 has already proven against real use.
 
 ---
 
-## The four phases
+## The phases
+
+### Phase 0 — The Prototype
+
+Six weeks, about sixty hours. Its output is **knowledge, not code**: ten
+questions answered, and only the frontmatter extractor promoted into phase 1.
+
+It exists because the design rests on things nobody has built or measured —
+the frontmatter extractor, the projection over real data, the plugin API's
+actual shape, the interface itself, and the performance numbers. The full
+plan is in [`phase-0-plan.md`](phase-0-plan.md).
 
 ### Phase 1 — The Wiki (MVP)
 
@@ -101,6 +111,13 @@ Recording, transcription, session logs and mood-driven music (ADR-0018,
 ADR-0034).
 
 ---
+
+### Phase 0 — the prototype
+
+Ten questions, sixty hours, and the list fixed up front. The corpus is a
+**test corpus**, not a deliverable: phase 0 parses the 1,692 real
+frontmatters and finds out what breaks, which is minutes of work rather than
+weeks. The SRD pipeline stays in phase 2.
 
 ## What moved, and where it went
 

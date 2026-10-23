@@ -1011,6 +1011,18 @@ content vault.
 **The canonical phase map is [`phase-plan.md`](phase-plan.md).** This section
 gives the shape; the phase map says what is in each phase and what moved.
 
+### Phase 0 — The Prototype
+
+Six weeks, about sixty hours, and the output is **knowledge rather than
+code**: ten questions answered, with only the frontmatter extractor promoted
+into phase 1.
+
+It exists because the design rests on things nobody has built or measured —
+the extractor, the projection over real data, the plugin API's actual shape,
+the interface itself, and the performance numbers. The corpus is a **test
+corpus**, not a deliverable, which is what makes it cheap. The full plan is
+in [`phase-0-plan.md`](phase-0-plan.md).
+
 ### Phase 1 — The Wiki (MVP)
 
 > **A campaign wiki, with secrets.**

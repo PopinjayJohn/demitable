@@ -68,6 +68,7 @@ Six ideas hold it together:
 
 | Phase | Name | Deliverable |
 |---|---|---|
+| 0 | The Prototype | Six weeks. Ten questions answered; the frontmatter extractor written; the interface designed |
 | 1 | The Wiki (MVP) | Core UI/UX, the vault, the user system, markdown. A campaign wiki, with secrets |
 | 1.5 | — | Archive import, the MCP plugin, and whatever phase 1 taught us to change |
 | 2 | The System | Pack format completed, formula and dice engines, the 5e pack and SRD content, the Blades gate, the creation wizard, character sheets, the rich editor |
@@ -96,6 +97,7 @@ reserved for embedding a third-party page.
 ```
 docs/design.md            the living design document
 docs/phase-plan.md        the canonical phase map, and what moved
+docs/phase-0-plan.md      phase 0: the ten questions
 docs/phase-1-plan.md      phase 1: milestones and acceptance criteria
 docs/tech-stack.md        the complete stack, with reasons
 docs/api.md               the API contract — what a client may rely on
