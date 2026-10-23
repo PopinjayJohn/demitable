@@ -1,12 +1,19 @@
 # ADR-0048: A display principal, chat as notes, and the rest of the projection's shape
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-23
 - **Extends:** ADR-0033 (the visibility model), ADR-0035 (secrets),
   ADR-0037 (a campaign is a note), ADR-0038 (principals)
 - **Addresses:** recommendation 9 of the external review — settle the
   player/GM gaps as schema decisions now, because a projection rule is
   expensive to retrofit
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

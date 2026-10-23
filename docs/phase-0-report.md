@@ -193,7 +193,7 @@ a 5,000-note index: **78.9 MiB**.
 > **Not defended, stated plainly:** a compromised GM host; a GM-installed
 > plugin's UI tier, which runs in the app's document with the app's
 > privileges; credential theft inside its window; search-ranking side
-> channels; markdown XSS; plugin UI in Firefox and Safari; phase 3's live
+> channels; markdown XSS; plugin UI in Firefox and Safari; phase 4's live
 > surfaces.
 
 And the generalisation the model turns on: **hiding was partly a rendering

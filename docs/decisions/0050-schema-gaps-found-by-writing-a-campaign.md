@@ -1,6 +1,7 @@
 # ADR-0050: The schema needs a discovery state, a reserved-layer visibility, and an honest field list
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-23
 - **Amends:** ADR-0033 (the visibility model), ADR-0040 (the frontmatter
   field namespace), ADR-0037 (a campaign is a note), ADR-0035 (secret
@@ -21,6 +22,12 @@
 > of the twenty-one notes needed a field, a value or a shape the twelve
 > reserved names do not provide, and one gap could not be closed by any
 > field at all.
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

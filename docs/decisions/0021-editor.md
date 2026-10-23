@@ -1,6 +1,7 @@
 # ADR-0021: The editor is CodeMirror 6 with block widgets, held to a byte-identical round-trip contract
 
 - **Status:** Accepted, **amended 2026-10-22** — the editor was originally
+
   Tiptap/ProseMirror. Measurement showed the byte-identical contract cannot
   be met by re-serializing markdown, by any library, so the editor is now
   CodeMirror 6. See [`docs/editor-architecture.md`](../editor-architecture.md)
@@ -9,6 +10,12 @@
   harness — to **phase 2**. Phase 1 ships CodeMirror source editing with a
   live preview, where the buffer *is* the file.
 - **Date:** 2026-10-21
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

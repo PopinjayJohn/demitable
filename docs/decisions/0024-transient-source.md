@@ -1,6 +1,7 @@
 # ADR-0024: The SRD source is transient; the enriched output is published as an importable archive
 
 - **Status:** Accepted, amended by ADR-0025 (content reaches users through
+
   `demitable import <url>` — an archive at a URL — not through the app) and
   by the phase-1 cut, which moved the SRD content vault to **phase 2** and
   by the amendment below (the enriched vault is *published*, not bundled)
@@ -9,6 +10,12 @@
   available**. There is no URL to fetch. The scripted fetch is replaced by
   manual acquisition plus a verification step, and CI can no longer re-run
   the pipeline to check the committed output. See §"The corpus is manual".
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

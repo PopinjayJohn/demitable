@@ -32,7 +32,7 @@ structurally absent from a player's view rather than merely hidden.
 ### What the MVP is not
 
 It does not know what game you are playing. It has no character sheet, no
-dice, no encounters and no tabletop. Those are phase 2 and phase 3, and they
+dice, no encounters and no tabletop. Those are phase 2 and phase 4, and they
 sit on top of a schema that phase 1 has already proven against real use.
 
 ---
@@ -71,16 +71,18 @@ The **pack** declares the system's vocabulary, under `type: content` with a
 `character` with a couple of fields. Phase 2's 5e pack declares a rich one,
 and `species`, `background`, `feat`, `spell`, `monster` and the rest.
 
-**Deliberately deferred from phase 1** — all of it lands in phase 2 or 3:
-the formula engine, the dice engine, the 5e pack, the SRD content vault, the
-Blades gate, the creation wizard, character sheets, the rich editor's block
-widgets, the WASM plugin tier, the query language, live sessions, seats, the
-encounter runner, the tabletop, chat and the shared display.
+**Deliberately deferred from phase 1** — all of it lands in phase 2 or
+later: the formula engine, the dice engine, the 5e pack, the SRD content
+vault, the Blades gate, the creation wizard, character sheets, the rich
+editor's block widgets, the archive import endpoint, the WASM plugin tier,
+the query language, MCP, live sessions, seats, the encounter runner, the
+tabletop, chat and the shared display.
 
 ### Phase 2 — The System
 
-The rules layer. The pack format completed — resources, formulas, dice and
-sheets — and the machinery that interprets it.
+The rules and the content. The pack format completed — resources,
+formulas, dice and sheets — and the machinery that interprets it, plus the
+way content arrives.
 
 - The **formula engine** (ADR-0042's layered scope).
 - The **dice engine**: tables, faces, symbol dice, pools, opposed rolls.
@@ -88,12 +90,30 @@ sheets — and the machinery that interprets it.
   format proof (ADR-0012, ADR-0023, ADR-0024, ADR-0036).
 - The **creation wizard** and **character sheets**, for the GM and for players
   (ADR-0009's review workflow).
-- The **rich editor**: block widgets, callouts, stat blocks, the extension
-  registry, the cross-browser harness (ADR-0021, ADR-0027, ADR-0035).
+- The **rich editor's content support**: block widgets, callouts, stat
+  blocks, the extension registry (ADR-0021, ADR-0027, ADR-0035).
+- The **archive import endpoint** — how content arrives (ADR-0025).
+
+> **Done when** two deliberately differently-shaped game systems both work
+> end to end, and a GM can import an archive into a campaign.
+
+### Phase 3 — The Openings
+
+The app's boundaries with other programs: what extends it, what can ask it
+questions, and what can read it.
+
 - The **WASM plugin tier** and the full host ABI (ADR-0020, ADR-0045).
 - The **query language** for `list_by`, shared by REST and MCP (ADR-0047).
+- The **MCP plugin** (ADR-0014).
+- The **cross-browser harness** for the shadow host, which gates the plugin
+  host's UI tier (ADR-0029).
 
-### Phase 3 — The Table
+> **Done when** a third party can write a WASM plugin that installs without
+> rebuilding the app; a program can query the vault with the fixed
+> predicate language over REST or MCP; and the shadow host is verified in
+> Firefox and Safari as well as Chromium.
+
+### Phase 4 — The Table
 
 Live play.
 
@@ -105,7 +125,7 @@ Live play.
 - The **session write-back contract**: partial apply, per-key conflict
   reporting, journal-based recovery (ADR-0039).
 
-### Phase 4 — The Session
+### Phase 5 — The Session
 
 Recording, transcription, session logs and mood-driven music (ADR-0018,
 ADR-0034).
@@ -127,14 +147,16 @@ weeks. The SRD pipeline stays in phase 2.
 | The dice engine | Phase 2 | 0008 |
 | The 5e pack, the SRD vault, the Blades gate | Phase 2 | 0023, 0024, 0012 |
 | The creation wizard, character sheets | Phase 2 | 0009 |
-| Block widgets, the extension registry, the cross-browser harness | Phase 2 | 0021, 0027, 0035 |
-| The WASM plugin tier, the host ABI | Phase 2 | 0020, 0045 |
-| The query language | Phase 2 | 0047 |
-| Live sessions, seats, session codes, the scratch log | Phase 3 | 0038, 0048 |
-| The encounter runner, the tabletop, chat, the shared display | Phase 3 | 0016, 0048 |
-| The session write-back contract | Phase 3 | 0039 |
-| The archive import endpoint | Phase 1.5 | 0025 |
-| The MCP plugin | Phase 1.5 | 0014 |
+| Block widgets, the extension registry | Phase 2 | 0021, 0027, 0035 |
+| The archive import endpoint | Phase 2 (was 1.5) | 0025 |
+| The WASM plugin tier, the host ABI | Phase 3 | 0020, 0045 |
+| The query language | Phase 3 | 0047 |
+| The MCP plugin | Phase 3 (was 1.5) | 0014 |
+| The cross-browser harness | Phase 3 | 0029 |
+| Live sessions, seats, session codes, the scratch log | Phase 4 | 0038, 0048 |
+| The encounter runner, the tabletop, chat, the shared display | Phase 4 | 0016, 0048 |
+| The session write-back contract | Phase 4 | 0039 |
+| Recording, transcription, session logs, music | Phase 5 | 0018 |
 
 ## What did not move, because it is the floor
 
@@ -160,3 +182,21 @@ demonstrates instead is the **campaign** claim and the **secrets** claim.
 That is a real change in positioning, and it is the trade for a phase 1 that
 can actually be finished. The system-agnostic claim is proved in phase 2, by
 the Blades gate.
+
+---
+
+## The re-cut of 2026-10-24
+
+The map above is the result of one change, recorded in
+[ADR-0059](decisions/0059-the-phase-map-is-re-cut.md):
+
+- **Phase 1.5 is abolished.** Its two items — the archive import endpoint
+  and the MCP plugin — land in phases 2 and 3. A number between two
+  integers is a scheduling dodge, and it had no acceptance test of its own.
+- **Phase 2 is split in two.** "The System" was a rules layer and a
+  platform layer wearing one number. Phase 2 is now **The System** and
+  phase 3 is **The Openings**.
+- **Old phase 3 is now phase 4**, and **old phase 4 is now phase 5**.
+
+Nothing was dropped and no work changed. The order changed, and the two
+phases that had no coherent shape now have one each.

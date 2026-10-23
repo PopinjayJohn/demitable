@@ -85,7 +85,7 @@ evening, not the campaign.
 > The write-back contract is unchanged.
 
 This "write-back contract" is designed in phase 1, because phase 1 defines the
-note schemas that phases 2–4 write into. Retrofitting it is expensive.
+note schemas that phases 2–5 write into. Retrofitting it is expensive.
 
 ### Rule 3 — The game system is data, not code
 
@@ -1088,7 +1088,7 @@ visibility default. No formulas, no resources, no dice.
 The editor is CodeMirror with a live preview, so the buffer *is* the file and
 the round-trip contract holds by construction (ADR-0021). The plugin host has
 its shape — registry, capabilities, services, surface hosts, a bridge — with
-compiled-in plugins only; the WASM sandbox is phase 2 (ADR-0020).
+compiled-in plugins only; the WASM sandbox is phase 3 (ADR-0020).
 
 The phase-1 exit criteria are in
 [`phase-1-plan.md`](phase-1-plan.md): eight milestones, twenty-one
@@ -1096,21 +1096,27 @@ sub-milestones, ~37–49 weeks full-time.
 
 ### Phase 2 — The System
 
-The rules layer. The pack format completed — resources, formulas, dice,
-sheets — the 5e pack, the SRD content vault and the Blades gate, the
+The rules and the content. The pack format completed — resources, formulas,
+dice, sheets — the 5e pack, the SRD content vault and the Blades gate, the
 creation wizard and character sheets, the rich editor's block widgets and
-extension registry, the WASM plugin tier, and the query language.
+extension registry, and the archive import endpoint.
 
 This is where the **system-agnostic** claim is proved, by the Blades gate
 (ADR-0012).
 
-### Phase 3 — The Table
+### Phase 3 — The Openings
+
+The app's boundaries with other programs. The WASM plugin tier and the full
+host ABI, the query language shared by REST and MCP, the MCP plugin, and the
+cross-browser harness that gates the shadow host's UI tier (ADR-0029).
+
+### Phase 4 — The Table
 
 Live play. Sessions, seats, the session tier, the scratch log, the encounter
 runner, the 2D tabletop with fog, the shared display, chat, and the session
 write-back contract (ADR-0039).
 
-### Phase 4 — The Session
+### Phase 5 — The Session
 
 Recording, transcription, session logs, and mood-driven music (ADR-0018,
 ADR-0034).

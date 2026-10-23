@@ -1,9 +1,16 @@
 # ADR-0006: The web app owns prose editing — Obsidian becomes one client, not the host
 
 - **Status:** Accepted, amended in part by ADR-0021 (the editor is Tiptap, and
+
   is a plugin rather than a core feature). The *decision* stands; only the
   editor technology and its packaging changed.
 - **Date:** 2026-10-21
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

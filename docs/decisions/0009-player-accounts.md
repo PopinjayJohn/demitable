@@ -1,10 +1,17 @@
 # ADR-0009: Player accounts, character ownership, and a character review workflow
 
 - **Status:** Accepted, extended by ADR-0037 (a campaign is a note),
+
   ADR-0038 (the account join code is campaign-scoped; a session code is a
   second, separate credential) and ADR-0040 (the `owner` field is now
   `player`)
 - **Date:** 2026-10-21
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

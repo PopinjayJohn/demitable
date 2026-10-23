@@ -91,10 +91,10 @@ Six ideas hold it together:
 |---|---|---|
 | 0 | The Prototype | Six weeks. Ten questions answered; the frontmatter extractor written; the interface designed |
 | 1 | The Wiki (MVP) | Core UI/UX, the vault, the user system, markdown. A campaign wiki, with secrets |
-| 1.5 | — | Archive import, the MCP plugin, and whatever phase 1 taught us to change |
-| 2 | The System | Pack format completed, formula and dice engines, the 5e pack and SRD content, the Blades gate, the creation wizard, character sheets, the rich editor |
-| 3 | The Table | Live sessions, the encounter runner, the 2D tabletop, chat, the shared display |
-| 4 | The Session | Speech-to-text recording, session logs, mood-driven music |
+| 2 | The System | Pack format completed, formula and dice engines, the 5e pack and SRD content, the Blades gate, the creation wizard, character sheets, the rich editor, archive import |
+| 3 | The Openings | The WASM plugin tier, the query language, the MCP plugin, the cross-browser harness |
+| 4 | The Table | Live sessions, the encounter runner, the 2D tabletop, chat, the shared display |
+| 5 | The Session | Speech-to-text recording, session logs, mood-driven music |
 
 The canonical map, including what moved and why, is
 [`docs/phase-plan.md`](docs/phase-plan.md).

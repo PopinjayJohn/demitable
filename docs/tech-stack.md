@@ -177,7 +177,7 @@ logging.From(ctx).Info("note projected")
 
 | Choice | Why |
 |---|---|
-| **Svelte 5** | Small runtime and small bundles — every player loads the app on a phone over a LAN. Compiles away, so the phase-3 board's high-frequency token updates cost no virtual-DOM overhead. Its reactivity primitives map onto the live session store |
+| **Svelte 5** | Small runtime and small bundles — every player loads the app on a phone over a LAN. Compiles away, so the phase-4 board's high-frequency token updates cost no virtual-DOM overhead. Its reactivity primitives map onto the live session store |
 | **Vite 8** | The build tool. Fast, and the dev server proxies to the Go server, so there is one process for the user and two for the developer |
 | **No framework beyond Svelte** | The app's complexity is in the domain, not the view layer |
 | **No CSS framework** | Tailwind's utility classes fight the shadow-DOM isolation model (ADR-0029), and a hand-written token layer is enough for an app with one design language |
@@ -416,4 +416,4 @@ settles. Full evidence:
 | Dice | 0008, 0022 |
 | Write-back, journal | 0004, 0015 |
 | Search | 0013, 0030 |
-| Phase 3 and 4 scope | 0016, 0018 |
+| Phase 4 and 4 scope | 0016, 0018 |

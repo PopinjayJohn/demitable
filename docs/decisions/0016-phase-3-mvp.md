@@ -1,7 +1,13 @@
 # ADR-0016: The phase 3 MVP is tokens, fog and initiative — no map editing
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-21
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut, and
+> **this ADR's "phase 3" is now phase 4** — The Table. The decisions below
+> are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

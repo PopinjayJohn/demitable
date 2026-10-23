@@ -70,13 +70,15 @@ schema · the export plugin.
 | The formula engine, the dice engine | Phase 2 |
 | The 5e pack, the SRD content vault, the Blades gate | Phase 2 |
 | The creation wizard, character sheets | Phase 2 |
-| Block widgets, the extension registry, the cross-browser harness | Phase 2 |
-| The WASM plugin tier, the host ABI | Phase 2 |
-| The query language | Phase 2 |
-| Live sessions, seats, session codes, the scratch log | Phase 3 |
-| The encounter runner, the tabletop, chat, the shared display | Phase 3 |
-| The session write-back contract | Phase 3 |
-| The archive import endpoint, the MCP plugin | Phase 1.5 |
+| Block widgets, the extension registry | Phase 2 |
+| The archive import endpoint | Phase 2 |
+| The WASM plugin tier, the host ABI | Phase 3 |
+| The query language | Phase 3 |
+| The MCP plugin | Phase 3 |
+| The cross-browser harness | Phase 3 |
+| Live sessions, seats, session codes, the scratch log | Phase 4 |
+| The encounter runner, the tabletop, chat, the shared display | Phase 4 |
+| The session write-back contract | Phase 4 |
 
 ---
 
@@ -107,7 +109,7 @@ schema · the export plugin.
   `PATH`**.
 - The configuration surface exists with safe defaults: `--expose`,
   `--public-url`, `--trust-proxy`, `--allow-http-import`, `--no-import`
-  (ADR-0031, ADR-0025). The import itself is phase 1.5; the flags are here
+  (ADR-0031, ADR-0025). The import itself is phase 2; the flags are here
   so the deployment story is settled before anything is exposed.
 - `CGO_ENABLED=0` builds succeed for `linux/amd64`, `linux/arm64`,
   `darwin/amd64`, `darwin/arm64`, `windows/amd64`, each under 12 MB.
@@ -242,11 +244,11 @@ the host checks it **before loading the module** (ADR-0056).
 **M3d** — the compiled-in plugin registration path, manifest-driven
 (ADR-0056).
 
-**No WASM in phase 1.** The sandbox is phase 2 (ADR-0020, ADR-0045). What
+**No WASM in phase 1.** The sandbox is phase 4 (ADR-0020, ADR-0045). What
 phase 1 has is the *shape* of a plugin host — a manifest, a capability
 model, a service registry, surface hosts, a bridge — with compiled-in
 plugins only. That is what keeps the core a core rather than a monolith, and
-it is what makes the phase-2 sandbox an addition rather than a rewrite.
+it is what makes the phase-3 sandbox an addition rather than a rewrite.
 
 **Done when**
 - A plugin can register a service, a mount point and a command, and be
@@ -311,7 +313,7 @@ rich layer — block widgets, the extension registry, the cross-browser harness
 **M5c** — the property test and the exposure checklist.
 
 **No sessions, seats or session codes in phase 1.** Those need live state,
-which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
+which is phase 4 (ADR-0038). What phase 1 has is the *account* and the
 *campaign* — which is the whole premise.
 
 **Done when**
@@ -319,7 +321,7 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
   code are each rejected, with distinct messages.
 - The projection resolves against a **principal** — `gm`, `account` or
   `anonymous` — not a role string (ADR-0038). A `seat` principal joins in
-  phase 3.
+  phase 4.
 - A campaign note's `party` resolves against **its own `members` list**, and
   a member id that does not exist is tolerated rather than fatal.
 - A note with `visibility: private` is visible to its `player` and to nobody
@@ -404,7 +406,7 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
 - The literal index resolves a name, alias or wikilink target exactly, and
   the ranked index returns results in BM25 order.
 - The filters are over the universal fields and the pack's declared fields.
-  **The query language of ADR-0047 is phase 2**; phase 1's filters are
+  **The query language of ADR-0047 is phase 3**; phase 1's filters are
   equality over those fields, evaluated against the in-memory index.
 
 ### M7 — Scaffolding, the demo campaign, the published schema
@@ -479,7 +481,7 @@ alongside.
 
 The app may be internet-exposed (ADR-0031). Before it is declared safe to
 expose, each item must hold, **and the milestone that owns it must be
-complete**. The import rows are phase 1.5, because the import is.
+complete**. The import rows are phase 2, because the import is.
 
 > **This checklist is derived from [`threat-model.md`](threat-model.md)**, and
 > that document is its source of truth (ADR-0051). Every row below maps to a
@@ -496,11 +498,11 @@ complete**. The import rows are phase 1.5, because the import is.
 |---|---|
 | Authentication is rate-limited and backed off on every auth endpoint | M5 |
 | **A campaign code is single-use, expires, and accepted only by the account endpoint** | M5 |
-| **The session-code endpoint is rate-limited and counts attempts** | Phase 3 |
+| **The session-code endpoint is rate-limited and counts attempts** | Phase 4 |
 | **The GM secret is rotatable, and rotation invalidates outstanding sessions** | M5 |
 | **Every read of a GM-only note is written to the audit log** | M5 |
-| **A guest seat sees its bound character, the live table, and nothing else** | Phase 3 |
-| **A seat token grants nothing outside its session** | Phase 3 |
+| **A guest seat sees its bound character, the live table, and nothing else** | Phase 4 |
+| **A seat token grants nothing outside its session** | Phase 4 |
 | The GM authenticates with a credential, not by being local | M5 |
 | Absolute URLs come from the configured public base URL, never the `Host` header | M3 |
 | Forwarded headers are trusted only from a configured proxy address | M3 |
@@ -508,9 +510,9 @@ complete**. The import rows are phase 1.5, because the import is.
 | CORS is off by default; the API is same-origin | M3 |
 | **A player's FTS query is filtered before BM25/IDF ranking, so a GM-only note cannot shift a visible note's rank** | M1d / M6 |
 | **Markdown is sanitised before the editor renders it** | M4 |
-| The MCP endpoint is off by default, token-gated, and logs a warning if enabled | Phase 1.5 |
-| The import refuses a private address and refuses to reconnect elsewhere | Phase 1.5 |
-| The import requires https and is off unless explicitly enabled | Phase 1.5 |
+| The MCP endpoint is off by default, token-gated, and logs a warning if enabled | Phase 4 |
+| The import refuses a private address and refuses to reconnect elsewhere | Phase 2 |
+| The import requires https and is off unless explicitly enabled | Phase 2 |
 | The app starts and works with the network interface down, and with DNS unavailable | M0 |
 | There is no automatic update path | M0 |
 
@@ -525,7 +527,7 @@ Carried forward from the previous plan, and settled by decision:
   checker).
 - The Blades clock and harm representation — ADR-0044, phase 2.
 - The plugin ABI, the capability mapping, the `api: 1` freeze — ADR-0045;
-  the *vocabulary* is phase 1, the WASM host functions are phase 2.
+  the *vocabulary* is phase 1, the WASM host functions are phase 4.
 - The shadow host contract and the config UI — ADR-0046, phase 1.
 - The plugin ABI freeze — ADR-0045, amended by **ADR-0056**: capabilities
   come in three kinds (invocable, subscription, declaration), the host
@@ -533,9 +535,9 @@ Carried forward from the previous plan, and settled by decision:
   are part of `api: 1`, the manifest field is `api`, and the freeze lands
   at **M8** — the export plugin is the second, non-UI consumer that
   ADR-0019 requires for a freeze.
-- The query language — ADR-0047, phase 2.
+- The query language — ADR-0047, phase 3.
 - The seat and guest identity — ADR-0038; the *account* and *campaign* are
-  phase 1, the *seat* is phase 3.
+  phase 1, the *seat* is phase 4.
 
 Still open, and they are product decisions rather than technical ones:
 whether the MVP ships the SRD content vault at all (the licence permits

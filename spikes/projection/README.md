@@ -312,7 +312,7 @@ updated to match (36 notes, 11 principals); the property test still passes.
 | # | Finding | ADR that now disagrees / owns it |
 |---|---|---|
 | 21 | **A plugin's UI is trusted** (ADR-0051 §4), so the projection is the only boundary for plugin-rendered content too. A plugin that renders a note it received through the API must have received the projected bytes; there is no second, client-side filter. | ADR-0051 |
-| 22 | **A `discovered`-level note is invisible to the shared display.** ADR-0048 resolves the display to `party`-only content, so a location the party has not yet found is never on the shared screen — even after one player finds it. Whether the display should show a discovered location is a phase-3 decision, not a clarification. | ADR-0048, ADR-0050 D3 |
+| 22 | **A `discovered`-level note is invisible to the shared display.** ADR-0048 resolves the display to `party`-only content, so a location the party has not yet found is never on the shared screen — even after one player finds it. Whether the display should show a discovered location is a phase-4 decision, not a clarification. | ADR-0048, ADR-0050 D3 |
 | 23 | **Discovery does not cross the campaign boundary.** A note in campaign X with `visibility: discovered` is invisible to an account in campaign Y even if that account owns a character that discovered it, because the campaign-scope check runs first. Whether a discovery grant may cross a campaign is the same open question as finding 14, and ADR-0050's "does not settle" list leaves it open. | ADR-0033 rule 1, ADR-0050 |
 
 ### The shape underneath all twenty

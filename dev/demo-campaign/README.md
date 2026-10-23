@@ -414,7 +414,7 @@ decision.
 campaign is a boundary, and a note inside it may not leak out of it) and
 adds: a `public` note *with* a campaign is public *within* the campaign,
 which is what `public` is for inside a campaign boundary. The display's
-rule is left alone and flagged for phase 3.
+rule is left alone and flagged for phase 4.
 
 ### 14. An Obsidian comment is not a secret mechanism
 

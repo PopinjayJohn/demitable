@@ -1,10 +1,17 @@
 # ADR-0040: The app's frontmatter fields are bare, with a tightened reserved set
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-23
 - **Amends:** the universal field list in design doc §5.2
 - **Addresses:** a pre-phase-1 decision — the field names are written into
   every user's file on first save
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

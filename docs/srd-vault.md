@@ -133,7 +133,7 @@ The consequence is worth stating plainly: **a new user gets no content until
 someone publishes it.** The first-run experience is therefore "download the
 archive and unzip it into the vault" — which, because the archive is a zip of
 plain files, needs no server feature at all. `demitable import <url>`
-(ADR-0025) is a convenience that arrives in phase 1.5, not the distribution
+(ADR-0025) is a convenience that arrives in phase 2, not the distribution
 mechanism.
 
 The licence travels with the content: in the manifest, inside the archive, and

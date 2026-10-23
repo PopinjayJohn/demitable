@@ -263,9 +263,9 @@ needs the schema to have already been corrected by everything above it.
 | The SRD enrichment pipeline | It is phase 2's deliverable. Phase 0 only *parses* the corpus |
 | The 5e pack | Phase 2 |
 | The formula and dice engines | Phase 2 |
-| The WASM plugin tier | Phase 2 |
-| Any live session, seat or board | Phase 3 |
-| The import endpoint | Phase 1.5 |
+| The WASM plugin tier | Phase 3 |
+| Any live session, seat or board | Phase 4 |
+| The import endpoint | Phase 2 |
 | Writing the actual app | That is phase 1 |
 
 ---

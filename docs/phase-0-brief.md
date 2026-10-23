@@ -233,7 +233,7 @@ archive it with a note saying what it settled.
 
 The SRD enrichment pipeline (phase 2 — phase 0 only *parses* the corpus) · the
 5e pack · the formula and dice engines · the WASM plugin tier · any live
-session, seat or board (phase 3) · the archive import endpoint (phase 1.5) ·
+session, seat or board (phase 4) · the archive import endpoint (phase 2) ·
 **and any of the actual application**.
 
 ## Stop and report if

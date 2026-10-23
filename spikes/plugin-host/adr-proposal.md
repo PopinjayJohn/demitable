@@ -190,7 +190,7 @@ catches it.
 - The shape stays Extism's, so an Extism-PDK plugin's shape is familiar
   even though our host functions and manifest differ.
 - The freeze is additive-only, so the manifest does not change shape when
-  WASM host functions arrive in phase 2.
+  WASM host functions arrive in phase 4.
 
 ## What this decision does not settle
 

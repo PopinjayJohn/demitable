@@ -18,9 +18,9 @@ one means writing a new ADR that supersedes it.
 | [0011](0011-pack-distribution.md) | Packs are local files only — no registry, no signing | Accepted |
 | [0012](0012-second-pack-blades.md) | The second pack is Blades in the Dark, as a format proof | Accepted |
 | [0013](0013-search.md) | Search is literal for names and links, ranked for body text | Accepted |
-| [0014](0014-mcp-in-phase-1.md) | An MCP server over the vault ships in phase 1 | Accepted |
+| [0014](0014-mcp-in-phase-1.md) | An MCP server over the vault ships in phase 1 — now phase 3 | Accepted |
 | [0015](0015-write-journal.md) | The server keeps a write journal with revert | Accepted |
-| [0016](0016-phase-3-mvp.md) | The phase 3 MVP is tokens, fog and initiative — no map editing | Accepted |
+| [0016](0016-phase-3-mvp.md) | The tabletop MVP is tokens, fog and initiative — no map editing (was "phase 3", now phase 4) | Accepted |
 | [0017](0017-between-sessions-access.md) | Between sessions, players get read-only campaign access and their own sheet | Accepted |
 | [0018](0018-transcription.md) | Transcription is pluggable, with a local engine as the default | Accepted |
 | [0019](0019-core-and-plugins.md) | The app is a minimal core; every feature ships as a plugin | Accepted |
@@ -62,6 +62,7 @@ one means writing a new ADR that supersedes it.
 | [0056](0056-the-plugin-manifest-and-the-api-1-freeze.md) | The plugin manifest, the capability kinds, and the `api: 1` freeze | Accepted |
 | [0057](0057-the-visibility-model-computes-audiences.md) | The visibility model computes audiences, not rule verdicts | Accepted |
 | [0058](0058-structured-logging-and-the-audit-log.md) | Structured logging with `log/slog`, and a separate audit log | Accepted |
+| [0059](0059-the-phase-map-is-re-cut.md) | The phase map is re-cut — four phases become five, and 1.5 is abolished | Accepted |
 
 ## The shape of the decisions
 

@@ -151,7 +151,7 @@ The complete list. Anything not on it does not exist.
 | Capability | Grants | Default |
 |---|---|---|
 | `http.client` | Outbound HTTP | **off** |
-| `process.spawn` | Spawn a helper process — phase 4's transcriber | **off** |
+| `process.spawn` | Spawn a helper process — phase 5's transcriber | **off** |
 | `vault.css` | Contribute stylesheets | off |
 
 ### In-document

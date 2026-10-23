@@ -1,6 +1,7 @@
 # ADR-0056: The plugin manifest, the capability kinds, and the `api: 1` freeze
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-23
 - **Amends:** ADR-0045 (the plugin ABI, the capability mapping, and the
   `api: 1` freeze), ADR-0046 (the surface contract)
@@ -14,6 +15,12 @@
 > to say, and does the bridge carry what a plugin needs?* The evidence is
 > two real plugins written against the manifest, and
 > [`spikes/plugin-host/`](../../spikes/plugin-host/README.md).
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Decision
 

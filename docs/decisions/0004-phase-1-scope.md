@@ -1,12 +1,19 @@
 # ADR-0004: Phase 1 ships the schema plus one complete system pack, end to end
 
 - **Status:** Accepted, amended twice — first to resolve the dice-engine
+
   phase boundary, then by the phase-1 cut to an MVP, which moved the
   formula engine, the dice engine and the 5e pack to phase 2. See
   [`phase-plan.md`](../phase-plan.md).
 - **Date:** 2026-10-21
 - **Note:** the "persisted session store" mentioned below is specified by
   ADR-0030 — SQLite, outside the vault.
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

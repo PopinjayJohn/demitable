@@ -108,7 +108,7 @@ Each path was checked against the design and the phase-0 findings:
 | The vault index / note existence | Design position: a note's existence is not secret. Player index used; GM-only notes not listed. Content notes declared `party` make the bestiary enumerable — a scoping decision, flagged. |
 | Asset endpoint | **Defended by design.** Role-scoped, ETag-cached, **404 not 403** for may-not-see; same asset 200 + ETag for may-see, 304 on `If-None-Match`; handout reveal promotes. (M1c.) |
 | Write-back | **Defended by design.** Only app-initiated writes journaled; world state has one writer (GM); players get read-side surfaces. |
-| MCP endpoint | **Defended by design, opt-in.** Read-only GM full view, `/mcp`, off by default, token-gated, never binds publicly by default; privacy trade-off stated at point of enabling. (Phase 1.5.) |
+| MCP endpoint | **Defended by design, opt-in.** Read-only GM full view, `/mcp`, off by default, token-gated, never binds publicly by default; privacy trade-off stated at point of enabling. (Phase 4.) |
 
 **The leak class that phase 0 found, and that this model generalises:** the leaks were not in the designed denial mechanism but in an *accidental* serialisation/rendering divergence — the design/implementation boundary said “hidden in preview”, while the projection serialised the bytes anyway. The generalised rule for phase 1: **any construct the renderer conceals must be re-checked at the serialisation boundary, and the projection must be the single place that decides what a role may see.**
 
@@ -153,7 +153,7 @@ The phase-0 threat model, being honest about the remainder:
 4. **Search ranking side channel.** Measured in phase 0; remedy pending.
 5. **Markdown-renderer XSS.** Sanitisation policy pending before the editor ships.
 6. **Plugin UI isolation in Firefox/Safari.** Shadow DOM behaviour unverified (Chromium only, ADR-0029).
-7. **Phase 3 live surfaces** (chat-as-notes, scratch log, shared display, seats) — modelled at ADR level, threat modelling still partial.
+7. **Phase 4 live surfaces** (chat-as-notes, scratch log, shared display, seats) — modelled at ADR level, threat modelling still partial.
 
 ## 10. The phase-1 exposure checklist — adjudicated
 
@@ -165,16 +165,16 @@ Verdicts under the threat model written here:
 |---|---|---|
 | Auth rate-limited and backed off on every auth endpoint | M5 | **Design upheld; mechanism pending.** Must cover the session-code and GM endpoints too. |
 | Campaign code single-use, expires, accepted only by the account endpoint | M5 | **Design upheld (ADR-0038); mechanism pending.** Disjoint stores/lengths are design-level. |
-| Guest seat sees its bound character, the live table, and nothing else | Phase 3 | **Survives.** Tight by construction; guest is not a campaign member. |
-| A seat token grants nothing outside its session | Phase 3 | **Survives.** Design-level; phase 3. |
+| Guest seat sees its bound character, the live table, and nothing else | Phase 4 | **Survives.** Tight by construction; guest is not a campaign member. |
+| A seat token grants nothing outside its session | Phase 4 | **Survives.** Design-level; phase 4. |
 | GM authenticates with a credential, not by being local | M5 | **Design upheld (ADR-0031).** Under `--expose`, GM auth is always required. |
 | Absolute URLs from configured public base URL, never `Host` | M3 | **Design upheld (ADR-0031/api).** Mechanism pending. |
 | Forwarded headers trusted only from configured proxy | M3 | **Design upheld (ADR-0031).** Mechanism pending. |
 | Secure cookie follows configured public scheme | M5 | **Design upheld; always on under `--expose`.** |
 | CORS off by default; API same-origin | M3 | **Design upheld.** |
-| MCP endpoint off by default, logs warning if enabled | Phase 1.5 | **Design upheld (ADR-0014).** Mechanism pending. |
-| Import refuses private address / refuses to reconnect elsewhere | Phase 1.5 | **Design upheld (ADR-0031).** Mechanism + enablement pending. |
-| Import requires https, off unless explicitly enabled | Phase 1.5 | **Design upheld.** Flag-name inconsistency to fix. |
+| MCP endpoint off by default, logs warning if enabled | Phase 4 | **Design upheld (ADR-0014).** Mechanism pending. |
+| Import refuses private address / refuses to reconnect elsewhere | Phase 2 | **Design upheld (ADR-0031).** Mechanism + enablement pending. |
+| Import requires https, off unless explicitly enabled | Phase 2 | **Design upheld.** Flag-name inconsistency to fix. |
 | App starts/works with NIC down, DNS unavailable | M0 | **Design upheld.** |
 | No automatic update path | M0 | **Design upheld.** |
 
@@ -201,8 +201,8 @@ Verdicts under the threat model written here:
 | Markdown sanitisation policy before editor ships | M4 |
 | Plugin UI trust decision (position (a) vs (b)) + delete “unreachable by plugins” from the phase-1 DoD | M3 / M8 |
 | Browser matrix for shadow DOM before plugin host done | Phase 2 |
-| Import: unified flag, default-off, https-only, SSRF defence | Phase 1.5 |
-| MCP: token-gated, off by default, never public by default | Phase 1.5 |
+| Import: unified flag, default-off, https-only, SSRF defence | Phase 2 |
+| MCP: token-gated, off by default, never public by default | Phase 4 |
 
 ## 13. What I would do differently
 

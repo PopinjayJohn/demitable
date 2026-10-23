@@ -274,7 +274,7 @@ uses.
 
 ## 8. Open questions
 
-- **Who writes the prose summary?** The transcript pipeline (phase 4) proposes
+- **Who writes the prose summary?** The transcript pipeline (phase 5) proposes
   one; the GM edits it. Is the proposal a marked section that the GM rewrites,
   or a draft the GM accepts wholesale? *Default: a marked section, so the
   GM's rewrite and the machine's proposal never fight over the same text.*

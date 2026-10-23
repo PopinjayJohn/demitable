@@ -1,6 +1,7 @@
 # ADR-0057: The visibility model computes audiences, not rule verdicts
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-23
 - **Amends:** ADR-0033 (the rule ordering), ADR-0002 (the trust boundary),
   ADR-0009 (the workflow table), ADR-0038 (the guest seat), ADR-0040 (the
@@ -13,6 +14,12 @@
 
 > **Origin:** phase 0, question 2 — *does the visibility model produce the
 > right thing on real data?*
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

@@ -1,10 +1,17 @@
 # ADR-0005: Go server + Svelte SPA, shipped as a single binary
 
 - **Status:** Accepted, amended by ADR-0019 and ADR-0020 (the application is a
+
   minimal core with every feature as a plugin, and a plugin host is added to
   the core) and by ADR-0021 (the editor is a Tiptap plugin rather than a
   CodeMirror component).
 - **Date:** 2026-10-21
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

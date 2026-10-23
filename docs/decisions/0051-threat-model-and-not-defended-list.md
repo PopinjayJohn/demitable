@@ -1,6 +1,7 @@
 # ADR-0051: The threat model, the not-defended list, and the derived phase-1 exposure checklist
 
 - **Status:** Accepted
+
 - **Date:** 2026-10-23
 - **Extends:** ADR-0002 (the trust boundary), ADR-0009 (accounts), ADR-0031 (internet exposure),
   ADR-0033 (the visibility model), ADR-0035 (secrets), ADR-0038 (two credentials), ADR-0020/0027/0029
@@ -8,6 +9,12 @@
 - **Addresses:** the phase-1 exposure checklist that was unowned and seat-blind
   (`phase-1-plan.md` §5); the plugin-UI trust claim that the phase-1 DoD got wrong; the search
   boundary that was never analysed; the sanitisation gap; and the superseded ADR-0010 threat model.
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 

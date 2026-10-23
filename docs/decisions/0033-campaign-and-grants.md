@@ -1,6 +1,7 @@
 # ADR-0033: The campaign dimension, grant sets, and a completed visibility model
 
 - **Status:** Accepted
+
 - **Amended by:** ADR-0057 — the model computes *audiences* (the
   intersection of narrowing constraints, then widening grants) rather than
   adjudicating an ordered rule list, because "the first rule that applies
@@ -17,6 +18,12 @@
   (no campaign dimension), and
   [#24](https://github.com/PopinjayJohn/demitable/issues/24) (the visibility
   model has no default and no property-level resolution)
+
+> **Phase references renumbered 2026-10-24.** The phase map was re-cut:
+> phase 1.5 was abolished, the old phase 2 became phases 2 and 3, the old
+> phase 3 became phase 4 and the old phase 4 became phase 5. The
+> decisions below are unchanged. See
+> [ADR-0059](0059-the-phase-map-is-re-cut.md) for the mapping.
 
 ## Context
 
