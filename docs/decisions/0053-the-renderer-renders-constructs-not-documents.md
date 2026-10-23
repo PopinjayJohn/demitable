@@ -75,6 +75,16 @@ vault needs them, they are added when measured.
 - Two callouts in the corpus append `[!note]` to the end of a paragraph; they
   render as literal text because a callout is a block and that is not one.
   The renderer reports this rather than guessing.
+- **A link inside a table cell renders with a line through it.** This is
+  visible in the spike's own screenshots — every linked cell of the corpus's
+  `dice:`-headed roll-on-a-table is struck through, and the cells with plain
+  text are not. No `line-through` appears anywhere in the stylesheet, so it
+  is not a decoration that was chosen; something is drawn over the text, and
+  the mechanism was not established before the spike was archived.
+  **The mechanism is still unknown, and that is the finding**: a renderer
+  that draws over its own text is a defect whatever the cause, and it would
+  have shipped. Phase 1's table renderer must not inherit it, and the
+  walk-through screenshots are the evidence that it was there.
 
 **Neutral:**
 

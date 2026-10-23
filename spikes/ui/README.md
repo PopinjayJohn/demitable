@@ -14,6 +14,13 @@
 > and [ADR-0053](../../docs/decisions/0053-the-renderer-renders-constructs-not-documents.md).
 > The gaps it records against ADR-0050 — which landed while the spike was
 > running — are in the report, not silently patched.
+>
+> **One defect is visible in the screenshots and was not explained:** a link
+> inside a table cell renders with a line through it. Every linked cell of the
+> corpus's `dice:` roll-on-a-table is struck through; every plain-text cell is
+> not. Nothing in the stylesheet asks for it. It is recorded in
+> [ADR-0053](../../docs/decisions/0053-the-renderer-renders-constructs-not-documents.md)
+> as an open defect, because phase 1's table renderer must not inherit it.
 
 ## Questions answered
 
