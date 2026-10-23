@@ -257,7 +257,7 @@ it is what makes the phase-3 sandbox an addition rather than a rewrite.
   a note hidden from the calling role.
 - The capability and host-function vocabularies are the same list, and the
   manifest validator rejects a capability with no host function. The WASM host
-  functions themselves are phase 2; the *vocabulary* is settled now, so the
+  functions themselves are phase 3; the *vocabulary* is settled now, so the
   manifest does not change shape when they arrive.
 - A plugin with `dom.inline` mounts into a **light-DOM host**; one without
   mounts into a **shadow-root host** the app provides (ADR-0026). The app can
@@ -277,8 +277,8 @@ it is what makes the phase-3 sandbox an addition rather than a rewrite.
 
 **Source editing with a live preview.** The buffer is the file, so the
 round-trip contract is satisfied trivially — nothing transforms the text. The
-rich layer — block widgets, the extension registry, the cross-browser harness
-— is phase 2.
+rich layer — block widgets and the extension registry — is phase 2; the
+cross-browser harness, which gates the plugin host's UI tier, is phase 3.
 
 **Done when**
 - **Every corpus fixture round-trips byte-identically.** The fixtures include
@@ -510,7 +510,7 @@ complete**. The import rows are phase 2, because the import is.
 | CORS is off by default; the API is same-origin | M3 |
 | **A player's FTS query is filtered before BM25/IDF ranking, so a GM-only note cannot shift a visible note's rank** | M1d / M6 |
 | **Markdown is sanitised before the editor renders it** | M4 |
-| The MCP endpoint is off by default, token-gated, and logs a warning if enabled | Phase 4 |
+| The MCP endpoint is off by default, token-gated, and logs a warning if enabled | Phase 3 |
 | The import refuses a private address and refuses to reconnect elsewhere | Phase 2 |
 | The import requires https and is off unless explicitly enabled | Phase 2 |
 | The app starts and works with the network interface down, and with DNS unavailable | M0 |
@@ -527,7 +527,7 @@ Carried forward from the previous plan, and settled by decision:
   checker).
 - The Blades clock and harm representation — ADR-0044, phase 2.
 - The plugin ABI, the capability mapping, the `api: 1` freeze — ADR-0045;
-  the *vocabulary* is phase 1, the WASM host functions are phase 4.
+  the *vocabulary* is phase 1, the WASM host functions are phase 3.
 - The shadow host contract and the config UI — ADR-0046, phase 1.
 - The plugin ABI freeze — ADR-0045, amended by **ADR-0056**: capabilities
   come in three kinds (invocable, subscription, declaration), the host

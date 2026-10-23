@@ -108,7 +108,7 @@ Each path was checked against the design and the phase-0 findings:
 | The vault index / note existence | Design position: a note's existence is not secret. Player index used; GM-only notes not listed. Content notes declared `party` make the bestiary enumerable — a scoping decision, flagged. |
 | Asset endpoint | **Defended by design.** Role-scoped, ETag-cached, **404 not 403** for may-not-see; same asset 200 + ETag for may-see, 304 on `If-None-Match`; handout reveal promotes. (M1c.) |
 | Write-back | **Defended by design.** Only app-initiated writes journaled; world state has one writer (GM); players get read-side surfaces. |
-| MCP endpoint | **Defended by design, opt-in.** Read-only GM full view, `/mcp`, off by default, token-gated, never binds publicly by default; privacy trade-off stated at point of enabling. (Phase 4.) |
+| MCP endpoint | **Defended by design, opt-in.** Read-only GM full view, `/mcp`, off by default, token-gated, never binds publicly by default; privacy trade-off stated at point of enabling. (Phase 3.) |
 
 **The leak class that phase 0 found, and that this model generalises:** the leaks were not in the designed denial mechanism but in an *accidental* serialisation/rendering divergence — the design/implementation boundary said “hidden in preview”, while the projection serialised the bytes anyway. The generalised rule for phase 1: **any construct the renderer conceals must be re-checked at the serialisation boundary, and the projection must be the single place that decides what a role may see.**
 
@@ -172,7 +172,7 @@ Verdicts under the threat model written here:
 | Forwarded headers trusted only from configured proxy | M3 | **Design upheld (ADR-0031).** Mechanism pending. |
 | Secure cookie follows configured public scheme | M5 | **Design upheld; always on under `--expose`.** |
 | CORS off by default; API same-origin | M3 | **Design upheld.** |
-| MCP endpoint off by default, logs warning if enabled | Phase 4 | **Design upheld (ADR-0014).** Mechanism pending. |
+| MCP endpoint off by default, logs warning if enabled | Phase 3 | **Design upheld (ADR-0014).** Mechanism pending. |
 | Import refuses private address / refuses to reconnect elsewhere | Phase 2 | **Design upheld (ADR-0031).** Mechanism + enablement pending. |
 | Import requires https, off unless explicitly enabled | Phase 2 | **Design upheld.** Flag-name inconsistency to fix. |
 | App starts/works with NIC down, DNS unavailable | M0 | **Design upheld.** |

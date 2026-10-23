@@ -951,7 +951,7 @@ dice:
 Every roll is logged with full provenance — roller, workflow, expression,
 individual die results, modifier sources, target, outcome, timestamp — and
 that log is written into the session note. It is both a campaign asset and the
-natural join point between the tabletop and the phase-4 recorder.
+natural join point between the tabletop and the phase-5 recorder.
 
 ### 6.3 Symbol dice and tables
 
