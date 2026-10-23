@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="A portrait of Hessa Cray">
+  <defs>
+    <style>
+      .bg     { fill: #e6e0d3; }
+      .ring   { fill: none; stroke: #b08d4f; stroke-width: 2; }
+      .figure { fill: #3a434a; }
+      .cloth  { fill: #8d8578; }
+      .ink    { fill: #2a2723; font-family: Georgia, 'Times New Roman', serif; }
+      .name   { font-size: 13px; letter-spacing: 0.16em; }
+      .role   { font-size: 9px;  letter-spacing: 0.2em; fill: #6d675c; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="200" height="200"/>
+  <circle class="ring" cx="100" cy="86" r="64"/>
+
+  <!-- shoulders and collar -->
+  <path class="figure" d="M32 200 C34 150 58 128 100 128 C142 128 166 150 168 200 Z"/>
+  <!-- the collar of a coat, salt-white at the throat -->
+  <path class="cloth" d="M84 130 L100 158 L116 130 L126 134 L100 172 L74 134 Z"/>
+  <!-- head -->
+  <circle cx="100" cy="86" r="30" fill="#c9b9a4"/>
+  <!-- hair, pinned back -->
+  <path class="figure" d="M70 84 C70 58 84 50 100 50 C116 50 130 58 130 84 C124 70 114 66 100 66 C86 66 76 70 70 84 Z"/>
+  <!-- the moon, worn on the left -->
+  <path fill="#b08d4f" d="M126 62 a13 13 0 1 0 9 21 a10 10 0 1 1 -9 -21 Z"/>
+
+  <text class="ink name" x="100" y="182" text-anchor="middle">HESSA CRAY</text>
+  <text class="role" x="100" y="196" text-anchor="middle">FACTOR, THE BRINEBACKS</text>
+</svg>
