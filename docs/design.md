@@ -471,8 +471,7 @@ name: Ilia Vane
 system: dnd5e        # which pack interprets this entity
 campaign: stormdark  # which campaign this belongs to; absent = personal
 kind: pc             # pc | npc | creature
-status: active       # free-ish vocabulary, defined per type
-owner: p_8f2a        # player id, absent for GM-created notes
+player: p_8f2a       # the player account that owns this note
 workflow: active     # draft | submitted | active | retired
 visibility: party    # public | party | owner | gm
 grants: [p_91bc]     # additional parties who may see this note
@@ -487,11 +486,19 @@ For `type: content`, `content_type` names the pack-declared kind — `class`,
 `species`, `spell`, `monster` — and `system` scopes it to the pack that
 declared it (ADR-0023).
 
-`owner` and `workflow` exist because players may create and own their own
-characters (ADR-0009). `owner` is what `visibility: owner` resolves against;
+`player` and `workflow` exist because players may create and own their own
+characters (ADR-0009). `player` is what `visibility: owner` resolves against;
 `workflow` is the app-level review gate that a player-authored note passes
 through before the table sees it. Neither is pack-specific — they describe who
 may speak for a thing, not how the thing works.
+
+**There is no generic `status` field.** A pack declares the fields its own
+content types need, in its `content:` declarations, and a GM's own `status:
+alive` is left alone (ADR-0040).
+
+The reserved set is twelve names, all bare and top-level, so that Obsidian's
+Bases can query them and the community's existing views work unmodified
+(ADR-0040).
 
 **System-specific data** — nested, interpreted by the pack, and the only place
 a system is allowed to be weird:
@@ -577,7 +584,7 @@ the *effective* visibility on every note.
 
 **7. Property level.** A property may declare its own visibility, in the
 pack, and **inherits the note's** otherwise. `owner` on a property resolves
-against the note's `owner`; **if the note has no owner, it falls back to the
+against the note's `player`; **if the note has no player, it falls back to the
 note's visibility.** Without that rule the shipped 5e pack hid every NPC's hit
 points from players. `gm` on a property is absolute.
 

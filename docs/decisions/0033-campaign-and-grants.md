@@ -1,6 +1,7 @@
 # ADR-0033: The campaign dimension, grant sets, and a completed visibility model
 
-- **Status:** Accepted
+- **Status:** Accepted, amended by ADR-0040 (the `owner` field is now
+  `player`, and the generic `status` field is gone)
 - **Date:** 2026-10-22
 - **Amends:** ADR-0002 (trust boundary), ADR-0009 (accounts),
   ADR-0017 (between-sessions access), and the visibility model in
@@ -107,11 +108,11 @@ glance that a note is shared.
 **7. Property level.** A property may declare its own visibility, in the
 pack. It **inherits the note's** otherwise.
 
-- `owner` on a property resolves against the note's `owner`. **If the note has
-  no owner, the property falls back to the note's visibility.** This is the
+- `owner` on a property resolves against the note's `player`. **If the note has
+  no player, the property falls back to the note's visibility.** This is the
   rule that was missing, and its absence meant the shipped 5e pack hid every
   NPC's hit points from players — `hp` was `owner`-scoped and GM-created NPCs
-  have no owner.
+  have no player.
 - `gm` on a property is absolute, like rule 2.
 
 **8. Masking.** `display:` overrides the rendered value per audience. Applied

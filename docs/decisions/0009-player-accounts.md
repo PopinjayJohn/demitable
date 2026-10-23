@@ -1,8 +1,9 @@
 # ADR-0009: Player accounts, character ownership, and a character review workflow
 
-- **Status:** Accepted, extended by ADR-0037 (a campaign is a note) and
+- **Status:** Accepted, extended by ADR-0037 (a campaign is a note),
   ADR-0038 (the account join code is campaign-scoped; a session code is a
-  second, separate credential)
+  second, separate credential) and ADR-0040 (the `owner` field is now
+  `player`)
 - **Date:** 2026-10-21
 
 ## Context
@@ -122,7 +123,7 @@ else. The full model is in [`api.md`](../api.md) §3.
 Two universal fields are added to the note model (design doc §5.2):
 
 ```yaml
-owner: p_8f2a                      # player id, absent for GM-created notes
+player: p_8f2a                      # the player account that owns this note
 workflow: draft|submitted|active|retired
 ```
 

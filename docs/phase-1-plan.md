@@ -238,6 +238,11 @@ because it will be.
 - **An `inventory` field on characters**
   ([#15](https://github.com/PopinjayJohn/demitable/issues/15)) — the schema
   change, so it lands in phase 1 rather than being retrofitted.
+- **The reserved frontmatter field set** (ADR-0040): twelve bare,
+  top-level names — `type`, `uid`, `name`, `system`, `campaign`, `kind`,
+  `player`, `workflow`, `visibility`, `grants`, `revealed`, `discovered`. No
+  generic `status` — packs declare the fields their content types need. The
+  app never overwrites a reserved field whose value it does not recognise.
 - **Secrets in the schema** (ADR-0035, ADR-0036): the `revealed` field on
   a note, the block-identity rule, and the `secrets` vocabulary — which
   callout types and which YAML keys mean "GM-only" is pack configuration,
