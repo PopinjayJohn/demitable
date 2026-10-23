@@ -7,3 +7,6 @@
 # baselines - but gitignore matches directories too, so they silently
 # excluded the whole spikes/measurement/search and
 # spikes/measurement/watcher source packages from the repository.
+
+# Build output.
+/dist/

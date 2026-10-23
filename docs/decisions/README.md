@@ -61,6 +61,7 @@ one means writing a new ADR that supersedes it.
 | [0055](0055-the-watcher-and-the-index-measured.md) | The watcher and the index, measured — and one criterion that fails | Accepted |
 | [0056](0056-the-plugin-manifest-and-the-api-1-freeze.md) | The plugin manifest, the capability kinds, and the `api: 1` freeze | Accepted |
 | [0057](0057-the-visibility-model-computes-audiences.md) | The visibility model computes audiences, not rule verdicts | Accepted |
+| [0058](0058-structured-logging-and-the-audit-log.md) | Structured logging with `log/slog`, and a separate audit log | Accepted |
 
 ## The shape of the decisions
 

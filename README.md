@@ -9,10 +9,31 @@ turns that directory into a game — character sheets, encounter planning, a 2D
 table, recorded sessions — and a projection layer keeps the GM's secrets on
 the GM's machine.
 
-> **Status:** design phase. This repo contains the design, not code.
+> **Status:** the design is done and phase 1 has not started. This repo
+> holds the design, the decisions, the phase-0 prototype's findings, and the
+> first production code.
+>
 > Read [`docs/design.md`](docs/design.md) for the living design document,
-> [`docs/phase-1-plan.md`](docs/phase-1-plan.md) for the build plan, and
-> [`docs/decisions/`](docs/decisions/) for why it is shaped this way.
+> [`docs/phase-1-plan.md`](docs/phase-1-plan.md) for the build plan,
+> [`docs/decisions/`](docs/decisions/) for why it is shaped this way, and
+> [`docs/phase-0-report.md`](docs/phase-0-report.md) for what the prototype
+> phase found.
+
+## Getting started
+
+```
+make build     the binary -> dist/demitable
+make test      the Go suite
+make lint      gofmt and go vet
+make run       the server on :8080
+make help      every target
+```
+
+**Working in this repository — human or agent — read
+[`AGENTS.md`](AGENTS.md) first.** It says where the truth is, which rules
+get broken by accident, and what "done" means: the milestones in
+[`docs/phase-1-plan.md`](docs/phase-1-plan.md) are written as *checkable
+predicates*, so a change is finished when the number is right.
 
 ## The shape of it
 
@@ -95,14 +116,20 @@ reserved for embedding a third-party page.
 ## Layout
 
 ```
+AGENTS.md                 the brief for an agent working in this repository
+Makefile                  the tasks: build, test, lint, run, release
+cmd/demitable/            the entrypoint
+internal/                 the Go packages
+dev/demo-campaign/        phase 1's demo campaign — 21 real notes
+spikes/                   phase 0's spikes — disposable, their answers are in the ADRs
 docs/design.md            the living design document
 docs/phase-plan.md        the canonical phase map, and what moved
 docs/phase-0-plan.md      phase 0: the ten questions
 docs/phase-0-brief.md     phase 0: the brief for the phase-0 agent
 docs/phase-0-report.md    what phase 0 found, and what changed
 docs/corpus-provenance.md the corpus's provenance, and why it is pinned by hash
-docs/threat-model.md    what is defended, and what is explicitly not
-docs/design-system.md   the token layer, the type scale, the colour rules
+docs/threat-model.md      what is defended, and what is explicitly not
+docs/design-system.md     the token layer, the type scale, the colour rules
 docs/phase-1-plan.md      phase 1: milestones and acceptance criteria
 docs/tech-stack.md        the complete stack, with reasons
 docs/api.md               the API contract — what a client may rely on

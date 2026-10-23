@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "1.27"
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      - name: gofmt
+        run: |
+          out=$(gofmt -l .)
+          if [ -n "$out" ]; then
+            echo "these files are not gofmt'd:"
+            echo "$out"
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      # The corpus is a transient build input and is not in the repository.
+      # The suites that need it skip themselves; see the corpus job below.
+      - name: go test
+        run: go test -race ./...
+      - name: go test without the race detector
+        run: go test ./...
+
+  corpus:
+    name: corpus
+    runs-on: ubuntu-latest
+    # The golden-corpus suites run against the committed vault, which does
+    # not exist yet. The job turns itself on when it does, so the corpus
+    # cannot silently stop being checked.
+    if: hashFiles('dev/srd-vault/**') != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      - name: the golden-corpus suites
+        run: go test -run Corpus ./...
+
+  build:
+    name: build (${{ matrix.goos }}/${{ matrix.goarch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      # A single cgo dependency would break the whole distribution story,
+      # so CGO_ENABLED=0 is enforced here rather than hoped for.
+      - name: cross-compile
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath -ldflags "-s -w" -o dist/demitable ./cmd/demitable
+      - name: the binary is small
+        run: |
+          size=$(stat -c %s dist/demitable)
+          echo "binary: $size bytes"
+          if [ "$size" -gt 12582912 ]; then
+            echo "the binary is over 12 MB; the phase-1 plan requires under 12 MB"
+            exit 1
+          fi
+
+  smoke:
+    name: smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      - name: build
+        run: go build -trimpath -ldflags "-s -w" -o dist/demitable ./cmd/demitable
+      - name: it starts, answers, and shuts down cleanly
+        run: |
+          ./dist/demitable --port 8099 --log-format json &
+          pid=$!
+          for i in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:8099/healthz >/dev/null 2>&1; then break; fi
+            sleep 0.2
+          done
+          curl -fsS http://127.0.0.1:8099/healthz
+          echo
+          # SIGTERM must exit 0: the phase-1 plan requires graceful shutdown.
+          kill -TERM $pid
+          wait $pid
+          echo "exited $?"

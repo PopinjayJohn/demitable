@@ -46,6 +46,7 @@
 | WebSocket | `github.com/coder/websocket` | v1 |
 | File watching | `github.com/fsnotify/fsnotify` | v1 |
 | Password hashing | `golang.org/x/crypto` (argon2id) | latest |
+| Structured logging | `log/slog` (stdlib) | 1.21+ — see §3.1 |
 | Test framework (Go) | `go test` | stdlib |
 | Test framework (web) | Vitest | latest |
 | E2E | Playwright | latest |
@@ -93,6 +94,7 @@ lifting; the dependencies below are the ones that would be worse to write.
 | `github.com/tetratelabs/wazero` | The WASM runtime (ADR-0020). **Pure Go, no cgo** — this is what keeps the single static binary and trivial cross-compilation intact |
 | `modernc.org/sqlite` | The derived caches (ADR-0030): the FTS5 search index and the live session store. **Pure Go, no cgo**, and FTS5 is compiled in by default. `mattn/go-sqlite3` is ruled out — it needs cgo, which breaks the single-binary and cross-compilation story |
 | `golang.org/x/crypto` | argon2id for passphrase hashes (ADR-0009) |
+| `log/slog` (stdlib) | Structured logging, and the audit log (ADR-0058). **Standard library**, so the single-binary story is untouched, and `slog.Handler` being an interface is what lets the redaction rule be enforced in a handler rather than at every call site |
 
 **Not a dependency:** ULID. The uid format (design doc §5.3) is about sixty
 lines and we want the uid derivation to be ours, because it has to be
@@ -113,9 +115,60 @@ internal/
   plugin/               host: registry · capabilities · WASM runtime · assets
   import/               archive import: fetch, extract, validate, apply
   store/                the SQLite caches: FTS5 search index, live session state
+  logging/              structured logging and the audit log (ADR-0058)
   server/               routes · REST · WebSocket · embedded static assets
   assets/               the /asset endpoint and its visibility rules
   session/              live session state · write-back
+```
+
+### Logging
+
+`log/slog`, from the standard library, in `internal/logging`. The decision
+and its reasoning are in
+[ADR-0058](decisions/0058-structured-logging-and-the-audit-log.md); the two
+things worth knowing before writing a log line are:
+
+**There are two logs, and they are not the same thing.**
+
+| | The operational log | The audit log |
+|---|---|---|
+| Goes to | stderr | its own file, outside the vault, mode 0600 |
+| Records | what happened | **who read what, and when** |
+| Is copied around | yes — support bundles, aggregators | no |
+| Format | `text` or `json`, by flag | JSON lines |
+
+**A log line names a file and a construct, never a passage.**
+
+```go
+// right
+slog.ErrorContext(ctx, "failed to parse",
+    "path", path, "construct", "folded scalar")
+
+// wrong — this is a leak, and the threat model names it
+slog.ErrorContext(ctx, "failed to parse: " + string(content))
+```
+
+The redaction of *attributes* is enforced by a handler, so a credential
+cannot reach a log by accident. The **message** is free text and cannot be
+redacted, so the message rule is a review rule, and it is the only part of
+the discipline that is not mechanical.
+
+The deny-list is short, exact-match and case-insensitive — `password`,
+`passphrase`, `secret`, `token`, `authorization`, `cookie`, `session`,
+`api_key`, `gm_secret`, `join_code`, `session_code`, `body`, `content`,
+`text`. A new credential type is one line in
+[`internal/logging/redact.go`](../internal/logging/redact.go), and nothing
+else.
+
+Request-scoped fields travel in the context, so every line of a request
+carries its id and its principal without threading them through every
+function:
+
+```go
+ctx = logging.WithRequest(ctx, logging.Request{
+    ID: reqID, Principal: principal, Campaign: campaign,
+})
+logging.From(ctx).Info("note projected")
 ```
 
 ---
@@ -255,6 +308,10 @@ make corpus     # the golden-corpus suites
 make build      # the full pipeline, producing dist/demitable
 make lint       # format and vet
 ```
+
+The Makefile also has `fmt`, `vet`, `tidy`, `run`, `release` (the
+cross-compilation matrix), `cover`, `bench` and `check` — which is what CI
+runs. `make help` lists them all.
 
 In dev, Vite proxies the API and the WebSocket to the Go process, so the
 frontend has hot module replacement and the backend is a plain restart. In
