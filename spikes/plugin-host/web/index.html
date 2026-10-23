@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demitable — plugin host spike</title>
+    <link rel="stylesheet" href="/shell/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Plugin host spike</h1>
+      <label>
+        Role
+        <select id="role">
+          <option value="gm">GM</option>
+          <option value="account">Player</option>
+        </select>
+      </label>
+      <label>
+        Note in view
+        <select id="note"></select>
+      </label>
+      <button id="touch" type="button">Simulate a vault change</button>
+      <button id="reload" type="button">Reload</button>
+    </header>
+
+    <div class="shell">
+      <aside class="col" id="mount-sidebar.left" data-mount="sidebar.left">
+        <h3 style="margin: 0 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted)">
+          sidebar.left
+        </h3>
+      </aside>
+
+      <main>
+        <div class="note-area">
+          <div>
+            <h2 class="note-title" id="note-title">—</h2>
+            <div class="note-body" id="mount-note.body" data-mount="note.body"></div>
+          </div>
+          <div class="note-side" id="mount-note.sidebar" data-mount="note.sidebar"></div>
+        </div>
+
+        <section class="palette">
+          <h3>Command palette</h3>
+          <ul id="commands"></ul>
+        </section>
+
+        <section class="events">
+          <h3>Event log</h3>
+          <ol id="events"></ol>
+        </section>
+
+        <p class="legend">
+          The left column and the right column are app-provided hosts. The
+          <code>sidebar.right</code> host carries a <strong>shadow root</strong>; the
+          <code>note.sidebar</code> host is <strong>light DOM</strong>. Both hold the
+          same class names — look at the chips.
+        </p>
+      </main>
+
+      <aside class="col" id="mount-sidebar.right" data-mount="sidebar.right"></aside>
+    </div>
+
+    <script type="module" src="/shell/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+# The recap plugin — the UI plugin of the spike.
+#
+# It is the plugin that found most of the manifest's rough edges, so it is
+# worth reading its comments: every one of them is a note from the spike.
+
+id: demitable.recap
+name: Recap
+version: 0.1.0
+api: 1
+description: Shows the most recent session logs, and a recap strip beside a session note.
+author: Demitable
+
+capabilities:
+  # Only session notes. The widget never wants anything else, and the scope
+  # is what stops it asking.
+  - id: vault.read
+    scope:
+      types: [session]
+  - id: vault.query
+    scope:
+      types: [session]
+  # A live widget. The vault change events are the only thing that makes it
+  # worth having over a static panel.
+  - id: vault.watch
+  # The strip beside a session note is mounted in the app's own DOM.
+  - id: dom.inline
+
+provides:
+  # The panel is a shadow surface. It is the default, and it is what most
+  # plugins will be.
+  - id: recap.panel
+    kind: ui
+    dom: shadow
+    title: Recap
+    entry: ui/panel.js
+    style: ui/panel.css
+    mount: sidebar.right
+    order: 10
+    when: always
+
+  # The strip is a light-DOM surface: it registers a custom element and the
+  # app mounts it. It needs dom.inline, which it declares above.
+  - id: recap.inline
+    kind: ui
+    dom: light
+    title: Recap
+    entry: ui/inline.js
+    element: demitable-recap-inline
+    mount: note.sidebar
+    order: 10
+    when: "note.type == 'session'"
+
+consumes:
+  - service: vault
+    version: ">=1.0.0 <2.0.0"
+
+config:
+  - key: entries
+    type: number
+    label: Recap entries
+    default: 2

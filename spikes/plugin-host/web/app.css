@@ -1,0 +1,169 @@
+/* The app's own styles.
+ *
+ * The rules on .chip, .recap-card and .recap-inline-* are the app's widget
+ * vocabulary. A light-DOM surface participates in them. A shadow surface
+ * does not — it gets only what crosses the boundary, which is inherited and
+ * custom-property values.
+ *
+ * The app's chip is round, bright and filled. The recap plugin's chip, in
+ * its shadow root, is square, grey and outlined. Same class name, two
+ * different rules: that is the difference the spike has to make visible.
+ */
+
+:root {
+  --bg: #0f1116;
+  --panel: #171b23;
+  --panel-2: #1d222c;
+  --line: #2b3240;
+  --text: #e8ebf1;
+  --muted: #97a1b4;
+  --accent: #6ea8fe;
+  --accent-fg: #07101f;
+  --ok: #6ee7a8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.topbar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+select, button {
+  font: inherit;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 4px 8px;
+}
+
+button {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 320px;
+  gap: 12px;
+  padding: 12px;
+  align-items: start;
+}
+
+.col {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 120px;
+}
+
+.note-area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 10px;
+}
+
+.note-body, .note-side {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.note-side { min-height: 120px; }
+
+h2.note-title { margin: 0 0 8px; font-size: 15px; }
+
+/* --- the app's widget vocabulary --------------------------------------- */
+
+.chip {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recap-inline-title {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.recap-inline-list { list-style: none; margin: 0; padding: 0; }
+
+.recap-inline-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 13px;
+}
+
+/* --- the shell's own furniture ----------------------------------------- */
+
+.palette { margin-top: 12px; }
+.palette h3, .events h3 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.palette ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.palette li { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.palette .src { color: var(--muted); font-size: 11px; }
+
+.events {
+  margin-top: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+.events ol { margin: 0; padding-left: 18px; font-size: 11px; color: var(--muted); max-height: 160px; overflow: auto; }
+.events .src { color: var(--accent); }
+
+.legend { margin-top: 12px; font-size: 12px; color: var(--muted); }
+.legend code { color: var(--text); }

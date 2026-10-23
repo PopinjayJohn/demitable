@@ -1,0 +1,86 @@
+/* The recap panel's own styles.
+ *
+ * The host injects this into the shadow root before calling mount(). The
+ * plugin never touches document.head.
+ *
+ * The chip here is deliberately NOT the app's chip: square, quiet, and
+ * grey. The light-DOM strip shows the app's round, bright one. The visual
+ * difference between the two surfaces is the point of the spike.
+ */
+
+:host {
+  display: block;
+}
+
+.recap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.recap-head h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9aa4b8;
+}
+
+.recap-toggle {
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid #2a3040;
+  border-radius: 4px;
+  background: transparent;
+  color: #9aa4b8;
+  cursor: pointer;
+}
+
+.recap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recap-card {
+  border: 1px solid #2a3040;
+  border-left: 3px solid #6ea8fe;
+  border-radius: 4px;
+  padding: 8px 10px;
+  background: #1b1f28;
+}
+
+.recap-card h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #e7eaf0;
+}
+
+.recap-card p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #9aa4b8;
+}
+
+.chip {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid #3b4459;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9aa4b8;
+}
+
+.recap-empty {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7488;
+}
