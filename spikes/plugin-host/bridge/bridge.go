@@ -273,7 +273,10 @@ func (i *Instance) vaultRead(args json.RawMessage, grant caps.Grant) Result {
 			"type": n.Type,
 		})
 	}
-	return okJSON(n)
+	// The bridge never returns the raw note. It returns the projected view:
+	// the fields this principal may see. Owner-scoped fields are stripped for
+	// anyone who is not the owner or the GM (ADR-0050 D5).
+	return okJSON(vault.Project(i.Principal, n))
 }
 
 func (i *Instance) vaultQuery(args json.RawMessage, grant caps.Grant) Result {
@@ -284,15 +287,15 @@ func (i *Instance) vaultQuery(args json.RawMessage, grant caps.Grant) Result {
 		}
 	}
 	all := i.Vault.List(i.Principal, q)
-	var out []vault.Note
+	var out []vault.NoteView
 	for _, n := range all {
 		if !grant.Scope.AllowsType(n.Type) || !grant.Scope.AllowsUID(n.UID) || !grant.Scope.AllowsPath(n.Path) {
 			continue
 		}
-		out = append(out, n)
+		out = append(out, vault.Project(i.Principal, n))
 	}
 	if out == nil {
-		out = []vault.Note{}
+		out = []vault.NoteView{}
 	}
 	// The count is what was returned, not what matched. It is not an oracle.
 	return okJSON(map[string]any{"items": out, "count": len(out)})

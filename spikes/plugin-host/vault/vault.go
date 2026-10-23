@@ -15,16 +15,57 @@ import (
 
 // Note is one vault note.
 type Note struct {
-	UID        string `json:"uid"`
-	Type       string `json:"type"`
-	Title      string `json:"title"`
-	Body       string `json:"body"`
-	Path       string `json:"path"`
+	UID        string   `json:"uid"`
+	Type       string   `json:"type"`
+	Title      string   `json:"title"`
+	Body       string   `json:"body,omitempty"`
+	Path       string   `json:"path"`
+	Campaign   string   `json:"campaign,omitempty"`
+	Visibility string   `json:"visibility,omitempty"`
+	Owner      string   `json:"owner,omitempty"`
+	Player     string   `json:"player,omitempty"`
+	Workflow   string   `json:"workflow,omitempty"`
+	Grants     []string `json:"grants,omitempty"`
+	Discovered []string `json:"discovered,omitempty"`
+	Tags       []string `json:"tags,omitempty"`
+	Date       string   `json:"date,omitempty"`
+}
+
+// NoteView is the projected view of a note: the fields each principal may
+// see. ADR-0050 D5 makes `discovered` and `grants` owner-scoped — they are
+// not visible to a principal who does not own the note. This struct is the
+// shape the bridge hands back, never the raw note.
+type NoteView struct {
+	UID        string   `json:"uid"`
+	Type       string   `json:"type"`
+	Title      string   `json:"title"`
+	Body       string   `json:"body,omitempty"`
+	Path       string   `json:"path"`
+	Tags       []string `json:"tags,omitempty"`
+	Date       string   `json:"date,omitempty"`
+	// Inherited fields: visible at the note's base visibility.
 	Campaign   string `json:"campaign,omitempty"`
 	Visibility string `json:"visibility,omitempty"`
-	Owner      string `json:"owner,omitempty"`
-	Date       string `json:"date,omitempty"`
-	Tags       []string `json:"tags,omitempty"`
+	Workflow   string `json:"workflow,omitempty"`
+	// Owner-scoped fields: visible only to the GM and to the note's player.
+	Player     string   `json:"player,omitempty"`
+	Grants     []string `json:"grants,omitempty"`
+	Discovered []string `json:"discovered,omitempty"`
+}
+
+// Project builds the view a principal may see.
+func Project(p Principal, n Note) NoteView {
+	v := NoteView{
+		UID: n.UID, Type: n.Type, Title: n.Title, Body: n.Body, Path: n.Path,
+		Tags: n.Tags, Date: n.Date,
+		Campaign: n.Campaign, Visibility: n.Visibility, Workflow: n.Workflow,
+	}
+	if p.IsGM() || (n.Player != "" && n.Player == p.ID) {
+		v.Player = n.Player
+		v.Grants = n.Grants
+		v.Discovered = n.Discovered
+	}
+	return v
 }
 
 // Principal is who is asking. ADR-0048: principals, not roles.
@@ -197,7 +238,14 @@ func Demo() *Store {
 			Date: "2026-10-05",
 			Body: "GM ONLY: the toll-keeper is the duke's cousin, and he is lying."},
 		Note{UID: "n-character-1", Type: "character", Title: "Ilia Vance",
-			Path: "Notes/Characters/Ilia Vance.md", Campaign: "stormdark", Visibility: "party"},
+			Path: "Notes/Characters/Ilia Vance.md", Campaign: "stormdark", Visibility: "party",
+			Player: "p_aria",
+			Grants: []string{"n-session-1", "n-location-1"},
+			Discovered: []string{"n-location-1", "n-character-2"}},
+		Note{UID: "n-character-2", Type: "character", Title: "The Toll-Keeper",
+			Path: "Notes/Characters/Toll-Keeper.md", Campaign: "stormdark", Visibility: "gm",
+			Owner: "p_aria",
+			Body: "GM ONLY: it is the duke's cousin."},
 		Note{UID: "n-location-1", Type: "location", Title: "The Salt Road",
 			Path: "Notes/World/Locations/Salt Road.md", Campaign: "stormdark", Visibility: "party"},
 	)
