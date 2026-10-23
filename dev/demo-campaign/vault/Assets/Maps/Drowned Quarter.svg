@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="A sketch map of the Drowned Quarter of Saltmere">
+  <defs>
+    <style>
+      .sea   { fill: #26333d; }
+      .land  { fill: #d8d2c4; stroke: #6d675c; stroke-width: 1.5; }
+      .canal { fill: #3d5460; stroke: #6d675c; stroke-width: 1; }
+      .road  { fill: none; stroke: #8d8578; stroke-width: 3; stroke-dasharray: 6 5; }
+      .ink   { fill: #2a2723; font-family: Georgia, 'Times New Roman', serif; }
+      .small { font-size: 11px; letter-spacing: 0.08em; }
+      .tiny  { font-size: 9px; letter-spacing: 0.14em; fill: #6d675c; }
+      .brass { fill: none; stroke: #b08d4f; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect class="sea" x="0" y="0" width="480" height="320"/>
+
+  <!-- the marsh wall and the pan dyke, north -->
+  <path class="land" d="M0 0 H480 V74 L392 96 L300 70 L188 92 L96 66 L0 96 Z"/>
+
+  <!-- the quarter: low ground, cut by canals -->
+  <path class="land" d="M18 108 L128 92 L246 116 L372 98 L462 128 L452 214 L356 232 L250 208 L136 236 L26 210 Z"/>
+  <path class="canal" d="M34 152 L126 138 L214 160 L320 138 L444 158 L438 182 L318 162 L212 184 L122 160 L38 176 Z"/>
+  <path class="canal" d="M126 138 L136 236 L112 240 L104 144 Z"/>
+  <path class="canal" d="M320 138 L356 232 L332 238 L300 142 Z"/>
+
+  <!-- the road along the top of the quarter -->
+  <path class="road" d="M6 100 L130 80 L248 104 L376 86 L466 116"/>
+
+  <!-- the north wall and its door -->
+  <path class="brass" d="M196 92 L206 92"/>
+  <rect x="196" y="86" width="10" height="12" fill="#b08d4f"/>
+
+  <!-- the fish-market, low end -->
+  <path class="ink" d="M46 246 h64 v26 h-64 z"/>
+  <path class="ink" d="M52 252 h52 v14 h-52 z" fill="#f0ece1"/>
+
+  <!-- the tide-house, high end -->
+  <path class="ink" d="M384 250 h62 v22 h-62 z"/>
+
+  <text class="ink small" x="150" y="130">THE DROWNED QUARTER</text>
+  <text class="tiny" x="52" y="288">FISH-MARKET &#183; LOW END</text>
+  <text class="tiny" x="382" y="288">TIDE-HOUSE &#183; HIGH END</text>
+  <text class="tiny" x="196" y="76">SALT-PAN DYKE</text>
+  <text class="tiny" x="28" y="126">SALLOW LANE</text>
+
+  <!-- the causeway, north edge -->
+  <path class="road" d="M0 40 L480 22"/>
+  <text class="tiny" x="356" y="30">THE CAUSEWAY</text>
+
+  <!-- compass -->
+  <g transform="translate(432 186)">
+    <circle class="brass" r="16"/>
+    <path class="brass" d="M0 -13 L4 0 L0 13 L-4 0 Z"/>
+    <text class="tiny" x="-3" y="-19">N</text>
+  </g>
+
+  <!-- scale bar -->
+  <g transform="translate(24 296)">
+    <path class="brass" d="M0 0 h72 M0 -4 v8 M36 -4 v8 M72 -4 v8"/>
+    <text class="tiny" x="0" y="-6">200 FEET</text>
+  </g>
+</svg>

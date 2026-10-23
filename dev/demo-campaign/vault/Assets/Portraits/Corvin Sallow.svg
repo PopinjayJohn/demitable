@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="A portrait of Corvin Sallow">
+  <defs>
+    <style>
+      .bg     { fill: #dcd7cd; }
+      .ring   { fill: none; stroke: #8d8578; stroke-width: 2; }
+      .coat   { fill: #4d4f52; }
+      .shirt  { fill: #cfc7b6; }
+      .skin   { fill: #c2b39f; }
+      .ink    { fill: #2a2723; font-family: Georgia, 'Times New Roman', serif; }
+      .name   { font-size: 13px; letter-spacing: 0.16em; }
+      .role   { font-size: 9px;  letter-spacing: 0.2em; fill: #6d675c; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="200" height="200"/>
+  <circle class="ring" cx="100" cy="86" r="64"/>
+
+  <!-- a grey coat, buttoned to the throat -->
+  <path class="coat" d="M28 200 C31 148 58 126 100 126 C142 126 169 148 172 200 Z"/>
+  <path class="shirt" d="M88 128 L100 148 L112 128 L104 126 L100 132 L96 126 Z"/>
+  <path class="coat" d="M100 150 L108 200 L92 200 Z" opacity="0.55"/>
+
+  <!-- head -->
+  <circle cx="100" cy="84" r="29" class="skin"/>
+  <!-- hair, cropped -->
+  <path class="coat" d="M71 80 C71 56 84 48 100 48 C116 48 129 56 129 80 C124 66 114 60 100 60 C86 60 76 66 71 80 Z"/>
+  <!-- a face nobody has described -->
+  <path fill="#a3937f" d="M84 86 h8 M108 86 h8" stroke="#a3937f" stroke-width="1.6" stroke-linecap="round"/>
+
+  <text class="ink name" x="100" y="182" text-anchor="middle">CORVIN SALLOW</text>
+  <text class="role" x="100" y="196" text-anchor="middle">THE MAN IN THE GREY COAT</text>
+</svg>
