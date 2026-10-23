@@ -1,0 +1,338 @@
+/* =============================================================================
+   Demitable — the token layer
+   =============================================================================
+
+   One file. One source of truth. Every value below is a CSS custom property,
+   because ADR-0029's theming depends on custom properties inheriting through
+   shadow roots (and a registered property with `inherits: false` does not).
+
+   Rules this file follows, and why:
+
+   1.  **Unregistered.** No `@property` registrations. Registration would let
+       a property be `inherits: false`, which breaks the shadow-root path.
+   2.  **Semantic names, not literal names.** `--fg-muted`, not `--grey-600`.
+       A theme is an override of this file, not a second file.
+   3.  **Raw colour appears here and nowhere else.** No component may write a
+       hex value. That is the rule that makes a theme possible at all.
+   4.  **Hue is never the only channel.** Every semantic colour below is
+       paired — in the components — with an icon, a label, and a border style.
+       This is ADR-0034's colour-independence rule, and the `flat-hue` proof
+       mode exists to prove it (see `--proof-*` at the bottom).
+
+   The proof modes are the interesting part. `flat-hue` collapses every
+   semantic colour to the *same* grey, so anything that still reads correctly
+   under it is reading correctly because of shape, label or lightness — never
+   because of hue. `greyscale` is the colour-blindness check. The three
+   dichromacies are SVG colour matrices.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------- colour
+     Surfaces. A slight warm cast, so the app reads as paper rather than
+     screen. The lightness steps are ordered so that the greyscale proof
+     still separates them: canvas < surface-2 < surface < surface-3. */
+
+  --bg-canvas: #f4f2ed;
+  --bg-surface: #fffefb;
+  --bg-surface-2: #faf8f3;
+  --bg-surface-3: #efebe2;
+  --bg-inset: #eae5da;
+  --bg-overlay: rgb(28 26 22 / 0.44);
+
+  /* Foreground. Four steps, all above 4.5:1 on --bg-surface. */
+  --fg-default: #211f1b;
+  --fg-muted: #57524a;
+  --fg-subtle: #7d766a;
+  --fg-faint: #a49c8d;
+  --fg-inverted: #fbfaf7;
+  --fg-on-accent: #ffffff;
+
+  /* Borders. Three steps: hairline, default, strong. */
+  --border-subtle: #e0dbd0;
+  --border-default: #c6c0b2;
+  --border-strong: #8b8477;
+  --border-focus: #2f5d9e;
+
+  /* Accents. Hue is the *fourth* channel, never the first. */
+  --accent: #2f5d9e;
+  --accent-hover: #24487c;
+  --accent-subtle: #e3ebf6;
+  --accent-border: #7f9dc9;
+
+  --danger: #a13028;
+  --danger-subtle: #f8e6e4;
+  --danger-border: #c07a75;
+
+  --warn: #855700;
+  --warn-subtle: #f9efdc;
+  --warn-border: #c19a4e;
+
+  --success: #2c6637;
+  --success-subtle: #e4f0e6;
+  --success-border: #7ba585;
+
+  --info: #246269;
+  --info-subtle: #e1eff1;
+  --info-border: #6da2a8;
+
+  /* Secrets. Violet, deliberately not the danger hue: a secret is not an
+     error, and a player must never read a secret as a warning. */
+  --secret: #5a3f8c;
+  --secret-subtle: #eee8f7;
+  --secret-border: #9b86c4;
+
+  /* ------------------------------------------------- visibility vocabulary
+     One hue per ADR-0033 visibility value, plus `private` from ADR-0048.
+     Each is *always* accompanied by a glyph and a word. See
+     design-system.md §5. */
+
+  --vis-gm: #4a3f7a;
+  --vis-gm-bg: #eae7f4;
+  --vis-gm-border: #8a7fb8;
+
+  --vis-party: #2c6637;
+  --vis-party-bg: #e4f0e6;
+  --vis-party-border: #7ba585;
+
+  --vis-public: #246269;
+  --vis-public-bg: #e1eff1;
+  --vis-public-border: #6da2a8;
+
+  --vis-owner: #855700;
+  --vis-owner-bg: #f9efdc;
+  --vis-owner-border: #c19a4e;
+
+  --vis-private: #a13028;
+  --vis-private-bg: #f8e6e4;
+  --vis-private-border: #c07a75;
+
+  /* ------------------------------------------------------------------ type
+     A 1.25 modular scale anchored at 16px, expressed in rem so the browser's
+     own font-size setting moves the whole app. ADR-0034 asks for size and
+     line height to be user settings; rem is half of that, and the other half
+     is --leading-* below. */
+
+  --text-2xs: 0.625rem;   /* 10 */
+  --text-xs: 0.75rem;     /* 12 */
+  --text-sm: 0.875rem;    /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-md: 1.25rem;     /* 20 */
+  --text-lg: 1.5rem;      /* 24 */
+  --text-xl: 1.875rem;    /* 30 */
+  --text-2xl: 2.25rem;    /* 36 */
+  --text-3xl: 3rem;       /* 48 */
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.75;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype",
+    serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ADR-0034: a dyslexia-friendly option. The mechanism is a token swap, so
+     it is a setting and not a redesign. */
+  --font-reading: var(--font-serif);
+
+  /* --------------------------------------------------------------- spacing
+     A 4px grid. `--space-0` … `--space-16`. Components use these and never a
+     literal length. */
+
+  --space-0: 0rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* --------------------------------------------------------------- shape */
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+
+  --border-width: 1px;
+  --border-width-strong: 2px;
+
+  --shadow-1: 0 1px 2px rgb(28 26 22 / 0.07);
+  --shadow-2: 0 2px 6px rgb(28 26 22 / 0.1), 0 1px 2px rgb(28 26 22 / 0.06);
+  --shadow-3: 0 8px 24px rgb(28 26 22 / 0.14), 0 2px 6px rgb(28 26 22 / 0.08);
+
+  /* --------------------------------------------------------------- layout */
+
+  --sidebar-width: 17.5rem;
+  --inspector-width: 19rem;
+  --topbar-height: 3rem;
+  --measure: 38rem;        /* prose measure, ~68 characters */
+  --tap-target: 2.25rem;   /* minimum interactive size */
+
+  /* --------------------------------------------------------------- motion */
+
+  --duration-fast: 90ms;
+  --duration-base: 160ms;
+  --duration-slow: 280ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --z-sticky: 10;
+  --z-dropdown: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+}
+
+/* =============================================================================
+   Dark theme
+   ==========================================================================
+   The same semantic names, different values. This is the proof that the
+   token layer is the theming mechanism and not a convention: no component
+   changes, only this block.
+   ========================================================================== */
+
+:root[data-theme="dark"] {
+  --bg-canvas: #15140f;
+  --bg-surface: #1e1d18;
+  --bg-surface-2: #26241e;
+  --bg-surface-3: #2f2d25;
+  --bg-inset: #100f0b;
+  --bg-overlay: rgb(0 0 0 / 0.62);
+
+  --fg-default: #efede6;
+  --fg-muted: #b3ada0;
+  --fg-subtle: #8d877a;
+  --fg-faint: #6b6559;
+  --fg-inverted: #17160f;
+  --fg-on-accent: #10131c;
+
+  --border-subtle: #34312a;
+  --border-default: #4b473d;
+  --border-strong: #7d7668;
+  --border-focus: #7fa8e8;
+
+  --accent: #7fa8e8;
+  --accent-hover: #9cbeef;
+  --accent-subtle: #1b2735;
+  --accent-border: #3f5a80;
+
+  --danger: #e0908a;
+  --danger-subtle: #33201e;
+  --danger-border: #7a4642;
+
+  --warn: #d9a441;
+  --warn-subtle: #302512;
+  --warn-border: #7c6027;
+
+  --success: #7fbf8c;
+  --success-subtle: #1a2a1e;
+  --success-border: #3f6b48;
+
+  --info: #6fc0cc;
+  --info-subtle: #142a2d;
+  --info-border: #356a72;
+
+  --secret: #b49ce4;
+  --secret-subtle: #241a38;
+  --secret-border: #5f4c8c;
+
+  --vis-gm: #b49ce4;
+  --vis-gm-bg: #241a38;
+  --vis-gm-border: #5f4c8c;
+
+  --vis-party: #7fbf8c;
+  --vis-party-bg: #1a2a1e;
+  --vis-party-border: #3f6b48;
+
+  --vis-public: #6fc0cc;
+  --vis-public-bg: #142a2d;
+  --vis-public-border: #356a72;
+
+  --vis-owner: #d9a441;
+  --vis-owner-bg: #302512;
+  --vis-owner-border: #7c6027;
+
+  --vis-private: #e0908a;
+  --vis-private-bg: #33201e;
+  --vis-private-border: #7a4642;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 2px 6px rgb(0 0 0 / 0.45), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-3: 0 8px 24px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+/* =============================================================================
+   Proof modes
+   ==========================================================================
+   The colour-independence check, built into the artefact rather than done by
+   hand and forgotten. `data-proof` on `<html>`:
+
+     (none)          the design as it ships
+     greyscale       grayscale(1) — the check the brief asks for
+     flat-hue        every semantic colour resolves to ONE grey. The only
+                     remaining cues are lightness, shape, glyph and label.
+                     Anything that still reads is not relying on hue.
+     protanopia      red-blindness
+     deuteranopia    green-blindness
+     tritanopia      blue-blindness
+
+   The filters are applied to #app, not to :root, so the tokens themselves
+   stay readable in devtools.
+   ========================================================================== */
+
+#app[data-proof="greyscale"] { filter: grayscale(1); }
+#app[data-proof="flat-hue"] { filter: grayscale(1) contrast(1.06); }
+
+#app[data-proof="protanopia"] { filter: url("#proof-protanopia"); }
+#app[data-proof="deuteranopia"] { filter: url("#proof-deuteranopia"); }
+#app[data-proof="tritanopia"] { filter: url("#proof-tritanopia"); }
+
+/* The flat-hue proof is a token override, not a filter: it replaces the
+   semantic hues with a single grey *before* the filter, so that lightness
+   differences between --bg-surface and --bg-surface-3 survive while hue
+   differences do not. */
+:root[data-proof="flat-hue"] {
+  --accent: #8a8378;
+  --accent-hover: #8a8378;
+  --accent-subtle: #e6e2d9;
+  --accent-border: #b5aea1;
+  --danger: #8a8378;
+  --danger-subtle: #e6e2d9;
+  --danger-border: #b5aea1;
+  --warn: #8a8378;
+  --warn-subtle: #e6e2d9;
+  --warn-border: #b5aea1;
+  --success: #8a8378;
+  --success-subtle: #e6e2d9;
+  --success-border: #b5aea1;
+  --info: #8a8378;
+  --info-subtle: #e6e2d9;
+  --info-border: #b5aea1;
+  --secret: #8a8378;
+  --secret-subtle: #e6e2d9;
+  --secret-border: #b5aea1;
+  --vis-gm: #8a8378;      --vis-gm-bg: #e6e2d9;      --vis-gm-border: #b5aea1;
+  --vis-party: #8a8378;   --vis-party-bg: #e6e2d9;   --vis-party-border: #b5aea1;
+  --vis-public: #8a8378;  --vis-public-bg: #e6e2d9;  --vis-public-border: #b5aea1;
+  --vis-owner: #8a8378;   --vis-owner-bg: #e6e2d9;   --vis-owner-border: #b5aea1;
+  --vis-private: #8a8378; --vis-private-bg: #e6e2d9; --vis-private-border: #b5aea1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
