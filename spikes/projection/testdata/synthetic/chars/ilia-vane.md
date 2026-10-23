@@ -9,9 +9,9 @@ campaign: "[[Stormdark]]"
 visibility: party
 system: example
 discovered:
-  - "uid-undead-tomb"
-  - "uid-lost-relic"
-  - "uid-discovered-location"
+  - "[[The Undead Tomb]]"
+  - "[[The Lost Relic]]"
+  - "[[The Old Lighthouse]]"
 data:
   resources:
     hp:

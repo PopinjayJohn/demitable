@@ -110,8 +110,16 @@ Then, and only then:
 | # | Widening rule | Effect |
 |---|---|---|
 | W1 | **Grants** | `grants: [p_x]` adds `p_x` — **including across a campaign boundary** |
-| W2 | **Discovery** | the note's uid appears in a character the caller owns ⇒ the caller is added |
+| W2 | **Discovery** | a **reference** to the note appears in a character the caller owns ⇒ the caller is added |
 | W3 | **The seat's binding** | the seat's bound character is added, and the seat is added to any note granted to it |
+
+**W2's reference is resolved, not compared.** ADR-0050's D4 makes
+`discovered` a flat list of *note references* — a wikilink, a title, an
+alias or a path — because that is what a GM writes. The projection resolves
+it through the vault index, as design §5.3 says it must, and compares the
+resolved note. A string comparison against the uid would never match a
+wikilink, and the discovery rule would be **inert for every note in the
+shipped format** — including the demo campaign's own.
 
 **W1–W3 are applied after C1–C8, and they cannot reopen C2 or C3.** The
 difference from ADR-0033 is that C1 is a constraint on the *base level*, not

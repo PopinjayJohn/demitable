@@ -33,6 +33,8 @@ type Note struct {
 
 	// The reserved fields of ADR-0040, lifted out of the block.
 	UID         string
+	Name        string
+	Aliases     []string
 	Type        string
 	ContentType string
 	Campaign    string
@@ -42,8 +44,11 @@ type Note struct {
 	Grants      []string
 	Revealed    []RevealedEntry
 	Members     []string
-	// Discovered holds the uids this note's discovery records name
-	// (session-writeback §5).
+	// Discovered holds the *references* this note's discovery records name
+	// (ADR-0050 D4). A reference is a note reference - a wikilink, a
+	// title, an alias or a path - and it is resolved to a note through the
+	// vault index, because a reference is what a human writes and a uid
+	// is what the tooling compares.
 	Discovered []string
 }
 
@@ -236,6 +241,8 @@ func LoadVault(root string) ([]*Note, error) {
 			n.Block = doc.Block
 			n.Issues = doc.Block.Issues
 			n.UID = n.str("uid")
+			n.Name = n.str("name")
+			n.Aliases = n.strs("aliases")
 			n.Type = n.str("type")
 			n.ContentType = n.str("content_type")
 			n.Campaign = n.str("campaign")

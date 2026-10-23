@@ -88,6 +88,8 @@ type Projector struct {
 
 	byPath    map[string]*Note
 	byID      map[string]*Note
+	byTitle   map[string]*Note
+	byAlias   map[string]*Note
 	campaigns map[string]*Note
 	members   map[string][]string
 }
@@ -105,6 +107,8 @@ func NewProjector(notes []*Note, pack *Pack, scope ScopePolicy) *Projector {
 		Scope:     scope,
 		byPath:    map[string]*Note{},
 		byID:      map[string]*Note{},
+		byTitle:   map[string]*Note{},
+		byAlias:   map[string]*Note{},
 		campaigns: map[string]*Note{},
 		members:   map[string][]string{},
 	}
@@ -112,6 +116,16 @@ func NewProjector(notes []*Note, pack *Pack, scope ScopePolicy) *Projector {
 		p.byPath[n.Path] = n
 		if _, dup := p.byID[n.ID()]; !dup {
 			p.byID[n.ID()] = n
+		}
+		if n.Name != "" {
+			if _, dup := p.byTitle[strings.ToLower(n.Name)]; !dup {
+				p.byTitle[strings.ToLower(n.Name)] = n
+			}
+		}
+		for _, a := range n.Aliases {
+			if _, dup := p.byAlias[strings.ToLower(a)]; !dup {
+				p.byAlias[strings.ToLower(a)] = n
+			}
 		}
 		if strings.EqualFold(n.Type, "campaign") {
 			id := n.Campaign
@@ -320,19 +334,85 @@ func (p *Projector) Decide(pr Principal, n *Note) Decision {
 	return Decision{false, "", "no rule grants the " + string(pr.Kind) + " principal access"}
 }
 
+// Resolve turns a note reference into the note it names.
+//
+// A reference is whatever a human writes: a wikilink (`[[The Drowned
+// Quarter]]`), a title, an alias, a vault-relative path, or a uid. The
+// vault index is what resolves it - design §5.3 says so, and ADR-0050 D4
+// makes `discovered` a list of *note references* rather than a list of
+// uids, because a reference is what a GM writes and a uid is what the
+// tooling compares.
+//
+// Resolving here rather than comparing strings is the whole point: a
+// string comparison against the uid would never match a wikilink, and the
+// discovery rule would be inert for every note in the shipped format.
+func (p *Projector) Resolve(ref string) *Note {
+	ref = strings.TrimSpace(ref)
+	if ref == "" {
+		return nil
+	}
+	// A wikilink: [[Target]] or [[Target|Alias]].
+	if strings.HasPrefix(ref, "[[") && strings.HasSuffix(ref, "]]") {
+		ref = ref[2 : len(ref)-2]
+		if i := strings.Index(ref, "|"); i >= 0 {
+			ref = ref[:i]
+		}
+		ref = strings.TrimSpace(ref)
+	}
+	// A section anchor or a heading: [[Target#Section]].
+	if i := strings.Index(ref, "#"); i >= 0 {
+		ref = strings.TrimSpace(ref[:i])
+	}
+	if n, ok := p.byID[ref]; ok {
+		return n
+	}
+	if n, ok := p.byPath[ref]; ok {
+		return n
+	}
+	lower := strings.ToLower(ref)
+	if n, ok := p.byTitle[lower]; ok {
+		return n
+	}
+	if n, ok := p.byAlias[lower]; ok {
+		return n
+	}
+	// A bare file name, and the last path segment.
+	if i := strings.LastIndex(ref, "/"); i >= 0 {
+		ref = ref[i+1:]
+	}
+	if i := strings.LastIndex(ref, "."); i > 0 {
+		ref = ref[:i]
+	}
+	lower = strings.ToLower(ref)
+	if n, ok := p.byTitle[lower]; ok {
+		return n
+	}
+	if n, ok := p.byAlias[lower]; ok {
+		return n
+	}
+	return nil
+}
+
 // discoveredBy reports whether one of the caller's characters lists this
 // note in its `discovered` field.
 func (p *Projector) discoveredBy(accountID string, n *Note) bool {
-	if n.UID == "" {
-		// A note with no uid cannot be discovered: nothing can name it.
+	if n.UID == "" && n.Path == "" {
+		// A note with no uid and no path cannot be discovered: nothing can
+		// name it.
 		return false
 	}
 	for _, c := range p.Notes {
 		if c.Player != accountID {
 			continue
 		}
-		if contains(c.Discovered, n.UID) {
-			return true
+		for _, ref := range c.Discovered {
+			target := p.Resolve(ref)
+			if target == nil {
+				continue
+			}
+			if target == n || target.ID() == n.ID() {
+				return true
+			}
 		}
 	}
 	return false

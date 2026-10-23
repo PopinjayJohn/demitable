@@ -204,6 +204,31 @@ mechanism — they are in the accidental one.
 
 ---
 
+## A note on how the last contradiction was found
+
+The projection spike's work was re-checked against ADR-0050 and ADR-0051 by
+a second agent, and the answers were landed. **A third agent, which had been
+superseded and was still running, surfaced the last contradiction on its way
+out** — by continuing to work on a branch that had already been replaced.
+
+It was a real defect, and it is the kind that reading cannot find: **two
+ADRs, landed hours apart, disagreed about the shape of one field.**
+ADR-0050's D4 makes `discovered` a flat list of *note references*, and the
+demo campaign writes `- "[[The Drowned Quarter]]"`. ADR-0057's W2 described
+the widening rule in terms of the note's **uid**. A wikilink never equals a
+uid, so the discovery rule **could not fire** — not for the synthetic corpus,
+not for the demo campaign, not for anything.
+
+The spike's own synthetic corpus had used bare uid strings, which is why its
+tests passed. The shipped format was wikilinks. The corpus and the campaign
+disagreed, and the ADR had picked a side without noticing.
+
+It is fixed by resolving the reference through the vault index, as design
+§5.3 says it must, and the synthetic corpus now writes the format the demo
+campaign writes. The regression test fails without the fix.
+
+---
+
 ## What changed as a result
 
 | | |

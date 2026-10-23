@@ -220,3 +220,86 @@ func TestCorpusParses(t *testing.T) {
 		}
 	}
 }
+
+// TestDiscoveryResolvesAReference is the regression test for a contradiction
+// between two ADRs.
+//
+// ADR-0050's D4 makes `discovered` a flat list of *note references* - the
+// demo campaign writes `- "[[The Drowned Quarter]]"` - while ADR-0057's W2
+// described the widening rule in terms of the note's *uid*. Comparing a
+// wikilink string against a uid never matches, so the discovery rule was
+// inert for every note in the shipped format.
+//
+// The reference is resolved through the vault index, and the rule fires.
+func TestDiscoveryResolvesAReference(t *testing.T) {
+	p := load(t, ScopeStrict)
+
+	// The reference is a wikilink, exactly as the demo campaign writes it.
+	var ilia *Note
+	for _, n := range p.Notes {
+		if n.UID == "uid-ilia" {
+			ilia = n
+		}
+	}
+	if ilia == nil {
+		t.Fatal("no note with uid-ilia")
+	}
+	if len(ilia.Discovered) == 0 {
+		t.Fatal("Ilia has no discovered list")
+	}
+	for _, ref := range ilia.Discovered {
+		if !strings.HasPrefix(ref, "[[") {
+			t.Fatalf("the synthetic corpus should use wikilinks, got %q", ref)
+		}
+		if p.Resolve(ref) == nil {
+			t.Errorf("the reference %q does not resolve to a note", ref)
+		}
+	}
+
+	// The rule fires: Ilia is the player who owns the character, and the
+	// note she discovered is visible to her.
+	var tomb *Note
+	for _, n := range p.Notes {
+		if n.UID == "uid-undead-tomb" {
+			tomb = n
+		}
+	}
+	if tomb == nil {
+		t.Fatal("no note with uid-undead-tomb")
+	}
+	if !p.discoveredBy("p_ilia", tomb) {
+		t.Error("Ilia has discovered The Undead Tomb, but the rule did not fire")
+	}
+}
+
+// TestResolveAcceptsEveryReferenceShape pins the resolver's shapes: a
+// wikilink, a title, an alias, a path and a uid all name the same note.
+func TestResolveAcceptsEveryReferenceShape(t *testing.T) {
+	p := load(t, ScopeStrict)
+	var target *Note
+	for _, n := range p.Notes {
+		if n.UID == "uid-undead-tomb" {
+			target = n
+		}
+	}
+	if target == nil {
+		t.Fatal("no note with uid-undead-tomb")
+	}
+	for _, ref := range []string{
+		"[[The Undead Tomb]]",
+		"[[The Undead Tomb|Something Else]]",
+		"The Undead Tomb",
+		"uid-undead-tomb",
+		target.Path,
+		"The Undead Tomb.md",
+	} {
+		got := p.Resolve(ref)
+		if got == nil {
+			t.Errorf("%q does not resolve", ref)
+			continue
+		}
+		if got.UID != target.UID {
+			t.Errorf("%q resolves to %q, want %q", ref, got.UID, target.UID)
+		}
+	}
+}
