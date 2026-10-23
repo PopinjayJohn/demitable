@@ -357,6 +357,13 @@ which is phase 3 (ADR-0038). What phase 1 has is the *account* and the
   `dev/demo-campaign/projection_test.go`. Two assertions are added to them:
   **no GM-only character is named anywhere in a player's view**, and **no
   unrevealed secret's text appears in any non-GM projection**.
+- **The 36 cases of the projection spike's synthetic corpus**
+  (`spikes/projection/testdata/`) join them: the corpus cannot exercise the
+  model at all — **0 of its 1,693 notes carry any of ADR-0040's twelve
+  reserved fields** — so the model's cases have to be written (ADR-0057).
+- **The GM can see a player's `owner`-scoped fields.** No non-GM sees an
+  `owner` field it does not own, and no non-GM sees a `discovered` list it
+  does not own (ADR-0057).
 - The example pack declares **at least one owner-scoped and one gm-scoped
   resource**, or the property test iterates over nothing and passes
   vacuously (ADR-0050).
