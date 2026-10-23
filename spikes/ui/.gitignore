@@ -1,0 +1,4 @@
+# Disposable phase-0 spike — not promoted to the product
+/node_modules/
+/dist/
+/package-lock.json
