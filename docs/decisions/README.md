@@ -55,6 +55,8 @@ one means writing a new ADR that supersedes it.
 | [0049](0049-frontmatter-io-contract.md) | What a frontmatter write must preserve, measured against the corpus | Accepted |
 | [0050](0050-schema-gaps-found-by-writing-a-campaign.md) | The schema needs a discovery state, a reserved-layer visibility, and an honest field list | Accepted |
 | [0051](0051-threat-model-and-not-defended-list.md) | The threat model, the not-defended list, and the derived phase-1 exposure checklist | Accepted |
+| [0052](0052-the-projection-consequences-belong-in-the-ui.md) | The projection's consequences belong in the UI | Accepted |
+| [0053](0053-the-renderer-renders-constructs-not-documents.md) | The renderer renders constructs, not documents | Accepted |
 
 ## The shape of the decisions
 

@@ -1,5 +1,20 @@
 # Demitable — UI spike
 
+> **Archived, not thrown away.** Phase 0's rule is that a spike's *answer* is
+> the deliverable and its code is disposable. This one is kept, and the reason
+> is recorded here rather than left implicit: the answer is the **design
+> system** ([`docs/design-system.md`](../../docs/design-system.md)) and the
+> **thirteen screenshots** in [`../walkthrough/`](../walkthrough/) — the
+> screenshots are the *evidence* for ADR-0034's colour-independence rule, and
+> prose cannot replace them.
+>
+> The prototype itself is also kept, because phase 1's UI work starts from it
+> rather than from nothing. Its answers are landed in
+> [ADR-0052](../../docs/decisions/0052-the-projection-consequences-belong-in-the-ui.md)
+> and [ADR-0053](../../docs/decisions/0053-the-renderer-renders-constructs-not-documents.md).
+> The gaps it records against ADR-0050 — which landed while the spike was
+> running — are in the report, not silently patched.
+
 ## Questions answered
 
 **Q3 — What does this application look like?** A disposable prototype of four
