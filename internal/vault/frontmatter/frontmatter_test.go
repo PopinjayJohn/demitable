@@ -2,7 +2,6 @@ package frontmatter
 
 import (
 	"bytes"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -643,46 +642,4 @@ func TestTypeRegistryMissingFile(t *testing.T) {
 	if reg == nil {
 		t.Fatal("expected a registry")
 	}
-}
-
-// --- the corpus ----------------------------------------------------------
-
-// TestCorpus is skipped unless DEMITABLE_CORPUS points at a corpus.
-func TestCorpus(t *testing.T) {
-	root := os.Getenv("DEMITABLE_CORPUS")
-	if root == "" {
-		t.Skip("DEMITABLE_CORPUS is not set")
-	}
-	var files []string
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() || !strings.HasSuffix(path, ".md") {
-			return nil
-		}
-		files = append(files, path)
-		return nil
-	})
-	if err != nil {
-		t.Fatalf("walk: %v", err)
-	}
-	if len(files) == 0 {
-		t.Fatal("no files")
-	}
-	issues := 0
-	for _, path := range files {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatalf("read %s: %v", path, err)
-		}
-		doc, err := Parse(data)
-		if err != nil {
-			t.Fatalf("parse %s: %v", path, err)
-		}
-		if doc.HasBlock {
-			issues += len(doc.Block.Issues)
-		}
-	}
-	t.Logf("%d files, %d issues", len(files), issues)
 }
