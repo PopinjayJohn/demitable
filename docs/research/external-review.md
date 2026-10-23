@@ -1,3 +1,16 @@
+# External review — the design set as it stood
+
+> An outside review of the design documents, given as prose. It was written
+> against the document set before the phase boundary was reconciled, the
+> blocking decisions were settled (ADR-0042…0047), and the player/GM gaps
+> were closed as schema (ADR-0048).
+>
+> **All ten of its recommendations were addressed.** They are listed at the
+> end of this file, and each one names the ADR or document that answered it.
+> The review is kept because it is the record of what was wrong, and because
+> a recommendation that was argued with and answered is worth more than one
+> that was never raised.
+
 # Demitable — project summary and assessment
 
 ## What the project is
