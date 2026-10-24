@@ -143,9 +143,20 @@ func join(ss []string) string {
 	return out
 }
 
-// SearchFTS runs a MATCH query and returns uids.
+// SearchFTS runs a MATCH query and returns uids in BM25 order (most
+// relevant first). FTS5's bm25() returns a negative score where more
+// negative is better, so ascending order is the right one.
+// SearchFTS is like SearchFTSIn with no restriction. **It is for the GM
+// only.** A non-GM caller must use SearchFTSIn with its visible set,
+// because an unrestricted search ranks against every note in the index -
+// including the GM-only ones, which is the side channel ADR-0054
+// measured.
 func (s *Store) SearchFTS(query string) ([]string, error) {
-	rows, err := s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ?`, query)
+	q := strings.TrimSpace(query)
+	if q == "" {
+		return nil, nil
+	}
+	rows, err := s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? ORDER BY bm25(note_fts)`, q)
 	if err != nil {
 		return nil, err
 	}
@@ -157,26 +168,37 @@ func (s *Store) SearchFTS(query string) ([]string, error) {
 			return nil, err
 		}
 		out = append(out, u)
+	}
+	if out == nil {
+		out = []string{}
 	}
 	return out, rows.Err()
 }
 
-// SearchFTSIn runs a MATCH query restricted to the given uid set, so a
-// non-GM caller's ranking cannot be influenced by GM-only notes (M5).
-func (s *Store) SearchFTSIn(uids []string, query string) ([]string, error) {
-	if len(uids) == 0 {
+// SearchFTSIn is like SearchFTS but restricted to the given uid set, so a
+// caller can rank only within a visible set (ADR-0054's partition).
+//
+// A nil or empty allowed set means **no results**, not "no restriction":
+// a caller that computed a visible set and got nothing back must see
+// nothing, or the restriction is not a restriction. Use SearchFTS
+// explicitly when the unrestricted index is what you want.
+func (s *Store) SearchFTSIn(query string, allowed []string) ([]string, error) {
+	q := strings.TrimSpace(query)
+	if q == "" {
 		return nil, nil
 	}
-	// Build a parameterised IN clause.
-	placeholders := make([]string, len(uids))
-	args := make([]any, 0, len(uids)+1)
-	args = append(args, query)
-	for i, u := range uids {
-		placeholders[i] = "?"
+	if len(allowed) == 0 {
+		// The visible set is empty, so nothing is visible.
+		return []string{}, nil
+	}
+	placeholders := strings.Repeat("?,", len(allowed))
+	placeholders = placeholders[:len(placeholders)-1]
+	args := make([]any, 0, len(allowed)+1)
+	args = append(args, q)
+	for _, u := range allowed {
 		args = append(args, u)
 	}
-	q := "SELECT uid FROM note_fts WHERE note_fts MATCH ? AND uid IN (" + strings.Join(placeholders, ",") + ")"
-	rows, err := s.db.Query(q, args...)
+	rows, err := s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? AND uid IN (`+placeholders+`) ORDER BY bm25(note_fts)`, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +210,9 @@ func (s *Store) SearchFTSIn(uids []string, query string) ([]string, error) {
 			return nil, err
 		}
 		out = append(out, u)
+	}
+	if out == nil {
+		out = []string{}
 	}
 	return out, rows.Err()
 }

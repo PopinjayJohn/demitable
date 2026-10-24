@@ -22,6 +22,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/assets"
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/logging"
+	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
 	"github.com/PopinjayJohn/demitable/internal/vault"
@@ -248,12 +249,36 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	m := mux().(*http.ServeMux)
 	m.HandleFunc("GET /api/v1/notes", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		notes := vlt.AllNotes()
+		q := vault.Query{
+			Type:     r.URL.Query().Get("type"),
+			Campaign: r.URL.Query().Get("campaign"),
+			Limit:    0,
+		}
+		if v := r.URL.Query().Get("limit"); v != "" {
+			if n, err := strconv.Atoi(v); err == nil {
+				q.Limit = n
+			}
+		}
+		fields := map[string]string{}
+		for k, vals := range r.URL.Query() {
+			if k == "type" || k == "campaign" || k == "limit" || k == "cursor" || k == "q" || k == "sort" {
+				continue
+			}
+			if len(vals) > 0 {
+				fields[k] = vals[0]
+			}
+		}
+		q.Fields = fields
+		if s := r.URL.Query().Get("sort"); s != "" {
+			q.Sort = s
+		}
+		principal := vault.GM()
+		notes := vlt.List(principal, q)
 		out := make([]vault.NoteView, 0, len(notes))
 		for _, n := range notes {
-			out = append(out, n.View(true))
+			out = append(out, vault.Project(principal, n))
 		}
-		_ = json.NewEncoder(w).Encode(out)
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
 	})
 	m.HandleFunc("GET /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
 		uid := r.PathValue("uid")
@@ -280,6 +305,61 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			"name":    n.Name,
 			"view":    n.View(true),
 			"content": string(n.Raw),
+		}
+		_ = json.NewEncoder(w).Encode(payload)
+	})
+	m.HandleFunc("GET /api/v1/characters/{uid}", func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		principal := vault.GM()
+		if !vault.Visible(principal, *n) {
+			http.NotFound(w, r)
+			return
+		}
+		// declared fields from the example pack
+		pk, _ := pack.Example()
+		var ct *pack.ContentType
+		if pk != nil {
+			for i := range pk.Content {
+				if pk.Content[i].ID == n.Type {
+					ct = &pk.Content[i]
+					break
+				}
+			}
+			if ct == nil {
+				for i := range pk.Content {
+					if pk.Content[i].ID == "character" {
+						ct = &pk.Content[i]
+						break
+					}
+				}
+			}
+		}
+		fields := map[string]any{}
+		declared := []string{}
+		if ct != nil {
+			for _, f := range ct.Fields {
+				declared = append(declared, f.Key)
+				if v, ok := n.Fields[f.Key]; ok {
+					fields[f.Key] = v
+				} else {
+					fields[f.Key] = nil
+				}
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		payload := map[string]any{
+			"uid":      n.UID,
+			"name":     n.Name,
+			"type":     n.Type,
+			"fields":   fields,
+			"declared": declared,
+			"view":     n.View(true),
+			"expand":   r.URL.Query().Get("expand") == "1",
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})

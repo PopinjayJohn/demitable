@@ -381,6 +381,70 @@ func (v *Vault) AllNotes() []*Note {
 	return out
 }
 
+// Get implements vault.VaultService for the live vault.
+func (v *Vault) Get(p Principal, uid string) (Note, error) {
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+	n, ok := v.Notes[uid]
+	if !ok {
+		return Note{}, fmt.Errorf("no such note: %s: %w", uid, ErrNotFound)
+	}
+	if !Visible(p, *n) {
+		return Note{}, fmt.Errorf("no such note: %s: %w", uid, ErrNotFound)
+	}
+	return *n, nil
+}
+
+// List implements vault.VaultService for the live vault.
+func (v *Vault) List(p Principal, q Query) []Note {
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+	filters := parseFilters(q)
+	var out []Note
+	for _, uid := range v.Order {
+		n := v.Notes[uid]
+		if n == nil {
+			continue
+		}
+		nn := *n
+		if !Visible(p, nn) {
+			continue
+		}
+		if q.Type != "" && nn.Type != q.Type {
+			continue
+		}
+		if q.Campaign != "" && nn.Campaign != q.Campaign {
+			continue
+		}
+		if !matchFilters(nn, filters) {
+			continue
+		}
+		out = append(out, nn)
+	}
+	sortNotes(out, q.Sort, q.Desc)
+	if q.Offset > 0 {
+		if q.Offset >= len(out) {
+			out = nil
+		} else {
+			out = out[q.Offset:]
+		}
+	}
+	if q.Limit > 0 && len(out) > q.Limit {
+		out = out[:q.Limit]
+	}
+	if out == nil {
+		out = []Note{}
+	}
+	return out
+}
+
+// Literal returns the live vault's literal index.
+func (v *Vault) LiteralIndex() *LiteralIndex {
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+	return v.Literal
+}
+
 // UpdateNote replaces a note's file content after a write.
 func (v *Vault) UpdateNote(uid string, data []byte) error {
 	v.mu.RLock()
