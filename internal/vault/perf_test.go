@@ -57,18 +57,20 @@ func TestInsertPerformance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	store, err := openTestStore(t)
+	st, err := openTestStore(t)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer store.Close()
-	store.Migrate()
+	defer st.Close()
+	st.Migrate()
 	var inserts []time.Duration
 	for run := 0; run < 5; run++ {
 		start := time.Now()
+		records := make([]store.NoteRecord, 0, len(v.AllNotes()))
 		for _, n := range v.AllNotes() {
-			store.UpsertNote(n.UID, n.Path, n.Name, n.Aliases, n.Headings, n.Tags, n.Prose)
+			records = append(records, store.NoteRecord{UID: n.UID, Path: n.Path, Title: n.Name, Aliases: n.Aliases, Headings: n.Headings, Tags: n.Tags, Body: n.Prose})
 		}
+		st.UpsertNotes(records)
 		elapsed := time.Since(start)
 		inserts = append(inserts, elapsed)
 	}
