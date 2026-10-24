@@ -1,3 +1,12 @@
+// Package vault's projection seam.
+//
+// Visible decides whether a principal may see a note at all; Project decides
+// which fields a principal may see. The model is ADR-0057's audience model:
+// the intersection of every applicable constraint, then widened by the grants
+// permitted to widen it. Both functions are pure: they take a Principal and a
+// Note and return a value, with no I/O, no logging and no global state. Audit
+// logging and HTTP handling live in cmd/demitable, which is the layer that
+// knows both the principal and the note being served.
 package vault
 
 import (

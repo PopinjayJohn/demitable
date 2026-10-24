@@ -23,7 +23,7 @@ import (
 // vaultConfig holds the GM secret and token-signing key for a vault.
 type vaultConfig struct {
 	GMSecret string `yaml:"gm_secret"`
-	TokenKey  string `yaml:"token_key"`
+	TokenKey string `yaml:"token_key"`
 }
 
 // ensureVaultConfig loads or creates .demitable/config.yaml (mode 0600).
@@ -438,7 +438,6 @@ func setAuthCookie(w http.ResponseWriter, tok string, secure bool) {
 		SameSite: http.SameSiteLaxMode,
 	})
 }
-
 
 func tokenKeyFor(vlt *vault.Vault) string {
 	_, tk, err := ensureVaultConfig(vlt.Root)
