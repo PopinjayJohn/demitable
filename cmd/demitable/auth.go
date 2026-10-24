@@ -61,9 +61,12 @@ func ensureVaultConfig(vaultRoot string) (string, string, error) {
 func randomSecret(n int) string {
 	b := make([]byte, n)
 	if _, err := readRand(b); err != nil {
-		for i := range b {
-			b[i] = byte(i)
-		}
+		// crypto/rand is the only acceptable source for a credential. If
+		// it fails, the platform is broken in a way we cannot recover
+		// from, and returning a predictable secret would be far worse
+		// than refusing to start. Panicking here is the safe outcome: the
+		// process dies rather than issuing a guessable GM secret.
+		panic("crypto/rand failed: " + err.Error())
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
 }
@@ -409,7 +412,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			_ = json.NewEncoder(w).Encode(map[string]string{"error": account.ErrWrongPassphrase.Error()})
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "invalid GM secret"})
 			return
 		}
 		limiter.success(ip)
