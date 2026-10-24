@@ -143,9 +143,35 @@ func join(ss []string) string {
 	return out
 }
 
-// SearchFTS runs a MATCH query and returns uids.
+// SearchFTS runs a MATCH query and returns uids in BM25 order (most
+// relevant first). FTS5's bm25() returns a negative score where more
+// negative is better, so ascending order is the right one.
 func (s *Store) SearchFTS(query string) ([]string, error) {
-	rows, err := s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ?`, query)
+	return s.SearchFTSIn(query, nil)
+}
+
+// SearchFTSIn is like SearchFTS but restricted to the given uid set, so a
+// caller can rank only within a visible set (ADR-0054's partition). An empty
+// or nil allowed set means "no restriction".
+func (s *Store) SearchFTSIn(query string, allowed []string) ([]string, error) {
+	q := strings.TrimSpace(query)
+	if q == "" {
+		return nil, nil
+	}
+	var rows *sql.Rows
+	var err error
+	if len(allowed) == 0 {
+		rows, err = s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? ORDER BY bm25(note_fts)`, q)
+	} else {
+		placeholders := strings.Repeat("?,", len(allowed))
+		placeholders = placeholders[:len(placeholders)-1]
+		args := make([]any, 0, len(allowed)+1)
+		args = append(args, q)
+		for _, u := range allowed {
+			args = append(args, u)
+		}
+		rows, err = s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? AND uid IN (`+placeholders+`) ORDER BY bm25(note_fts)`, args...)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -157,6 +183,9 @@ func (s *Store) SearchFTS(query string) ([]string, error) {
 			return nil, err
 		}
 		out = append(out, u)
+	}
+	if out == nil {
+		out = []string{}
 	}
 	return out, rows.Err()
 }

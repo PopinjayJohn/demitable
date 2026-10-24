@@ -171,4 +171,7 @@ type Context struct {
 type VaultService interface {
 	Get(p vault.Principal, uid string) (vault.Note, error)
 	List(p vault.Principal, q vault.Query) []vault.Note
+	// Literal returns the in-memory literal index, for name/alias/link
+	// resolution (ADR-0013, ADR-0054).
+	LiteralIndex() *vault.LiteralIndex
 }

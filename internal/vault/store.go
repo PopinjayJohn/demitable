@@ -3,7 +3,6 @@ package vault
 import (
 	"errors"
 	"fmt"
-	"sort"
 	"sync"
 )
 
@@ -19,11 +18,18 @@ var ErrNotFound = errors.New("not_found")
 //
 // The filter vocabulary is deliberately thin in phase 1: the plan defers
 // the query language to phase 3 (ADR-0047), and phase 1's filters are
-// equality over the universal fields.
+// equality over the universal fields and the pack's declared fields.
+// Equality is expressed either through the structured Fields map or
+// through the Filter string ("key=value", "key==value", "key: value",
+// comma/and separated for several). Sort names a field to sort by.
 type Query struct {
 	Type     string
 	Campaign string
 	Filter   string
+	Fields   map[string]string
+	Sort     string
+	Desc     bool
+	Offset   int
 	Limit    int
 }
 
@@ -34,17 +40,19 @@ type Query struct {
 // host is built and tested against, and what a compiled-in plugin sees
 // until the host is wired to the live vault.
 type Store struct {
-	mu    sync.RWMutex
-	notes map[string]Note
-	order []string
+	mu      sync.RWMutex
+	notes   map[string]Note
+	order   []string
+	Literal *LiteralIndex
 }
 
 // NewStore makes a store from a list of notes.
 func NewStore(notes ...Note) *Store {
-	s := &Store{notes: map[string]Note{}}
+	s := &Store{notes: map[string]Note{}, Literal: NewLiteralIndex()}
 	for _, n := range notes {
 		s.notes[n.UID] = n
 		s.order = append(s.order, n.UID)
+		s.Literal.Add(&n)
 	}
 	return s
 }
@@ -63,10 +71,11 @@ func (s *Store) Get(p Principal, uid string) (Note, error) {
 	return n, nil
 }
 
-// List returns the notes the principal may see, sorted by uid.
+// List returns the notes the principal may see, filtered and sorted.
 func (s *Store) List(p Principal, q Query) []Note {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	filters := parseFilters(q)
 	var out []Note
 	for _, uid := range s.order {
 		n := s.notes[uid]
@@ -79,11 +88,24 @@ func (s *Store) List(p Principal, q Query) []Note {
 		if q.Campaign != "" && n.Campaign != q.Campaign {
 			continue
 		}
+		if !matchFilters(n, filters) {
+			continue
+		}
 		out = append(out, n)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].UID < out[j].UID })
+	sortNotes(out, q.Sort, q.Desc)
+	if q.Offset > 0 {
+		if q.Offset >= len(out) {
+			out = nil
+		} else {
+			out = out[q.Offset:]
+		}
+	}
 	if q.Limit > 0 && len(out) > q.Limit {
 		out = out[:q.Limit]
+	}
+	if out == nil {
+		out = []Note{}
 	}
 	return out
 }
@@ -96,4 +118,24 @@ func (s *Store) Replace(n Note) {
 		s.order = append(s.order, n.UID)
 	}
 	s.notes[n.UID] = n
+	if s.Literal == nil {
+		s.Literal = NewLiteralIndex()
+	}
+	s.Literal.Remove(n.UID)
+	s.Literal.Add(&n)
+}
+
+// Literal returns the store's in-memory literal index.
+func (s *Store) LiteralIndex() *LiteralIndex {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.Literal == nil {
+		s.Literal = NewLiteralIndex()
+		for _, uid := range s.order {
+			n := s.notes[uid]
+			cp := n
+			s.Literal.Add(&cp)
+		}
+	}
+	return s.Literal
 }
