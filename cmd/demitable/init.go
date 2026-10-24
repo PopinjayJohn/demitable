@@ -92,9 +92,9 @@ Welcome. See [[Campaign]].
 	})
 	// One note per remaining core type.
 	specs := []struct {
-		typ  string
-		rel  string
-		name string
+		typ   string
+		rel   string
+		name  string
 		extra string
 	}{
 		{"character", "Notes/Characters/Example Character.md", "Example Character", "kind: pc\nworkflow: active\nvisibility: party\n"},
