@@ -152,14 +152,51 @@ func (v *Vault) Load() error {
 		return fmt.Errorf("vault: walk: %w", err)
 	}
 	sort.Strings(files)
+	// Parse in parallel: the parse is ~88% of the index cost and is
+	// embarrassingly parallel across files (ADR-0055).
+	type result struct {
+		rel  string
+		note *Note
+		err  error
+	}
+	n := len(files)
+	if n == 0 {
+		return nil
+	}
+	workers := 8
+	if workers > n {
+		workers = n
+	}
+	jobs := make(chan string, n)
+	res := make(chan result, n)
+	var wg sync.WaitGroup
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for rel := range jobs {
+				note, err := v.parseFile(rel)
+				res <- result{rel: rel, note: note, err: err}
+			}
+		}()
+	}
 	for _, rel := range files {
-		note, err := v.parseFile(rel)
-		if err != nil {
-			// A single bad note is reported but does not abort the load.
-			// (Size caps and alias bombs are hard errors per note.)
+		jobs <- rel
+	}
+	close(jobs)
+	go func() { wg.Wait(); close(res) }()
+	// preserve load order
+	byRel := map[string]*Note{}
+	for r := range res {
+		if r.err != nil {
 			continue
 		}
-		v.addNote(note)
+		byRel[r.rel] = r.note
+	}
+	for _, rel := range files {
+		if note, ok := byRel[rel]; ok {
+			v.addNote(note)
+		}
 	}
 	return nil
 }
