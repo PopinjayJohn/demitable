@@ -93,11 +93,24 @@ func (s *Store) UpsertNotes(notes []NoteRecord) error {
 		}
 	}
 
-	// Insert into FTS5 per row (prepared by the driver) — measured at ~180 ms.
+	// Prepare both statements once per transaction: tx.Exec prepares and
+	// finalises a statement on every call, which is the per-row cost that
+	// pushed the insert over the criterion.
+	ftsStmt, err := tx.Prepare(`INSERT INTO note_fts(uid,title,aliases,headings,tags,body) VALUES(?,?,?,?,?,?)`)
+	if err != nil {
+		return err
+	}
+	defer ftsStmt.Close()
+	notesStmt, err := tx.Prepare(`INSERT INTO notes(uid,path,title,fts_rowid,updated_at) VALUES(?,?,?,?,?)
+		ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,fts_rowid=excluded.fts_rowid,updated_at=excluded.updated_at`)
+	if err != nil {
+		return err
+	}
+	defer notesStmt.Close()
+
 	rowids := make([]int64, len(notes))
 	for i, n := range notes {
-		res, err := tx.Exec(`INSERT INTO note_fts(uid,title,aliases,headings,tags,body) VALUES(?,?,?,?,?,?)`,
-			n.UID, n.Title, join(n.Aliases), join(n.Headings), join(n.Tags), n.Body)
+		res, err := ftsStmt.Exec(n.UID, n.Title, join(n.Aliases), join(n.Headings), join(n.Tags), n.Body)
 		if err != nil {
 			return err
 		}
@@ -108,21 +121,14 @@ func (s *Store) UpsertNotes(notes []NoteRecord) error {
 		rowids[i] = rid
 	}
 
-	// Multi-row upsert into notes table.
-	notesVals := ""
-	notesArgs := []interface{}{}
+	// Multi-row upsert into notes table via the prepared statement, per row.
 	now := time.Now().Unix()
 	for i, n := range notes {
-		if i > 0 {
-			notesVals += ","
+		if _, err := notesStmt.Exec(n.UID, n.Path, n.Title, rowids[i], now); err != nil {
+			return err
 		}
-		notesVals += "(?,?,?,?,?)"
-		notesArgs = append(notesArgs, n.UID, n.Path, n.Title, rowids[i], now)
 	}
-	if _, err := tx.Exec(`INSERT INTO notes(uid,path,title,fts_rowid,updated_at) VALUES `+notesVals+
-		` ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,fts_rowid=excluded.fts_rowid,updated_at=excluded.updated_at`, notesArgs...); err != nil {
-		return err
-	}
+
 	return tx.Commit()
 }
 
