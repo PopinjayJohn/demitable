@@ -1,25 +1,27 @@
 // Command demitable is the entrypoint.
-//
-// It is early: phase 1 has not started, so the process sets up its logging,
-// answers a health check, and shuts down cleanly. Everything here is the
-// skeleton the rest of phase 1 is built on — in particular the logging
-// wiring, which ADR-0058 settles and which is worth proving works before
-// there is anything to log.
 package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	"log/slog"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"path/filepath"
+	"runtime"
+	"strconv"
 	"syscall"
 	"time"
 
+	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/logging"
+	"github.com/PopinjayJohn/demitable/internal/server"
+	"github.com/PopinjayJohn/demitable/internal/store"
 )
 
 // version is stamped at build time with -ldflags "-X main.version=...".
@@ -34,10 +36,18 @@ func main() {
 
 func run(args []string) error {
 	fs := flag.NewFlagSet("demitable", flag.ContinueOnError)
-	port := fs.Int("port", 8080, "the port to listen on")
-	logLevel := fs.String("log-level", "info", "debug, info, warn or error")
-	logFormat := fs.String("log-format", "text", "text or json")
-	auditPath := fs.String("audit-log", "", "the audit log's path; empty disables it")
+	cfg := config.Config{}
+	fs.StringVar(&cfg.Vault, "vault", "", "the vault directory")
+	fs.IntVar(&cfg.Port, "port", 8080, "the port to listen on (0 for an ephemeral port)")
+	fs.BoolVar(&cfg.NoBrowser, "no-browser", false, "do not open a browser on start")
+	fs.BoolVar(&cfg.Expose, "expose", false, "expose the server beyond loopback")
+	fs.StringVar(&cfg.PublicURL, "public-url", "", "the public base URL (required under --expose)")
+	fs.StringVar(&cfg.TrustProxy, "trust-proxy", "", "trusted proxy IP or CIDR")
+	fs.BoolVar(&cfg.AllowHTTPImport, "allow-http-import", false, "allow plain-http archive imports")
+	fs.BoolVar(&cfg.NoImport, "no-import", false, "disable archive import entirely")
+	fs.StringVar(&cfg.LogLevel, "log-level", "info", "debug, info, warn or error")
+	fs.StringVar(&cfg.LogFormat, "log-format", "text", "text or json")
+	fs.StringVar(&cfg.AuditLog, "audit-log", "", "the audit log's path; empty disables it")
 	showVersion := fs.Bool("version", false, "print the version and exit")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -46,37 +56,66 @@ func run(args []string) error {
 		fmt.Println("demitable", version)
 		return nil
 	}
-
-	log, err := logging.NewStderr(logging.Config{Level: *logLevel, Format: *logFormat})
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+	log, err := logging.NewStderr(logging.Config{Level: cfg.LogLevel, Format: cfg.LogFormat})
 	if err != nil {
 		return err
 	}
-	// The audit log is optional, because a GM who never exposes the app
-	// has no access events worth recording — and because a log nobody
-	// reads is a liability rather than an asset.
 	var audit *logging.Audit
-	if *auditPath != "" {
-		audit, err = logging.OpenAudit(*auditPath)
+	if cfg.AuditLog != "" {
+		a, err := logging.OpenAudit(cfg.AuditLog)
 		if err != nil {
 			return fmt.Errorf("open the audit log: %w", err)
 		}
+		audit = a
+	}
+
+	// Open the cache store. It is a derived cache; a failure here is fatal
+	// because the rest of the process assumes it can write to it.
+	st, err := openStore()
+	if err != nil {
+		return fmt.Errorf("open the store: %w", err)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	logger := log.With("version", version, "port", *port)
-	logger.Info("starting")
+	logger := log.With("version", version)
+	if audit != nil {
+		logger.Warn("audit log is opened but no events are recorded yet")
+	}
+	logger.Info("starting", "vault", cfg.Vault)
+
+	ln, err := net.Listen("tcp", cfg.BindAddr())
+	if err != nil {
+		st.Close()
+		return fmt.Errorf("listen: %w", err)
+	}
+	port := ln.Addr().(*net.TCPAddr).Port
+	urlStr := "http://127.0.0.1:" + strconv.Itoa(port)
+	// Single machine-parseable line on stdout: the bound URL.
+	fmt.Println(urlStr)
+	logger.Info("listening", "url", urlStr)
+
+	if cfg.Expose {
+		fmt.Fprintln(os.Stderr, "demitable: WARNING: --expose binds 0.0.0.0; ensure TLS termination and firewalling are in place")
+		logger.Warn("expose mode enabled; binding to all interfaces")
+	}
+
+	if !cfg.NoBrowser && !cfg.Expose {
+		go openBrowser(urlStr, logger)
+	}
 
 	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%d", *port),
-		Handler:           mux(ctx, audit),
+		Handler:           mux(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	errCh := make(chan error, 1)
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
 			return
 		}
@@ -86,38 +125,79 @@ func run(args []string) error {
 	select {
 	case err := <-errCh:
 		if err != nil {
+			st.Close()
 			return err
 		}
 	case <-ctx.Done():
 		logger.Info("shutting down")
 	}
 
-	// Graceful shutdown: in-flight requests finish, then the process exits
-	// 0. The phase-1 plan requires it of SIGTERM.
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
+		st.Close()
 		return fmt.Errorf("shutdown: %w", err)
+	}
+	if err := st.Close(); err != nil {
+		return fmt.Errorf("store close: %w", err)
 	}
 	logger.Info("stopped")
 	return nil
 }
 
-// mux is the HTTP surface. It is one endpoint for now, and it is here to
-// prove the server starts, answers, and shuts down cleanly.
-func mux(ctx context.Context, audit *logging.Audit) http.Handler {
-	m := http.NewServeMux()
-	m.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-	})
+func openStore() (*store.Store, error) {
+	dir, err := store.DataDir()
+	if err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return nil, err
+	}
+	return store.Open(filepath.Join(dir, "cache.db"))
+}
+
+func openBrowser(urlStr string, logger *slog.Logger) {
+	_ = logger
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", urlStr)
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", urlStr)
+	default:
+		cmd = exec.Command("xdg-open", urlStr)
+	}
+	if err := cmd.Start(); err != nil {
+		// Best-effort: log a warning and carry on.
+		fmt.Fprintln(os.Stderr, "demitable: could not open browser:", err)
+	}
+}
+
+func registerFallback(m *http.ServeMux) {
 	m.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		fmt.Fprintln(w, "Demitable. Phase 1 has not started.")
+		fmt.Fprintln(w, "Demitable.")
 	})
+}
+
+// mux is the HTTP surface.
+func mux() http.Handler {
+	m := http.NewServeMux()
+	m.HandleFunc("GET /api/health", server.HealthHandler)
+	m.HandleFunc("GET /healthz", server.HealthHandler)
+	if sub, err := server.WebFS(); err == nil {
+		if f, err := sub.Open("index.html"); err == nil {
+			f.Close()
+			m.Handle("/", http.FileServer(http.FS(sub)))
+		} else {
+			registerFallback(m)
+		}
+	} else {
+		registerFallback(m)
+	}
 	return m
 }

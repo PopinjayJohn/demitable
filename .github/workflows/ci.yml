@@ -22,16 +22,13 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true
-      - name: gofmt
-        run: |
-          out=$(gofmt -l .)
-          if [ -n "$out" ]; then
-            echo "these files are not gofmt'd:"
-            echo "$out"
-            exit 1
-          fi
-      - name: go vet
-        run: go vet ./...
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: make lint
+        run: make lint
 
   test:
     name: test
@@ -42,6 +39,22 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: build frontend
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: sync frontend into embed dir
+        run: |
+          rm -rf internal/server/webdist
+          mkdir -p internal/server/webdist
+          cp -r web/dist/. internal/server/webdist/
+          touch internal/server/webdist/.gitkeep
       # The corpus is a transient build input and is not in the repository.
       # The suites that need it skip themselves; see the corpus job below.
       - name: go test
@@ -88,6 +101,22 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: build frontend
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: sync frontend into embed dir
+        run: |
+          rm -rf internal/server/webdist
+          mkdir -p internal/server/webdist
+          cp -r web/dist/. internal/server/webdist/
+          touch internal/server/webdist/.gitkeep
       # A single cgo dependency would break the whole distribution story,
       # so CGO_ENABLED=0 is enforced here rather than hoped for.
       - name: cross-compile
@@ -129,17 +158,33 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: build frontend
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: sync frontend into embed dir
+        run: |
+          rm -rf internal/server/webdist
+          mkdir -p internal/server/webdist
+          cp -r web/dist/. internal/server/webdist/
+          touch internal/server/webdist/.gitkeep
       - name: build
-        run: go build -trimpath -ldflags "-s -w" -o dist/demitable ./cmd/demitable
+        run: CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o dist/demitable ./cmd/demitable
       - name: it starts, answers, and shuts down cleanly
         run: |
-          ./dist/demitable --port 8099 --log-format json &
+          ./dist/demitable --port 8099 --no-browser --log-format json &
           pid=$!
           for i in $(seq 1 50); do
-            if curl -fsS http://127.0.0.1:8099/healthz >/dev/null 2>&1; then break; fi
+            if curl -fsS http://127.0.0.1:8099/api/health >/dev/null 2>&1; then break; fi
             sleep 0.2
           done
-          curl -fsS http://127.0.0.1:8099/healthz
+          curl -fsS http://127.0.0.1:8099/api/health
           echo
           # SIGTERM must exit 0: the phase-1 plan requires graceful shutdown.
           kill -TERM $pid

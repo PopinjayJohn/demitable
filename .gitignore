@@ -10,3 +10,10 @@
 
 # Build output.
 /dist/
+
+# Frontend build output and dependencies.
+/web/node_modules/
+/web/dist/
+/internal/server/webdist/*
+!/internal/server/webdist/.gitkeep
+
