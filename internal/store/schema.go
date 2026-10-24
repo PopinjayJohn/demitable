@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 // Migrate creates the notes table and the FTS5 index.
@@ -87,7 +88,7 @@ func (s *Store) UpsertNotes(notes []NoteRecord) error {
 			return err
 		}
 		if _, err := tx.Exec(`INSERT INTO notes(uid,path,title,fts_rowid,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,fts_rowid=excluded.fts_rowid,updated_at=excluded.updated_at`,
-			n.UID, n.Path, n.Title, rid, 0); err != nil {
+			n.UID, n.Path, n.Title, rid, time.Now().Unix()); err != nil {
 			return err
 		}
 	}
