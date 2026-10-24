@@ -25,6 +25,10 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
 	"github.com/PopinjayJohn/demitable/internal/vault"
+
+	// Compiled-in plugins register themselves in init(). The blank import
+	// is what makes the host know about them (ADR-0019, ADR-0056).
+	_ "github.com/PopinjayJohn/demitable/plugins"
 )
 
 // version is stamped at build time with -ldflags "-X main.version=...".

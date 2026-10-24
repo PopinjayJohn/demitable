@@ -2,9 +2,14 @@ package vault
 
 // NoteView is the projected, safe-to-hand-out view of a note.
 //
-// Owner-scoped fields (player, grants, discovered) are stripped unless the
-// caller is the GM or the note's owning player (ADR-0056). M3's plugin
-// bridge hands out a NoteView, never a raw *Note.
+// Owner-scoped fields — `player`, `grants` and `discovered` — are
+// stripped unless the caller is the GM or the note's owning player
+// (ADR-0056). M3's plugin bridge hands out a NoteView, never a raw
+// *Note.
+//
+// The type lives here, beside the Note it projects, because it is a
+// projection *of that note*. The rule for which fields are owner-scoped
+// is in visible.go, next to the rule for who may see a note at all.
 type NoteView struct {
 	Path       string `json:"path"`
 	UID        string `json:"uid"`
@@ -14,17 +19,26 @@ type NoteView struct {
 	Campaign   string `json:"campaign"`
 	Kind       string `json:"kind"`
 	Visibility string `json:"visibility"`
+	Workflow   string `json:"workflow,omitempty"`
+	Body       string `json:"body,omitempty"`
 	// Owner-scoped: present only when allowed.
 	Player     string   `json:"player,omitempty"`
 	Grants     []string `json:"grants,omitempty"`
 	Discovered []string `json:"discovered,omitempty"`
-	Headings   []string `json:"headings,omitempty"`
-	Aliases    []string `json:"aliases,omitempty"`
-	Tags       []string `json:"tags,omitempty"`
+	// Revealed is not owner-scoped: it records what has been revealed to
+	// the table, which the table may see.
+	Revealed []string `json:"revealed,omitempty"`
+	Headings []string `json:"headings,omitempty"`
+	Aliases  []string `json:"aliases,omitempty"`
+	Tags     []string `json:"tags,omitempty"`
 }
 
-// View projects a note into a NoteView. When allowOwner is false, the
-// owner-scoped fields are stripped.
+// View projects a note into a NoteView for a caller whose entitlement to
+// the owner-scoped fields is already decided.
+//
+// The bool is the seam: the vault service knows whether the caller is the
+// GM (it is the local user, and the server serves the GM), while the
+// plugin bridge knows the caller as a Principal and goes through Project.
 func (n *Note) View(allowOwner bool) NoteView {
 	v := NoteView{
 		Path:       n.Path,
@@ -35,9 +49,12 @@ func (n *Note) View(allowOwner bool) NoteView {
 		Campaign:   n.Campaign,
 		Kind:       n.Kind,
 		Visibility: n.Visibility,
+		Workflow:   n.Workflow,
+		Body:       n.Body,
 		Headings:   n.Headings,
 		Aliases:    n.Aliases,
 		Tags:       n.Tags,
+		Revealed:   n.Revealed,
 	}
 	if allowOwner {
 		v.Player = n.Player
