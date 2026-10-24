@@ -27,17 +27,11 @@ import (
 )
 
 // ExportPlugin is the compiled-in export plugin.
-type ExportPlugin = exportPlugin
-
-type exportPlugin struct {
+type ExportPlugin struct {
 	ctx plugin.Context
 }
 
 // Alias kept for white-box tests that use the lowercase name.
-type exportPluginAlias = ExportPlugin
-
-var _ = exportPluginAlias{}
-
 var exportManifest = manifest.Manifest{
 	ID:          "demitable.export",
 	Name:        "Export",
@@ -60,9 +54,9 @@ var exportManifest = manifest.Manifest{
 	},
 }
 
-func (e *exportPlugin) ID() string { return "demitable.export" }
+func (e *ExportPlugin) ID() string { return "demitable.export" }
 
-func (e *exportPlugin) Enable(ctx plugin.Context) error {
+func (e *ExportPlugin) Enable(ctx plugin.Context) error {
 	e.ctx = ctx
 	svc := plugin.Service{ID: "export", Version: "1.0.0", Impl: e}
 	ctx.Services.Provide(svc)
@@ -162,9 +156,9 @@ func (e *exportPlugin) Enable(ctx plugin.Context) error {
 	return nil
 }
 
-func (e *exportPlugin) Disable() error { return nil }
+func (e *ExportPlugin) Disable() error { return nil }
 
-func (e *exportPlugin) Services() []plugin.Service {
+func (e *ExportPlugin) Services() []plugin.Service {
 	return []plugin.Service{{ID: "export", Version: "1.0.0", Impl: e}}
 }
 
@@ -256,10 +250,11 @@ type fieldKV struct {
 }
 
 type exportAsset struct {
-	Path string
-	Name string
-	MIME string
-	Data string // base64
+	Path    string
+	Name    string
+	RelPath string // vault-relative path with the leading "Assets/" stripped, for collision-free output
+	MIME    string
+	Data    string // base64
 }
 
 type exportDoc struct {
@@ -268,7 +263,7 @@ type exportDoc struct {
 	Assets []exportAsset
 }
 
-func (e *exportPlugin) visibleNotes(p vault.Principal) []vault.Note {
+func (e *ExportPlugin) visibleNotes(p vault.Principal) []vault.Note {
 	if e.ctx.Vault == nil {
 		return nil
 	}
@@ -283,7 +278,7 @@ func (e *exportPlugin) visibleNotes(p vault.Principal) []vault.Note {
 	return out
 }
 
-func (e *exportPlugin) buildDoc(p vault.Principal, title string, includeAssets bool) exportDoc {
+func (e *ExportPlugin) buildDoc(p vault.Principal, title string, includeAssets bool) exportDoc {
 	doc := exportDoc{Title: title}
 	notes := e.visibleNotes(p)
 	for i, n := range notes {
@@ -293,7 +288,12 @@ func (e *exportPlugin) buildDoc(p vault.Principal, title string, includeAssets b
 			Anchor: "note-" + fmt.Sprintf("%d", i),
 			Raw:    n,
 		}
-		// custom fields (inherit the note's visibility)
+		// Custom fields (inherit the note's visibility): NoteView carries
+		// only the reserved fields, so the export reads them from the raw
+		// note. Completeness therefore depends on the Visible check above
+		// having already excluded invisible notes; the projection alone
+		// would silently drop every GM-defined field. Do not move this read
+		// ahead of the Visible filter.
 		keys := make([]string, 0, len(n.Fields))
 		for k := range n.Fields {
 			keys = append(keys, k)
@@ -319,7 +319,7 @@ func (e *exportPlugin) buildDoc(p vault.Principal, title string, includeAssets b
 	return doc
 }
 
-func (e *exportPlugin) visibleAssets(p vault.Principal, notes []vault.Note) []exportAsset {
+func (e *ExportPlugin) visibleAssets(p vault.Principal, notes []vault.Note) []exportAsset {
 	if e.ctx.Vault == nil {
 		return nil
 	}
@@ -353,10 +353,11 @@ func (e *exportPlugin) visibleAssets(p vault.Principal, notes []vault.Note) []ex
 			continue
 		}
 		out = append(out, exportAsset{
-			Path: pth,
-			Name: filepath.Base(pth),
-			MIME: mimeForPath(pth),
-			Data: base64.StdEncoding.EncodeToString(data),
+			Path:    pth,
+			Name:    filepath.Base(pth),
+			RelPath: assetRelPath(pth),
+			MIME:    mimeForPath(pth),
+			Data:    base64.StdEncoding.EncodeToString(data),
 		})
 	}
 	return out
@@ -381,19 +382,28 @@ func mimeForPath(p string) string {
 	}
 }
 
+// assetRelPath returns the path an asset is written under inside the export's
+// assets/ directory. The leading "Assets/" is stripped so the output mirrors
+// the vault's own layout without a redundant segment, and the remaining
+// relative path is preserved so two assets that share a basename in
+// different folders cannot overwrite each other.
+func assetRelPath(p string) string {
+	rel := filepath.ToSlash(p)
+	rel = strings.TrimPrefix(rel, "Assets/")
+	if rel == "" {
+		rel = filepath.Base(p)
+	}
+	return rel
+}
+
 // ---- spike-style convenience: render to string ---------------------------
 
-// Export renders the visible campaign as a single HTML document string.
-func (e *exportPlugin) Export(p vault.Principal, title string) string {
-	doc := e.buildDoc(p, title, true)
+// Render returns the visible campaign as a single HTML document string.
+func (e *ExportPlugin) Render(p vault.Principal) string {
+	doc := e.buildDoc(p, "Campaign export", true)
 	var buf strings.Builder
 	_ = htmlDocTmpl.Execute(&buf, doc)
 	return buf.String()
-}
-
-// Render is an alias for Export.
-func (e *exportPlugin) Render(p vault.Principal) string {
-	return e.Export(p, "Campaign export")
 }
 
 // ---- file writers -------------------------------------------------------
@@ -458,7 +468,7 @@ figure img { max-width: 320px; }
 </html>
 `))
 
-func (e *exportPlugin) ExportHTML(p vault.Principal, outputPath string, includeAssets bool, title string) error {
+func (e *ExportPlugin) ExportHTML(p vault.Principal, outputPath string, includeAssets bool, title string) error {
 	doc := e.buildDoc(p, title, includeAssets)
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
 		return err
@@ -471,7 +481,7 @@ func (e *exportPlugin) ExportHTML(p vault.Principal, outputPath string, includeA
 	return htmlDocTmpl.Execute(f, doc)
 }
 
-func (e *exportPlugin) ExportSite(p vault.Principal, outDir string, includeAssets bool, title string) error {
+func (e *ExportPlugin) ExportSite(p vault.Principal, outDir string, includeAssets bool, title string) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
@@ -527,7 +537,7 @@ func (e *exportPlugin) ExportSite(p vault.Principal, outDir string, includeAsset
 			at := template.Must(template.New("assets").Parse(`<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>Assets</title></head>
 <body><h1>Assets</h1>
-{{range .Assets}}<figure><img src="assets/{{.Name}}" alt="{{.Name}}"><figcaption>{{.Path}}</figcaption></figure>{{end}}
+{{range .Assets}}<figure><img src="assets/{{.RelPath}}" alt="{{.Name}}"><figcaption>{{.Path}}</figcaption></figure>{{end}}
 <p><a href="index.html">Index</a></p>
 </body></html>`))
 			_ = at.Execute(af, doc)
@@ -542,13 +552,17 @@ func (e *exportPlugin) ExportSite(p vault.Principal, outDir string, includeAsset
 			if err != nil {
 				continue
 			}
-			_ = os.WriteFile(filepath.Join(adir, a.Name), data, 0o644)
+			target := filepath.Join(adir, filepath.FromSlash(a.RelPath))
+			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+				continue
+			}
+			_ = os.WriteFile(target, data, 0o644)
 		}
 	}
 	return nil
 }
 
-func (e *exportPlugin) ExportMarkdown(p vault.Principal, outDir string, includeAssets bool, title string) error {
+func (e *ExportPlugin) ExportMarkdown(p vault.Principal, outDir string, includeAssets bool, title string) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
@@ -628,7 +642,11 @@ func (e *exportPlugin) ExportMarkdown(p vault.Principal, outDir string, includeA
 			if err != nil {
 				continue
 			}
-			_ = os.WriteFile(filepath.Join(adir, a.Name), data, 0o644)
+			target := filepath.Join(adir, filepath.FromSlash(a.RelPath))
+			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+				continue
+			}
+			_ = os.WriteFile(target, data, 0o644)
 		}
 	}
 	// index file
@@ -665,37 +683,6 @@ func marshalFrontmatter(fm map[string]any) ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
-}
-
-// ExportCampaign is a generic entry point.
-func (e *exportPlugin) ExportCampaign(p vault.Principal, format, outputPath string, includeAssets bool, title string) error {
-	if title == "" {
-		title = "Campaign export"
-	}
-	switch format {
-	case "html":
-		return e.ExportHTML(p, outputPath, includeAssets, title)
-	case "site":
-		return e.ExportSite(p, outputPath, includeAssets, title)
-	case "markdown", "md":
-		return e.ExportMarkdown(p, outputPath, includeAssets, title)
-	default:
-		return fmt.Errorf("export: unknown format %q", format)
-	}
-}
-
-// RunExport alias.
-func (e *exportPlugin) RunExport(p vault.Principal, format, outputPath string, includeAssets bool, title string) error {
-	return e.ExportCampaign(p, format, outputPath, includeAssets, title)
-}
-
-// Aliases for hidden tests that may use other names.
-func (e *exportPlugin) ExportToFile(p vault.Principal, format, outputPath string, includeAssets bool, title string) error {
-	return e.ExportCampaign(p, format, outputPath, includeAssets, title)
-}
-
-func (e *exportPlugin) Write(p vault.Principal, format, outputPath string) error {
-	return e.ExportCampaign(p, format, outputPath, true, "Campaign export")
 }
 
 func init() {
