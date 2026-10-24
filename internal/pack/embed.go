@@ -2,14 +2,12 @@ package pack
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 )
 
 //go:embed all:packs
 var embeddedPacks embed.FS
-
-// Embedded is the embedded filesystem containing the shipped packs.
-var Embedded embed.FS = embeddedPacks
 
 // PacksFS returns the embedded packs filesystem rooted at "packs".
 func PacksFS() (fs.FS, error) {
@@ -22,8 +20,9 @@ func Example() (*Pack, error) {
 	if err != nil {
 		return nil, err
 	}
-	return LoadFS(sub, "example.yaml")
+	data, err := fs.ReadFile(sub, "example.yaml")
+	if err != nil {
+		return nil, fmt.Errorf("pack: read example.yaml: %w", err)
+	}
+	return Parse(data)
 }
-
-// ExamplePack is an alias for Example.
-func ExamplePack() (*Pack, error) { return Example() }

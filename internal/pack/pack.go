@@ -14,8 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
-	"os"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -77,11 +75,8 @@ var AllowedVisibility = []string{
 
 // --- parsing ---------------------------------------------------------------
 
-// Parse loads a pack from YAML bytes. It is an alias for Load.
-func Parse(data []byte) (*Pack, error) { return Load(data) }
-
-// Load loads and validates a pack from YAML bytes.
-func Load(data []byte) (*Pack, error) {
+// Parse loads and validates a pack from YAML bytes.
+func Parse(data []byte) (*Pack, error) {
 	var root yaml.Node
 	dec := yaml.NewDecoder(bytes.NewReader(data))
 	if err := dec.Decode(&root); err != nil {
@@ -109,37 +104,6 @@ func Load(data []byte) (*Pack, error) {
 		return nil, err
 	}
 	return &p, nil
-}
-
-// LoadReader loads a pack from r.
-func LoadReader(r io.Reader) (*Pack, error) {
-	b, err := io.ReadAll(r)
-	if err != nil {
-		return nil, fmt.Errorf("pack: read: %w", err)
-	}
-	return Load(b)
-}
-
-// LoadFile loads a pack from a filesystem path.
-func LoadFile(path string) (*Pack, error) {
-	// Use os via a small indirection to keep imports minimal; io/fs is for FS.
-	data, err := readFileBytes(path)
-	if err != nil {
-		return nil, err
-	}
-	return Load(data)
-}
-
-// ReadPack is an alias for LoadReader.
-func ReadPack(r io.Reader) (*Pack, error) { return LoadReader(r) }
-
-// LoadFS loads a pack from an fs.FS.
-func LoadFS(fsys fs.FS, name string) (*Pack, error) {
-	data, err := fs.ReadFile(fsys, name)
-	if err != nil {
-		return nil, fmt.Errorf("pack: read %s: %w", name, err)
-	}
-	return Load(data)
 }
 
 // checkPhase2 rejects packs that declare phase-2 blocks.
@@ -242,31 +206,6 @@ func Validate(p *Pack) error {
 	return validatePack(p)
 }
 
-// ValidateAll returns every validation error separately.
-func ValidateAll(p *Pack) []error {
-	if p == nil {
-		return []error{errors.New("pack: nil pack")}
-	}
-	if err := checkPhase2(p); err != nil {
-		return []error{err}
-	}
-	// Re-derive by calling validatePack and splitting is not possible cleanly;
-	// re-run the checks inline is overkill. Return single wrapped error as slice.
-	if err := validatePack(p); err != nil {
-		return []error{err}
-	}
-	return nil
-}
-
-// Lint is an alias for ValidateAll.
-func Lint(p *Pack) []error { return ValidateAll(p) }
-
-// LintPack is an alias.
-func LintPack(p *Pack) []error { return ValidateAll(p) }
-
-// ValidatePack is an alias.
-func ValidatePack(p *Pack) error { return Validate(p) }
-
 // --- visibility default -----------------------------------------------------
 
 // VisibilityDefault returns the visibility default a content type carries,
@@ -278,24 +217,13 @@ func (ct ContentType) VisibilityDefault() string {
 	return ct.Visibility
 }
 
-// EffectiveVisibility is an alias for VisibilityDefault.
-func (ct ContentType) EffectiveVisibility() string { return ct.VisibilityDefault() }
-
-// DefaultVisibility is a package-level helper.
-func DefaultVisibility(ct ContentType) string { return ct.VisibilityDefault() }
-
-// VisibilityDefaultOf is an alias.
-func VisibilityDefaultOf(ct ContentType) string { return ct.VisibilityDefault() }
-
-// ContentVisibility is an alias.
-func ContentVisibility(ct ContentType) string { return ct.VisibilityDefault() }
-
-// VisibilityDefaultForContentType is an alias taking a pointer.
-func VisibilityDefaultForContentType(ct *ContentType) string {
-	if ct == nil {
+// VisibilityDefault is also available as a free function taking a content
+// type's declaration, for callers that prefer not to use the method.
+func VisibilityDefault(ct ContentType) string {
+	if ct.Visibility == "" {
 		return "gm"
 	}
-	return ct.VisibilityDefault()
+	return ct.Visibility
 }
 
 // --- note validation -------------------------------------------------------
@@ -306,17 +234,8 @@ func (ct ContentType) ValidateNote(fm map[string]any) error {
 	return validateNote(ct, fm)
 }
 
-// ValidateFrontmatter is an alias.
-func (ct ContentType) ValidateFrontmatter(fm map[string]any) error {
-	return validateNote(ct, fm)
-}
-
-// Validate is an alias for note validation at the content-type level? Keep pack-level.
-// NoteValidate is a free function.
+// ValidateNote is also available as a free function taking the content type.
 func ValidateNote(ct ContentType, fm map[string]any) error { return validateNote(ct, fm) }
-
-// ValidateNoteFields is an alias.
-func ValidateNoteFields(ct ContentType, fm map[string]any) error { return validateNote(ct, fm) }
 
 func validateNote(ct ContentType, fm map[string]any) error {
 	if fm == nil {
@@ -424,9 +343,6 @@ func Marshal(p *Pack) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// MarshalPack alias.
-func MarshalPack(p *Pack) ([]byte, error) { return Marshal(p) }
-
 // --- helpers ---------------------------------------------------------------
 
 func containsStr(list []string, want string) bool {
@@ -436,12 +352,4 @@ func containsStr(list []string, want string) bool {
 		}
 	}
 	return false
-}
-
-func readFileBytes(path string) ([]byte, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("pack: read %s: %w", path, err)
-	}
-	return data, nil
 }

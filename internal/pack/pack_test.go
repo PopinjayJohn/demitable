@@ -1,6 +1,7 @@
 package pack
 
 import (
+	"io/fs"
 	"strings"
 	"testing"
 )
@@ -205,20 +206,15 @@ func TestVisibilityDefault(t *testing.T) {
 	if got := with.VisibilityDefault(); got != "party" {
 		t.Fatalf("with default: got %q", got)
 	}
-	if got := DefaultVisibility(with); got != "party" {
-		t.Fatalf("DefaultVisibility: got %q", got)
+	if got := VisibilityDefault(with); got != "party" {
+		t.Fatalf("VisibilityDefault: got %q", got)
 	}
 	without := ContentType{ID: "quest"}
 	if got := without.VisibilityDefault(); got != "gm" {
 		t.Fatalf("without default: got %q", got)
 	}
-	if got := DefaultVisibility(without); got != "gm" {
-		t.Fatalf("DefaultVisibility without: got %q", got)
-	}
-	// free function with pointer-ish
-	ct := &ContentType{ID: "x"}
-	if got := VisibilityDefaultForContentType(ct); got != "gm" {
-		t.Fatalf("got %q", got)
+	if got := VisibilityDefault(without); got != "gm" {
+		t.Fatalf("VisibilityDefault without: got %q", got)
 	}
 }
 
@@ -272,7 +268,11 @@ func TestExamplePackFromFS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := LoadFS(sub, "example.yaml")
+	data, err := fs.ReadFile(sub, "example.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := Parse(data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -336,6 +336,38 @@ func TestRoundTrip(t *testing.T) {
 		t.Fatalf("id mismatch: %q vs %q", p2.ID, data.ID)
 	}
 	if len(p2.Content) != len(data.Content) {
-		t.Fatalf("content types mismatch")
+		t.Fatalf("content types mismatch: %d vs %d", len(p2.Content), len(data.Content))
+	}
+	for i := range data.Content {
+		if p2.Content[i].ID != data.Content[i].ID {
+			t.Fatalf("content type %d id mismatch", i)
+		}
+		if len(p2.Content[i].Fields) != len(data.Content[i].Fields) {
+			t.Fatalf("content type %s field count mismatch", data.Content[i].ID)
+		}
+		for j := range data.Content[i].Fields {
+			if p2.Content[i].Fields[j].Key != data.Content[i].Fields[j].Key {
+				t.Fatalf("field key mismatch")
+			}
+			if p2.Content[i].Fields[j].Type != data.Content[i].Fields[j].Type {
+				t.Fatalf("field type mismatch")
+			}
+			if p2.Content[i].Fields[j].Visibility != data.Content[i].Fields[j].Visibility {
+				t.Fatalf("field visibility mismatch")
+			}
+		}
+	}
+}
+
+func TestYAML11BooleanWordsAccepted(t *testing.T) {
+	for _, word := range []string{"yes", "no", "on", "off", "y", "n"} {
+		src := "id: x\nname: X\nversion: 1.0.0\ncontent: []\nnote: " + word + "\n"
+		_, err := Parse([]byte(src))
+		if err == nil {
+			continue
+		}
+		if strings.Contains(err.Error(), "boolean") || strings.Contains(err.Error(), "timestamp") {
+			t.Fatalf("word %q rejected by profile: %v", word, err)
+		}
 	}
 }
