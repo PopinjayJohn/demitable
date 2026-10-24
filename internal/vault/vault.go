@@ -445,6 +445,51 @@ func (v *Vault) LiteralIndex() *LiteralIndex {
 	return v.Literal
 }
 
+// AssetPaths returns the vault-relative paths of every non-note file under
+// the vault root. Assets live anywhere in the tree; notes are *.md.
+func (v *Vault) AssetPaths() []string {
+	if v.Root == "" {
+		return nil
+	}
+	var out []string
+	_ = filepath.WalkDir(v.Root, func(p string, d os.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(v.Root, p)
+		if err != nil {
+			return nil
+		}
+		rel = filepath.ToSlash(rel)
+		if strings.HasSuffix(strings.ToLower(rel), ".md") {
+			return nil
+		}
+		out = append(out, rel)
+		return nil
+	})
+	return out
+}
+
+// AssetBytes reads an asset's bytes, refusing paths that escape the root.
+func (v *Vault) AssetBytes(path string) ([]byte, error) {
+	if v.Root == "" {
+		return nil, fmt.Errorf("vault: no root")
+	}
+	clean := filepath.ToSlash(filepath.Clean(path))
+	if clean == "." || strings.HasPrefix(clean, "..") || strings.HasPrefix(clean, "/") {
+		return nil, fmt.Errorf("vault: bad asset path %q", path)
+	}
+	full := filepath.Join(v.Root, filepath.FromSlash(clean))
+	data, err := os.ReadFile(full)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 // UpdateNote replaces a note's file content after a write.
 func (v *Vault) UpdateNote(uid string, data []byte) error {
 	v.mu.RLock()
