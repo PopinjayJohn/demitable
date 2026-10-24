@@ -200,10 +200,6 @@ func (j *Journal) RevertBatch(batchID string) error {
 	return nil
 }
 
-// AppendWrite must set ID before append. Fix AppendWrite: generate ID first.
-// Patch Append to not overwrite? We'll adjust: set e.ID before Append call.
-// Currently Append generates ID if empty but doesn't return. Need AppendWrite generate ID.
-
 func init() { /* noop */ }
 
 var entryCounter uint64
