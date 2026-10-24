@@ -160,3 +160,34 @@ func (s *Store) SearchFTS(query string) ([]string, error) {
 	}
 	return out, rows.Err()
 }
+
+// SearchFTSIn runs a MATCH query restricted to the given uid set, so a
+// non-GM caller's ranking cannot be influenced by GM-only notes (M5).
+func (s *Store) SearchFTSIn(uids []string, query string) ([]string, error) {
+	if len(uids) == 0 {
+		return nil, nil
+	}
+	// Build a parameterised IN clause.
+	placeholders := make([]string, len(uids))
+	args := make([]any, 0, len(uids)+1)
+	args = append(args, query)
+	for i, u := range uids {
+		placeholders[i] = "?"
+		args = append(args, u)
+	}
+	q := "SELECT uid FROM note_fts WHERE note_fts MATCH ? AND uid IN (" + strings.Join(placeholders, ",") + ")"
+	rows, err := s.db.Query(q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var u string
+		if err := rows.Scan(&u); err != nil {
+			return nil, err
+		}
+		out = append(out, u)
+	}
+	return out, rows.Err()
+}

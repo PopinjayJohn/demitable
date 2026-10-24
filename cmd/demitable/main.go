@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"net/http"
+"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -139,7 +139,7 @@ func run(args []string) error {
 
 	handler := mux()
 	if vlt != nil {
-		handler = muxWithVault(vlt)
+		handler = muxWithVault(vlt, audit, cfg)
 	}
 	srv := &http.Server{
 		Handler:           handler,
@@ -226,8 +226,20 @@ func registerFallback(m *http.ServeMux) {
 	})
 }
 
-// muxWithVault wraps mux() with vault-backed routes.
-func muxWithVault(vlt *vault.Vault) http.Handler {
+// muxWithVault wraps mux() with vault-backed routes. Optional extras may
+// carry an *logging.Audit and a config.Config (in any order) so the auth
+// routes can record audit events and read the public scheme.
+func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
+	var audit *logging.Audit
+	var cfg config.Config
+	for _, e := range extras {
+		switch v := e.(type) {
+		case *logging.Audit:
+			audit = v
+		case config.Config:
+			cfg = v
+		}
+	}
 	m := mux().(*http.ServeMux)
 	m.HandleFunc("GET /api/v1/notes", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -245,6 +257,17 @@ func muxWithVault(vlt *vault.Vault) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+		// Under --expose, a read of a GM-only note is an audit event.
+		if cfg.Expose && (n.Visibility == "gm" || !isKnownVis(n.Visibility)) && audit != nil {
+			principal := "anonymous"
+			if c := principalFromRequest(r, tokenKeyFor(vlt)); c.Kind != "" {
+				principal = c.Kind
+				if c.ID != "" {
+					principal = c.Kind + ":" + c.ID
+				}
+			}
+			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
+		}
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
 			"uid":     n.UID,
@@ -257,6 +280,11 @@ func muxWithVault(vlt *vault.Vault) http.Handler {
 	})
 	allowAll := func(ctx context.Context, caller assets.Caller, p string) bool { return true }
 	m.Handle("GET /asset/", assets.Handler(vlt.Root, allowAll))
+
+	// Auth surface (M5a).
+	limiter := newAuthLimiter()
+	authHandlers(m, vlt, audit, cfg, limiter)
+
 	return m
 }
 
