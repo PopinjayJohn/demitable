@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -18,10 +19,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/PopinjayJohn/demitable/internal/assets"
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
+	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
 // version is stamped at build time with -ldflags "-X main.version=...".
@@ -79,10 +82,32 @@ func run(args []string) error {
 		return fmt.Errorf("open the store: %w", err)
 	}
 
+	// Open the vault, if one was named. The vault service owns reading,
+	// indexing and watching; the server serves from its index.
+	var vlt *vault.Vault
+	var wtr *vault.Watcher
+	if cfg.Vault != "" {
+		v, err := vault.Open(cfg.Vault)
+		if err != nil {
+			st.Close()
+			return fmt.Errorf("open the vault: %w", err)
+		}
+		vlt = v
+		wtr = vault.NewWatcher(v)
+	}
+
+	logger := log.With("version", version)
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	logger := log.With("version", version)
+	if wtr != nil {
+		go func() {
+			if err := wtr.Start(ctx); err != nil {
+				logger.Warn("watcher stopped", "err", err)
+			}
+		}()
+	}
 	if audit != nil {
 		logger.Warn("audit log is opened but no events are recorded yet")
 	}
@@ -108,8 +133,12 @@ func run(args []string) error {
 		go openBrowser(urlStr, logger)
 	}
 
+	handler := mux()
+	if vlt != nil {
+		handler = muxWithVault(vlt)
+	}
 	srv := &http.Server{
-		Handler:           mux(),
+		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -125,6 +154,9 @@ func run(args []string) error {
 	select {
 	case err := <-errCh:
 		if err != nil {
+			if wtr != nil {
+				wtr.Stop()
+			}
 			st.Close()
 			return err
 		}
@@ -135,8 +167,14 @@ func run(args []string) error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
+		if wtr != nil {
+			wtr.Stop()
+		}
 		st.Close()
 		return fmt.Errorf("shutdown: %w", err)
+	}
+	if wtr != nil {
+		wtr.Stop()
 	}
 	if err := st.Close(); err != nil {
 		return fmt.Errorf("store close: %w", err)
@@ -182,6 +220,40 @@ func registerFallback(m *http.ServeMux) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		fmt.Fprintln(w, "Demitable.")
 	})
+}
+
+// muxWithVault wraps mux() with vault-backed routes.
+func muxWithVault(vlt *vault.Vault) http.Handler {
+	m := mux().(*http.ServeMux)
+	m.HandleFunc("GET /api/v1/notes", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		notes := vlt.AllNotes()
+		out := make([]vault.NoteView, 0, len(notes))
+		for _, n := range notes {
+			out = append(out, n.View(true))
+		}
+		_ = json.NewEncoder(w).Encode(out)
+	})
+	m.HandleFunc("GET /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		payload := map[string]any{
+			"uid":     n.UID,
+			"path":    n.Path,
+			"name":    n.Name,
+			"view":    n.View(true),
+			"content": string(n.Raw),
+		}
+		_ = json.NewEncoder(w).Encode(payload)
+	})
+	allowAll := func(ctx context.Context, caller assets.Caller, p string) bool { return true }
+	m.Handle("GET /asset/", assets.Handler(vlt.Root, allowAll))
+	return m
 }
 
 // mux is the HTTP surface.
