@@ -22,6 +22,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
+	_ "github.com/PopinjayJohn/demitable/plugins"
 )
 
 // version is stamped at build time with -ldflags "-X main.version=...".
