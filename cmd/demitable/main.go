@@ -133,6 +133,11 @@ func run(args []string) error {
 		logger.Warn("expose mode enabled; binding to all interfaces")
 	}
 
+	// The trusted proxy decides whose forwarded headers we believe
+	// (ADR-0031). Parsing it once here keeps the check off the request
+	// path.
+	setTrustedProxy(cfg.TrustProxy)
+
 	if !cfg.NoBrowser && !cfg.Expose {
 		go openBrowser(urlStr, logger)
 	}

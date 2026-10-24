@@ -272,7 +272,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 	secure := cfg.Expose || (cfg.PublicURL != "" && strings.HasPrefix(cfg.PublicURL, "https"))
 
 	m.HandleFunc("POST /api/v1/auth/login", func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
+		ip := clientIP(r)
 		if !limiter.allow(ip) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
@@ -327,7 +327,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 	})
 
 	m.HandleFunc("POST /api/v1/auth/join", func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
+		ip := clientIP(r)
 		if !limiter.allow(ip) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
@@ -393,7 +393,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 	})
 
 	m.HandleFunc("POST /api/v1/auth/gm", func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
+		ip := clientIP(r)
 		if !limiter.allow(ip) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
