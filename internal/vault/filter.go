@@ -306,6 +306,20 @@ func toFloat64(v any) (float64, error) {
 	return 0, fmt.Errorf("not number")
 }
 
+// sortNotes sorts the notes in place.
+//
+// The sort key is precomputed into a parallel slice, which is what keeps a
+// 5,000-note sort inside the 100 ms criterion (the comparator is called
+// O(n log n) times, and re-reading the field each time is what made it
+// slow).
+//
+// **The keys must travel with the notes.** A `sort.SliceStable` over the
+// notes alone, comparing against a parallel key slice indexed by the
+// original position, desynchronises the two the moment the first swap
+// happens - the keys stay where they were while the notes move. The
+// result is a sort that is not sorted.
+//
+// So the notes and their keys are sorted together, as one slice of pairs.
 func sortNotes(out []Note, sortKey string, desc bool) {
 	if sortKey == "" {
 		sort.SliceStable(out, func(i, j int) bool {
@@ -316,50 +330,71 @@ func sortNotes(out []Note, sortKey string, desc bool) {
 		})
 		return
 	}
-	// Precompute sort keys once to avoid repeated allocations in the
-	// comparator (this is what keeps 5 000-note sorts under 100 ms).
-	keys := make([]any, len(out))
+	// Precompute sort keys once, to avoid repeated allocations in the
+	// comparator.
+	keys := make([]noteSortKey, len(out))
 	for i := range out {
 		v, _ := fieldValue(out[i], sortKey)
-		keys[i] = v
+		keys[i] = noteSortKey{value: v, index: i}
 	}
 	// Detect numeric sort.
 	numeric := true
 	for _, k := range keys {
-		if _, err := toFloat64(k); err != nil {
+		if _, err := toFloat64(k.value); err != nil {
 			numeric = false
 			break
 		}
 	}
 	if numeric {
-		nums := make([]float64, len(keys))
-		for i, k := range keys {
-			f, _ := toFloat64(k)
-			nums[i] = f
+		for i := range keys {
+			f, _ := toFloat64(keys[i].value)
+			keys[i].num = f
+			keys[i].isNum = true
 		}
-		sort.SliceStable(out, func(i, j int) bool {
+		sort.SliceStable(keys, func(i, j int) bool {
 			if desc {
-				return nums[i] > nums[j]
+				return keys[i].num > keys[j].num
 			}
-			return nums[i] < nums[j]
+			return keys[i].num < keys[j].num
 		})
-		return
-	}
-	// String sort keys, lowercased once.
-	strs := make([]string, len(keys))
-	for i, k := range keys {
-		if fv, ok := k.(frontmatter.Value); ok {
-			strs[i] = strings.ToLower(fv.String())
-		} else {
-			strs[i] = strings.ToLower(fmt.Sprintf("%v", k))
+	} else {
+		// String sort keys, lowercased once.
+		for i := range keys {
+			keys[i].str = strings.ToLower(sortKeyString(keys[i].value))
 		}
+		sort.SliceStable(keys, func(i, j int) bool {
+			if desc {
+				return keys[i].str > keys[j].str
+			}
+			return keys[i].str < keys[j].str
+		})
 	}
-	sort.SliceStable(out, func(i, j int) bool {
-		if desc {
-			return strs[i] > strs[j]
-		}
-		return strs[i] < strs[j]
-	})
+	// Put the notes back in the order the keys sorted to.
+	sorted := make([]Note, len(out))
+	for i := range keys {
+		sorted[i] = out[keys[i].index]
+	}
+	copy(out, sorted)
+}
+
+// noteSortKey is one note's sort key, and the note's original position,
+// so that the two can travel together through the sort.
+type noteSortKey struct {
+	value any
+	// index is the note's position in the slice being sorted.
+	index int
+	// num and str are the precomputed comparison forms.
+	num   float64
+	isNum bool
+	str   string
+}
+
+// sortKeyString renders a sort key as the string it compares by.
+func sortKeyString(v any) string {
+	if fv, ok := v.(frontmatter.Value); ok {
+		return fv.String()
+	}
+	return fmt.Sprintf("%v", v)
 }
 
 func compareValues(a, b any) int {
