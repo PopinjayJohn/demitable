@@ -82,7 +82,14 @@ func Visible(p Principal, n Note) bool {
 
 	membership := false
 	if n.Campaign != "" {
-		membership = contains(p.Campaigns, n.Campaign)
+		if p.IsDisplay() && len(p.Campaigns) == 0 {
+			// A display with no explicit campaign is the screen for the
+			// vault's (single) campaign: it sees party-visible notes in
+			// any campaign, matching the demo campaign's expectation.
+			membership = true
+		} else {
+			membership = contains(p.Campaigns, n.Campaign)
+		}
 	}
 
 	switch vis {
