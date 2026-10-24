@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
 )
 
@@ -12,6 +13,7 @@ func (s *Store) Migrate() error {
 			uid TEXT PRIMARY KEY,
 			path TEXT NOT NULL,
 			title TEXT,
+			fts_rowid INTEGER,
 			updated_at INTEGER
 		);`,
 		`CREATE VIRTUAL TABLE IF NOT EXISTS note_fts USING fts5(
@@ -32,34 +34,71 @@ func (s *Store) Migrate() error {
 	return nil
 }
 
+// NoteRecord is a flat record for store insertion.
+type NoteRecord struct {
+	UID      string
+	Path     string
+	Title    string
+	Aliases  []string
+	Headings []string
+	Tags     []string
+	Body     string
+}
+
 // UpsertNote inserts or replaces a note row and its FTS entry.
 func (s *Store) UpsertNote(uid, path, title string, aliases, headings, tags []string, body string) error {
+	return s.UpsertNotes([]NoteRecord{{UID: uid, Path: path, Title: title, Aliases: aliases, Headings: headings, Tags: tags, Body: body}})
+}
+
+// UpsertNotes inserts or replaces many notes in one transaction.
+func (s *Store) UpsertNotes(notes []NoteRecord) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
-	if _, err := tx.Exec(`INSERT INTO notes(uid,path,title,updated_at) VALUES(?,?,?,?) ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,updated_at=excluded.updated_at`,
-		uid, path, title, 0); err != nil {
-		return err
+	// Pre-load existing fts rowids in one query to avoid per-row lookups.
+	oldRowids := map[string]int64{}
+	rows, _ := tx.Query(`SELECT uid, fts_rowid FROM notes`)
+	if rows != nil {
+		for rows.Next() {
+			var uid string
+			var rid sql.NullInt64
+			rows.Scan(&uid, &rid)
+			if rid.Valid {
+				oldRowids[uid] = rid.Int64
+			}
+		}
+		rows.Close()
 	}
-	// remove old fts row
-	if _, err := tx.Exec(`DELETE FROM note_fts WHERE uid = ?`, uid); err != nil {
-		return err
-	}
-	if _, err := tx.Exec(`INSERT INTO note_fts(uid,title,aliases,headings,tags,body) VALUES(?,?,?,?,?,?)`,
-		uid, title, join(aliases), join(headings), join(tags), body); err != nil {
-		return err
+	for _, n := range notes {
+		if rid, ok := oldRowids[n.UID]; ok {
+			if _, err := tx.Exec(`DELETE FROM note_fts WHERE rowid = ?`, rid); err != nil {
+				return err
+			}
+		}
+		res, err := tx.Exec(`INSERT INTO note_fts(uid,title,aliases,headings,tags,body) VALUES(?,?,?,?,?,?)`,
+			n.UID, n.Title, join(n.Aliases), join(n.Headings), join(n.Tags), n.Body)
+		if err != nil {
+			return err
+		}
+		rid, err := res.LastInsertId()
+		if err != nil {
+			return err
+		}
+		if _, err := tx.Exec(`INSERT INTO notes(uid,path,title,fts_rowid,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,fts_rowid=excluded.fts_rowid,updated_at=excluded.updated_at`,
+			n.UID, n.Path, n.Title, rid, 0); err != nil {
+			return err
+		}
 	}
 	return tx.Commit()
 }
 
-func join(ss []string) string { return "" + joinStrings(ss, " ") }
-func joinStrings(ss []string, sep string) string {
+func join(ss []string) string {
 	out := ""
 	for i, s := range ss {
 		if i > 0 {
-			out += sep
+			out += " "
 		}
 		out += s
 	}
@@ -83,5 +122,3 @@ func (s *Store) SearchFTS(query string) ([]string, error) {
 	}
 	return out, rows.Err()
 }
-
-// end of file
