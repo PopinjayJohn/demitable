@@ -250,3 +250,9 @@ func resolveWikiLinks(s string, links *[]Link) string {
 }
 
 // checkBounds is implemented in bounds.go.
+
+// ExtractMarkdown exposes the Go-side extraction for conformance tooling.
+func ExtractMarkdown(body string) (string, []Link) {
+	text, _, links := extractPlaintext(body, nil)
+	return text, links
+}

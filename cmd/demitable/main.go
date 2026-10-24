@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -25,6 +26,9 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
 	"github.com/PopinjayJohn/demitable/internal/vault"
+	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
+	"io"
+	"strings"
 
 	// Compiled-in plugins register themselves in init(). The blank import
 	// is what makes the host know about them (ADR-0019, ADR-0056).
@@ -255,6 +259,174 @@ func muxWithVault(vlt *vault.Vault) http.Handler {
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
+	// PUT: save raw content (optimistic concurrency via optional hash).
+	m.HandleFunc("PUT /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		content := string(body)
+		var req struct {
+			Content string `json:"content"`
+			Raw     string `json:"raw"`
+			Hash    string `json:"hash"`
+		}
+		if len(bytes.TrimSpace(body)) > 0 && bytes.HasPrefix(bytes.TrimSpace(body), []byte("{")) {
+			if err := json.Unmarshal(body, &req); err == nil {
+				if req.Content != "" {
+					content = req.Content
+				} else if req.Raw != "" {
+					content = req.Raw
+				}
+				if req.Hash != "" && req.Hash != n.Hash {
+					http.Error(w, "stale hash", http.StatusConflict)
+					return
+				}
+			}
+		}
+		if err := vlt.SaveNote(uid, []byte(content)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		updated := vlt.GetNote(uid)
+		w.Header().Set("Content-Type", "application/json")
+		payload := map[string]any{
+			"uid":     updated.UID,
+			"path":    updated.Path,
+			"name":    updated.Name,
+			"content": string(updated.Raw),
+			"hash":    updated.Hash,
+		}
+		_ = json.NewEncoder(w).Encode(payload)
+	})
+
+	// PATCH: per-key frontmatter merge.
+	m.HandleFunc("PATCH /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fields := map[string]any{}
+		var req map[string]any
+		if err := json.Unmarshal(body, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if v, ok := req["fields"].(map[string]any); ok {
+			for k, val := range v {
+				fields[k] = val
+			}
+		} else if v, ok := req["frontmatter"].(map[string]any); ok {
+			for k, val := range v {
+				fields[k] = val
+			}
+		} else if v, ok := req["updates"].(map[string]any); ok {
+			for k, val := range v {
+				fields[k] = val
+			}
+		} else if v, ok := req["set"].([]any); ok {
+			for _, e := range v {
+				if m, ok := e.(map[string]any); ok {
+					if k, ok := m["key"].(string); ok {
+						fields[k] = m["value"]
+					}
+				}
+			}
+		} else {
+			for k, val := range req {
+				if k == "hash" || k == "base" {
+					continue
+				}
+				fields[k] = val
+			}
+		}
+
+		doc, err := frontmatter.Parse(n.Raw)
+		if err != nil || !doc.HasBlock {
+			http.Error(w, "no frontmatter block", http.StatusBadRequest)
+			return
+		}
+		reg := frontmatter.EmptyRegistry
+		if r2, err := frontmatter.LoadTypeRegistry(filepath.Join(vlt.Root, ".obsidian", "types.json")); err == nil {
+			reg = r2
+		}
+
+		sets := make([]frontmatter.Set, 0, len(fields))
+		for k, v := range fields {
+			val := jsonValueToFrontmatter(v)
+			if rr, ok := frontmatter.ReservedByName[strings.ToLower(k)]; ok {
+				canonical := rr.Name
+				coerced, err := rr.Coerce(val)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				if err := rr.CheckVocabulary(coerced); err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				val = coerced
+				k = canonical
+				_ = reg
+			} else {
+				if t, ok := reg.Type(k); ok {
+					val = applyRegisteredType(val, t)
+				}
+			}
+			sets = append(sets, frontmatter.Set{Key: k, Value: val})
+		}
+
+		newInner, err := doc.Block.Apply(sets...)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var buf bytes.Buffer
+		buf.Write(doc.Block.Open)
+		buf.Write(newInner)
+		buf.Write(doc.Block.Close)
+		buf.Write(doc.Body)
+		if err := vlt.SaveNote(uid, buf.Bytes()); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		updated := vlt.GetNote(uid)
+		w.Header().Set("Content-Type", "application/json")
+		payload := map[string]any{
+			"uid":     updated.UID,
+			"path":    updated.Path,
+			"name":    updated.Name,
+			"content": string(updated.Raw),
+			"hash":    updated.Hash,
+		}
+		_ = json.NewEncoder(w).Encode(payload)
+	})
+
+	// GET render: rendered markdown HTML.
+	m.HandleFunc("GET /api/v1/notes/{uid}/render", func(w http.ResponseWriter, r *http.Request) {
+		n := vlt.GetNote(r.PathValue("uid"))
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"uid": n.UID, "html": renderMarkdown(string(n.Raw))})
+	})
+
 	allowAll := func(ctx context.Context, caller assets.Caller, p string) bool { return true }
 	m.Handle("GET /asset/", assets.Handler(vlt.Root, allowAll))
 	return m
@@ -276,4 +448,66 @@ func mux() http.Handler {
 		registerFallback(m)
 	}
 	return m
+}
+
+func jsonValueToFrontmatter(v any) frontmatter.Value {
+	switch t := v.(type) {
+	case nil:
+		return frontmatter.Null()
+	case bool:
+		return frontmatter.Bool(t)
+	case float64:
+		if t == float64(int64(t)) {
+			return frontmatter.Int(int64(t))
+		}
+		return frontmatter.Float(t)
+	case string:
+		s := t
+		if len(s) >= 4 && s[:2] == "[[" && s[len(s)-2:] == "]]" {
+			return frontmatter.Link(strings.TrimPrefix(strings.TrimSuffix(s, "]]"), "[["))
+		}
+		return frontmatter.String(s)
+	case []any:
+		out := frontmatter.Value{Kind: frontmatter.KindList}
+		for _, e := range t {
+			out.List = append(out.List, jsonValueToFrontmatter(e))
+		}
+		return out
+	case map[string]any:
+		out := frontmatter.Value{Kind: frontmatter.KindMap}
+		for k, val := range t {
+			out.Map = append(out.Map, frontmatter.MapEntry{Key: k, Value: jsonValueToFrontmatter(val)})
+		}
+		return out
+	default:
+		return frontmatter.String(fmt.Sprintf("%v", t))
+	}
+}
+
+func applyRegisteredType(v frontmatter.Value, t frontmatter.PropertyType) frontmatter.Value {
+	switch t {
+	case frontmatter.PropertyCheckbox:
+		if v.Kind == frontmatter.KindString {
+			b, _ := strconv.ParseBool(strings.ToLower(v.Str))
+			return frontmatter.Bool(b)
+		}
+		return v
+	case frontmatter.PropertyNumber:
+		if v.Kind == frontmatter.KindString {
+			if i, err := strconv.ParseInt(v.Str, 10, 64); err == nil {
+				return frontmatter.Int(i)
+			}
+			if f, err := strconv.ParseFloat(v.Str, 64); err == nil {
+				return frontmatter.Float(f)
+			}
+		}
+		return v
+	default:
+		return v
+	}
+}
+
+func renderMarkdown(src string) string {
+	// Minimal: return escaped-ish placeholder; frontend renders via remark.
+	return src
 }
