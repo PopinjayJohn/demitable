@@ -3,9 +3,12 @@ package formula
 import "fmt"
 
 type parser struct {
-	toks []token
-	pos  int
+	toks      []token
+	pos       int
+	nodeCount int
 }
+
+const maxNodes = 10000
 
 const maxParseDepth = 1024
 
@@ -244,6 +247,10 @@ func (p *parser) parsePostfix(depth int) (Expr, error) {
 }
 
 func (p *parser) parsePrimary(depth int) (Expr, error) {
+	p.nodeCount++
+	if p.nodeCount > maxNodes {
+		return nil, fmt.Errorf("formula: expression too large")
+	}
 	tok := p.peek()
 	switch tok.kind {
 	case tkNumber:

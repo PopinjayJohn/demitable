@@ -30,7 +30,11 @@ type lexer struct {
 
 func (l *lexer) lexAll() ([]token, error) {
 	var out []token
+	const maxTokens = 100000
 	for {
+		if len(out) > maxTokens {
+			return nil, fmt.Errorf("formula: expression too large")
+		}
 		l.skipWS()
 		if l.i >= len(l.src) {
 			out = append(out, token{kind: tkEOF, pos: l.i})
