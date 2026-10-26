@@ -18,6 +18,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 )
 
@@ -288,7 +289,11 @@ func (v *Vault) parseFile(rel string) (*Note, error) {
 	}
 
 	if note.UID == "" {
-		note.UID = newUID()
+		u, err := uid.New()
+		if err != nil {
+			return nil, fmt.Errorf("vault: uid: %w", err)
+		}
+		note.UID = u
 	}
 	if note.Name == "" {
 		note.Name = strings.TrimSuffix(filepath.Base(rel), filepath.Ext(rel))
@@ -340,13 +345,6 @@ func frontmatterExtractOpts(n *Note) interface{} { return nil }
 
 // Prose field added below via separate? Go struct needs field. Add to Note struct.
 // We'll instead add field now by editing struct? Already wrote struct without Prose. Need edit.
-
-var uidCounter uint64
-
-func newUID() string {
-	uidCounter++
-	return fmt.Sprintf("u%d", uidCounter)
-}
 
 // addNote registers a note in the vault and the literal index.
 func (v *Vault) addNote(n *Note) {
