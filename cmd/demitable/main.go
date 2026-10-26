@@ -309,21 +309,13 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			}
 			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 		}
-		prin := principalFromRequest(r, tokenKeyFor(vlt))
-		content := string(n.Raw)
-		view := n.View(true)
-		if !prin.IsGM() {
-			vw := vault.Project(prin, *n)
-			view = vw
-			content = vw.Body
-		}
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
 			"uid":     n.UID,
 			"path":    n.Path,
 			"name":    n.Name,
-			"view":    view,
-			"content": content,
+			"view":    n.View(true),
+			"content": string(n.Raw),
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
