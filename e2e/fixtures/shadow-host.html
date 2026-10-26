@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shadow Host Harness (ADR-0029)</title>
+<style>
+  :root { --brand: rgb(0,128,0); --spacing: 12px; }
+  body { font-family: "DejaVu Sans", sans-serif; color: rgb(1,2,3); line-height: 1.65; margin: 8px; }
+  div { padding: 3px; }
+  #host { border: 1px solid #ccc; display: block; }
+  /* outer-tree rule: must beat a shadow :host rule at equal importance (R5) */
+  #host { color: rgb(4,5,6); }
+  #light-src, #light-target, #shadow-src-host, #shadow-target-host { padding: 4px; margin: 4px; border: 1px solid #888; display: inline-block; }
+</style>
+</head>
+<body>
+  <div id="light-ancestor">
+    <div id="host"></div>
+  </div>
+
+  <div id="light-src" draggable="true">LIGHT_SOURCE</div>
+  <div id="light-target" class="dropzone">LIGHT_TARGET</div>
+
+  <dialog id="dlg"><button id="dlg-a">A</button><button id="dlg-b">B</button></dialog>
+
+  <script>
+    const host = document.getElementById('host');
+    const shadow = host.attachShadow({ mode: 'open' });
+    shadow.innerHTML = `
+      <style>
+        :host { color: rgb(100,100,100); display: block; }
+        div { color: rgb(0,0,255); padding: 11px; }
+        #inner { }
+        #brand { color: var(--brand); }
+        #adopted-probe { color: rgb(1,2,3); }
+        button { font-family: Arial; }
+      </style>
+      <div id="inner">SpanText</div>
+      <span id="span-elem">SpanTextBeta</span>
+      <div id="brand">brand</div>
+      <div id="adopted-probe">adopted</div>
+      <button id="btn">btn</button>
+    `;
+
+    // adopted stylesheet (R9)
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync('#adopted-probe { color: rgb(7,7,7); }');
+    shadow.adoptedStyleSheets = [sheet];
+
+    // shadow-side drag nodes
+    const shadowSrc = document.createElement('div');
+    shadowSrc.id = 'shadow-src'; shadowSrc.draggable = true; shadowSrc.textContent = 'SHADOW_SOURCE';
+    const shadowTgt = document.createElement('div');
+    shadowTgt.id = 'shadow-target'; shadowTgt.className = 'dropzone'; shadowTgt.textContent = 'SHADOW_TARGET';
+    shadow.appendChild(shadowSrc);
+    shadow.appendChild(shadowTgt);
+
+    function setupDrag(src, payload) {
+      src.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', payload);
+        e.dataTransfer.setData('application/x-monster', JSON.stringify({ id: 42, name: 'Gelatinous Cube' }));
+      });
+    }
+    function setupDrop(tgt) {
+      tgt.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+      tgt.addEventListener('drop', (e) => { e.preventDefault(); tgt.setAttribute('data-dropped', e.dataTransfer.getData('text/plain')); });
+    }
+    setupDrag(document.getElementById('light-src'), 'payload-light');
+    setupDrag(shadowSrc, 'payload-shadow');
+    setupDrop(document.getElementById('light-target'));
+    setupDrop(shadowTgt);
+
+    // expose
+    window.__host = host;
+    window.__shadow = shadow;
+    window.__inner = shadow.getElementById('inner');
+  </script>
+</body>
+</html>

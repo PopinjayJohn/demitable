@@ -113,6 +113,16 @@ tidy: ## go mod tidy
 .PHONY: check
 check: fmt vet test ## what CI runs
 
+# --- e2e (cross-browser harness) -------------------------------------------
+
+.PHONY: e2e
+e2e: ## run the Playwright cross-browser harness (chromium + firefox)
+ifdef HAVE_WEB
+	npm --prefix web ci
+endif
+	npm --prefix e2e ci
+	bash e2e/scripts/run.sh
+
 # --- run --------------------------------------------------------------------
 
 .PHONY: run
