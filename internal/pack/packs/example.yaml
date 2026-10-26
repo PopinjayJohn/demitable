@@ -51,3 +51,15 @@ dice:
       dice: "1d20"
       direction: low
       against: dc
+    - key: simple
+      label: Simple Roll
+      dice: "1d6"
+
+attributes:
+  - { key: rating, label: Rating, type: number, default: 1 }
+
+resources:
+  - { key: hp, label: Hit Points, kind: pool, default: 1, maxFormula: max_hp, visibility: owner }
+
+formulas:
+  max_hp: "10 + attributes.rating"
