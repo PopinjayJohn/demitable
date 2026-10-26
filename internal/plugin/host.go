@@ -82,8 +82,24 @@ func (h *Host) LoadPluginsFromVault(root string) (int, error) {
 	return n, err
 }
 
-// DisableAll marks every plugin disabled.
-func (h *Host) DisableAll() { h.mu.Lock(); h.disabled = true; h.mu.Unlock() }
+// DisableAll is the kill switch: it stops every instance of every plugin and
+// refuses new ones until EnableAll. Unlike Disable, it actually closes the
+// instances rather than setting a flag and leaving them running — a host
+// that says "all plugins are disabled" must not still be executing them.
+func (h *Host) DisableAll() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.disabled = true
+	for id, instances := range h.instances {
+		for key, inst := range instances {
+			h.closeInstanceLocked(inst)
+			delete(instances, key)
+		}
+		if len(instances) == 0 {
+			delete(h.instances, id)
+		}
+	}
+}
 
 // EnableAll clears the disabled flag.
 func (h *Host) EnableAll() { h.mu.Lock(); h.disabled = false; h.mu.Unlock() }
@@ -190,7 +206,9 @@ func (h *Host) Enable(id string, p vault.Principal) (*hostInstance, error) {
 	return inst, nil
 }
 
-// Disable shuts down a plugin instance.
+// Disable shuts down one principal's instance of a plugin. Instances are per
+// (role, session), so disabling the GM's copy deliberately leaves a player's
+// copy running; DisableAll is the kill switch for every instance.
 func (h *Host) Disable(id string, p vault.Principal) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -199,13 +217,21 @@ func (h *Host) Disable(id string, p vault.Principal) {
 	if !ok {
 		return
 	}
+	h.closeInstanceLocked(inst)
+	delete(h.instances[id], key)
+}
+
+// closeInstanceLocked shuts one instance down. The caller holds h.mu.
+func (h *Host) closeInstanceLocked(inst *hostInstance) {
+	if inst == nil {
+		return
+	}
 	if inst.Wasm != nil {
 		_ = inst.Wasm.Close(context.Background())
 	}
 	if l, ok := inst.Compiled.(Lifecycle); ok {
 		_ = l.Disable()
 	}
-	delete(h.instances[id], key)
 }
 
 // Instance returns an enabled instance.

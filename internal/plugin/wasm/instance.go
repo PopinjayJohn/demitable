@@ -160,6 +160,17 @@ type Instance struct {
 	compiled  wazero.CompiledModule
 	hostMod   api.Module
 	mod       api.Module
+
+	// lifeMu guards mod and compiled. Invoke takes it for reading for the
+	// whole call so Close cannot nil the module underneath a guest; Close
+	// takes it for writing. This is the fix for the dispatch-after-disable
+	// crash: a host may still hold *Instance after the host removed it.
+	lifeMu sync.RWMutex
+
+	// httpClient, when set, is used by host_http_fetch instead of the
+	// SSRF-hardened default. Tests set it to observe a successful fetch
+	// without dialling a private test server (which the default refuses).
+	httpClient *http.Client
 }
 
 // init keeps the package's side effects explicit.
@@ -223,11 +234,15 @@ func (i *Instance) Manifest() any { return i.manifest }
 // Principal returns the bound principal.
 func (i *Instance) Principal() vault.Principal { return i.principal }
 
-// Close shuts down the instance.
+// Close shuts down the instance. It is safe to call more than once, and safe
+// to call while a Dispatch still holds the instance: Invoke returns an
+// error envelope once the module is gone.
 func (i *Instance) Close(ctx context.Context) error {
 	if ctx == nil {
 		ctx = i.ctx
 	}
+	i.lifeMu.Lock()
+	defer i.lifeMu.Unlock()
 	if i.mod != nil {
 		i.engine.mu.Lock()
 		delete(i.engine.byModule, i.mod)
@@ -249,10 +264,17 @@ func (e *Engine) lookup(m api.Module) (*Instance, bool) {
 	return inst, ok
 }
 
-// Invoke forwards a bridge call to the guest.
+// Invoke forwards a bridge call to the guest. A closed instance returns an
+// error envelope, never a nil dereference: Disable closes the module while a
+// caller may still hold the instance.
 func (i *Instance) Invoke(ctx context.Context, c Call) Result {
 	if ctx == nil {
 		ctx = i.ctx
+	}
+	i.lifeMu.RLock()
+	defer i.lifeMu.RUnlock()
+	if i.mod == nil {
+		return failResult("not_available", "plugin instance is closed", nil)
 	}
 	fn := i.mod.ExportedFunction("demitable_call")
 	if fn == nil {
