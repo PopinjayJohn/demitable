@@ -10,7 +10,7 @@ import (
 
 func loadBladesPack(t *testing.T) *Pack {
 	t.Helper()
-	data, err := os.ReadFile("packs/blades.yaml")
+	data, err := os.ReadFile("packs/blades_in_the_dark.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,6 +33,9 @@ func TestBladesPackNoLevelsLoadsAndLintsClean(t *testing.T) {
 }
 
 // Proof 2: no HP-like resource; harm is a scale condition; clocks are tracks.
+// "renders" here means the pack's views.sheet declaration resolves for a
+// Blades character through the declaration-driven path; actual sheet UI
+// rendering is N6's scope.
 func TestBladesCharacterNoHPValidatesAndRenders(t *testing.T) {
 	p := loadBladesPack(t)
 	for _, r := range p.Resources {
@@ -84,7 +87,10 @@ func TestBladesCharacterNoHPValidatesAndRenders(t *testing.T) {
 	}
 }
 
-// Proof 3: dice-pool workflow, 100 rolls resolve to a documented outcome kind.
+// Proof 3: opposed dice-pool workflow. The dice engine uses crypto/rand and
+// has no seed option, so these are 100 unseeded rolls; all resolve to the
+// documented win/loss/tie outcome kind. No seed option was added (that would
+// be a production change, forbidden by the gate rule).
 func TestBladesDicePoolWorkflowHundredRolls(t *testing.T) {
 	p := loadBladesPack(t)
 	var wf *DiceWorkflow
@@ -110,6 +116,10 @@ func TestBladesDicePoolWorkflowHundredRolls(t *testing.T) {
 }
 
 // Proof 4: difficulty model is opposition dice, not an XP budget.
+// The model-string half is proven here. The no-5e-branch / "delete the 5e
+// pack from the test fixture and re-run" half is deferred: no encounter
+// planner exists in-tree, so there is no planner path to branch on. No
+// planner was invented (out of scope for N5).
 func TestBladesDifficultyModelIsNotXPBudget(t *testing.T) {
 	p := loadBladesPack(t)
 	if p.Difficulty == nil {
@@ -124,7 +134,10 @@ func TestBladesDifficultyModelIsNotXPBudget(t *testing.T) {
 	}
 }
 
-// Proof 5: faction/crew entities are first-class content types.
+// Proof 5: faction/crew entities are declared as first-class content types.
+// Declaration is proven here; browser-listing of pack content types is
+// deferred because no browser over pack content types exists in-tree (web/
+// does not exist yet).
 func TestBladesFactionAndCrewEntitiesDeclared(t *testing.T) {
 	p := loadBladesPack(t)
 	ids := map[string]bool{}
