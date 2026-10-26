@@ -12,9 +12,6 @@ const MaxDownloadBytes = 256 * 1024 * 1024
 // MaxRedirects caps redirect hops.
 const MaxRedirects = 5
 
-// FetchTimeout is the overall fetch timeout.
-const FetchTimeout = 60 * 1000000000 // 60s in ns (placeholder, use time)
-
 // isPrivateIP reports whether ip is in a range that must never be fetched.
 func isPrivateIP(ip net.IP) bool {
 	if ip == nil {

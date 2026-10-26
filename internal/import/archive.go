@@ -178,14 +178,6 @@ func ExtractAndValidate(zipPath string) (string, *Manifest, []PluginBundle, []st
 		}
 	}
 
-	// Requires check (packs).
-	if m != nil {
-		for _, id := range m.Requires.Packs {
-			// validated later in Import; but fail fast here too? keep here
-			_ = id
-		}
-	}
-
 	bundles := detectPluginBundles(tempDir)
 
 	return tempDir, m, bundles, rejected, nil

@@ -1188,6 +1188,10 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 	m.HandleFunc("GET /api/v1/import/report", func(w http.ResponseWriter, r *http.Request) {
+		if cfg.NoImport {
+			http.Error(w, "import disabled", http.StatusForbidden)
+			return
+		}
 		rep, ok := importer.LastReport()
 		if !ok {
 			http.Error(w, "no import report", http.StatusNotFound)

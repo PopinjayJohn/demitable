@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/PopinjayJohn/demitable/internal/import"
+	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
@@ -21,6 +22,7 @@ func runImport(args []string) error {
 	includePlugins := fs.Bool("include-plugins", false, "install plugin bundles without prompting")
 	noPlugins := fs.Bool("no-plugins", false, "refuse plugin bundles entirely")
 	allowHTTP := fs.Bool("allow-http-import", false, "allow plain http imports")
+	auditLog := fs.String("audit-log", "", "path to the audit log (default: disabled)")
 	// Allow flags before or after the positional URL.
 	var flags, positional []string
 	for i := 0; i < len(args); i++ {
@@ -55,6 +57,14 @@ func runImport(args []string) error {
 	}
 	vaultRoot, _ = filepath.Abs(vaultRoot)
 
+	var audit *logging.Audit
+	if *auditLog != "" {
+		a, err := logging.OpenAudit(*auditLog)
+		if err != nil {
+			return fmt.Errorf("import: open audit log: %w", err)
+		}
+		audit = a
+	}
 	opts := importer.Options{
 		VaultRoot:      vaultRoot,
 		URL:            urlStr,
@@ -64,6 +74,12 @@ func runImport(args []string) error {
 		NoPlugins:      *noPlugins,
 		AllowHTTP:      *allowHTTP,
 		Interactive:    isTerminal(os.Stdin),
+		Audit:          audit,
+	}
+	if audit != nil {
+		fmt.Println("audit log:", *auditLog)
+	} else {
+		fmt.Println("audit log: disabled")
 	}
 	rep, err := importer.Import(context.Background(), opts)
 	printImportReport(rep)
