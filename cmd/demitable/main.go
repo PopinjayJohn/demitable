@@ -19,11 +19,13 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/PopinjayJohn/demitable/internal/assets"
 	"github.com/PopinjayJohn/demitable/internal/config"
+	"github.com/PopinjayJohn/demitable/internal/dice"
 	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/server"
@@ -542,6 +544,203 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 
 	m.Handle("GET /asset/", assets.Handler(vlt.Root, allowAll))
 
+	// Dice roll path (N2c).
+	m.HandleFunc("POST /api/v1/roll", func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var req struct {
+			Workflow   string         `json:"workflow"`
+			Actor      string         `json:"actor"`
+			Target     string         `json:"target"`
+			Shared     *bool          `json:"shared"`
+			Expression string         `json:"expression"`
+			Variables  map[string]any `json:"variables"`
+			Direction  string         `json:"direction"`
+		}
+		if len(bytes.TrimSpace(body)) > 0 {
+			if err := json.Unmarshal(body, &req); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		shared := true
+		if req.Shared != nil {
+			shared = *req.Shared
+		}
+
+		pk, _ := pack.Example()
+		var wf pack.DiceWorkflow
+		hasWf := false
+		if req.Workflow != "" && pk != nil && pk.Dice != nil {
+			for _, w := range pk.Dice.Workflows {
+				if w.Key == req.Workflow {
+					wf = w
+					hasWf = true
+					break
+				}
+			}
+		}
+
+		expr := req.Expression
+		if expr == "" && hasWf {
+			expr = wf.Dice
+		}
+		if expr == "" {
+			if pk != nil && pk.Dice != nil && pk.Dice.Default != "" {
+				expr = pk.Dice.Default
+			} else {
+				expr = "1d20"
+			}
+		}
+
+		// variables from actor note
+		vars := map[string]any{}
+		if req.Actor != "" {
+			if n := vlt.GetNote(req.Actor); n != nil {
+				for k, v := range n.Fields {
+					vars[k] = v
+				}
+				vars["actor"] = req.Actor
+				vars["name"] = n.Name
+			}
+		}
+		for k, v := range req.Variables {
+			vars[k] = v
+		}
+		// workflow bonus/against
+		if hasWf {
+			if wf.Bonus != "" {
+				if v, ok := vars[wf.Bonus]; ok {
+					// already
+					_ = v
+				}
+			}
+			if wf.Against != "" {
+				// target from target note or variable
+				if req.Target != "" {
+					if n := vlt.GetNote(req.Target); n != nil {
+						if v, ok := n.Fields["ac"]; ok {
+							vars["ac"] = v
+						}
+						if v, ok := n.Fields["dc"]; ok {
+							vars["dc"] = v
+						}
+						// generic: if against key present
+						key := strings.TrimPrefix(wf.Against, "resources.")
+						if v, ok := n.Fields[key]; ok {
+							vars[key] = v
+						}
+					}
+				}
+			}
+		}
+
+		direction := "high"
+		if req.Direction != "" {
+			direction = req.Direction
+		}
+		if hasWf && wf.Direction != "" {
+			direction = wf.Direction
+		}
+		if direction == "high" && pk != nil && pk.Dice != nil && pk.Dice.Direction != "" {
+			direction = pk.Dice.Direction
+		}
+
+		count := false
+		if hasWf && (wf.Outcome == "highest-count" || wf.Vs != "") {
+			count = true
+		}
+		if strings.Contains(expr, " vs ") {
+			count = true
+		}
+
+		tp := tableProviderFor(vlt, pk)
+
+		// opposed expression from workflow
+		rollExpr := expr
+		if hasWf && wf.Vs != "" {
+			// interpolate {opposition}
+			// leave as is; vars handle
+			rollExpr = wf.Dice + " vs " + wf.Vs
+		}
+
+		opts := []dice.RollOption{
+			dice.WithVars(vars),
+			dice.WithTables(tp),
+			dice.WithDirection(direction),
+			dice.WithRoller(req.Actor),
+			dice.WithWorkflow(req.Workflow),
+		}
+		if count {
+			opts = append(opts, dice.WithCount())
+		}
+		if req.Target != "" {
+			// target number
+			tgt := any(req.Target)
+			if n := vlt.GetNote(req.Target); n != nil {
+				// try dc/ac
+				for _, k := range []string{"dc", "ac", "target"} {
+					if v, ok := n.Fields[k]; ok {
+						tgt = v
+						break
+					}
+				}
+			}
+			opts = append(opts, dice.WithTarget(tgt))
+		} else if hasWf && wf.Against != "" {
+			key := strings.TrimPrefix(wf.Against, "resources.")
+			if v, ok := vars[key]; ok {
+				opts = append(opts, dice.WithTarget(v))
+			}
+		}
+
+		res, err := dice.Roll(rollExpr, opts...)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		rec := dice.RollRecord{
+			ID:         fmt.Sprintf("roll-%d", time.Now().UnixNano()),
+			Roller:     req.Actor,
+			Workflow:   req.Workflow,
+			Expression: rollExpr,
+			Target:     res.Target,
+			Outcome:    res.Outcome,
+			Timestamp:  time.Now().UTC(),
+			Shared:     shared,
+			Result:     res,
+		}
+		rec.SyncAliases()
+		appendRoll(vlt, rec)
+
+		// broadcast? skip websocket for now
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"roll":   rec,
+			"result": res,
+			"logged": true,
+		})
+	})
+
+	m.HandleFunc("GET /api/v1/rolls", func(w http.ResponseWriter, r *http.Request) {
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		rolls := listRolls(vlt)
+		out := []dice.RollRecord{}
+		for _, rec := range rolls {
+			if !rec.Shared && !principal.IsGM() {
+				continue
+			}
+			out = append(out, rec)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+	})
+
 	// Auth surface (M5a).
 	limiter := newAuthLimiter()
 	authHandlers(m, vlt, audit, cfg, limiter)
@@ -627,4 +826,131 @@ func applyRegisteredType(v frontmatter.Value, t frontmatter.PropertyType) frontm
 func renderMarkdown(src string) string {
 	// Minimal: return escaped-ish placeholder; frontend renders via remark.
 	return src
+}
+
+// --- dice roll log (N2c) ---------------------------------------------------
+
+var (
+	rollLogMu   sync.Mutex
+	rollLogs    = map[string][]dice.RollRecord{}
+	rollCounter uint64
+)
+
+func rollLogKey(vlt *vault.Vault) string {
+	if vlt == nil {
+		return ""
+	}
+	return vlt.Root
+}
+
+func appendRoll(vlt *vault.Vault, rec dice.RollRecord) {
+	rollLogMu.Lock()
+	defer rollLogMu.Unlock()
+	key := rollLogKey(vlt)
+	rollLogs[key] = append(rollLogs[key], rec)
+}
+
+func listRolls(vlt *vault.Vault) []dice.RollRecord {
+	rollLogMu.Lock()
+	defer rollLogMu.Unlock()
+	key := rollLogKey(vlt)
+	out := make([]dice.RollRecord, len(rollLogs[key]))
+	copy(out, rollLogs[key])
+	return out
+}
+
+func tableProviderFor(vlt *vault.Vault, pk *pack.Pack) dice.TableProvider {
+	return func(id string) (*dice.Table, bool) {
+		// vault first (shadowing)
+		if vlt != nil {
+			for _, n := range vlt.Notes {
+				if n.Type != "table" {
+					continue
+				}
+				if n.Name == id || n.UID == id {
+					t := dice.TableFromMap(id, n.Name, n.Fields)
+					if t.ID == "" {
+						t.ID = id
+					}
+					return t, true
+				}
+			}
+			// also by data.id? check Fields data.id
+			for _, n := range vlt.Notes {
+				if n.Type != "table" {
+					continue
+				}
+				if data, ok := n.Fields["data"].(map[string]any); ok {
+					if did, ok := data["id"].(string); ok && did == id {
+						t := dice.TableFromMap(id, n.Name, n.Fields)
+						if t.ID == "" {
+							t.ID = id
+						}
+						return t, true
+					}
+				}
+			}
+		}
+		// pack tables
+		if pk != nil && pk.Dice != nil {
+			for _, pt := range pk.Dice.Tables {
+				// pt.Faces is []any; convert via map
+				m := map[string]any{}
+				// best effort: encode/decode not needed; build from pt
+				_ = m
+				// Build table from pack DiceTable by converting Faces
+				t := &dice.Table{ID: id, Name: id}
+				if pt.ID != "" && pt.ID != id {
+					continue
+				}
+				// faces
+				for _, f := range pt.Faces {
+					if fm, ok := f.(map[string]any); ok {
+						face := dice.Face{}
+						if v, ok := fm["id"].(string); ok {
+							face.ID = v
+						}
+						if v, ok := fm["label"].(string); ok {
+							face.Label = v
+						}
+						if v, ok := fm["symbol"].(string); ok {
+							face.Symbol = v
+						}
+						if v, ok := fm["asset"].(string); ok {
+							face.Asset = v
+						}
+						if v, ok := fm["value"]; ok {
+							face.Value = v
+						}
+						if v, ok := fm["rank"].(int); ok {
+							r := v
+							face.Rank = &r
+						}
+						if v, ok := fm["rank"].(float64); ok {
+							r := int(v)
+							face.Rank = &r
+						}
+						if v, ok := fm["tags"].([]any); ok {
+							for _, tg := range v {
+								if s, ok := tg.(string); ok {
+									face.Tags = append(face.Tags, s)
+								}
+							}
+						}
+						t.Faces = append(t.Faces, face)
+					}
+				}
+				if pt.ID == "" || pt.ID == id {
+					if pt.ID != "" {
+						t.ID = pt.ID
+					}
+					if pt.Name != "" {
+						t.Name = pt.Name
+					}
+					return t, true
+				}
+			}
+		}
+		return nil, false
+	}
 }
