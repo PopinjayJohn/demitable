@@ -1,3 +1,14 @@
+// Package pack loads and validates the declarative YAML packs that describe a
+// game system's mechanics and content shapes.
+//
+// A pack is data, not code (ADR-0003, ADR-0023): it declares content types
+// and the typed fields they carry, plus the visibility default each content
+// type contributes to the projection. Phase 2 completes the format with
+// resources, attributes, conditions, progression, difficulty, views,
+// formulas, secrets and dice; every block is additive, so a phase-1 pack
+// (no phase-2 blocks) keeps loading unchanged. The package also hosts the
+// pack linter (ADR-0007, ADR-0042, ADR-0044) that checks a pack's
+// declarations and formula references at load time.
 package pack
 
 import (
@@ -138,6 +149,16 @@ func Parse(data []byte) (*Pack, error) {
 		return nil, err
 	}
 	for _, is := range p.lintFormulas() {
+		if is.Severity == "error" {
+			return nil, fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	for _, is := range p.lintInvariants() {
+		if is.Severity == "error" {
+			return nil, fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	for _, is := range p.lintDice() {
 		if is.Severity == "error" {
 			return nil, fmt.Errorf("pack: %s", is.Message)
 		}
@@ -295,17 +316,33 @@ func (p *Pack) validateBlocks() []error {
 
 func (p *Pack) lintFormulas() []Issue {
 	if len(p.Formulas) == 0 {
+		// Still run with an empty formula map? No: nothing to check.
 		return nil
 	}
 	entity := []string{}
 	if p.Attributes != nil {
 		entity = append(entity, "attributes")
+		for _, a := range p.Attributes {
+			if a.Key != "" {
+				entity = append(entity, a.Key)
+			}
+		}
 	}
 	if p.Resources != nil {
 		entity = append(entity, "resources")
+		for _, r := range p.Resources {
+			if r.Key != "" {
+				entity = append(entity, r.Key)
+			}
+		}
 	}
 	if p.Conditions != nil {
 		entity = append(entity, "conditions")
+		for _, c := range p.Conditions {
+			if c.Key != "" {
+				entity = append(entity, c.Key)
+			}
+		}
 	}
 	if p.Progression != nil {
 		entity = append(entity, "level")
@@ -316,6 +353,14 @@ func (p *Pack) lintFormulas() []Issue {
 	}
 	if p.Difficulty != nil {
 		pack = append(pack, "difficulty")
+	}
+	// Derived formula names are a layer that can shadow entity-scope names;
+	// pass them as pack-scope names so formula.Check's shadowing branch can
+	// fire on real declarations (ADR-0042).
+	for name := range p.Formulas {
+		if name != "" {
+			pack = append(pack, name)
+		}
 	}
 	call := []string{"weapon", "target", "actor", "round", "dc"}
 	ctx := formula.Context{Name: "default", Entity: entity, Pack: pack, Call: call}
@@ -357,6 +402,8 @@ func Lint(x any) []Issue {
 		issues = append(issues, Issue{Severity: "error", Kind: "validation", Message: e.Error()})
 	}
 	issues = append(issues, p.lintFormulas()...)
+	issues = append(issues, p.lintInvariants()...)
+	issues = append(issues, p.lintDice()...)
 	return issues
 }
 
@@ -372,6 +419,98 @@ func IssuesToErrors(issues []Issue) []error {
 func issuesToErrors(issues []Issue) []error { return IssuesToErrors(issues) }
 
 func (p *Pack) Lint() []Issue { return Lint(p) }
+
+// lintInvariants enforces ADR-0007's schema invariants.
+func (p *Pack) lintInvariants() []Issue {
+	var issues []Issue
+	// Invariant 6: every pack must be able to express a player character, an
+	// NPC and a creature. A pack with no content types cannot express any of
+	// them.
+	if len(p.Content) == 0 {
+		issues = append(issues, Issue{
+			Severity: "error",
+			Kind:     "invariant",
+			Message:  "pack: invariant 6 (every pack must express a player character, an NPC, and a creature): content: at least one content type is required",
+		})
+	}
+	// Invariant 7: difficulty is modelled by the pack in its own terms.
+	if p.Difficulty != nil {
+		model, ok := p.Difficulty["model"].(string)
+		if !ok || strings.TrimSpace(model) == "" {
+			issues = append(issues, Issue{
+				Severity: "error",
+				Kind:     "invariant",
+				Message:  "pack: invariant 7 (difficulty is modelled by the pack in its own terms): difficulty.model is required",
+			})
+		}
+	}
+	// Wrong-shape hint (ADR-0044): a clock encoded as a pool with max: 6.
+	for _, r := range p.Resources {
+		if r.Kind == "pool" {
+			isSix := false
+			switch v := r.Max.(type) {
+			case int:
+				isSix = v == 6
+			case float64:
+				isSix = v == 6
+			case string:
+				isSix = strings.TrimSpace(v) == "6"
+			}
+			if isSix && strings.TrimSpace(r.MaxFormula) == "" {
+				issues = append(issues, Issue{
+					Severity: "warning",
+					Kind:     "shape",
+					Formula:  r.Key,
+					Message:  fmt.Sprintf("pack: resource %q looks like a clock encoded as a pool with max: 6; consider kind: track with size", r.Key),
+				})
+			}
+		}
+	}
+	return issues
+}
+
+// lintDice checks dice workflows against declared resources.
+func (p *Pack) lintDice() []Issue {
+	var issues []Issue
+	if p.Dice == nil {
+		return nil
+	}
+	hasResources := p.Resources != nil
+	resKeys := map[string]bool{}
+	for _, r := range p.Resources {
+		resKeys[r.Key] = true
+	}
+	checkRef := func(field, ref string) {
+		ref = strings.TrimSpace(ref)
+		if !strings.HasPrefix(ref, "resources.") {
+			return
+		}
+		if !hasResources {
+			issues = append(issues, Issue{
+				Severity: "error",
+				Kind:     "invariant",
+				Message:  fmt.Sprintf("pack: invariant 1 (a pack need not define resources, but this pack assumes one exists): %s %q references a resource but the pack declares none", field, ref),
+			})
+			return
+		}
+		key := strings.TrimPrefix(ref, "resources.")
+		if key != "" && !resKeys[key] {
+			issues = append(issues, Issue{
+				Severity: "error",
+				Kind:     "unresolvable",
+				Message:  fmt.Sprintf("pack: %s %q references undeclared resource %q", field, ref, key),
+			})
+		}
+	}
+	for i, w := range p.Dice.Workflows {
+		where := fmt.Sprintf("dice.workflows[%d]", i)
+		checkRef(where+".against", w.Against)
+		checkRef(where+".bonus", w.Bonus)
+		checkRef(where+".vs", w.Vs)
+		checkRef(where+".onSuccess", w.OnSuccess)
+	}
+	return issues
+}
 
 func Validate(x any) error {
 	p, err := toPack(x)

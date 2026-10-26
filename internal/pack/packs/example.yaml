@@ -60,6 +60,10 @@ attributes:
 
 resources:
   - { key: hp, label: Hit Points, kind: pool, default: 1, maxFormula: max_hp, visibility: owner }
+  - { key: ac, label: Armour Class, kind: defence, default: 10 }
 
 formulas:
   max_hp: "10 + attributes.rating"
+
+difficulty:
+  model: none
