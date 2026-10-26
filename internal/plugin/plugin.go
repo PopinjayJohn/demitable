@@ -174,4 +174,11 @@ type VaultService interface {
 	// Literal returns the in-memory literal index, for name/alias/link
 	// resolution (ADR-0013, ADR-0054).
 	LiteralIndex() *vault.LiteralIndex
+	// AssetPaths returns the vault-relative paths of binary assets (files
+	// that are not notes). Compiled-in plugins use this to decide which
+	// assets to include in an export (ADR-0026).
+	AssetPaths() []string
+	// AssetBytes reads one asset's bytes. A missing or escaping path
+	// returns an error.
+	AssetBytes(path string) ([]byte, error)
 }

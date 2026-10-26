@@ -125,6 +125,14 @@ func (s *Store) Replace(n Note) {
 	s.Literal.Add(&n)
 }
 
+// AssetPaths returns no assets for the in-memory store.
+func (s *Store) AssetPaths() []string { return nil }
+
+// AssetBytes returns an error for the in-memory store.
+func (s *Store) AssetBytes(path string) ([]byte, error) {
+	return nil, fmt.Errorf("vault: store has no assets: %w", ErrNotFound)
+}
+
 // Literal returns the store's in-memory literal index.
 func (s *Store) LiteralIndex() *LiteralIndex {
 	s.mu.RLock()
