@@ -12,16 +12,16 @@ import (
 )
 
 func TestN7FiveConstructProjection(t *testing.T) {
-	body := "# Note\n\n" +
-		"```statblock\nname: Ancient Black Dragon\nac: 22\n```\n\n" +
-		"```ad-statblock\nname: Old Dragon Prose\n```\n\n" +
+	body := "VISIBLE SURVIVING TEXT\n\n" +
+		"```statblock\ngm: true\nname: Ancient Black Dragon\nac: 22\n```\n\n" +
+		"```ad-statblock\ngm: true\nname: Old Dragon Prose\n```\n\n" +
 		"> [!secret] secret callout text\n> body\n\n" +
 		"```ad-secret\ntitle: x\n\nad secret text\n```\n\n" +
 		"```statblock\ngm: true\nname: gm option text\n```\n"
 	n := Note{
 		UID:        "u1",
 		Name:       "Note",
-		Visibility: "gm",
+		Visibility: "public",
 		System:     "dnd5e",
 		Body:       body,
 	}
@@ -38,6 +38,9 @@ func TestN7FiveConstructProjection(t *testing.T) {
 		if strings.Contains(serialized, phrase) {
 			t.Errorf("non-GM projection leaked %q", phrase)
 		}
+	}
+	if !strings.Contains(serialized, "VISIBLE SURVIVING TEXT") {
+		t.Errorf("surviving visible text absent: %s", serialized)
 	}
 }
 
@@ -94,9 +97,8 @@ func TestN7PropertyCorpusStripping(t *testing.T) {
 	if _, err := os.Stat(root); err != nil {
 		t.Skip("no corpus")
 	}
-	// Walk and ensure projection does not panic; secret callout text in source
-	// must be absent from anonymous projection.
-	count := 0
+	pack, _ := pack.Load("dnd5e")
+	totalBlocks := 0
 	filepath.Walk(root, func(p string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(p, ".md") {
 			return nil
@@ -110,13 +112,70 @@ func TestN7PropertyCorpusStripping(t *testing.T) {
 		if doc != nil && doc.HasBlock {
 			body = string(doc.Body)
 		}
-		n := Note{System: "dnd5e", Body: body, Visibility: "party"}
-		_ = Project(Anonymous(), n)
-		count++
+		blocks := FindSecretBlocks(body, pack)
+		totalBlocks += len(blocks)
+		n := Note{System: "dnd5e", Body: body, Visibility: "party", Campaign: "c"}
+		// make visible to anonymous by marking public instead
+		n.Visibility = "public"
+		pv := Project(Anonymous(), n)
+		for _, blk := range blocks {
+			src := body[blk.Start:blk.End]
+			// collect a distinctive non-whitespace line from the block
+			for _, line := range strings.Split(src, "\n") {
+				line = strings.TrimSpace(line)
+				line = strings.TrimPrefix(line, ">")
+				line = strings.TrimSpace(line)
+				if len(line) < 8 {
+					continue
+				}
+				if strings.Contains(pv.Body, line) {
+					t.Errorf("%s: gm-vocabulary block text survived projection: %q", p, line)
+				}
+			}
+		}
 		return nil
 	})
-	if count == 0 {
-		t.Skip("no markdown files")
+	t.Logf("checked corpus; secret blocks found: %d", totalBlocks)
+}
+
+func TestN7RevealPersistence(t *testing.T) {
+	dir := t.TempDir()
+	body := "> [!secret] secret text\n> body ^blk1\n"
+	data := []byte("---\nuid: u1\nname: Note\nvisibility: party\n---\n" + body)
+	os.WriteFile(filepath.Join(dir, "n.md"), data, 0o644)
+	v, err := Open(dir)
+	if err != nil {
+		t.Fatal(err)
 	}
-	t.Logf("projected %d corpus notes", count)
+	beforeRaw, _ := os.ReadFile(filepath.Join(dir, "n.md"))
+	err = v.RevealSecret("u1", "blk1", RevealAudience{Players: []string{"p1"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	afterRaw, _ := os.ReadFile(filepath.Join(dir, "n.md"))
+	if string(afterRaw) == string(beforeRaw) {
+		t.Fatal("file did not change")
+	}
+	if !strings.Contains(string(afterRaw), "revealed:") || !strings.Contains(string(afterRaw), "blk1") {
+		t.Fatalf("revealed not persisted: %s", string(afterRaw))
+	}
+	if !strings.Contains(string(afterRaw), "grants:") || !strings.Contains(string(afterRaw), "p1") {
+		t.Fatalf("grants not persisted: %s", string(afterRaw))
+	}
+	// body bytes untouched: the original body text remains in file
+	if !strings.Contains(string(afterRaw), "secret text") {
+		t.Fatal("body text disappeared from file")
+	}
+	// re-Open restores state
+	v2, err := Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	n2 := v2.GetNote("u1")
+	if !contains(n2.Revealed, "blk1") {
+		t.Fatalf("re-Open lost revealed: %v", n2.Revealed)
+	}
+	if !contains(n2.Grants, "p1") {
+		t.Fatalf("re-Open lost grants: %v", n2.Grants)
+	}
 }

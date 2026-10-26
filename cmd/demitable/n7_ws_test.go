@@ -125,6 +125,16 @@ func TestN7WSReveal(t *testing.T) {
 	defer gc.Close()
 	readFrameN7(gc) // hello
 
+	// pre-reveal: projected path must NOT contain the block text
+	preReq, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/u1", nil)
+	preReq.Header.Set("Authorization", "Bearer "+playerTok)
+	preResp, _ := http.DefaultClient.Do(preReq)
+	preBody, _ := io.ReadAll(preResp.Body)
+	preResp.Body.Close()
+	if strings.Contains(string(preBody), "secret text") {
+		t.Fatalf("pre-reveal leak: %s", string(preBody))
+	}
+
 	msg, _ := json.Marshal(map[string]any{
 		"v": 1, "type": "secret.reveal",
 		"data": map[string]any{
@@ -177,6 +187,16 @@ func TestN7WSGMOnlyNegative(t *testing.T) {
 	gc := dialWSN7(t, srv, gmTok)
 	defer gc.Close()
 	readFrameN7(gc)
+
+	// pre-reveal: projected path must NOT contain the block text
+	preReq, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/u1", nil)
+	preReq.Header.Set("Authorization", "Bearer "+playerTok)
+	preResp, _ := http.DefaultClient.Do(preReq)
+	preBody, _ := io.ReadAll(preResp.Body)
+	preResp.Body.Close()
+	if strings.Contains(string(preBody), "secret text") {
+		t.Fatalf("pre-reveal leak: %s", string(preBody))
+	}
 
 	msg, _ := json.Marshal(map[string]any{
 		"v": 1, "type": "secret.reveal",
