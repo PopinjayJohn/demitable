@@ -1,0 +1,57 @@
+---
+aliases:
+  - Simulacrum
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+casting_time: 12 hour
+classes: []
+components: V, S, M (powdered ruby worth 1,500+ GP, which the spell consumes)
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 12 hour
+  classes: []
+  components: V, S, M (powdered ruby worth 1,500+ GP, which the spell consumes)
+  duration: permanent
+  level: 7
+  range: <nil> touch
+  school: Illusion
+duration: permanent
+level: 7
+license: CC-BY-4.0
+name: Simulacrum
+obsidianUIMode: preview
+range: <nil> touch
+school: Illusion
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/wizard
+  - spell/level/7th-level
+  - spell/school/illusion
+type: content
+uid: 8BB036A85428379DB327C33798
+visibility: party
+---
+# Simulacrum
+*7th-level, Illusion*  
+
+- **Casting time:** 12 hours
+- **Range:** Touch
+- **Components:** V, S, M (powdered ruby worth 1,500+ GP, which the spell consumes)
+- **Duration:** Until dispelled
+
+You create a simulacrum of one Beast or Humanoid that is within 10 feet of you for the entire casting of the spell. You finish the casting by touching both the creature and a pile of ice or snow that is the same size as that creature, and the pile turns into the simulacrum, which is a creature. It uses the game statistics of the original creature at the time of casting, except it is a Construct, its [Hit Point](rules/variant-rules/hit-points-xphb.md) maximum is half as much, and it can't cast this spell.
+
+The simulacrum is [Friendly](rules/variant-rules/friendly-attitude-xphb.md) to you and creatures you designate. It obeys your commands and acts on your turn in combat. The simulacrum can't gain levels, and it can't take Short or Long Rests.
+
+If the simulacrum takes damage, the only way to restore its [Hit Points](rules/variant-rules/hit-points-xphb.md) is to repair it as you take a [Long Rest](rules/variant-rules/long-rest-xphb.md), during which you expend components worth 100 GP per [Hit Point](rules/variant-rules/hit-points-xphb.md) restored. The simulacrum must stay within 5 feet of you for the repair.
+
+The simulacrum lasts until it drops to 0 [Hit Points](rules/variant-rules/hit-points-xphb.md), at which point it reverts to snow and melts away. If you cast this spell again, any simulacrum you created with this spell is instantly destroyed.
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

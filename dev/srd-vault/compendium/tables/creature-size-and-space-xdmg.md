@@ -1,0 +1,34 @@
+---
+aliases:
+  - Creature Size and Space
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: table
+cssclasses:
+  - json5e-note
+data: {}
+license: CC-BY-4.0
+name: Creature Size and Space
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xdmg
+system: dnd5e
+tags:
+  - compendium/src/5e/xdmg
+type: content
+uid: 7514DD7F56C152C317AF41D463
+visibility: party
+---
+# Creature Size and Space
+*Source: SRD 5.2 and the Free Rules (2024)* 
+
+**Creature Size and Space**
+
+| Size | Space in Squares | Space in Hexes |
+|------|------------------|----------------|
+| Tiny | 4 per square | 4 per hex |
+| Small | 1 square | 1 hex |
+| Medium | 1 square | 1 hex |
+| Large | 4 squares (2 by 2) | 3 hexes |
+| Huge | 9 squares (3 by 3) | 7 hexes |
+| Gargantuan | 16 squares (4 by 4) or more | 12 hexes or more |
+^creature-size-and-space

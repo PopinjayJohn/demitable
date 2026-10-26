@@ -23,6 +23,9 @@ func corpusFiles(t *testing.T) []string {
 	if root == "" {
 		root = corpusRoot
 	}
+	if resolved, err := filepath.EvalSymlinks(root); err == nil {
+		root = resolved
+	}
 	if _, err := os.Stat(root); err != nil {
 		t.Skipf("no corpus at %s; the corpus is a transient build input", root)
 	}

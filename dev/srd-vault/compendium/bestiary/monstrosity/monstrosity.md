@@ -1,0 +1,57 @@
+---
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: monster
+cssclasses:
+  - json5e-note
+  - json5e-index
+data: {}
+license: CC-BY-4.0
+name: Index of Monstrosity
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+type: content
+uid: 17D7F7102E1CB0E29C59651DF8
+visibility: party
+---
+# Index of Monstrosity
+
+- [Ankheg](./ankheg-xmm.md)
+- [Axe Beak](./axe-beak-xmm.md)
+- [Basilisk](./basilisk-xmm.md)
+- [Behir](./behir-xmm.md)
+- [Bulette](./bulette-xmm.md)
+- [Carrion Crawler](./carrion-crawler-xmm.md)
+- [Chimera](./chimera-xmm.md)
+- [Cockatrice](./cockatrice-xmm.md)
+- [Death Dog](./death-dog-xmm.md)
+- [Doppelganger](./doppelganger-xmm.md)
+- [Drider](./drider-xmm.md)
+- [Ettercap](./ettercap-xmm.md)
+- [Flying Snake](./flying-snake-xmm.md)
+- [Giant Vulture](./giant-vulture-xmm.md)
+- [Griffon](./griffon-xmm.md)
+- [Harpy](./harpy-xmm.md)
+- [Hippogriff](./hippogriff-xmm.md)
+- [Hydra](./hydra-xmm.md)
+- [Kraken](./kraken-xmm.md)
+- [Manticore](./manticore-xmm.md)
+- [Medusa](./medusa-xmm.md)
+- [Merrow](./merrow-xmm.md)
+- [Mimic](./mimic-xmm.md)
+- [Minotaur of Baphomet](./minotaur-of-baphomet-xmm.md)
+- [Owlbear](./owlbear-xmm.md)
+- [Phase Spider](./phase-spider-xmm.md)
+- [Purple Worm](./purple-worm-xmm.md)
+- [Remorhaz](./remorhaz-xmm.md)
+- [Roc](./roc-xmm.md)
+- [Rust Monster](./rust-monster-xmm.md)
+- [Stirge](./stirge-xmm.md)
+- [Tarrasque](./tarrasque-xmm.md)
+- [Werebear](./werebear-xmm.md)
+- [Wereboar](./wereboar-xmm.md)
+- [Wererat](./wererat-xmm.md)
+- [Weretiger](./weretiger-xmm.md)
+- [Werewolf](./werewolf-xmm.md)
+- [Winter Wolf](./winter-wolf-xmm.md)

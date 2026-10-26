@@ -1,0 +1,111 @@
+---
+abilities:
+  cha: 3
+  con: 15
+  dex: 13
+  int: 1
+  str: 16
+  wis: 9
+ac: 15
+aliases:
+  - Giant Scorpion
+alignment:
+  - U
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+condition_immunities: []
+content_type: monster
+cr: "3"
+cr_xp: 700
+cssclasses:
+  - json5e-monster
+data:
+  abilities:
+    cha: 3
+    con: 15
+    dex: 13
+    int: 1
+    str: 16
+    wis: 9
+  ac: 15
+  alignment:
+    - U
+  condition_immunities: []
+  cr: "3"
+  cr_xp: 700
+  hp: 52
+  immune: []
+  languages: []
+  passive_perception: 9
+  resist: []
+  senses: []
+  size: Large
+  speed:
+    walk: 40
+  type: beast
+  vulnerable: []
+hp: 52
+immune: []
+languages: []
+license: CC-BY-4.0
+name: Giant Scorpion
+obsidianUIMode: preview
+passive_perception: 9
+resist: []
+senses: []
+size: Large
+source: SRD 5.2.1
+speed:
+  walk: 40
+src: xmm
+system: dnd5e
+tags:
+  - compendium/src/5e/xmm
+  - monster/cr/3
+  - monster/environment/desert
+  - monster/size/large
+  - monster/type/beast
+type: content
+uid: 070A637696520B41FDD5F08EE4
+visibility: party
+vulnerable: []
+---
+# Giant Scorpion
+*Source: SRD 5.2 and the Free Rules (2024)*  
+
+## Animals
+
+Use these stat blocks to represent the creatures they're named for or other similar creatures. For example, the [Panther](compendium/bestiary/beast/panther-xmm.md) stat block can also represent a mountain lion, while the [Giant Goat](compendium/bestiary/beast/giant-goat-xmm.md) stat block might represent a buffalo. Any of these stat blocks might also serve as fantastical animals with distinctive names and cosmetic details unique to your D&D adventures.
+
+```ad-statblock
+title: Giant Scorpion
+![](https://raw.githubusercontent.com/5etools-mirror-3/5etools-img/main/bestiary/tokens/XMM/Giant%20Scorpion.webp#token)
+*Large beast, Unaligned*
+
+- **Armor Class** 15
+- **Hit Points** 52 (`7d10 + 14`)
+- **Speed** 40 ft.
+
+|STR|DEX|CON|INT|WIS|CHA|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|16 (+3)|13 (+1)|15 (+2)| 1 (-5)| 9 (-1)| 3 (-4)|
+
+- **Proficiency Bonus** +2
+- **Saving Throws** ⏤
+- **Skills** ⏤
+- **Senses** [Blindsight](rules/senses.md#Blindsight) 60 ft., passive Perception 9
+- **Languages** —
+- **Challenge** 3
+
+## Actions
+
+***Multiattack.*** The scorpion makes two Claw attacks and one Sting attack.
+
+***Claw.*** *Melee Attack Roll:* `+5`, reach 5 ft. *Hit:* 6 (`1d6 + 3`) Bludgeoning damage. If the target is a Large or smaller creature, it has the [Grappled](rules/conditions.md#Grappled) condition (escape DC 13) from one of two claws.
+
+***Sting.*** *Melee Attack Roll:* `+5`, reach 5 ft. *Hit:* 7 (`1d8 + 3`) Piercing damage plus 11 (`2d10`) Poison damage.
+```
+^statblock
+
+## Environment
+
+desert

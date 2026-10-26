@@ -1,0 +1,60 @@
+---
+aliases:
+  - Gaseous Form
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+casting_time: 1 action
+classes: []
+components: V, S, M (a bit of gauze)
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S, M (a bit of gauze)
+  duration: timed
+  level: 3
+  range: <nil> touch
+  school: Transmutation
+duration: timed
+level: 3
+license: CC-BY-4.0
+name: Gaseous Form
+obsidianUIMode: preview
+range: <nil> touch
+school: Transmutation
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/sorcerer
+  - spell/class/warlock
+  - spell/class/wizard
+  - spell/level/3rd-level
+  - spell/school/transmutation
+  - spell/subclass/college-of-lore
+type: content
+uid: 71EFD797D31C7BA484AC2C43F9
+visibility: party
+---
+# Gaseous Form
+*3rd-level, Transmutation*  
+
+- **Casting time:** 1 Action
+- **Range:** Touch
+- **Components:** V, S, M (a bit of gauze)
+- **Duration:** Concentration, up to 1 hour
+
+A willing creature you touch shape-shifts, along with everything it's wearing and carrying, into a misty cloud for the duration. The spell ends on the target if it drops to 0 [Hit Points](rules/variant-rules/hit-points-xphb.md) or if it takes a [Magic](rules/actions.md#Magic) action to end the spell on itself.
+
+While in this form, the target's only method of movement is a [Fly Speed](rules/variant-rules/fly-speed-xphb.md) of 10 feet, and it can hover. The target can enter and occupy the space of another creature. The target has [Resistance](rules/variant-rules/resistance-xphb.md) to Bludgeoning, Piercing, and Slashing damage; it has [Immunity](rules/variant-rules/immunity-xphb.md) to the [Prone](rules/conditions.md#Prone) condition; and it has [Advantage](rules/variant-rules/advantage-xphb.md) on Strength, Dexterity, and Constitution saving throws. The target can pass through narrow openings, but it treats liquids as though they were solid surfaces.
+
+The target can't talk or manipulate objects, and any objects it was carrying or holding can't be dropped, used, or otherwise interacted with. Finally, the target can't attack or cast spells.
+
+**Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 3.
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Sorcerer](compendium/lists/list-spells-classes-sorcerer.md); [Warlock](compendium/lists/list-spells-classes-warlock.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

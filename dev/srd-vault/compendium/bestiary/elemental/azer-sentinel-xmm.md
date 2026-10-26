@@ -1,0 +1,135 @@
+---
+abilities:
+  cha: 10
+  con: 15
+  dex: 12
+  int: 12
+  str: 17
+  wis: 13
+ac: 17
+aliases:
+  - Azer Sentinel
+alignment:
+  - Lawful Neutral
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+condition_immunities:
+  - poisoned
+content_type: monster
+cr: "2"
+cr_xp: 450
+cssclasses:
+  - json5e-monster
+data:
+  abilities:
+    cha: 10
+    con: 15
+    dex: 12
+    int: 12
+    str: 17
+    wis: 13
+  ac: 17
+  alignment:
+    - Lawful Neutral
+  condition_immunities:
+    - poisoned
+  cr: "2"
+  cr_xp: 450
+  hp: 39
+  immune:
+    - fire
+    - poison
+  languages:
+    - Primordial (Ignan)
+  passive_perception: 11
+  resist: []
+  senses: []
+  size: Medium
+  speed:
+    walk: 30
+  type: elemental
+  vulnerable: []
+hp: 39
+immune:
+  - fire
+  - poison
+languages:
+  - Primordial (Ignan)
+license: CC-BY-4.0
+name: Azer Sentinel
+obsidianUIMode: preview
+passive_perception: 11
+resist: []
+senses: []
+size: Medium
+source: SRD 5.2.1
+speed:
+  walk: 30
+src: xmm
+system: dnd5e
+tags:
+  - compendium/src/5e/xmm
+  - monster/cr/2
+  - monster/environment/fire
+  - monster/environment/mountain
+  - monster/environment/planar
+  - monster/size/medium
+  - monster/type/elemental
+type: content
+uid: FC707F81E6003E6855AFF6D0B6
+visibility: party
+vulnerable: []
+---
+# Azer Sentinel
+*Source: SRD 5.2 and the Free Rules (2024)*  
+
+Azer sentinels defend their communities' smiths and channel their flames through their weapons.
+
+## Azers
+
+*Fiery Smiths of Living Metal*
+
+- **Habitat.** Mountain, Planar (Elemental Plane of Fire)  
+- **Treasure.** Armaments, Individual  
+
+Azers are living bronze folk who work the primal elements of creation to craft weapons and magical wonders among the multiverse's mightiest infernos.
+
+## Statblock
+
+```ad-statblock
+title: Azer Sentinel
+![](https://raw.githubusercontent.com/5etools-mirror-3/5etools-img/main/bestiary/tokens/XMM/Azer%20Sentinel.webp#token)
+*Medium elemental, Lawful Neutral*
+
+- **Armor Class** 17
+- **Hit Points** 39 (`6d8 + 12`)
+- **Speed** 30 ft.
+
+|STR|DEX|CON|INT|WIS|CHA|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|17 (+3)|12 (+1)|15 (+2)|12 (+1)|13 (+1)|10 (+0)|
+
+- **Proficiency Bonus** +2
+- **Saving Throws** Constitution +4
+- **Skills** ⏤
+- **Senses** passive Perception 11
+- **Damage Immunities** fire, poison
+- **Condition Immunities** [poisoned](rules/conditions.md#Poisoned)
+- **Treasure** Armaments, Individual
+- **Languages** Primordial (Ignan)
+- **Challenge** 2
+
+## Traits
+
+***Fire Aura.*** At the end of each of the azer's turns, each creature of the azer's choice in a 5-foot [Emanation](rules/variant-rules/emanation-area-of-effect-xphb.md) originating from the azer takes 5 (`1d10`) Fire damage unless the azer has the [Incapacitated](rules/conditions.md#Incapacitated) condition.
+
+***Illumination.*** The azer sheds [Bright Light](rules/variant-rules/bright-light-xphb.md) in a 10-foot radius and [Dim Light](rules/variant-rules/dim-light-xphb.md) for an additional 10 feet.
+
+## Actions
+
+***Burning Hammer.*** *Melee Attack Roll:* `+5`, reach 5 ft. *Hit:* 8 (`1d10 + 3`) Bludgeoning damage plus 3 (`1d6`) Fire damage.
+```
+^statblock
+
+## Environment
+
+mountain, planar, fire

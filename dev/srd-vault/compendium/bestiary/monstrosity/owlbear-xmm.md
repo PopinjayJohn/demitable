@@ -1,0 +1,132 @@
+---
+abilities:
+  cha: 7
+  con: 17
+  dex: 12
+  int: 3
+  str: 20
+  wis: 12
+ac: 13
+aliases:
+  - Owlbear
+alignment:
+  - U
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+condition_immunities: []
+content_type: monster
+cr: "3"
+cr_xp: 700
+cssclasses:
+  - json5e-monster
+data:
+  abilities:
+    cha: 7
+    con: 17
+    dex: 12
+    int: 3
+    str: 20
+    wis: 12
+  ac: 13
+  alignment:
+    - U
+  condition_immunities: []
+  cr: "3"
+  cr_xp: 700
+  hp: 59
+  immune: []
+  languages: []
+  passive_perception: 15
+  resist: []
+  senses: []
+  size: Large
+  speed:
+    climb: 40
+    walk: 40
+  type: monstrosity
+  vulnerable: []
+hp: 59
+immune: []
+languages: []
+license: CC-BY-4.0
+name: Owlbear
+obsidianUIMode: preview
+passive_perception: 15
+resist: []
+senses: []
+size: Large
+source: SRD 5.2.1
+speed:
+  climb: 40
+  walk: 40
+src: xmm
+system: dnd5e
+tags:
+  - compendium/src/5e/xmm
+  - monster/cr/3
+  - monster/environment/forest
+  - monster/size/large
+  - monster/type/monstrosity
+type: content
+uid: C237A6313B41901EADEFF091A4
+visibility: party
+vulnerable: []
+---
+# Owlbear
+*Source: SRD 5.2 and the Free Rules (2024)*  
+
+Owlbears are tenacious hunters that might track prey over miles and rarely give up their hunts.
+
+## Owlbears
+
+*Magically Perfected Predators*
+
+- **Habitat.** Forest  
+- **Treasure.** None  
+
+Created long ago by misguided mages, owlbears combine keen avian eyes, thick feathers, and a tearing beak with a mighty bearlike frame. Despite their magical origins, owlbears have propagated and spread to wildernesses across the multiverse.
+
+Owlbears dwell in distinctive dens. Roll on or choose a result from the Owlbear Den Features table to inspire an owlbear den's noteworthy traits.
+
+**Owlbear Den Features**
+
+| dice: 1d4 | An Owlbear Den Contains... |
+|-----------|----------------------------|
+| 1 | Evidence of previous occupants, like bandits, wolves, or dragons. |
+| 2 | Heaps of regurgitated pellets studded with coins or other treasure. |
+| 3 | A nest with `1d6` owlbear eggs. |
+| 4 | Passages through the earth or hollow trees. |
+^owlbear-den-features
+
+## Statblock
+
+```ad-statblock
+title: Owlbear
+![](https://raw.githubusercontent.com/5etools-mirror-3/5etools-img/main/bestiary/tokens/XMM/Owlbear.webp#token)
+*Large monstrosity, Unaligned*
+
+- **Armor Class** 13
+- **Hit Points** 59 (`7d10 + 21`)
+- **Speed** 40 ft., climb 40 ft.
+
+|STR|DEX|CON|INT|WIS|CHA|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|20 (+5)|12 (+1)|17 (+3)| 3 (-4)|12 (+1)| 7 (-2)|
+
+- **Proficiency Bonus** +2
+- **Saving Throws** ⏤
+- **Skills** [Perception](rules/skills.md#Perception) +5
+- **Senses** [Darkvision](rules/senses.md#Darkvision) 60 ft., passive Perception 15
+- **Languages** —
+- **Challenge** 3
+
+## Actions
+
+***Multiattack.*** The owlbear makes two Rend attacks.
+
+***Rend.*** *Melee Attack Roll:* `+7`, reach 5 ft. *Hit:* 14 (`2d8 + 5`) Slashing damage.
+```
+^statblock
+
+## Environment
+
+forest

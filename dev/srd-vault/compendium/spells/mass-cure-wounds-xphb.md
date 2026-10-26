@@ -1,0 +1,55 @@
+---
+aliases:
+  - Mass Cure Wounds
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+casting_time: 1 action
+classes: []
+components: V, S
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S
+  duration: Instantaneous
+  level: 5
+  range: 60 feet
+  school: Abjuration
+duration: Instantaneous
+level: 5
+license: CC-BY-4.0
+name: Mass Cure Wounds
+obsidianUIMode: preview
+range: 60 feet
+school: Abjuration
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/cleric
+  - spell/class/druid
+  - spell/level/5th-level
+  - spell/school/abjuration
+  - spell/subclass/life-domain
+type: content
+uid: F49D57C11F5DBB18D7089A7B40
+visibility: party
+---
+# Mass Cure Wounds
+*5th-level, Abjuration*  
+
+- **Casting time:** 1 Action
+- **Range:** 60 feet
+- **Components:** V, S
+- **Duration:** Instantaneous
+
+A wave of healing energy washes out from a point you can see within range. Choose up to six creatures in a 30-foot-radius [Sphere](rules/variant-rules/sphere-area-of-effect-xphb.md) centered on that point. Each target regains [Hit Points](rules/variant-rules/hit-points-xphb.md) equal to `5d8` plus your spellcasting ability modifier.
+
+**Using a Higher-Level Spell Slot.** The healing increases by `1d8` for each spell slot level above 5.
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Cleric (Life Domain)](compendium/lists/list-spells-classes-life-domain-xphb.md "subclass=XPHB;class=XPHB"); [Cleric](compendium/lists/list-spells-classes-cleric.md); [Druid](compendium/lists/list-spells-classes-druid.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

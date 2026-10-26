@@ -1,0 +1,36 @@
+---
+aliases:
+  - Horn of Blasting
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: item
+cssclasses:
+  - json5e-item
+data:
+  rarity: rare
+  reqAttune: ""
+  type: INS|XPHB
+license: CC-BY-4.0
+name: Horn of Blasting
+obsidianUIMode: preview
+rarity: rare
+reqAttune: ""
+source: SRD 5.2.1
+src: xdmg
+system: dnd5e
+tags:
+  - compendium/src/5e/xdmg
+  - item/gear/instrument
+  - item/rarity/rare
+type: content
+uid: 11084C19712630630D1BBE19C1
+visibility: party
+---
+# Horn of Blasting
+*Wondrous item, instrument ([horn](compendium/items/horn-xphb.md)), rare*  
+
+
+You can take a [Magic](rules/actions.md#Magic) action to blow the horn, which emits a thunderous blast in a 30-foot [Cone](rules/variant-rules/cone-area-of-effect-xphb.md) that is audible out to 600 feet. Each creature in the [Cone](rules/variant-rules/cone-area-of-effect-xphb.md) makes a DC 15 Constitution saving throw. On a failed save, a creature takes `5d8` Thunder damage and has the [Deafened](rules/conditions.md#Deafened) condition for 1 minute. On a successful save, a creature takes half as much damage only. Glass or crystal objects in the [Cone](rules/variant-rules/cone-area-of-effect-xphb.md) that aren't being worn or carried take `10d8` Thunder damage.
+
+Each use of the horn's magic has a 20 percent chance of causing the horn to explode. The explosion deals `10d6` Force damage to the user and destroys the horn.
+
+*Source: SRD 5.2 and the Free Rules (2024)*

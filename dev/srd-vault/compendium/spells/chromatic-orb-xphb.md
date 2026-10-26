@@ -1,0 +1,60 @@
+---
+aliases:
+  - Chromatic Orb
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+casting_time: 1 action
+classes: []
+components: V, S, M (a diamond worth 50+ GP)
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S, M (a diamond worth 50+ GP)
+  duration: Instantaneous
+  level: 1
+  range: 90 feet
+  school: Evocation
+duration: Instantaneous
+level: 1
+license: CC-BY-4.0
+name: Chromatic Orb
+obsidianUIMode: preview
+range: 90 feet
+school: Evocation
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/sorcerer
+  - spell/class/wizard
+  - spell/feat/magic-initiate/wizard-spells
+  - spell/level/1st-level
+  - spell/school/evocation
+  - spell/subclass/college-of-lore
+  - spell/subclass/draconic-sorcery
+  - spell/subclass/evoker
+type: content
+uid: 92354ABE1E6FF3A324A668A5D8
+visibility: party
+---
+# Chromatic Orb
+*1st-level, Evocation*  
+
+- **Casting time:** 1 Action
+- **Range:** 90 feet
+- **Components:** V, S, M (a diamond worth 50+ GP)
+- **Duration:** Instantaneous
+
+You hurl an orb of energy at a target within range. Choose Acid, Cold, Fire, Lightning, Poison, or Thunder for the type of orb you create, and then make a ranged spell attack against the target. On a hit, the target takes `3d8` damage of the chosen type.
+
+If you roll the same number on two or more of the d8s, the orb leaps to a different target of your choice within 30 feet of the target. Make an attack roll against the new target, and make a new damage roll. The orb can't leap again unless you cast the spell with a level 2+ spell slot.
+
+**Using a Higher-Level Spell Slot.** The damage increases by `1d8` for each spell slot level above 1. The orb can leap a maximum number of times equal to the level of the slot expended, and a creature can be targeted only once by each casting of this spell.
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Sorcerer (Draconic Sorcery)](compendium/lists/list-spells-classes-draconic-sorcery-xphb.md "subclass=XPHB;class=XPHB"); [Sorcerer](compendium/lists/list-spells-classes-sorcerer.md); [Wizard (Evoker)](compendium/lists/list-spells-classes-evoker-xphb.md "subclass=XPHB;class=XPHB"); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

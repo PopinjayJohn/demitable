@@ -1,0 +1,57 @@
+---
+aliases:
+  - Commune
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+casting_time: 1 minute
+classes: []
+components: V, S, M (incense)
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 minute
+  classes: []
+  components: V, S, M (incense)
+  duration: timed
+  level: 5
+  range: <nil> self
+  school: Divination
+duration: timed
+level: 5
+license: CC-BY-4.0
+name: Commune
+obsidianUIMode: preview
+range: <nil> self
+school: Divination
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/cleric
+  - spell/level/5th-level
+  - spell/ritual
+  - spell/school/divination
+  - spell/subclass/oath-of-devotion
+type: content
+uid: 2F58AED7DC56FBBFB60C7B2E1B
+visibility: party
+---
+# Commune
+*5th-level, Divination (ritual)*  
+
+- **Casting time:** 1 minute unless cast as a ritual
+- **Range:** Self
+- **Components:** V, S, M (incense)
+- **Duration:** 1 minute
+
+You contact a deity or a divine proxy and ask up to three questions that can be answered with yes or no. You must ask your questions before the spell ends. You receive a correct answer for each question.
+
+Divine beings aren't necessarily omniscient, so you might receive "unclear" as an answer if a question pertains to information that lies beyond the deity's knowledge. In a case where a one-word answer could be misleading or contrary to the deity's interests, the DM might offer a short phrase as an answer instead.
+
+If you cast the spell more than once before finishing a [Long Rest](rules/variant-rules/long-rest-xphb.md), there is a cumulative  chance for each casting after the first that you get no answer.
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Cleric](compendium/lists/list-spells-classes-cleric.md); [Paladin (Oath of Devotion)](compendium/lists/list-spells-classes-oath-of-devotion-xphb.md "subclass=XPHB;class=XPHB")
+
+*Source: SRD 5.2 and the Free Rules (2024)*

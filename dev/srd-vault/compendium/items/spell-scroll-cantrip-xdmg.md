@@ -1,0 +1,39 @@
+---
+aliases:
+  - Spell Scroll (Cantrip)
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: item
+cssclasses:
+  - json5e-item
+data:
+  rarity: common
+  reqAttune: ""
+  type: SC|XPHB
+license: CC-BY-4.0
+name: Spell Scroll (Cantrip)
+obsidianUIMode: preview
+rarity: common
+reqAttune: ""
+source: SRD 5.2.1
+src: xdmg
+system: dnd5e
+tags:
+  - compendium/src/5e/xdmg
+  - item/rarity/common
+  - item/wondrous/scroll
+type: content
+uid: 5990457C63E9F729A7CC55446C
+visibility: party
+---
+# Spell Scroll (Cantrip)
+*Scroll, common*  
+
+- **Cost**: 30 gp
+
+A Spell Scroll bears the words of a single spell, written in a mystical cipher. If the spell is on your spell list, you can read the scroll and cast its spell without Material components. Otherwise, the scroll is unintelligible. Casting the spell by reading the scroll requires the spell's normal casting time. Once the spell is cast, the scroll crumbles to dust. If the casting is interrupted, the scroll isn't lost.
+
+If the spell is on your spell list but of a higher level than you can normally cast, you make a DC 10 ability check using your spellcasting ability to determine whether you cast the spell. On a failed check, the spell disappears from the scroll with no other effect.
+
+If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is `+5`.
+
+*Source: SRD 5.2 and the Free Rules (2024)*
