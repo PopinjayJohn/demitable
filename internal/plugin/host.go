@@ -1,23 +1,26 @@
 package plugin
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"sync"
 
 	"github.com/PopinjayJohn/demitable/internal/plugin/manifest"
+	"github.com/PopinjayJohn/demitable/internal/plugin/wasm"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
 // Host is the plugin host.
 type Host struct {
-	mu       sync.RWMutex
-	registry *Registry
-	services *ServiceRegistry
-	commands *CommandRegistry
-	bus      *EventBus
-	vault    VaultService
-	logger   *slog.Logger
+	mu         sync.RWMutex
+	registry   *Registry
+	services   *ServiceRegistry
+	commands   *CommandRegistry
+	bus        *EventBus
+	vault      VaultService
+	logger     *slog.Logger
+	wasmEngine *wasm.Engine
 
 	instances map[string]map[string]*hostInstance
 	disabled  bool
@@ -36,6 +39,11 @@ func NewHost(v VaultService, logger *slog.Logger) *Host {
 		vault:     v,
 		logger:    logger,
 		instances: map[string]map[string]*hostInstance{},
+	}
+	if eng, err := wasm.NewEngine(context.Background()); err == nil {
+		h.wasmEngine = eng
+	} else if logger != nil {
+		logger.Warn("wasm engine unavailable", "err", err)
 	}
 	return h
 }
@@ -60,6 +68,19 @@ func (h *Host) Vault() VaultService { return h.vault }
 
 // Logger returns the logger.
 func (h *Host) Logger() *slog.Logger { return h.logger }
+
+// WasmEngine returns the wasm engine.
+func (h *Host) WasmEngine() *wasm.Engine { return h.wasmEngine }
+
+// SetWasmEngine sets the wasm engine (for tests).
+func (h *Host) SetWasmEngine(e *wasm.Engine) { h.wasmEngine = e }
+
+// LoadPluginsFromVault scans a vault root for WASM plugin bundles and
+// registers them into the host's registry. Returns the count loaded.
+func (h *Host) LoadPluginsFromVault(root string) (int, error) {
+	n, err := LoadWasmFromDir(root, h.registry)
+	return n, err
+}
 
 // DisableAll marks every plugin disabled.
 func (h *Host) DisableAll() { h.mu.Lock(); h.disabled = true; h.mu.Unlock() }
@@ -113,6 +134,33 @@ func (h *Host) Enable(id string, p vault.Principal) (*hostInstance, error) {
 		Logger:    h.logger,
 	}
 	ctx := Context{Host: h, Services: h.services, Commands: h.commands, Bus: h.bus, Vault: h.vault, Logger: h.logger}
+
+	if reg.WasmBytes != nil {
+		if h.wasmEngine == nil {
+			eng, err := wasm.NewEngine(context.Background())
+			if err != nil {
+				return nil, err
+			}
+			h.wasmEngine = eng
+		}
+		// convert grants to wasm grants with scopes
+		wgrants := make([]wasm.Grant, 0, len(reg.Manifest.Capabilities))
+		for _, c := range reg.Manifest.Capabilities {
+			g := wasm.Grant{ID: c.ID}
+			if c.Scope != nil {
+				g.Scope = wasm.Scope{Paths: c.Scope.Paths, Types: c.Scope.Types, UIDs: c.Scope.UIDs}
+			}
+			wgrants = append(wgrants, g)
+		}
+		wi, err := h.wasmEngine.Instantiate(context.Background(), reg.Manifest, reg.WasmBytes, p, h.vault, wgrants, h.logger)
+		if err != nil {
+			return nil, err
+		}
+		inst.Wasm = wi
+		h.instances[id][key] = inst
+		return inst, nil
+	}
+
 	compiled := reg.Constructor(ctx)
 	inst.Compiled = compiled
 	// lifecycle
@@ -150,6 +198,9 @@ func (h *Host) Disable(id string, p vault.Principal) {
 	inst, ok := h.instances[id][key]
 	if !ok {
 		return
+	}
+	if inst.Wasm != nil {
+		_ = inst.Wasm.Close(context.Background())
 	}
 	if l, ok := inst.Compiled.(Lifecycle); ok {
 		_ = l.Disable()

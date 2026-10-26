@@ -1,12 +1,14 @@
 package plugin
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"sync"
 
 	"github.com/PopinjayJohn/demitable/internal/plugin/caps"
+	"github.com/PopinjayJohn/demitable/internal/plugin/wasm"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
@@ -23,6 +25,7 @@ type hostInstance struct {
 	Logger    *slog.Logger
 
 	Compiled Instance
+	Wasm     *wasm.Instance
 
 	mu      sync.RWMutex
 	context Context
@@ -129,6 +132,10 @@ var HostPrimitives = []string{"context.get", "pref.get", "pref.set", "command.re
 
 // Dispatch runs a capability call.
 func (i *hostInstance) Dispatch(c Call) Result {
+	if i.Wasm != nil {
+		wr := i.Wasm.Invoke(context.Background(), wasm.Call{Op: c.Op, Args: c.Args})
+		return Result{OK: wr.OK, Data: wr.Data, Error: convertEnvelope(wr.Error)}
+	}
 	op := c.Op
 	if !contains(caps.BridgeCalls(), op) {
 		// host primitives handled separately
@@ -360,4 +367,11 @@ func rawOrNull(raw json.RawMessage) any {
 // caps.BridgeCalls alias
 func init() {
 	_ = caps.BridgeCalls()
+}
+
+func convertEnvelope(e *wasm.Envelope) *Envelope {
+	if e == nil {
+		return nil
+	}
+	return &Envelope{Code: e.Code, Message: e.Message, Detail: e.Detail}
 }

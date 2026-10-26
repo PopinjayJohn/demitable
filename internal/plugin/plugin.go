@@ -71,7 +71,20 @@ type SurfaceProvider interface {
 type Registration struct {
 	Manifest    *Manifest
 	Constructor Constructor
+	// WasmBytes, when non-nil, marks this as a WASM-tier plugin. The host
+	// instantiates the module per (role, session) instead of calling
+	// Constructor.
+	WasmBytes []byte
+	WasmPath  string
 }
+
+// RegisterWasm registers a WASM plugin into the default registry.
+func RegisterWasm(m *Manifest, wasmBytes []byte) error {
+	return defaultRegistry.RegisterWasm(m, wasmBytes)
+}
+
+// RegisterWASM is an alias for RegisterWasm.
+func RegisterWASM(m *Manifest, wasmBytes []byte) error { return RegisterWasm(m, wasmBytes) }
 
 // Registry holds registered plugins.
 type Registry struct {
@@ -99,6 +112,26 @@ func (r *Registry) Register(m *Manifest, ctor Constructor) error {
 		}
 	}
 	r.regs = append(r.regs, &Registration{Manifest: m, Constructor: ctor})
+	return nil
+}
+
+// RegisterWasm registers a WASM plugin into the registry.
+func (r *Registry) RegisterWasm(m *Manifest, wasmBytes []byte) error {
+	if m == nil {
+		return fmt.Errorf("plugin: nil manifest")
+	}
+	errs := manifest.Validate(m)
+	if len(errs) > 0 {
+		return fmt.Errorf("plugin: invalid manifest: %w", errs[0])
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, reg := range r.regs {
+		if reg.Manifest.ID == m.ID {
+			return fmt.Errorf("plugin: %s already registered", m.ID)
+		}
+	}
+	r.regs = append(r.regs, &Registration{Manifest: m, WasmBytes: wasmBytes})
 	return nil
 }
 
@@ -181,4 +214,7 @@ type VaultService interface {
 	// AssetBytes reads one asset's bytes. A missing or escaping path
 	// returns an error.
 	AssetBytes(path string) ([]byte, error)
+	// UpdateNote writes raw bytes to a note (host_vault_write). Optional;
+	// vaults that cannot write return an error.
+	UpdateNote(uid string, data []byte) error
 }
