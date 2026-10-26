@@ -601,7 +601,11 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if req.Actor != "" {
 			if n := vlt.GetNote(req.Actor); n != nil {
 				for k, v := range n.Fields {
-					vars[k] = v
+					if fv, ok := v.(frontmatter.Value); ok {
+						vars[k] = fmValueToAny(fv)
+					} else {
+						vars[k] = v
+					}
 				}
 				vars["actor"] = req.Actor
 				vars["name"] = n.Name
@@ -681,10 +685,13 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			// target number
 			tgt := any(req.Target)
 			if n := vlt.GetNote(req.Target); n != nil {
-				// try dc/ac
 				for _, k := range []string{"dc", "ac", "target"} {
 					if v, ok := n.Fields[k]; ok {
-						tgt = v
+						if fv, ok := v.(frontmatter.Value); ok {
+							tgt = fmValueToAny(fv)
+						} else {
+							tgt = v
+						}
 						break
 					}
 				}
@@ -868,7 +875,15 @@ func tableProviderFor(vlt *vault.Vault, pk *pack.Pack) dice.TableProvider {
 					continue
 				}
 				if n.Name == id || n.UID == id {
-					t := dice.TableFromMap(id, n.Name, n.Fields)
+					fields := map[string]any{}
+					for k, v := range n.Fields {
+						if fv, ok := v.(frontmatter.Value); ok {
+							fields[k] = fmValueToAny(fv)
+						} else {
+							fields[k] = v
+						}
+					}
+					t := dice.TableFromMap(id, n.Name, fields)
 					if t.ID == "" {
 						t.ID = id
 					}
@@ -880,9 +895,17 @@ func tableProviderFor(vlt *vault.Vault, pk *pack.Pack) dice.TableProvider {
 				if n.Type != "table" {
 					continue
 				}
-				if data, ok := n.Fields["data"].(map[string]any); ok {
+				fields := map[string]any{}
+				for k, v := range n.Fields {
+					if fv, ok := v.(frontmatter.Value); ok {
+						fields[k] = fmValueToAny(fv)
+					} else {
+						fields[k] = v
+					}
+				}
+				if data, ok := fields["data"].(map[string]any); ok {
 					if did, ok := data["id"].(string); ok && did == id {
-						t := dice.TableFromMap(id, n.Name, n.Fields)
+						t := dice.TableFromMap(id, n.Name, fields)
 						if t.ID == "" {
 							t.ID = id
 						}
@@ -953,4 +976,34 @@ func tableProviderFor(vlt *vault.Vault, pk *pack.Pack) dice.TableProvider {
 		}
 		return nil, false
 	}
+}
+
+func fmValueToAny(v frontmatter.Value) any {
+	switch v.Kind {
+	case frontmatter.KindNull:
+		return nil
+	case frontmatter.KindString, frontmatter.KindLink, frontmatter.KindDate:
+		return v.Str
+	case frontmatter.KindBool:
+		return v.Bool
+	case frontmatter.KindInt:
+		return int(v.Int)
+	case frontmatter.KindFloat:
+		return v.Flo
+	case frontmatter.KindList:
+		out := make([]any, 0, len(v.List))
+		for _, e := range v.List {
+			out = append(out, fmValueToAny(e))
+		}
+		return out
+	case frontmatter.KindMap:
+		out := map[string]any{}
+		for _, e := range v.Map {
+			out[e.Key] = fmValueToAny(e.Value)
+		}
+		return out
+	case frontmatter.KindRaw:
+		return v.Raw
+	}
+	return nil
 }
