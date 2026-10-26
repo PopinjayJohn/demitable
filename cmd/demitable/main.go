@@ -313,6 +313,8 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 		}
 		w.Header().Set("Content-Type", "application/json")
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		visible := vault.Visible(principal, *n)
 		eff := n.Visibility
 		defaulted := false
 		if eff == "" {
@@ -326,6 +328,11 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if !isKnownVis(eff) {
 			eff = "gm"
 		}
+		// Badge label is derived FROM the projection: a note the requester
+		// may not see is labelled GM-only, regardless of its declared value.
+		if !visible {
+			eff = "gm"
+		}
 		payload := map[string]any{
 			"uid":                  n.UID,
 			"path":                 n.Path,
@@ -334,6 +341,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			"content":              string(n.Raw),
 			"effective_visibility": eff,
 			"defaulted":            defaulted,
+			"visible":              visible,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})

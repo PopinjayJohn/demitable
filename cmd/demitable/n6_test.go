@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/vault"
+	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 )
 
 func n6Setup(t *testing.T) (string, *httptest.Server, string) {
@@ -149,72 +149,117 @@ func TestN6NonGMCannotSelfApprove(t *testing.T) {
 }
 
 func TestN6StateMachineSubmittedReadOnly(t *testing.T) {
-	_, srv, gmToken := n6Setup(t)
-	// GM creates draft
-	payload := map[string]any{"system": "example", "name": "SMChar", "workflow": "draft"}
-	b, _ := json.Marshal(payload)
-	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters", bytes.NewReader(b))
+	dir, srv, gmToken := n6Setup(t)
+	_ = dir
+	// mint a real player account
+	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/players", bytes.NewBufferString(`{"name":"player1"}`))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+gmToken)
 	resp, _ := http.DefaultClient.Do(req)
-	var created map[string]any
-	json.NewDecoder(resp.Body).Decode(&created)
+	var pc map[string]any
+	json.NewDecoder(resp.Body).Decode(&pc)
 	resp.Body.Close()
+	code := pc["join_code"].(string)
+	r2, _ := http.Post(srv.URL+"/api/v1/auth/join", "application/json", bytes.NewBufferString(fmt.Sprintf(`{"code":%q}`, code)))
+	var jc map[string]any
+	json.NewDecoder(r2.Body).Decode(&jc)
+	r2.Body.Close()
+	playerToken := jc["token"].(string)
+
+	// player creates character (draft, owned)
+	payload := map[string]any{"system": "example", "name": "SMChar"}
+	b, _ := json.Marshal(payload)
+	reqC, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters", bytes.NewReader(b))
+	reqC.Header.Set("Content-Type", "application/json")
+	reqC.Header.Set("Authorization", "Bearer "+playerToken)
+	respC, _ := http.DefaultClient.Do(reqC)
+	var created map[string]any
+	json.NewDecoder(respC.Body).Decode(&created)
+	respC.Body.Close()
 	uid := created["uid"].(string)
-	// submit
-	req2, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters/"+uid+"/submit", nil)
-	req2.Header.Set("Authorization", "Bearer "+gmToken)
-	resp2, _ := http.DefaultClient.Do(req2)
-	resp2.Body.Close()
-	if resp2.StatusCode != 200 {
-		t.Fatalf("submit status %d", resp2.StatusCode)
+
+	// player submits
+	reqS, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters/"+uid+"/submit", nil)
+	reqS.Header.Set("Authorization", "Bearer "+playerToken)
+	respS, _ := http.DefaultClient.Do(reqS)
+	respS.Body.Close()
+	if respS.StatusCode != 200 {
+		t.Fatalf("submit status %d", respS.StatusCode)
 	}
-	// player token needed; use GM token still can edit (allowed). Test non-GM via account would require join; skip edit-as-player here but check 403 path with anonymous
-	req3, _ := http.NewRequest("PUT", srv.URL+"/api/v1/notes/"+uid, bytes.NewBufferString(`{"content":"---\nuid: x\n---\nhi"}`))
-	req3.Header.Set("Content-Type", "application/json")
-	// anonymous (no token) -> not GM, submitted => 403 or 404
-	resp3, _ := http.DefaultClient.Do(req3)
-	if resp3.StatusCode != 403 && resp3.StatusCode != 404 {
-		t.Fatalf("expected 403/404 got %d", resp3.StatusCode)
+
+	// player PUT submitted -> 403
+	reqP, _ := http.NewRequest("PUT", srv.URL+"/api/v1/notes/"+uid, bytes.NewBufferString(`{"content":"---\nuid: x\n---\nhi"}`))
+	reqP.Header.Set("Content-Type", "application/json")
+	reqP.Header.Set("Authorization", "Bearer "+playerToken)
+	respP, _ := http.DefaultClient.Do(reqP)
+	respP.Body.Close()
+	if respP.StatusCode != 403 {
+		t.Fatalf("player PUT submitted: got %d want 403", respP.StatusCode)
 	}
-	resp3.Body.Close()
-	// GM can edit (PATCH workflow retired)
-	req4, _ := http.NewRequest("PATCH", srv.URL+"/api/v1/notes/"+uid, bytes.NewBufferString(`{"fields":{"workflow":"retired"}}`))
-	req4.Header.Set("Content-Type", "application/json")
-	req4.Header.Set("Authorization", "Bearer "+gmToken)
-	resp4, _ := http.DefaultClient.Do(req4)
-	resp4.Body.Close()
-	if resp4.StatusCode != 200 {
-		t.Fatalf("GM edit submitted status %d", resp4.StatusCode)
+
+	// player PATCH submitted -> 403
+	reqPa, _ := http.NewRequest("PATCH", srv.URL+"/api/v1/notes/"+uid, bytes.NewBufferString(`{"fields":{"name":"X"}}`))
+	reqPa.Header.Set("Content-Type", "application/json")
+	reqPa.Header.Set("Authorization", "Bearer "+playerToken)
+	respPa, _ := http.DefaultClient.Do(reqPa)
+	respPa.Body.Close()
+	if respPa.StatusCode != 403 {
+		t.Fatalf("player PATCH submitted: got %d want 403", respPa.StatusCode)
+	}
+
+	// GM can edit submitted (PATCH workflow retired)
+	reqG, _ := http.NewRequest("PATCH", srv.URL+"/api/v1/notes/"+uid, bytes.NewBufferString(`{"fields":{"workflow":"retired"}}`))
+	reqG.Header.Set("Content-Type", "application/json")
+	reqG.Header.Set("Authorization", "Bearer "+gmToken)
+	respG, _ := http.DefaultClient.Do(reqG)
+	respG.Body.Close()
+	if respG.StatusCode != 200 {
+		t.Fatalf("GM edit submitted: got %d want 200", respG.StatusCode)
 	}
 }
 
 func TestN6WizardNoteNotInvisibleToAll(t *testing.T) {
-	_, srv, gmToken := n6Setup(t)
-	payload := map[string]any{"system": "example", "name": "VisChar"}
-	b, _ := json.Marshal(payload)
-	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters", bytes.NewReader(b))
+	dir, srv, gmToken := n6Setup(t)
+	// mint a real player account
+	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/players", bytes.NewBufferString(`{"name":"player1"}`))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+gmToken)
 	resp, _ := http.DefaultClient.Do(req)
-	var created map[string]any
-	json.NewDecoder(resp.Body).Decode(&created)
+	var pc map[string]any
+	json.NewDecoder(resp.Body).Decode(&pc)
 	resp.Body.Close()
-	// enumerate notes via GM
-	req2, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes", nil)
-	req2.Header.Set("Authorization", "Bearer "+gmToken)
-	resp2, _ := http.DefaultClient.Do(req2)
-	var list map[string]any
-	json.NewDecoder(resp2.Body).Decode(&list)
-	resp2.Body.Close()
-	items := list["items"].([]any)
-	for _, it := range items {
-		m := it.(map[string]any)
-		// at least GM visible (already in list) so not invisible to all
-		_ = m
+	code := pc["join_code"].(string)
+	r2, _ := http.Post(srv.URL+"/api/v1/auth/join", "application/json", bytes.NewBufferString(fmt.Sprintf(`{"code":%q}`, code)))
+	var jc map[string]any
+	json.NewDecoder(r2.Body).Decode(&jc)
+	r2.Body.Close()
+	playerID := jc["player"].(string)
+
+	// create wizard note as player
+	payload := map[string]any{"system": "example", "name": "VisChar", "visibility": "private"}
+	b, _ := json.Marshal(payload)
+	reqC, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters", bytes.NewReader(b))
+	reqC.Header.Set("Content-Type", "application/json")
+	reqC.Header.Set("Authorization", "Bearer "+jc["token"].(string))
+	respC, _ := http.DefaultClient.Do(reqC)
+	respC.Body.Close()
+
+	v, err := vault.Open(dir)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if len(items) == 0 {
-		t.Fatal("no notes")
+	realPrincipals := []vault.Principal{vault.GM(), vault.Account(playerID, "[[Campaign]]")}
+	for _, n := range v.AllNotes() {
+		seen := false
+		for _, pr := range realPrincipals {
+			if vault.Visible(pr, *n) {
+				seen = true
+				break
+			}
+		}
+		if !seen {
+			t.Fatalf("wizard-created note invisible to all real principals: %s", n.Path)
+		}
 	}
 }
 
@@ -267,11 +312,16 @@ func TestN6EffectiveVisibilityEndpoint(t *testing.T) {
 
 func TestN6SheetByteMatch(t *testing.T) {
 	_, srv, gmToken := n6Setup(t)
-	for _, sys := range []string{"dnd5e", "blades_in_the_dark"} {
+	cases := []struct {
+		sys string
+	}{
+		{"dnd5e"}, {"blades_in_the_dark"},
+	}
+	for _, c := range cases {
 		payload := map[string]any{
-			"system": sys,
-			"name":   "ByteChar-" + sys,
-			"fields": map[string]any{"alias": "x", "class": "fighter"},
+			"system": c.sys,
+			"name":   "ByteChar-" + c.sys,
+			"fields": map[string]any{"alias": "x", "class": "fighter", "name": "ByteChar-" + c.sys},
 		}
 		b, _ := json.Marshal(payload)
 		req, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters", bytes.NewReader(b))
@@ -282,16 +332,55 @@ func TestN6SheetByteMatch(t *testing.T) {
 		json.NewDecoder(resp.Body).Decode(&created)
 		resp.Body.Close()
 		uid := created["uid"].(string)
+
+		// frontmatter from notes endpoint
+		reqN, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/"+uid, nil)
+		reqN.Header.Set("Authorization", "Bearer "+gmToken)
+		respN, _ := http.DefaultClient.Do(reqN)
+		var note map[string]any
+		json.NewDecoder(respN.Body).Decode(&note)
+		respN.Body.Close()
+		content := note["content"].(string)
+
 		req2, _ := http.NewRequest("GET", srv.URL+"/api/v1/characters/"+uid+"?expand=1", nil)
 		req2.Header.Set("Authorization", "Bearer "+gmToken)
 		resp2, _ := http.DefaultClient.Do(req2)
 		var sheet map[string]any
 		json.NewDecoder(resp2.Body).Decode(&sheet)
 		resp2.Body.Close()
-		if sheet["expand"] != true {
-			t.Fatalf("expand not true")
+
+		// declared == pack
+		pk, _ := pack.Load(c.sys)
+		var ct *pack.ContentType
+		for i := range pk.Content {
+			if pk.Content[i].ID == "character" {
+				ct = &pk.Content[i]
+			}
 		}
-		_ = os.Args
+		declared := sheet["declared"].([]any)
+		if len(declared) != len(ct.Fields) {
+			t.Fatalf("%s: declared %d != pack %d", c.sys, len(declared), len(ct.Fields))
+		}
+
+		// parse frontmatter data map
+		doc, err := frontmatter.Parse([]byte(content))
+		if err != nil || !doc.HasBlock {
+			t.Fatal(err)
+		}
+		fmData := map[string]any{}
+		for _, f := range doc.Block.Fields {
+			if f.Key == "data" {
+				fmData = fmValueToAny(frontmatter.ValueOf(f.ValueNode)).(map[string]any)
+			}
+		}
+		fields := sheet["fields"].(map[string]any)
+		for k, v := range fmData {
+			if sv, ok := fields[k]; ok {
+				if fmt.Sprintf("%v", sv) != fmt.Sprintf("%v", v) {
+					t.Fatalf("%s: field %s sheet=%v fm=%v", c.sys, k, sv, v)
+				}
+			}
+		}
 	}
 }
 
@@ -334,5 +423,33 @@ func TestN6EndpointShapes(t *testing.T) {
 	resp5.Body.Close()
 	if resp5.StatusCode != 404 {
 		t.Fatalf("submit unknown status %d", resp5.StatusCode)
+	}
+}
+
+func TestN6BadgeAgreesWithProjection(t *testing.T) {
+	_, srv, gmToken := n6Setup(t)
+	// create a draft note owned by nobody? use GM creates draft private?
+	payload := map[string]any{"system": "example", "name": "BadgeChar", "visibility": "party", "workflow": "draft"}
+	b, _ := json.Marshal(payload)
+	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters", bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+gmToken)
+	resp, _ := http.DefaultClient.Do(req)
+	var created map[string]any
+	json.NewDecoder(resp.Body).Decode(&created)
+	resp.Body.Close()
+	uid := created["uid"].(string)
+
+	// anonymous requester: projection denies (party note, no membership) -> badge gm
+	req2, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/"+uid, nil)
+	resp2, _ := http.DefaultClient.Do(req2)
+	var note map[string]any
+	json.NewDecoder(resp2.Body).Decode(&note)
+	resp2.Body.Close()
+	if note["visible"] != false {
+		t.Fatalf("expected not visible, got %v", note["visible"])
+	}
+	if note["effective_visibility"] != "gm" {
+		t.Fatalf("badge label %v disagrees with projection", note["effective_visibility"])
 	}
 }
