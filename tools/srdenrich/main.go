@@ -20,6 +20,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -119,10 +120,7 @@ func main() {
 		// parse frontmatter via simple split
 		fm, body := splitFrontmatter(raw)
 		// Drop links to non-SRD (phb-sourced) list pages that are not emitted.
-		body = bytes.ReplaceAll(body, []byte("compendium/lists/list-optfeaturetype-ei.md"), []byte("#"))
-		body = bytes.ReplaceAll(body, []byte("compendium/lists/list-optfeaturetype-mm.md"), []byte("#"))
-		body = bytes.ReplaceAll(body, []byte("./list-optfeaturetype-ei.md"), []byte("#"))
-		body = bytes.ReplaceAll(body, []byte("./list-optfeaturetype-mm.md"), []byte("#"))
+		body = unwrapDanglingLinks(body)
 		src := sourceFrom(fm, p)
 		if src == "" {
 			src = "xphb"
@@ -238,6 +236,19 @@ func main() {
 		}
 		fmt.Println("archive written:", *archiveFlag)
 	}
+}
+
+var (
+	reDanglingEmbed  = regexp.MustCompile(`!\[([^\]]*)\]\([^)]*list-optfeaturetype-(?:ei|mm)\.md[^)]*\)`)
+	reDanglingLink   = regexp.MustCompile(`\[([^\]]*)\]\([^)]*list-optfeaturetype-(?:ei|mm)\.md[^)]*\)`)
+	reDanglingAnchor = regexp.MustCompile(`<a href="[^"]*list-optfeaturetype-(?:ei|mm)\.md[^"]*">([^<]*)</a>`)
+)
+
+func unwrapDanglingLinks(body []byte) []byte {
+	out := reDanglingAnchor.ReplaceAll(body, []byte("$1"))
+	out = reDanglingEmbed.ReplaceAll(out, []byte("$1"))
+	out = reDanglingLink.ReplaceAll(out, []byte("$1"))
+	return out
 }
 
 func fail(err error) {

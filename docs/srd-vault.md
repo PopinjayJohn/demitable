@@ -98,7 +98,7 @@ remaining misses must be reported, not silently dropped** — see §7.
 The pipeline produces three things:
 
 ```
-fixtures/  ──┬──▶  packs/dnd5e.yaml              the mechanics pack — ships
+fixtures/  ──┬──▶  internal/pack/packs/dnd5e.yaml  the mechanics pack — ships
              │
              └──▶  dev/srd-vault/                  the enriched vault — does not ship
                              │
