@@ -28,15 +28,15 @@ type Pack struct {
 
 	// Phase-2 blocks. These are parsed only so a pack that declares them can
 	// be rejected deliberately rather than as an "unknown key".
-	Formula     any `yaml:"formula"`
-	Formulas    any `yaml:"formulas"`
-	Dice        any `yaml:"dice"`
-	Resources   any `yaml:"resources"`
-	Attributes  any `yaml:"attributes"`
-	Conditions  any `yaml:"conditions"`
-	Progression any `yaml:"progression"`
-	Difficulty  any `yaml:"difficulty"`
-	Views       any `yaml:"views"`
+	Formula     any         `yaml:"formula"`
+	Formulas    any         `yaml:"formulas"`
+	Dice        *DiceConfig `yaml:"dice"`
+	Resources   any         `yaml:"resources"`
+	Attributes  any         `yaml:"attributes"`
+	Conditions  any         `yaml:"conditions"`
+	Progression any         `yaml:"progression"`
+	Difficulty  any         `yaml:"difficulty"`
+	Views       any         `yaml:"views"`
 }
 
 // ContentType is one declared kind of content object (ADR-0023).
@@ -114,7 +114,6 @@ func checkPhase2(p *Pack) error {
 	}{
 		{"formula", p.Formula},
 		{"formulas", p.Formulas},
-		{"dice", p.Dice},
 		{"resources", p.Resources},
 		{"attributes", p.Attributes},
 		{"conditions", p.Conditions},

@@ -161,18 +161,6 @@ content: []
 			block: "formula",
 		},
 		{
-			name: "dice",
-			src: `
-id: x
-name: X
-version: 1.0.0
-dice:
-  default: "1d20"
-content: []
-`,
-			block: "dice",
-		},
-		{
 			name: "formulas",
 			src: `
 id: x

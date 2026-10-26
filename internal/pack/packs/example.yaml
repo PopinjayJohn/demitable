@@ -15,3 +15,33 @@ content:
     fields:
       - { key: stage, label: Stage, type: text, required: true }
       - { key: giver, label: Giver, type: text, visibility: gm }
+dice:
+  default: "1d20"
+  direction: high
+  workflows:
+    - key: attack
+      label: Attack Roll
+      dice: "1d20"
+      against: resources.ac
+      bonus: attack_bonus
+      onSuccess: damage
+    - key: save
+      label: Saving Throw
+      dice: "1d20"
+      against: dc
+      bonus: save_bonus
+    - key: check
+      label: Ability Check
+      dice: "1d20"
+      against: dc
+      bonus: check_bonus
+    - key: pool
+      label: Roll Pool
+      dice: "{rating}d6"
+      vs: "{opposition}d6"
+      outcome: highest-count
+    - key: roll-under
+      label: Roll Under
+      dice: "1d20"
+      direction: low
+      against: dc
