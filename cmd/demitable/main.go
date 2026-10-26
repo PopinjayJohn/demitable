@@ -305,28 +305,33 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+		prin := principalFromRequest(r, tokenKeyFor(vlt))
 		// Under --expose, a read of a GM-only note is an audit event.
 		if cfg.Expose && (n.Visibility == "gm" || !isKnownVis(n.Visibility)) && audit != nil {
-			principal := "anonymous"
-			if c := principalFromRequest(r, tokenKeyFor(vlt)); c.Kind != "" {
-				principal = c.Kind
-				if c.ID != "" {
-					principal = c.Kind + ":" + c.ID
-				}
+			principal := prin.Kind
+			if principal == "" {
+				principal = "anonymous"
+			}
+			if prin.ID != "" {
+				principal = prin.Kind + ":" + prin.ID
 			}
 			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 		}
-		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		// Trust boundary: a principal that may not see the note gets 404
+		// with no body, never the raw note. (ADR-0002, ADR-0057.)
+		if !vault.Visible(prin, *n) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		content := string(n.Raw)
-		view := n.View(true)
+		view := n.View(prin.IsGM() || (prin.Kind == "account" && prin.ID != "" && prin.ID == n.Player))
 		if !prin.IsGM() {
 			vw := vault.Project(prin, *n)
 			view = vw
 			content = vw.Body
 		}
 		w.Header().Set("Content-Type", "application/json")
-		principal := principalFromRequest(r, tokenKeyFor(vlt))
-		visible := vault.Visible(principal, *n)
+		visible := true
 		eff := n.Visibility
 		defaulted := false
 		if eff == "" {
@@ -338,11 +343,6 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			defaulted = true
 		}
 		if !isKnownVis(eff) {
-			eff = "gm"
-		}
-		// Badge label is derived FROM the projection: a note the requester
-		// may not see is labelled GM-only, regardless of its declared value.
-		if !visible {
 			eff = "gm"
 		}
 		payload := map[string]any{
@@ -665,8 +665,17 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		if !vault.Visible(prin, *n) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		content := string(n.Raw)
+		if !prin.IsGM() {
+			content = vault.Project(prin, *n).Body
+		}
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{"uid": n.UID, "html": renderMarkdown(string(n.Raw))})
+		_ = json.NewEncoder(w).Encode(map[string]any{"uid": n.UID, "html": renderMarkdown(content)})
 	})
 
 	m.Handle("GET /asset/", assets.Handler(vlt.Root, allowAll))

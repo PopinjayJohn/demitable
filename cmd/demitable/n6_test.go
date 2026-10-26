@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -440,16 +441,15 @@ func TestN6BadgeAgreesWithProjection(t *testing.T) {
 	resp.Body.Close()
 	uid := created["uid"].(string)
 
-	// anonymous requester: projection denies (party note, no membership) -> badge gm
+	// anonymous requester: projection denies -> 404 with no body (O0a).
 	req2, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/"+uid, nil)
 	resp2, _ := http.DefaultClient.Do(req2)
-	var note map[string]any
-	json.NewDecoder(resp2.Body).Decode(&note)
+	body, _ := io.ReadAll(resp2.Body)
 	resp2.Body.Close()
-	if note["visible"] != false {
-		t.Fatalf("expected not visible, got %v", note["visible"])
+	if resp2.StatusCode != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d: %s", resp2.StatusCode, string(body))
 	}
-	if note["effective_visibility"] != "gm" {
-		t.Fatalf("badge label %v disagrees with projection", note["effective_visibility"])
+	if len(body) != 0 {
+		t.Fatalf("expected zero body bytes, got %d", len(body))
 	}
 }
