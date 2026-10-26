@@ -160,18 +160,6 @@ content: []
 `,
 			block: "formula",
 		},
-		{
-			name: "formulas",
-			src: `
-id: x
-name: X
-version: 1.0.0
-formulas:
-  con_mod: "floor((con - 10) / 2)"
-content: []
-`,
-			block: "formulas",
-		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -372,7 +360,9 @@ dice:
     - key: attack
       label: Attack
       dice: "1d20"
-content: []
+content:
+  - id: character
+    label: Character
 `
 	p, err := Parse([]byte(src))
 	if err != nil {

@@ -1,0 +1,24 @@
+id: shaped-5e
+name: Shaped 5e
+version: 1.0.0
+attributes:
+  - { key: str, label: Strength, type: number, default: 10, min: 1, max: 30 }
+resources:
+  - { key: hp, label: Hit Points, kind: health, default: 1, maxFormula: max_hp, visibility: owner }
+  - { key: ac, label: Armour Class, kind: defence, default: 10 }
+conditions:
+  - { key: prone, label: Prone, kind: flag }
+  - { key: poisoned, label: Poisoned, kind: flag }
+progression:
+  levels: { max: 20, label: Level }
+difficulty:
+  model: xp-budget
+  budgetPerLevel: 4
+formulas:
+  max_hp: "10 + attributes.str"
+content:
+  - id: character
+    label: Character
+    visibility: party
+    fields:
+      - { key: species, label: Species, type: text }

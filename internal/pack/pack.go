@@ -3,10 +3,12 @@
 //
 // A pack is data, not code (ADR-0003, ADR-0023): it declares content types
 // and the typed fields they carry, plus the visibility default each content
-// type contributes to the projection. Phase 1 ships a deliberate subset —
-// no formulas, no resources, no dice, no sheets. A pack that declares any of
-// those is rejected with a message naming the block and saying it is phase 2,
-// so a phase-2 pack fails loudly instead of half-working.
+// type contributes to the projection. Phase 2 completes the format with
+// resources, attributes, conditions, progression, difficulty, views,
+// formulas, secrets and dice; every block is additive, so a phase-1 pack
+// (no phase-2 blocks) keeps loading unchanged. The package also hosts the
+// pack linter (ADR-0007, ADR-0042, ADR-0044) that checks a pack's
+// declarations and formula references at load time.
 package pack
 
 import (
@@ -15,6 +17,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/PopinjayJohn/demitable/internal/formula"
 
 	"gopkg.in/yaml.v3"
 )
@@ -26,41 +30,87 @@ type Pack struct {
 	Version string        `yaml:"version"`
 	Content []ContentType `yaml:"content"`
 
-	// Phase-2 blocks. These are parsed only so a pack that declares them can
-	// be rejected deliberately rather than as an "unknown key".
-	Formula     any         `yaml:"formula"`
-	Formulas    any         `yaml:"formulas"`
-	Dice        *DiceConfig `yaml:"dice"`
-	Resources   any         `yaml:"resources"`
-	Attributes  any         `yaml:"attributes"`
-	Conditions  any         `yaml:"conditions"`
-	Progression any         `yaml:"progression"`
-	Difficulty  any         `yaml:"difficulty"`
-	Views       any         `yaml:"views"`
+	Formula     any               `yaml:"formula"`
+	Formulas    map[string]string `yaml:"formulas"`
+	Dice        *DiceConfig       `yaml:"dice"`
+	Resources   []Resource        `yaml:"resources"`
+	Attributes  []Attribute       `yaml:"attributes"`
+	Conditions  []Condition       `yaml:"conditions"`
+	Progression *Progression      `yaml:"progression"`
+	Difficulty  map[string]any    `yaml:"difficulty"`
+	Views       map[string]any    `yaml:"views"`
+	Secrets     *SecretsConfig    `yaml:"secrets"`
 }
 
-// ContentType is one declared kind of content object (ADR-0023).
+type Issue = formula.Issue
+
 type ContentType struct {
 	ID         string  `yaml:"id"`
 	Label      string  `yaml:"label"`
-	Visibility string  `yaml:"visibility"` // default for notes of this type
+	Visibility string  `yaml:"visibility"`
 	Fields     []Field `yaml:"fields"`
 	Choices    any     `yaml:"choices"`
 	Index      any     `yaml:"index"`
 }
 
-// Field is one typed field a content type declares.
 type Field struct {
 	Key        string `yaml:"key"`
 	Label      string `yaml:"label"`
 	Type       string `yaml:"type"`
 	Required   bool   `yaml:"required"`
 	Of         string `yaml:"of"`
-	Visibility string `yaml:"visibility"` // owner | gm | ... ; empty inherits the note's
+	Visibility string `yaml:"visibility"`
 	Default    any    `yaml:"default"`
 }
 
-// AllowedFieldTypes is the set of field types a phase-1 pack may declare.
+type Attribute struct {
+	Key     string `yaml:"key"`
+	Label   string `yaml:"label"`
+	Type    string `yaml:"type"`
+	Default any    `yaml:"default"`
+	Min     any    `yaml:"min"`
+	Max     any    `yaml:"max"`
+}
+
+type Resource struct {
+	Key        string `yaml:"key"`
+	Label      string `yaml:"label"`
+	Kind       string `yaml:"kind"`
+	Default    any    `yaml:"default"`
+	MaxFormula string `yaml:"maxFormula"`
+	Max        any    `yaml:"max"`
+	Min        any    `yaml:"min"`
+	Value      any    `yaml:"value"`
+	Size       int    `yaml:"size"`
+	Segments   int    `yaml:"segments"`
+	Filled     int    `yaml:"filled"`
+	Visibility string `yaml:"visibility"`
+}
+
+type Condition struct {
+	Key   string `yaml:"key"`
+	Label string `yaml:"label"`
+	Kind  string `yaml:"kind"`
+	Steps []any  `yaml:"steps"`
+	Value any    `yaml:"value"`
+}
+
+type Progression struct {
+	Levels *Levels `yaml:"levels"`
+	Ranks  any     `yaml:"ranks"`
+	XP     any     `yaml:"xp"`
+}
+
+type Levels struct {
+	Max   int    `yaml:"max"`
+	Label string `yaml:"label"`
+}
+
+type SecretsConfig struct {
+	CalloutTypes  []string `yaml:"calloutTypes"`
+	CodeBlockKeys []string `yaml:"codeBlockKeys"`
+}
+
 var AllowedFieldTypes = []string{
 	"text", "string", "number", "int", "integer", "float",
 	"boolean", "bool", "list", "object", "ref", "link",
@@ -68,14 +118,10 @@ var AllowedFieldTypes = []string{
 	"condition", "resource", "choice", "map",
 }
 
-// AllowedVisibility is the visibility vocabulary (ADR-0033, ADR-0050).
 var AllowedVisibility = []string{
 	"public", "party", "owner", "private", "discovered", "gm",
 }
 
-// --- parsing ---------------------------------------------------------------
-
-// Parse loads and validates a pack from YAML bytes.
 func Parse(data []byte) (*Pack, error) {
 	var root yaml.Node
 	dec := yaml.NewDecoder(bytes.NewReader(data))
@@ -96,40 +142,40 @@ func Parse(data []byte) (*Pack, error) {
 		return nil, fmt.Errorf("pack: %w", err)
 	}
 
-	// Phase-2 rejection: deliberate, not "unknown key".
 	if err := checkPhase2(&p); err != nil {
 		return nil, err
 	}
 	if err := validatePack(&p); err != nil {
 		return nil, err
 	}
+	for _, is := range p.lintFormulas() {
+		if is.Severity == "error" {
+			return nil, fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	for _, is := range p.lintInvariants() {
+		if is.Severity == "error" {
+			return nil, fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	for _, is := range p.lintDice() {
+		if is.Severity == "error" {
+			return nil, fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	if errs := p.validateBlocks(); len(errs) > 0 {
+		return nil, errs[0]
+	}
 	return &p, nil
 }
 
-// checkPhase2 rejects packs that declare phase-2 blocks.
 func checkPhase2(p *Pack) error {
-	checks := []struct {
-		name string
-		val  any
-	}{
-		{"formula", p.Formula},
-		{"formulas", p.Formulas},
-		{"resources", p.Resources},
-		{"attributes", p.Attributes},
-		{"conditions", p.Conditions},
-		{"progression", p.Progression},
-		{"difficulty", p.Difficulty},
-		{"views", p.Views},
-	}
-	for _, c := range checks {
-		if c.val != nil {
-			return fmt.Errorf("pack: %q is a phase 2 feature and is not available in phase 1", c.name)
-		}
+	if p.Formula != nil {
+		return fmt.Errorf("pack: %q is a phase 2 feature and is not available in phase 1", "formula")
 	}
 	return nil
 }
 
-// validatePack validates a loaded pack.
 func validatePack(p *Pack) error {
 	var errs []string
 	add := func(format string, args ...any) {
@@ -187,28 +233,310 @@ func validatePack(p *Pack) error {
 		}
 	}
 
+	seenAttr := map[string]bool{}
+	for i, a := range p.Attributes {
+		where := fmt.Sprintf("attributes[%d]", i)
+		if a.Key == "" {
+			add("%s: key is required", where)
+			continue
+		}
+		if seenAttr[a.Key] {
+			add("attribute %q declared twice", a.Key)
+		}
+		seenAttr[a.Key] = true
+	}
+	seenRes := map[string]bool{}
+	for i, r := range p.Resources {
+		where := fmt.Sprintf("resources[%d]", i)
+		if r.Key == "" {
+			add("%s: key is required", where)
+			continue
+		}
+		if seenRes[r.Key] {
+			add("resource %q declared twice", r.Key)
+		}
+		seenRes[r.Key] = true
+		if r.Visibility != "" && !containsStr(AllowedVisibility, r.Visibility) {
+			add("%s (%s): visibility %q is not in the vocabulary", where, r.Key, r.Visibility)
+		}
+	}
+	seenCond := map[string]bool{}
+	for i, c := range p.Conditions {
+		where := fmt.Sprintf("conditions[%d]", i)
+		if c.Key == "" {
+			add("%s: key is required", where)
+			continue
+		}
+		if seenCond[c.Key] {
+			add("condition %q declared twice", c.Key)
+		}
+		seenCond[c.Key] = true
+	}
+	if p.Secrets != nil {
+		for _, ct := range p.Secrets.CalloutTypes {
+			if strings.TrimSpace(ct) == "" {
+				add("secrets.calloutTypes: empty entry")
+			}
+		}
+		for _, k := range p.Secrets.CodeBlockKeys {
+			if strings.TrimSpace(k) == "" {
+				add("secrets.codeBlockKeys: empty entry")
+			}
+		}
+	}
+
 	if len(errs) > 0 {
 		return errors.New("pack: " + strings.Join(errs, "; "))
 	}
 	return nil
 }
 
-// Validate validates a pack. Returns an error (possibly wrapping multiple).
-func Validate(p *Pack) error {
+func (p *Pack) validateBlocks() []error {
+	var errs []error
+	add := func(format string, args ...any) {
+		errs = append(errs, fmt.Errorf("pack: "+format, args...))
+	}
+	for _, r := range p.Resources {
+		if r.Kind == "track" && r.Size <= 0 {
+			add("resource %q is a track but has no size", r.Key)
+		}
+	}
+	for _, c := range p.Conditions {
+		if c.Kind == "scale" && len(c.Steps) == 0 {
+			add("condition %q is a scale but has no steps", c.Key)
+		}
+	}
+	if p.Progression != nil && p.Progression.Levels != nil {
+		if p.Progression.Levels.Max < 0 {
+			add("progression.levels.max must be non-negative")
+		}
+	}
+	return errs
+}
+
+func (p *Pack) lintFormulas() []Issue {
+	if len(p.Formulas) == 0 {
+		// Still run with an empty formula map? No: nothing to check.
+		return nil
+	}
+	entity := []string{}
+	if p.Attributes != nil {
+		entity = append(entity, "attributes")
+		for _, a := range p.Attributes {
+			if a.Key != "" {
+				entity = append(entity, a.Key)
+			}
+		}
+	}
+	if p.Resources != nil {
+		entity = append(entity, "resources")
+		for _, r := range p.Resources {
+			if r.Key != "" {
+				entity = append(entity, r.Key)
+			}
+		}
+	}
+	if p.Conditions != nil {
+		entity = append(entity, "conditions")
+		for _, c := range p.Conditions {
+			if c.Key != "" {
+				entity = append(entity, c.Key)
+			}
+		}
+	}
+	if p.Progression != nil {
+		entity = append(entity, "level")
+	}
+	pack := []string{"proficiency", "spell_dc_base", "hit_die"}
+	if p.Progression != nil {
+		pack = append(pack, "progression")
+	}
+	if p.Difficulty != nil {
+		pack = append(pack, "difficulty")
+	}
+	// Derived formula names are a layer that can shadow entity-scope names;
+	// pass them as pack-scope names so formula.Check's shadowing branch can
+	// fire on real declarations (ADR-0042).
+	for name := range p.Formulas {
+		if name != "" {
+			pack = append(pack, name)
+		}
+	}
+	call := []string{"weapon", "target", "actor", "round", "dc"}
+	ctx := formula.Context{Name: "default", Entity: entity, Pack: pack, Call: call}
+	fm := make(map[string]string, len(p.Formulas))
+	for k, v := range p.Formulas {
+		fm[k] = v
+	}
+	return formula.Check(fm, ctx)
+}
+
+func toPack(x any) (*Pack, error) {
+	switch v := x.(type) {
+	case *Pack:
+		return v, nil
+	case Pack:
+		cp := v
+		return &cp, nil
+	case []byte:
+		return Parse(v)
+	case string:
+		return Parse([]byte(v))
+	}
+	return nil, fmt.Errorf("pack: unsupported lint input %T", x)
+}
+
+func Lint(x any) []Issue {
+	p, err := toPack(x)
+	if err != nil {
+		return []Issue{{Severity: "error", Kind: "invalid-input", Message: err.Error()}}
+	}
+	if p == nil {
+		return []Issue{{Severity: "error", Kind: "invalid-input", Message: "pack: nil pack"}}
+	}
+	var issues []Issue
+	if err := validatePack(p); err != nil {
+		issues = append(issues, Issue{Severity: "error", Kind: "validation", Message: err.Error()})
+	}
+	for _, e := range p.validateBlocks() {
+		issues = append(issues, Issue{Severity: "error", Kind: "validation", Message: e.Error()})
+	}
+	issues = append(issues, p.lintFormulas()...)
+	issues = append(issues, p.lintInvariants()...)
+	issues = append(issues, p.lintDice()...)
+	return issues
+}
+
+func LintPack(x any) []error   { return issuesToErrors(Lint(x)) }
+func LintErrors(x any) []error { return issuesToErrors(Lint(x)) }
+func IssuesToErrors(issues []Issue) []error {
+	var errs []error
+	for _, is := range issues {
+		errs = append(errs, fmt.Errorf("%s", is.Message))
+	}
+	return errs
+}
+func issuesToErrors(issues []Issue) []error { return IssuesToErrors(issues) }
+
+func (p *Pack) Lint() []Issue { return Lint(p) }
+
+// lintInvariants enforces ADR-0007's schema invariants.
+func (p *Pack) lintInvariants() []Issue {
+	var issues []Issue
+	// Invariant 6: every pack must be able to express a player character, an
+	// NPC and a creature. A pack with no content types cannot express any of
+	// them.
+	if len(p.Content) == 0 {
+		issues = append(issues, Issue{
+			Severity: "error",
+			Kind:     "invariant",
+			Message:  "pack: invariant 6 (every pack must express a player character, an NPC, and a creature): content: at least one content type is required",
+		})
+	}
+	// Invariant 7: difficulty is modelled by the pack in its own terms.
+	if p.Difficulty != nil {
+		model, ok := p.Difficulty["model"].(string)
+		if !ok || strings.TrimSpace(model) == "" {
+			issues = append(issues, Issue{
+				Severity: "error",
+				Kind:     "invariant",
+				Message:  "pack: invariant 7 (difficulty is modelled by the pack in its own terms): difficulty.model is required",
+			})
+		}
+	}
+	// Wrong-shape hint (ADR-0044): a clock encoded as a pool with max: 6.
+	for _, r := range p.Resources {
+		if r.Kind == "pool" {
+			isSix := false
+			switch v := r.Max.(type) {
+			case int:
+				isSix = v == 6
+			case float64:
+				isSix = v == 6
+			case string:
+				isSix = strings.TrimSpace(v) == "6"
+			}
+			if isSix && strings.TrimSpace(r.MaxFormula) == "" {
+				issues = append(issues, Issue{
+					Severity: "warning",
+					Kind:     "shape",
+					Formula:  r.Key,
+					Message:  fmt.Sprintf("pack: resource %q looks like a clock encoded as a pool with max: 6; consider kind: track with size", r.Key),
+				})
+			}
+		}
+	}
+	return issues
+}
+
+// lintDice checks dice workflows against declared resources.
+func (p *Pack) lintDice() []Issue {
+	var issues []Issue
+	if p.Dice == nil {
+		return nil
+	}
+	hasResources := p.Resources != nil
+	resKeys := map[string]bool{}
+	for _, r := range p.Resources {
+		resKeys[r.Key] = true
+	}
+	checkRef := func(field, ref string) {
+		ref = strings.TrimSpace(ref)
+		if !strings.HasPrefix(ref, "resources.") {
+			return
+		}
+		if !hasResources {
+			issues = append(issues, Issue{
+				Severity: "error",
+				Kind:     "invariant",
+				Message:  fmt.Sprintf("pack: invariant 1 (a pack need not define resources, but this pack assumes one exists): %s %q references a resource but the pack declares none", field, ref),
+			})
+			return
+		}
+		key := strings.TrimPrefix(ref, "resources.")
+		if key != "" && !resKeys[key] {
+			issues = append(issues, Issue{
+				Severity: "error",
+				Kind:     "unresolvable",
+				Message:  fmt.Sprintf("pack: %s %q references undeclared resource %q", field, ref, key),
+			})
+		}
+	}
+	for i, w := range p.Dice.Workflows {
+		where := fmt.Sprintf("dice.workflows[%d]", i)
+		checkRef(where+".against", w.Against)
+		checkRef(where+".bonus", w.Bonus)
+		checkRef(where+".vs", w.Vs)
+		checkRef(where+".onSuccess", w.OnSuccess)
+	}
+	return issues
+}
+
+func Validate(x any) error {
+	p, err := toPack(x)
+	if err != nil {
+		return err
+	}
 	if p == nil {
 		return errors.New("pack: nil pack")
 	}
-	// Re-run phase-2 check in case the pack was built by hand.
 	if err := checkPhase2(p); err != nil {
 		return err
 	}
-	return validatePack(p)
+	if err := validatePack(p); err != nil {
+		return err
+	}
+	for _, is := range p.lintFormulas() {
+		if is.Severity == "error" {
+			return fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	if errs := p.validateBlocks(); len(errs) > 0 {
+		return errs[0]
+	}
+	return nil
 }
 
-// --- visibility default -----------------------------------------------------
-
-// VisibilityDefault returns the visibility default a content type carries,
-// defaulting to "gm" when absent (ADR-0033).
 func (ct ContentType) VisibilityDefault() string {
 	if ct.Visibility == "" {
 		return "gm"
@@ -216,8 +544,6 @@ func (ct ContentType) VisibilityDefault() string {
 	return ct.Visibility
 }
 
-// VisibilityDefault is also available as a free function taking a content
-// type's declaration, for callers that prefer not to use the method.
 func VisibilityDefault(ct ContentType) string {
 	if ct.Visibility == "" {
 		return "gm"
@@ -225,15 +551,10 @@ func VisibilityDefault(ct ContentType) string {
 	return ct.Visibility
 }
 
-// --- note validation -------------------------------------------------------
-
-// ValidateNote checks a note's frontmatter against a declared content type.
-// Extra (GM-owned) fields are allowed and ignored (ADR-0040).
 func (ct ContentType) ValidateNote(fm map[string]any) error {
 	return validateNote(ct, fm)
 }
 
-// ValidateNote is also available as a free function taking the content type.
 func ValidateNote(ct ContentType, fm map[string]any) error { return validateNote(ct, fm) }
 
 func validateNote(ct ContentType, fm map[string]any) error {
@@ -249,7 +570,6 @@ func validateNote(ct ContentType, fm map[string]any) error {
 		errs = append(errs, fmt.Sprintf(format, args...))
 	}
 
-	// required fields present
 	for _, f := range ct.Fields {
 		if f.Required {
 			if _, ok := fm[f.Key]; !ok {
@@ -258,11 +578,10 @@ func validateNote(ct ContentType, fm map[string]any) error {
 		}
 	}
 
-	// declared fields: type check
 	for key, val := range fm {
 		f, declared := byKey[key]
 		if !declared {
-			continue // GM's own field
+			continue
 		}
 		if val == nil {
 			continue
@@ -300,7 +619,6 @@ func typeMatches(ftype string, v any) bool {
 		case []any, []string, []int, []float64:
 			return true
 		}
-		// reflect-ish fallback
 		return isSlice(v)
 	case "object", "map":
 		_, ok := v.(map[string]any)
@@ -310,12 +628,10 @@ func typeMatches(ftype string, v any) bool {
 		_, ok = v.(map[any]any)
 		return ok
 	}
-	// unknown type (shouldn't happen after validation): accept
 	return true
 }
 
 func isSlice(v any) bool {
-	// crude: yaml may produce []any; anything else with len() via reflection avoided.
 	switch v.(type) {
 	case []any:
 		return true
@@ -323,9 +639,6 @@ func isSlice(v any) bool {
 	return false
 }
 
-// --- marshalling -----------------------------------------------------------
-
-// Marshal serialises a pack to YAML.
 func Marshal(p *Pack) ([]byte, error) {
 	if p == nil {
 		return nil, errors.New("pack: nil pack")
@@ -341,8 +654,6 @@ func Marshal(p *Pack) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
-
-// --- helpers ---------------------------------------------------------------
 
 func containsStr(list []string, want string) bool {
 	for _, s := range list {
