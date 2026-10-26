@@ -10,9 +10,13 @@
 package vault
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/PopinjayJohn/demitable/internal/pack"
 )
 
 // This file is the seam between the vault service and the projection.
@@ -72,8 +76,10 @@ func Visible(p Principal, n Note) bool {
 		if seatBound {
 			return true
 		}
-		// W1: grants, which may cross a campaign boundary.
-		if !gated && p.ID != "" && contains(n.Grants, p.ID) {
+		// W1: grants, which may cross a campaign boundary. "*" grants to
+		// every authenticated principal (used by secret reveals with an
+		// "everyone" audience).
+		if !gated && p.ID != "" && (contains(n.Grants, p.ID) || contains(n.Grants, "*")) {
 			return true
 		}
 		// W2: discovery, resolved through the vault index (here, through
@@ -163,7 +169,7 @@ func Project(p Principal, n Note) NoteView {
 	}
 	v.Revealed = n.Revealed
 	if !p.IsGM() {
-		v.Body = projectBody(n)
+		v.Body = projectBody(p, n)
 	}
 	return v
 }
@@ -239,16 +245,17 @@ func refMatchesNote(ref string, n Note) bool {
 
 // projectBody strips unrevealed secret blocks and Obsidian comments from a
 // note body for a non-GM principal.
-func projectBody(n Note) string {
+func projectBody(p Principal, n Note) string {
 	body := n.Body
+	pack := PackFor(n.System)
 	var b strings.Builder
 	last := 0
-	for _, blk := range findSecretBlocks(body) {
-		if contains(n.Revealed, blk.id) {
+	for _, blk := range findSecretBlocks(body, pack) {
+		if blk.ID != "" && contains(n.Revealed, blk.ID) {
 			continue // revealed: keep the block
 		}
-		b.WriteString(body[last:blk.start])
-		last = blk.end
+		b.WriteString(body[last:blk.Start])
+		last = blk.End
 	}
 	b.WriteString(body[last:])
 	out := b.String()
@@ -256,44 +263,135 @@ func projectBody(n Note) string {
 	return out
 }
 
-// --- secret block handling (mirrors the demo campaign's projection) ---------
+// --- secret block handling (pack-driven, ADR-0036) ----------------------
 
-type secretBlock struct {
-	start, end int
-	id         string
+// SecretBlock is one GM-only block in a note body.
+type SecretBlock struct {
+	Start int
+	End   int
+	ID    string
+	Kind  string // "callout", "code", "marker"
 }
 
-func findSecretBlocks(body string) []secretBlock {
-	var out []secretBlock
-	s := body
-	pos := 0
-	for pos < len(s) {
-		line, next := lineAt(s, pos)
-		trimmed := strings.TrimRight(line, "\r\n")
+// FindSecretBlocks is the exported form. p may be nil; defaults apply.
+func FindSecretBlocks(body string, p *pack.Pack) []SecretBlock {
+	return findSecretBlocks(body, p)
+}
 
-		re := strings.TrimSpace(trimmed)
-		if secretCalloutRe.MatchString(re) {
-			end := next
-			blk := []string{line}
-			for end < len(s) {
-				l, n := lineAt(s, end)
-				if !strings.HasPrefix(strings.TrimSpace(l), ">") {
-					break
+func findSecretBlocks(body string, p *pack.Pack) []SecretBlock {
+	callouts, codeKeys := secretVocab(p)
+	var out []SecretBlock
+	pos := 0
+	lines := splitLines(body)
+	_ = lines
+	for pos < len(body) {
+		line, next := lineAt(body, pos)
+		trimmed := strings.TrimSpace(line)
+		trimmedNoNL := strings.TrimRight(trimmed, "\r\n")
+		_ = trimmedNoNL
+
+		// Obsidian callout form: > [!type]
+		if strings.HasPrefix(trimmed, ">") {
+			m := calloutTypeRe.FindStringSubmatch(trimmed)
+			if m != nil {
+				typ := strings.ToLower(strings.TrimSpace(m[1]))
+				if callouts[typ] {
+					// consume consecutive > lines
+					end := next
+					blkLines := []string{line}
+					for end < len(body) {
+						l, n := lineAt(body, end)
+						if !strings.HasPrefix(strings.TrimSpace(l), ">") {
+							break
+						}
+						blkLines = append(blkLines, l)
+						end = n
+					}
+					id := blockIDLines(blkLines)
+					if id == "" {
+						id = contentHash(body[pos:end])
+					}
+					out = append(out, SecretBlock{Start: pos, End: end, ID: id, Kind: "callout"})
+					pos = end
+					continue
 				}
-				blk = append(blk, l)
-				end = n
 			}
-			out = append(out, secretBlock{start: pos, end: end, id: blockIDLines(blk)})
+		}
+
+		// Generic marker block.
+		if strings.TrimSpace(trimmed) == "<!-- secret:begin -->" {
+			end := len(body)
+			if j := strings.Index(body[next:], "<!-- secret:end -->"); j >= 0 {
+				end = next + j + len("<!-- secret:end -->")
+			}
+			id := contentHash(body[pos:end])
+			// trailing block ref on next line?
+			out = append(out, SecretBlock{Start: pos, End: end, ID: id, Kind: "marker"})
 			pos = end
 			continue
 		}
 
-		if strings.TrimSpace(trimmed) == "<!-- secret:begin -->" {
-			end := len(s)
-			if j := strings.Index(s[next:], "<!-- secret:end -->"); j >= 0 {
-				end = next + j + len("<!-- secret:end -->")
+		// Fenced code block.
+		fence, fenceChar := fenceOpen(trimmed)
+		if fence != "" {
+			// find closing fence
+			end := next
+			// collect block
+			blockStart := pos
+			// advance to find end of code block
+			cur := next
+			closed := false
+			var blockLines []string
+			blockLines = append(blockLines, line)
+			for cur < len(body) {
+				l, n := lineAt(body, cur)
+				blockLines = append(blockLines, l)
+				if isClosingFence(strings.TrimSpace(l), fence, fenceChar) {
+					cur = n
+					closed = true
+					break
+				}
+				cur = n
 			}
-			out = append(out, secretBlock{start: pos, end: end})
+			if !closed {
+				cur = len(body)
+			}
+			end = cur
+			// determine secret
+			info := strings.TrimSpace(strings.TrimPrefix(trimmed, fence))
+			// info may include fence chars; remove leading fence
+			info = strings.TrimLeft(info, "`~")
+			info = strings.TrimSpace(info)
+			firstToken := ""
+			if info != "" {
+				firstToken = strings.Fields(info)[0]
+			}
+			ft := strings.ToLower(firstToken)
+			isSecret := false
+			if strings.HasPrefix(ft, "ad-") {
+				tt := strings.TrimPrefix(ft, "ad-")
+				if callouts[tt] {
+					isSecret = true
+				}
+			}
+			if callouts[ft] {
+				isSecret = true
+			}
+			// parse yaml options for code keys
+			if !isSecret {
+				opts := parseCodeBlockOptions(blockLines)
+				for k, v := range opts {
+					if codeKeys[strings.ToLower(k)] && truthy(v) {
+						isSecret = true
+						break
+					}
+				}
+			}
+			if isSecret {
+				id := contentHash(body[blockStart:end])
+				// block ref trailing?
+				out = append(out, SecretBlock{Start: blockStart, End: end, ID: id, Kind: "code"})
+			}
 			pos = end
 			continue
 		}
@@ -303,11 +401,125 @@ func findSecretBlocks(body string) []secretBlock {
 	return out
 }
 
+func secretVocab(p *pack.Pack) (map[string]bool, map[string]bool) {
+	callouts := map[string]bool{}
+	codeKeys := map[string]bool{}
+	// defaults (fail closed-ish backward compat)
+	for _, c := range []string{"secret", "gm-only", "hidden"} {
+		callouts[c] = true
+	}
+	for _, k := range []string{"gm", "secret"} {
+		codeKeys[k] = true
+	}
+	if p != nil && p.Secrets != nil {
+		// pack vocabulary overrides/augments defaults
+		callouts = map[string]bool{}
+		codeKeys = map[string]bool{}
+		for _, c := range p.Secrets.CalloutTypes {
+			callouts[strings.ToLower(strings.TrimSpace(c))] = true
+		}
+		for _, k := range p.Secrets.CodeBlockKeys {
+			codeKeys[strings.ToLower(strings.TrimSpace(k))] = true
+		}
+		// keep "secret" always
+		callouts["secret"] = true
+		codeKeys["gm"] = true
+		codeKeys["secret"] = true
+	}
+	return callouts, codeKeys
+}
+
+var calloutTypeRe = regexp.MustCompile(`^>\s*\[!([A-Za-z0-9_-]+)\]`)
+
 func lineAt(s string, pos int) (string, int) {
 	if i := strings.IndexByte(s[pos:], '\n'); i >= 0 {
 		return s[pos : pos+i+1], pos + i + 1
 	}
 	return s[pos:], len(s)
+}
+
+func contentHash(s string) string {
+	h := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(h[:])[:8]
+}
+
+func fenceOpen(trimmed string) (string, byte) {
+	// returns fence string (e.g. "```") and char
+	if strings.HasPrefix(trimmed, "```") {
+		i := 0
+		for i < len(trimmed) && trimmed[i] == '`' {
+			i++
+		}
+		if i >= 3 {
+			return trimmed[:i], '`'
+		}
+	}
+	if strings.HasPrefix(trimmed, "~~~") {
+		i := 0
+		for i < len(trimmed) && trimmed[i] == '~' {
+			i++
+		}
+		if i >= 3 {
+			return trimmed[:i], '~'
+		}
+	}
+	return "", 0
+}
+
+func isClosingFence(trimmed string, fence string, ch byte) bool {
+	if len(trimmed) < len(fence) {
+		return false
+	}
+	i := 0
+	for i < len(trimmed) && trimmed[i] == ch {
+		i++
+	}
+	if i < len(fence) {
+		return false
+	}
+	// rest must be empty or spaces
+	rest := strings.TrimSpace(trimmed[i:])
+	return rest == ""
+}
+
+func parseCodeBlockOptions(lines []string) map[string]string {
+	out := map[string]string{}
+	// skip first fence line; collect until blank line
+	started := false
+	for i, l := range lines {
+		if i == 0 {
+			continue
+		}
+		t := strings.TrimSpace(l)
+		if t == "" {
+			break
+		}
+		// stop if closing fence
+		if strings.HasPrefix(t, "```") || strings.HasPrefix(t, "~~~") {
+			break
+		}
+		idx := strings.Index(t, ":")
+		if idx > 0 {
+			key := strings.TrimSpace(t[:idx])
+			val := strings.TrimSpace(t[idx+1:])
+			if key != "" && !strings.ContainsAny(key, " 	") {
+				out[key] = val
+			}
+		}
+		started = true
+	}
+	_ = started
+	return out
+}
+
+func truthy(v string) bool {
+	v = strings.ToLower(strings.TrimSpace(v))
+	v = strings.Trim(v, "\"'")
+	return v == "true" || v == "yes" || v == "1"
+}
+
+func splitLines(s string) []string {
+	return strings.Split(s, "\n")
 }
 
 func blockIDLines(lines []string) string {
