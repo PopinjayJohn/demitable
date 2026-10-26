@@ -1,0 +1,36 @@
+---
+aliases:
+  - Net
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: item
+cssclasses:
+  - json5e-item
+data:
+  rarity: none
+  reqAttune: ""
+  type: G|XPHB
+license: CC-BY-4.0
+name: Net
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - item/gear/
+  - item/rarity/none
+type: content
+uid: 2B1D1AD36EC7A7551BE1C9A514
+visibility: party
+---
+# Net
+*Adventuring gear*  
+
+- **Cost**: 1 gp
+- **Weight**: 3.0 lbs.
+
+When you take the [Attack](rules/actions.md#Attack) action, you can replace one of your attacks with throwing a Net. Target a creature you can see within 15 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and [Proficiency Bonus](rules/variant-rules/proficiency-xphb.md)) or have the [Restrained](rules/conditions.md#Restrained) condition until it escapes. The target succeeds automatically if it is Huge or larger.
+
+To escape, the target or a creature within 5 feet of it must take an action to make a DC 10 Strength ([Athletics](rules/skills.md#Athletics)) check, freeing the [Restrained](rules/conditions.md#Restrained) creature on a success. Destroying the Net (AC 10; 5 HP; [Immunity](rules/variant-rules/immunity-xphb.md) to Bludgeoning, Poison, and Psychic damage) also frees the target, ending the effect.
+
+*Source: SRD 5.2 and the Free Rules (2024)*

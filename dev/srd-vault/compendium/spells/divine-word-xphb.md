@@ -1,0 +1,54 @@
+---
+aliases:
+  - Divine Word
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 bonus
+  classes: []
+  components: V
+  duration: Instantaneous
+  level: 7
+  range: 30 feet
+  school: Evocation
+license: CC-BY-4.0
+name: Divine Word
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/cleric
+  - spell/level/7th-level
+  - spell/school/evocation
+type: content
+uid: F2B1F8E0ABEBD122D0FEDF8A59
+visibility: party
+---
+# Divine Word
+*7th-level, Evocation*  
+
+- **Casting time:** 1 Bonus Action
+- **Range:** 30 feet
+- **Components:** V
+- **Duration:** Instantaneous
+
+You utter a word imbued with power from the Upper Planes. Each creature of your choice in range makes a Charisma saving throw. On a failed save, a target that has 50 [Hit Points](rules/variant-rules/hit-points-xphb.md) or fewer suffers an effect based on its current [Hit Points](rules/variant-rules/hit-points-xphb.md), as shown in the Divine Word Effects table. Regardless of its [Hit Points](rules/variant-rules/hit-points-xphb.md), a Celestial, an Elemental, a Fey, or a Fiend target that fails its save is forced back to its plane of origin (if it isn't there already) and can't return to the current plane for 24 hours by any means short of a [Wish](compendium/spells/wish-xphb.md) spell.
+
+**Divine Word Effects**
+
+| Hit Points | Effect |
+|------------|--------|
+| 0-20 | The target dies. |
+| 21-30 | The target has the [Blinded](rules/conditions.md#Blinded), [Deafened](rules/conditions.md#Deafened), and [Stunned](rules/conditions.md#Stunned) conditions for 1 hour. |
+| 31-40 | The target has the [Blinded](rules/conditions.md#Blinded) and [Deafened](rules/conditions.md#Deafened) conditions for 10 minutes. |
+| 41-50 | The target has the [Deafened](rules/conditions.md#Deafened) condition for 1 minute. |
+^divine-word-effects
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Cleric](compendium/lists/list-spells-classes-cleric.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

@@ -1,0 +1,48 @@
+---
+aliases:
+  - Arcanist's Magic Aura
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data: {}
+license: CC-BY-4.0
+name: Arcanist's Magic Aura
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/wizard
+  - spell/level/2nd-level
+  - spell/school/illusion
+  - spell/subclass/college-of-lore
+type: content
+uid: 1ED59FDB01323A08DF863BAFB8
+visibility: party
+---
+# Arcanist's Magic Aura
+*2nd-level, Illusion*  
+
+- **Casting time:** 1 Action
+- **Range:** Touch
+- **Components:** V, S, M (a small square of silk)
+- **Duration:** 24 hours
+
+With a touch, you place an illusion on a willing creature or an object that isn't being worn or carried. A creature gains the Mask effect below, and an object gains the False Aura effect below. The effect lasts for the duration. If you cast the spell on the same target every day for 30 days, the illusion lasts until dispelled.
+
+## Mask (Creature)
+
+Choose a creature type other than the target's actual type. Spells and other magical effects treat the target as if it were a creature of the chosen type.
+
+## False Aura (Object)
+
+You change the way the target appears to spells and magical effects that detect magical auras, such as [Detect Magic](compendium/spells/detect-magic-xphb.md). You can make a nonmagical object appear magical, make a magic item appear nonmagical, or change the object's aura so that it appears to belong to a school of magic you choose.
+
+## Summary
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

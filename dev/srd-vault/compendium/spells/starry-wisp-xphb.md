@@ -1,0 +1,49 @@
+---
+aliases:
+  - Starry Wisp
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S
+  duration: Instantaneous
+  level: 0
+  range: 60 feet
+  school: Evocation
+license: CC-BY-4.0
+name: Starry Wisp
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/druid
+  - spell/feat/magic-initiate/druid-spells
+  - spell/level/cantrip
+  - spell/optfeature/pact-of-the-tome
+  - spell/school/evocation
+  - spell/subclass/college-of-lore
+type: content
+uid: B32961807B5DBC78CAB1A64293
+visibility: party
+---
+# Starry Wisp
+*cantrip, Evocation*  
+
+- **Casting time:** 1 Action
+- **Range:** 60 feet
+- **Components:** V, S
+- **Duration:** Instantaneous
+
+You launch a mote of light at one creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes `1d8` Radiant damage, and until the end of your next turn, it emits [Dim Light](rules/variant-rules/dim-light-xphb.md) in a 10-foot radius and can't benefit from the [Invisible](rules/conditions.md#Invisible) condition.
+
+**Cantrip Upgrade.** The damage increases by `1d8` when you reach levels 5 (`2d8`), 11 (`3d8`), and 17 (`4d8`).
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Druid](compendium/lists/list-spells-classes-druid.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

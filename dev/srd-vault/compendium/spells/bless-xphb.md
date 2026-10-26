@@ -1,0 +1,50 @@
+---
+aliases:
+  - Bless
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S, M (a Holy Symbol worth 5+ GP)
+  duration: timed
+  level: 1
+  range: 30 feet
+  school: Enchantment
+license: CC-BY-4.0
+name: Bless
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/cleric
+  - spell/class/paladin
+  - spell/feat/magic-initiate/cleric-spells
+  - spell/level/1st-level
+  - spell/school/enchantment
+  - spell/subclass/college-of-lore
+  - spell/subclass/life-domain
+type: content
+uid: F8FAC8AD6917600A0400D05E4D
+visibility: party
+---
+# Bless
+*1st-level, Enchantment*  
+
+- **Casting time:** 1 Action
+- **Range:** 30 feet
+- **Components:** V, S, M (a Holy Symbol worth 5+ GP)
+- **Duration:** Concentration, up to 1 minute
+
+You bless up to three creatures within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target adds `1d4` to the attack roll or save.
+
+**Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Cleric (Life Domain)](compendium/lists/list-spells-classes-life-domain-xphb.md "subclass=XPHB;class=XPHB"); [Cleric](compendium/lists/list-spells-classes-cleric.md); [Paladin](compendium/lists/list-spells-classes-paladin.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

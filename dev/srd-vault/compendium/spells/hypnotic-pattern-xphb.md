@@ -1,0 +1,49 @@
+---
+aliases:
+  - Hypnotic Pattern
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: S, M (a pinch of confetti)
+  duration: timed
+  level: 3
+  range: 120 feet
+  school: Illusion
+license: CC-BY-4.0
+name: Hypnotic Pattern
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/sorcerer
+  - spell/class/warlock
+  - spell/class/wizard
+  - spell/level/3rd-level
+  - spell/school/illusion
+  - spell/subclass/college-of-lore
+type: content
+uid: C4C0D4EA043188E7F76F4D59C1
+visibility: party
+---
+# Hypnotic Pattern
+*3rd-level, Illusion*  
+
+- **Casting time:** 1 Action
+- **Range:** 120 feet
+- **Components:** S, M (a pinch of confetti)
+- **Duration:** Concentration, up to 1 minute
+
+You create a twisting pattern of colors in a 30-foot [Cube](rules/variant-rules/cube-area-of-effect-xphb.md) within range. The pattern appears for a moment and vanishes. Each creature in the area who can see the pattern must succeed on a Wisdom saving throw or have the [Charmed](rules/conditions.md#Charmed) condition for the duration. While [Charmed](rules/conditions.md#Charmed), the creature has the [Incapacitated](rules/conditions.md#Incapacitated) condition and a [Speed](rules/variant-rules/speed-xphb.md) of 0.
+
+The spell ends for an affected creature if it takes any damage or if someone else uses an action to shake the creature out of its stupor.
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Sorcerer](compendium/lists/list-spells-classes-sorcerer.md); [Warlock](compendium/lists/list-spells-classes-warlock.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

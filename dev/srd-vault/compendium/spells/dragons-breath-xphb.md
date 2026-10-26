@@ -1,0 +1,49 @@
+---
+aliases:
+  - Dragon's Breath
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 bonus
+  classes: []
+  components: V, S, M (a hot pepper)
+  duration: timed
+  level: 2
+  range: <nil> touch
+  school: Transmutation
+license: CC-BY-4.0
+name: Dragon's Breath
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/sorcerer
+  - spell/class/wizard
+  - spell/level/2nd-level
+  - spell/school/transmutation
+  - spell/subclass/college-of-lore
+  - spell/subclass/draconic-sorcery
+type: content
+uid: EE7176B359D10B5CBC363ED75C
+visibility: party
+---
+# Dragon's Breath
+*2nd-level, Transmutation*  
+
+- **Casting time:** 1 Bonus Action
+- **Range:** Touch
+- **Components:** V, S, M (a hot pepper)
+- **Duration:** Concentration, up to 1 minute
+
+You touch one willing creature, and choose Acid, Cold, Fire, Lightning, or Poison. Until the spell ends, the target can take a [Magic](rules/actions.md#Magic) action to exhale a 15-foot [Cone](rules/variant-rules/cone-area-of-effect-xphb.md). Each creature in that area makes a Dexterity saving throw, taking `3d6` damage of the chosen type on a failed save or half as much damage on a successful one.
+
+**Using a Higher-Level Spell Slot.** The damage increases by `1d6` for each spell slot level above 2.
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Sorcerer (Draconic Sorcery)](compendium/lists/list-spells-classes-draconic-sorcery-xphb.md "subclass=XPHB;class=XPHB"); [Sorcerer](compendium/lists/list-spells-classes-sorcerer.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

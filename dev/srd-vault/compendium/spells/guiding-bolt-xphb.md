@@ -1,0 +1,48 @@
+---
+aliases:
+  - Guiding Bolt
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S
+  duration: timed
+  level: 1
+  range: 120 feet
+  school: Evocation
+license: CC-BY-4.0
+name: Guiding Bolt
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/cleric
+  - spell/feat/magic-initiate/cleric-spells
+  - spell/level/1st-level
+  - spell/school/evocation
+  - spell/subclass/college-of-lore
+type: content
+uid: 81D25476ABDFC193724FB05015
+visibility: party
+---
+# Guiding Bolt
+*1st-level, Evocation*  
+
+- **Casting time:** 1 Action
+- **Range:** 120 feet
+- **Components:** V, S
+- **Duration:** 1 round
+
+You hurl a bolt of light toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes `4d6` Radiant damage, and the next attack roll made against it before the end of your next turn has [Advantage](rules/variant-rules/advantage-xphb.md).
+
+**Using a Higher-Level Spell Slot.** The damage increases by `1d6` for each spell slot level above 1.
+
+**Classes**: [Bard (College of Lore)](compendium/lists/list-spells-classes-college-of-lore-xphb.md "subclass=XPHB;class=XPHB"); [Bard](compendium/lists/list-spells-classes-bard.md); [Cleric](compendium/lists/list-spells-classes-cleric.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

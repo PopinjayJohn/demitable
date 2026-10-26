@@ -1,0 +1,48 @@
+---
+aliases:
+  - Circle of Death
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S, M (the powder of a crushed black pearl worth 500+ GP)
+  duration: Instantaneous
+  level: 6
+  range: 150 feet
+  school: Necromancy
+license: CC-BY-4.0
+name: Circle of Death
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/sorcerer
+  - spell/class/warlock
+  - spell/class/wizard
+  - spell/level/6th-level
+  - spell/school/necromancy
+type: content
+uid: 608DB2F85DE8914E1F96995F3E
+visibility: party
+---
+# Circle of Death
+*6th-level, Necromancy*  
+
+- **Casting time:** 1 Action
+- **Range:** 150 feet
+- **Components:** V, S, M (the powder of a crushed black pearl worth 500+ GP)
+- **Duration:** Instantaneous
+
+Negative energy ripples out in a 60-foot-radius [Sphere](rules/variant-rules/sphere-area-of-effect-xphb.md) from a point you choose within range. Each creature in that area makes a Constitution saving throw, taking `8d8` Necrotic damage on a failed save or half as much damage on a successful one.
+
+**Using a Higher-Level Spell Slot.** The damage increases by `2d8` for each spell slot level above 6.
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Sorcerer](compendium/lists/list-spells-classes-sorcerer.md); [Warlock](compendium/lists/list-spells-classes-warlock.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

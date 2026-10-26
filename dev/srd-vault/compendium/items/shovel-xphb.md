@@ -1,0 +1,34 @@
+---
+aliases:
+  - Shovel
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: item
+cssclasses:
+  - json5e-item
+data:
+  rarity: none
+  reqAttune: ""
+  type: G|XPHB
+license: CC-BY-4.0
+name: Shovel
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - item/gear/
+  - item/rarity/none
+type: content
+uid: 77A547DB83AB985EE1F0E012A3
+visibility: party
+---
+# Shovel
+*Adventuring gear*  
+
+- **Cost**: 2 gp
+- **Weight**: 5.0 lbs.
+
+Working for 1 hour, you can use a Shovel to dig a hole that is 5 feet on each side in soil or similar material.
+
+*Source: SRD 5.2 and the Free Rules (2024)*

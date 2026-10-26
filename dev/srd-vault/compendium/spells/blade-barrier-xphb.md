@@ -1,0 +1,46 @@
+---
+aliases:
+  - Blade Barrier
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 action
+  classes: []
+  components: V, S
+  duration: timed
+  level: 6
+  range: 90 feet
+  school: Evocation
+license: CC-BY-4.0
+name: Blade Barrier
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/cleric
+  - spell/level/6th-level
+  - spell/school/evocation
+type: content
+uid: 647064E5A62C55554609885455
+visibility: party
+---
+# Blade Barrier
+*6th-level, Evocation*  
+
+- **Casting time:** 1 Action
+- **Range:** 90 feet
+- **Components:** V, S
+- **Duration:** Concentration, up to 10 minutes
+
+You create a wall of whirling blades made of magical energy. The wall appears within range and lasts for the duration. You make a straight wall up to 100 feet long, 20 feet high, and 5 feet thick, or a ringed wall up to 60 feet in diameter, 20 feet high, and 5 feet thick. The wall provides Three-Quarters [Cover](rules/variant-rules/cover-xphb.md), and its space is [Difficult Terrain](rules/variant-rules/difficult-terrain-xphb.md).
+
+Any creature in the wall's space makes a Dexterity saving throw, taking `6d10` Force damage on a failed save or half as much damage on a successful one. A creature also makes that save if it enters the wall's space or ends it turn there. A creature makes that save only once per turn.
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Cleric](compendium/lists/list-spells-classes-cleric.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*

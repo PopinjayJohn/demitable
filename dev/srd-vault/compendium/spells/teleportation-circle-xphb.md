@@ -1,0 +1,52 @@
+---
+aliases:
+  - Teleportation Circle
+attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
+content_type: spell
+cssclasses:
+  - json5e-spell
+data:
+  casting_time: 1 minute
+  classes: []
+  components: V, M (rare inks worth 50+ GP, which the spell consumes)
+  duration: timed
+  level: 5
+  range: 10 feet
+  school: Conjuration
+license: CC-BY-4.0
+name: Teleportation Circle
+obsidianUIMode: preview
+source: SRD 5.2.1
+src: xphb
+system: dnd5e
+tags:
+  - compendium/src/5e/xphb
+  - spell/class/bard
+  - spell/class/sorcerer
+  - spell/class/warlock
+  - spell/class/wizard
+  - spell/level/5th-level
+  - spell/school/conjuration
+type: content
+uid: C79CA832831B77A681A91A38E7
+visibility: party
+---
+# Teleportation Circle
+*5th-level, Conjuration*  
+
+- **Casting time:** 1 minute
+- **Range:** 10 feet
+- **Components:** V, M (rare inks worth 50+ GP, which the spell consumes)
+- **Duration:** 1 round
+
+As you cast the spell, you draw a 5-foot-radius circle on the ground inscribed with sigils that link your location to a permanent teleportation circle of your choice whose sigil sequence you know and that is on the same plane of existence as you. A shimmering portal opens within the circle you drew and remains open until the end of your next turn. Any creature that enters the portal instantly appears within 5 feet of the destination circle or in the nearest unoccupied space if that space is occupied.
+
+Many major temples, guildhalls, and other important places have permanent teleportation circles. Each circle includes a unique sigil sequence—a string of runes arranged in a particular pattern.
+
+When you first gain the ability to cast this spell, you learn the sigil sequences for two destinations on the Material Plane, determined by the DM. You might learn additional sigil sequences during your adventures. You can commit a new sigil sequence to memory after studying it for 1 minute.
+
+You can create a permanent teleportation circle by casting this spell in the same location every day for 365 days.
+
+**Classes**: [Bard](compendium/lists/list-spells-classes-bard.md); [Sorcerer](compendium/lists/list-spells-classes-sorcerer.md); [Warlock](compendium/lists/list-spells-classes-warlock.md); [Wizard](compendium/lists/list-spells-classes-wizard.md)
+
+*Source: SRD 5.2 and the Free Rules (2024)*
