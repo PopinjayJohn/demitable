@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/PopinjayJohn/demitable/internal/uid"
 )
 
 // runInit implements `demitable init <dir>`: it scaffolds a fresh vault with
@@ -23,7 +25,10 @@ func runInit(args []string) error {
 		return fmt.Errorf("init: mkdir %s: %w", root, err)
 	}
 
-	notes := scaffoldNotes()
+	notes, err := scaffoldNotes()
+	if err != nil {
+		return err
+	}
 	for _, n := range notes {
 		full := filepath.Join(root, filepath.FromSlash(n.rel))
 		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
@@ -33,6 +38,7 @@ func runInit(args []string) error {
 			return fmt.Errorf("init: write %s: %w", n.rel, err)
 		}
 	}
+	fmt.Printf("created %d notes in %s\n", len(notes), root)
 	return nil
 }
 
@@ -49,14 +55,18 @@ var coreTypes = []string{
 	"journal", "document", "campaign", "home",
 }
 
-func scaffoldNotes() []scaffoldNote {
+func scaffoldNotes() ([]scaffoldNote, error) {
 	var out []scaffoldNote
+	campUID, err := uid.New()
+	if err != nil {
+		return nil, err
+	}
 	// Campaign note first, so its name is stable for the self-link.
 	out = append(out, scaffoldNote{
 		rel: "Campaigns/demo/Campaign.md",
 		content: `---
 type: campaign
-uid: scaffold-00
+uid: "` + campUID + `"
 name: Campaign
 system: example
 campaign: "[[Campaign]]"
@@ -73,11 +83,15 @@ packs:
 The scaffolded campaign. See [[Home]].
 `,
 	})
+	homeUID, err := uid.New()
+	if err != nil {
+		return nil, err
+	}
 	out = append(out, scaffoldNote{
 		rel: "Home.md",
 		content: `---
 type: home
-uid: scaffold-01
+uid: "` + homeUID + `"
 name: Home
 system: example
 campaign: "[[Campaign]]"
@@ -109,21 +123,28 @@ Welcome. See [[Campaign]].
 		{"content", "Notes/Content/Example Content.md", "Example Content", "content_type: character\nvisibility: party\n"},
 		{"handout", "Notes/Handouts/Example Handout.md", "Example Handout", "visibility: party\n"},
 		{"message", "Campaigns/demo/Chat/Example Message.md", "Example Message", "visibility: party\n"},
-		{"journal", "Campaigns/demo/Journals/Example Journal.md", "Example Journal", "visibility: private\n"},
+		{"journal", "Campaigns/demo/Journals/Example Journal.md", "Example Journal", "visibility: private\nplayer: p_placeholder\n"},
 		{"document", "Notes/Documents/Example Document.md", "Example Document", "visibility: public\n"},
 	}
-	for i, s := range specs {
-		uid := fmt.Sprintf("scaffold-%02d", i+2)
+	for _, s := range specs {
+		u, err := uid.New()
+		if err != nil {
+			return nil, err
+		}
 		body := "---\n"
 		body += "type: " + s.typ + "\n"
-		body += "uid: " + uid + "\n"
+		body += "uid: \"" + u + "\"\n"
 		body += "name: " + s.name + "\n"
 		body += "system: example\n"
 		body += "campaign: \"[[Campaign]]\"\n"
 		body += s.extra
-		body += "---\n\n# " + s.name + "\n\nSee [[Home]] and [[Campaign]].\n"
+		prose := "See [[Home]] and [[Campaign]].\n"
+		if s.typ == "journal" {
+			prose += "\nReplace `player: p_placeholder` with the owning account.\n"
+		}
+		body += "---\n\n# " + s.name + "\n\n" + prose
 		out = append(out, scaffoldNote{rel: s.rel, content: body})
 	}
 	// Ensure home type counted: already added. Count check not needed.
-	return out
+	return out, nil
 }
