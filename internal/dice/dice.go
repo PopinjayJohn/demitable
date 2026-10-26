@@ -434,6 +434,12 @@ func rollOpposed(left, right, full string, o RollOptions) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
+	if err := countValidation(o, lr.Faces, o.Tables); err != nil {
+		return Result{}, err
+	}
+	if err := countValidation(o, rr.Faces, o.Tables); err != nil {
+		return Result{}, err
+	}
 	// count successes
 	lc := countSuccesses(lr.Faces, o, nil)
 	rc := countSuccesses(rr.Faces, o, nil)
@@ -676,6 +682,9 @@ func rollDiceGroup(term string, o RollOptions) (groupResult, error) {
 		}
 		tbl = t
 		sides = len(tbl.Faces)
+		if sides == 0 {
+			return gr, fmt.Errorf("dice: table %q has no faces", tbl.DisplayName())
+		}
 	}
 
 	// comparison/ordering enforcement for keep on table-backed
