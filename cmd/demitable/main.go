@@ -28,6 +28,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/dice"
 	"github.com/PopinjayJohn/demitable/internal/formula"
+	"github.com/PopinjayJohn/demitable/internal/import"
 	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/server"
@@ -56,6 +57,9 @@ func run(args []string) error {
 	// init <dir>` does not choke on the global flags' defaults.
 	if len(args) > 0 && args[0] == "init" {
 		return runInit(args[1:])
+	}
+	if len(args) > 0 && args[0] == "import" {
+		return runImport(args[1:])
 	}
 	fs := flag.NewFlagSet("demitable", flag.ContinueOnError)
 	cfg := config.Config{}
@@ -1137,6 +1141,61 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	// Auth surface (M5a).
 	limiter := newAuthLimiter()
 	authHandlers(m, vlt, audit, cfg, limiter)
+
+	// Import (N8).
+	m.HandleFunc("POST /api/v1/import", func(w http.ResponseWriter, r *http.Request) {
+		if cfg.NoImport {
+			http.Error(w, "import disabled", http.StatusForbidden)
+			return
+		}
+		body, _ := io.ReadAll(r.Body)
+		var req struct {
+			URL            string `json:"url"`
+			Force          bool   `json:"force"`
+			Skip           bool   `json:"skip"`
+			IncludePlugins bool   `json:"include_plugins"`
+			NoPlugins      bool   `json:"no_plugins"`
+			AllowHTTP      bool   `json:"allow_http"`
+		}
+		if len(bytes.TrimSpace(body)) > 0 {
+			json.Unmarshal(body, &req)
+		}
+		allowHTTP := cfg.AllowHTTPImport || req.AllowHTTP
+		opts := importer.Options{
+			VaultRoot:      vlt.Root,
+			URL:            req.URL,
+			Force:          req.Force,
+			Skip:           req.Skip,
+			IncludePlugins: req.IncludePlugins,
+			NoPlugins:      req.NoPlugins,
+			AllowHTTP:      allowHTTP,
+			Interactive:    false,
+			Audit:          audit,
+		}
+		rep, err := importer.Import(r.Context(), opts)
+		if err != nil {
+			// reload vault on partial? no
+			vlt.Load()
+		} else {
+			vlt.Load()
+		}
+		w.Header().Set("Content-Type", "application/json")
+		resp := map[string]any{"report": rep}
+		if err != nil {
+			resp["error"] = err.Error()
+			w.WriteHeader(http.StatusBadRequest)
+		}
+		_ = json.NewEncoder(w).Encode(resp)
+	})
+	m.HandleFunc("GET /api/v1/import/report", func(w http.ResponseWriter, r *http.Request) {
+		rep, ok := importer.LastReport()
+		if !ok {
+			http.Error(w, "no import report", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(rep)
+	})
 
 	return m
 }
