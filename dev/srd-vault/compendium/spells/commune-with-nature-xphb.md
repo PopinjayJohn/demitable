@@ -2,9 +2,6 @@
 aliases:
   - Commune with Nature
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: <nil> self
   school: Divination
-duration: timed
-level: 5
 license: CC-BY-4.0
 name: Commune with Nature
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

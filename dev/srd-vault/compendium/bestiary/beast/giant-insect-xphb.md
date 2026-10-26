@@ -1,17 +1,7 @@
 ---
-abilities:
-  cha: 3
-  con: 15
-  dex: 13
-  int: 4
-  str: 17
-  wis: 14
 aliases:
   - Giant Insect
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
 cssclasses:
   - json5e-monster
@@ -41,23 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-immune: []
-languages:
-  - understands the languages you know
 license: CC-BY-4.0
 name: Giant Insect
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 40
-  fly:
-    condition: (Wasp only)
-    number: 40
-  walk: 40
 src: xphb
 system: dnd5e
 tags:
@@ -68,7 +45,6 @@ tags:
 type: content
 uid: 100B17E75B13C9FD24386FF73C
 visibility: party
-vulnerable: []
 ---
 # Giant Insect
 *Source: SRD 5.2*  

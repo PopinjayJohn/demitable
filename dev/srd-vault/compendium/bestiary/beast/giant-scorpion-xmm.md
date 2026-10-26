@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 15
-  dex: 13
-  int: 1
-  str: 16
-  wis: 9
-ac: 15
 aliases:
   - Giant Scorpion
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 52
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Scorpion
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 070A637696520B41FDD5F08EE4
 visibility: party
-vulnerable: []
 ---
 # Giant Scorpion
 *Source: SRD 5.2 and the Free Rules (2024)*  

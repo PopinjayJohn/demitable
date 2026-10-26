@@ -2,7 +2,6 @@
 aliases:
   - Barbarian
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -19,8 +18,8 @@ data:
       name: Danger Sense
     - level: 2
       name: Reckless Attack
-    - level: 0
-      name: map[classFeature:Barbarian Subclass
+    - level: 3
+      name: Barbarian Subclass
     - level: 3
       name: Primal Knowledge
     - level: 4
@@ -29,8 +28,8 @@ data:
       name: Extra Attack
     - level: 5
       name: Fast Movement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 7
       name: Feral Instinct
     - level: 7
@@ -39,16 +38,16 @@ data:
       name: Ability Score Improvement
     - level: 9
       name: Brutal Strike
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 10
+      name: Subclass Feature
     - level: 11
       name: Relentless Rage
     - level: 12
       name: Ability Score Improvement
     - level: 13
       name: Improved Brutal Strike
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 14
+      name: Subclass Feature
     - level: 15
       name: Persistent Rage
     - level: 16
@@ -87,89 +86,10 @@ data:
     - str
     - con
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Rage
-  - level: 1
-    name: Unarmored Defense
-  - level: 1
-    name: Weapon Mastery
-  - level: 2
-    name: Danger Sense
-  - level: 2
-    name: Reckless Attack
-  - level: 0
-    name: map[classFeature:Barbarian Subclass
-  - level: 3
-    name: Primal Knowledge
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Extra Attack
-  - level: 5
-    name: Fast Movement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 7
-    name: Feral Instinct
-  - level: 7
-    name: Instinctive Pounce
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Brutal Strike
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 11
-    name: Relentless Rage
-  - level: 12
-    name: Ability Score Improvement
-  - level: 13
-    name: Improved Brutal Strike
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 15
-    name: Persistent Rage
-  - level: 16
-    name: Ability Score Improvement
-  - level: 17
-    name: Improved Brutal Strike
-  - level: 18
-    name: Indomitable Might
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Primal Champion
-hit_die: 12
 license: CC-BY-4.0
 name: Barbarian
 obsidianUIMode: preview
-primary_abilities:
-  - str
-  - con
-proficiencies:
-  armor:
-    - light
-    - medium
-    - shield
-  skills:
-    - choose:
-        count: 2
-        from:
-          - animal handling
-          - athletics
-          - intimidation
-          - nature
-          - perception
-          - survival
-  weapons:
-    - simple
-    - martial
-saving_throws:
-  - str
-  - con
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

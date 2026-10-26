@@ -2,9 +2,6 @@
 aliases:
   - Hypnotic Pattern
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: S, M (a pinch of confetti)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 120 feet
   school: Illusion
-duration: timed
-level: 3
 license: CC-BY-4.0
 name: Hypnotic Pattern
 obsidianUIMode: preview
-range: 120 feet
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

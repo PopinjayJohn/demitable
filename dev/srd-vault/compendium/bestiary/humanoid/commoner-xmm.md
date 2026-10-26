@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 10
-  dex: 10
-  int: 10
-  str: 10
-  wis: 10
-ac: 10
 aliases:
   - Commoner
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 4
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Commoner
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: DD0D76A4A3420F76E3673885C4
 visibility: party
-vulnerable: []
 ---
 # Commoner
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 12
-  dex: 16
-  int: 8
-  str: 10
-  wis: 12
-ac: 14
 aliases:
   - Pirate
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 33
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Pirate
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 702493664B3BF950DECE226C47
 visibility: party
-vulnerable: []
 ---
 # Pirate
 *Source: SRD 5.2 and the Free Rules (2024)*  

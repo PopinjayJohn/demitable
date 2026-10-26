@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 16
-  dex: 18
-  int: 16
-  str: 19
-  wis: 19
-ac: 18
 aliases:
   - Guardian Naga
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - paralyzed
-  - poisoned
-  - restrained
 content_type: monster
-cr: "10"
-cr_xp: 5900
 cssclasses:
   - json5e-monster
 data:
@@ -56,24 +39,10 @@ data:
     walk: 40
   type: celestial
   vulnerable: []
-hp: 136
-immune:
-  - poison
-languages:
-  - Celestial
-  - Common
 license: CC-BY-4.0
 name: Guardian Naga
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 40
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -88,7 +57,6 @@ tags:
 type: content
 uid: 815A1912A71D0E734121922E85
 visibility: party
-vulnerable: []
 ---
 # Guardian Naga
 *Source: SRD 5.2 and the Free Rules (2024)*  

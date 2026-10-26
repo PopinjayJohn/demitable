@@ -2,9 +2,6 @@
 aliases:
   - Gust of Wind
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a legume seed)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: <nil> self
   school: Evocation
-duration: timed
-level: 2
 license: CC-BY-4.0
 name: Gust of Wind
 obsidianUIMode: preview
-range: <nil> self
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

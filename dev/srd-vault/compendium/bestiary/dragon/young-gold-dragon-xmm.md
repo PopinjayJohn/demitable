@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 21
-  dex: 14
-  int: 16
-  str: 23
-  wis: 13
-ac: 18
 aliases:
   - Young Gold Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "10"
-cr_xp: 5900
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 178
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Gold Dragon
 obsidianUIMode: preview
-passive_perception: 19
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: C600D8D63605263CB8AB1F33E2
 visibility: party
-vulnerable: []
 ---
 # Young Gold Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -2,9 +2,6 @@
 aliases:
   - Create Undead
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (one 150+ GP black onyx stone for each corpse)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: 10 feet
   school: Necromancy
-duration: Instantaneous
-level: 6
 license: CC-BY-4.0
 name: Create Undead
 obsidianUIMode: preview
-range: 10 feet
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

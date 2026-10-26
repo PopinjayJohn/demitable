@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 22
-  dex: 10
-  int: 19
-  str: 21
-  wis: 12
-ac: 18
 aliases:
   - Nalfeshnee
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - frightened
-  - poisoned
 content_type: monster
-cr: "13"
-cr_xp: 10000
 cssclasses:
   - json5e-monster
 data:
@@ -53,25 +38,10 @@ data:
     walk: 20
   type: fiend
   vulnerable: []
-hp: 184
-immune:
-  - poison
-languages:
-  - Abyssal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Nalfeshnee
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -84,7 +54,6 @@ tags:
 type: content
 uid: 7B0B5A5AE27FBD7121777871AD
 visibility: party
-vulnerable: []
 ---
 # Nalfeshnee
 *Source: SRD 5.2 and the Free Rules (2024)*  

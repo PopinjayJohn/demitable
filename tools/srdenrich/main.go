@@ -36,10 +36,11 @@ var (
 )
 
 type entity struct {
-	Type   string
-	Name   string
-	Source string
-	Data   map[string]any
+	Type      string
+	Name      string
+	Source    string
+	Data      map[string]any
+	Converted int
 }
 
 func main() {
@@ -117,6 +118,11 @@ func main() {
 		}
 		// parse frontmatter via simple split
 		fm, body := splitFrontmatter(raw)
+		// Drop links to non-SRD (phb-sourced) list pages that are not emitted.
+		body = bytes.ReplaceAll(body, []byte("compendium/lists/list-optfeaturetype-ei.md"), []byte("#"))
+		body = bytes.ReplaceAll(body, []byte("compendium/lists/list-optfeaturetype-mm.md"), []byte("#"))
+		body = bytes.ReplaceAll(body, []byte("./list-optfeaturetype-ei.md"), []byte("#"))
+		body = bytes.ReplaceAll(body, []byte("./list-optfeaturetype-mm.md"), []byte("#"))
 		src := sourceFrom(fm, p)
 		if src == "" {
 			src = "xphb"
@@ -141,7 +147,9 @@ func main() {
 		data := map[string]any{}
 		if ok {
 			data = cloneMap(ent.Data)
-			converted += countConverted(ent.Data)
+		}
+		if ok {
+			converted += ent.Converted
 		}
 		// also top-level mechanics (duplicate for compatibility)
 		// Build new frontmatter map preserving original fields.
@@ -160,12 +168,6 @@ func main() {
 		newFM["license"] = "CC-BY-4.0"
 		newFM["attribution"] = "Wizards of the Coast — D&D System Reference Document 5.2.1"
 		newFM["data"] = data
-		// duplicate mechanics top-level
-		for k, v := range data {
-			if _, exists := newFM[k]; !exists {
-				newFM[k] = v
-			}
-		}
 		// write
 		outPath := filepath.Join(tmpOut, rel)
 		if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
@@ -296,7 +298,21 @@ func asStringSlice(v any) []string {
 	switch t := v.(type) {
 	case []any:
 		for _, e := range t {
-			out = append(out, fmt.Sprint(e))
+			switch v := e.(type) {
+			case string:
+				out = append(out, v)
+			case float64:
+				out = append(out, str(v))
+			case map[string]any:
+				for _, key := range []string{"name", "id", "label", "title"} {
+					if s, ok := v[key].(string); ok && s != "" {
+						out = append(out, s)
+						break
+					}
+				}
+			default:
+				// Skip non-scalar elements rather than leaking Go syntax.
+			}
 		}
 	case []string:
 		out = t
@@ -437,9 +453,9 @@ func loadEntities(root string) map[string]*entity {
 	dataDir := filepath.Join(root, "data")
 
 	// helper to add
-	add := func(typ, name, source string, data map[string]any) {
+	add := func(typ, name, source string, data map[string]any, raw map[string]any) {
 		key := typ + "|" + strings.ToLower(strings.TrimSpace(name)) + "|" + strings.ToLower(strings.TrimSpace(source))
-		reg[key] = &entity{Type: typ, Name: name, Source: source, Data: data}
+		reg[key] = &entity{Type: typ, Name: name, Source: source, Data: data, Converted: countExpressionsInMap(raw)}
 	}
 
 	// monsters
@@ -450,13 +466,13 @@ func loadEntities(root string) map[string]*entity {
 				// still load all; filter later by usage
 			}
 			data := extractMonster(m)
-			add("monster", str(m["name"]), src, data)
+			add("monster", str(m["name"]), src, data, m)
 		}
 	})
 	// spells
 	loadJSONFiles(filepath.Join(dataDir, "spells"), "spells-*.json", func(d map[string]any) {
 		for _, s := range asObjSlice(d["spell"]) {
-			add("spell", str(s["name"]), str(s["source"]), extractSpell(s))
+			add("spell", str(s["name"]), str(s["source"]), extractSpell(s), s)
 		}
 	})
 	// classes
@@ -466,70 +482,70 @@ func loadEntities(root string) map[string]*entity {
 				continue
 			}
 			// only XPHB/P... load all
-			add("class", str(c["name"]), str(c["source"]), extractClass(c))
+			add("class", str(c["name"]), str(c["source"]), extractClass(c), c)
 		}
 	})
 	// races
 	loadSingle(filepath.Join(dataDir, "races.json"), func(d map[string]any) {
 		for _, r := range asObjSlice(d["race"]) {
-			add("species", str(r["name"]), str(r["source"]), extractRace(r))
+			add("species", str(r["name"]), str(r["source"]), extractRace(r), r)
 		}
 	})
 	// backgrounds
 	loadSingle(filepath.Join(dataDir, "backgrounds.json"), func(d map[string]any) {
 		for _, b := range asObjSlice(d["background"]) {
-			add("background", str(b["name"]), str(b["source"]), extractBackground(b))
+			add("background", str(b["name"]), str(b["source"]), extractBackground(b), b)
 		}
 	})
 	// feats
 	loadSingle(filepath.Join(dataDir, "feats.json"), func(d map[string]any) {
 		for _, f := range asObjSlice(d["feat"]) {
-			add("feat", str(f["name"]), str(f["source"]), extractFeat(f))
+			add("feat", str(f["name"]), str(f["source"]), extractFeat(f), f)
 		}
 	})
 	// optional features
 	loadSingle(filepath.Join(dataDir, "optionalfeatures.json"), func(d map[string]any) {
 		for _, o := range asObjSlice(d["optionalfeature"]) {
-			add("optionalfeature", str(o["name"]), str(o["source"]), extractOptional(o))
+			add("optionalfeature", str(o["name"]), str(o["source"]), extractOptional(o), o)
 		}
 	})
 	// variantrules
 	loadSingle(filepath.Join(dataDir, "variantrules.json"), func(d map[string]any) {
 		for _, v := range asObjSlice(d["variantrule"]) {
-			add("variantrule", str(v["name"]), str(v["source"]), extractVariant(v))
+			add("variantrule", str(v["name"]), str(v["source"]), extractVariant(v), v)
 		}
 	})
 	// items
 	loadSingle(filepath.Join(dataDir, "items.json"), func(d map[string]any) {
 		for _, it := range asObjSlice(d["item"]) {
-			add("item", str(it["name"]), str(it["source"]), extractItem(it))
+			add("item", str(it["name"]), str(it["source"]), extractItem(it), it)
 		}
 	})
 	// traps/hazards
 	loadSingle(filepath.Join(dataDir, "trapshazards.json"), func(d map[string]any) {
 		for _, t := range asObjSlice(d["trap"]) {
-			add("trap", str(t["name"]), str(t["source"]), extractTrap(t))
+			add("trap", str(t["name"]), str(t["source"]), extractTrap(t), t)
 		}
 		for _, h := range asObjSlice(d["hazard"]) {
-			add("trap", str(h["name"]), str(h["source"]), extractTrap(h))
+			add("trap", str(h["name"]), str(h["source"]), extractTrap(h), h)
 		}
 	})
 	// decks
 	loadSingle(filepath.Join(dataDir, "decks.json"), func(d map[string]any) {
 		for _, dk := range asObjSlice(d["deck"]) {
-			add("deck", str(dk["name"]), str(dk["source"]), map[string]any{})
+			add("deck", str(dk["name"]), str(dk["source"]), map[string]any{}, dk)
 		}
 	})
 	// vehicles
 	loadSingle(filepath.Join(dataDir, "vehicles.json"), func(d map[string]any) {
 		for _, v := range asObjSlice(d["vehicle"]) {
-			add("vehicle", str(v["name"]), str(v["source"]), map[string]any{})
+			add("vehicle", str(v["name"]), str(v["source"]), map[string]any{}, v)
 		}
 	})
 	// tables
 	loadSingle(filepath.Join(dataDir, "tables.json"), func(d map[string]any) {
 		for _, t := range asObjSlice(d["table"]) {
-			add("table", str(t["name"]), str(t["source"]), map[string]any{})
+			add("table", str(t["name"]), str(t["source"]), map[string]any{}, t)
 		}
 	})
 	return reg
@@ -565,6 +581,13 @@ func loadSingle(path string, fn func(map[string]any)) {
 		return
 	}
 	fn(d)
+}
+
+func asAnySlice(v any) []any {
+	if arr, ok := v.([]any); ok {
+		return arr
+	}
+	return nil
 }
 
 func asObjSlice(v any) []map[string]any {
@@ -610,7 +633,22 @@ func extractMonster(m map[string]any) map[string]any {
 		case string:
 			data["type"] = v
 		case map[string]any:
-			data["type"] = str(v["type"])
+			if c, ok := v["choose"]; ok {
+				data["type"] = str(c)
+			} else if tt, ok := v["type"]; ok {
+				switch t2 := tt.(type) {
+				case map[string]any:
+					if c2, ok := t2["choose"]; ok {
+						data["type"] = str(c2)
+					} else {
+						data["type"] = str(t2)
+					}
+				default:
+					data["type"] = str(tt)
+				}
+			} else {
+				data["type"] = str(v)
+			}
 		}
 	}
 	// alignment
@@ -662,8 +700,14 @@ func extractMonster(m map[string]any) map[string]any {
 	}
 	// cr
 	if cr := m["cr"]; cr != nil {
-		data["cr"] = str(cr)
-		data["cr_xp"] = crXP(str(cr))
+		switch v := cr.(type) {
+		case map[string]any:
+			data["cr"] = str(v["cr"])
+			data["cr_xp"] = crXP(str(v["cr"]))
+		default:
+			data["cr"] = str(cr)
+			data["cr_xp"] = crXP(str(cr))
+		}
 	}
 	// immune/resist/vulnerable
 	data["immune"] = strSlice(m["immune"])
@@ -727,7 +771,20 @@ func extractClass(c map[string]any) map[string]any {
 	}
 	// features from classFeatures
 	var features []any
-	for _, cf := range asStringSlice(c["classFeatures"]) {
+	for _, raw := range asAnySlice(c["classFeatures"]) {
+		var cf string
+		switch v := raw.(type) {
+		case string:
+			cf = v
+		case map[string]any:
+			if s, ok := v["classFeature"].(string); ok {
+				cf = s
+			} else {
+				continue
+			}
+		default:
+			continue
+		}
 		// format "Name|Class||Level" or "Name|Class||Level|Source"
 		parts := strings.Split(cf, "|")
 		name := parts[0]
@@ -1012,9 +1069,46 @@ func crXP(cr string) int {
 	return 0
 }
 
-func countConverted(data map[string]any) int {
-	// count formula-ish string fields? 0 for now
-	return 0
+func countExpressionsInMap(m map[string]any) int {
+	return countExpressionsInValue(m)
+}
+
+func countExpressionsInValue(v any) int {
+	n := 0
+	switch t := v.(type) {
+	case string:
+		n += countExpressions(t)
+	case map[string]any:
+		for _, val := range t {
+			n += countExpressionsInValue(val)
+		}
+	case []any:
+		for _, val := range t {
+			n += countExpressionsInValue(val)
+		}
+	}
+	return n
+}
+
+func countExpressions(s string) int {
+	// Count upstream 5e-tools formula/display expressions (<$...$>).
+	n := 0
+	i := 0
+	for {
+		a := strings.Index(s[i:], "<$")
+		if a < 0 {
+			break
+		}
+		a += i
+		b := strings.Index(s[a:], "$>")
+		if b < 0 {
+			break
+		}
+		b += a
+		n++
+		i = b + 2
+	}
+	return n
 }
 
 func compareDirs(a, b string) error {

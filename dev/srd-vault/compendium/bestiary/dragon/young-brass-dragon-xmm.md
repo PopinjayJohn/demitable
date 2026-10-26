@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 17
-  dex: 10
-  int: 12
-  str: 19
-  wis: 11
-ac: 17
 aliases:
   - Young Brass Dragon
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 110
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Brass Dragon
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  burrow: 20
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: F8B9932C989E4DF3943CB86597
 visibility: party
-vulnerable: []
 ---
 # Young Brass Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

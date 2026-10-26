@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 20
-  dex: 9
-  int: 3
-  str: 22
-  wis: 11
-ac: 18
 aliases:
   - Stone Golem
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "10"
-cr_xp: 5900
 cssclasses:
   - json5e-monster
 data:
@@ -58,22 +39,10 @@ data:
     walk: 30
   type: construct
   vulnerable: []
-hp: 220
-immune:
-  - poison
-  - psychic
-languages:
-  - understands Common plus two other languages but can't speak
 license: CC-BY-4.0
 name: Stone Golem
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +54,6 @@ tags:
 type: content
 uid: 72963DA09FB5C07D186FBF0B91
 visibility: party
-vulnerable: []
 ---
 # Stone Golem
 *Source: SRD 5.2 and the Free Rules (2024)*  

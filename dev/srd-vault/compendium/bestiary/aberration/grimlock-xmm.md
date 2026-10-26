@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 12
-  dex: 12
-  int: 9
-  str: 16
-  wis: 8
-ac: 11
 aliases:
   - Grimlock
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: aberration
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Grimlock
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 10CF65B2C0F4ADC6AEC862D7D0
 visibility: party
-vulnerable: []
 ---
 # Grimlock
 *Source: SRD 5.2 and the Free Rules (2024)*  

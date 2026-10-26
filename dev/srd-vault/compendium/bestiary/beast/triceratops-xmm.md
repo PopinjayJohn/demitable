@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 17
-  dex: 9
-  int: 2
-  str: 22
-  wis: 11
-ac: 14
 aliases:
   - Triceratops
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 114
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Triceratops
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 667BC3CC7C666D271C9F4F3430
 visibility: party
-vulnerable: []
 ---
 # Triceratops
 *Source: SRD 5.2 and the Free Rules (2024)*  

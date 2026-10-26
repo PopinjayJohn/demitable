@@ -2,7 +2,6 @@
 aliases:
   - Bard
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -17,14 +16,14 @@ data:
       name: Expertise
     - level: 2
       name: Jack of All Trades
-    - level: 0
-      name: map[classFeature:Bard Subclass
+    - level: 3
+      name: Bard Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
       name: Font of Inspiration
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 7
       name: Countercharm
     - level: 8
@@ -35,8 +34,8 @@ data:
       name: Magical Secrets
     - level: 12
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 14
+      name: Subclass Feature
     - level: 16
       name: Ability Score Improvement
     - level: 18
@@ -64,66 +63,10 @@ data:
     - dex
     - cha
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Bardic Inspiration
-  - level: 1
-    name: Spellcasting
-  - level: 2
-    name: Expertise
-  - level: 2
-    name: Jack of All Trades
-  - level: 0
-    name: map[classFeature:Bard Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Font of Inspiration
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 7
-    name: Countercharm
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Expertise
-  - level: 10
-    name: Magical Secrets
-  - level: 12
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 16
-    name: Ability Score Improvement
-  - level: 18
-    name: Superior Inspiration
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Words of Creation
-hit_die: 8
 license: CC-BY-4.0
 name: Bard
 obsidianUIMode: preview
-primary_abilities:
-  - dex
-  - cha
-proficiencies:
-  armor:
-    - light
-  skills:
-    - any: 3
-  toolProficiencies:
-    - anyMusicalInstrument: 3
-  tools:
-    - Choose three {@item Musical Instrument|XPHB|Musical Instruments}
-  weapons:
-    - simple
-saving_throws:
-  - dex
-  - cha
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

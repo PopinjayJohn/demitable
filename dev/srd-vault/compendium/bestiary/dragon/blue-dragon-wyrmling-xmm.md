@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 15
-  dex: 10
-  int: 12
-  str: 17
-  wis: 11
-ac: 17
 aliases:
   - Blue Dragon Wyrmling
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 65
-immune:
-  - lightning
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Blue Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  burrow: 15
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: C82189122A6D18044682EF3B2E
 visibility: party
-vulnerable: []
 ---
 # Blue Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

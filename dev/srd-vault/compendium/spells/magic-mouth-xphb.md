@@ -2,9 +2,6 @@
 aliases:
   - Magic Mouth
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (jade dust worth 10+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: 30 feet
   school: Illusion
-duration: permanent
-level: 2
 license: CC-BY-4.0
 name: Magic Mouth
 obsidianUIMode: preview
-range: 30 feet
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

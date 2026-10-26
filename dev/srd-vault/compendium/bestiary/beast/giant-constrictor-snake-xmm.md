@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 12
-  dex: 14
-  int: 1
-  str: 19
-  wis: 10
-ac: 12
 aliases:
   - Giant Constrictor Snake
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 60
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Constrictor Snake
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +49,6 @@ tags:
 type: content
 uid: 603A3765A55355729C0A459245
 visibility: party
-vulnerable: []
 ---
 # Giant Constrictor Snake
 *Source: SRD 5.2 and the Free Rules (2024)*  

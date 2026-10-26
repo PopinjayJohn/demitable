@@ -2,9 +2,6 @@
 aliases:
   - Glyph of Warding
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (powdered diamond worth 200+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: <nil> touch
   school: Abjuration
-duration: permanent
-level: 3
 license: CC-BY-4.0
 name: Glyph of Warding
 obsidianUIMode: preview
-range: <nil> touch
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 20
-  dex: 20
-  int: 18
-  str: 18
-  wis: 16
-ac: 16
 aliases:
   - Marilith
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "16"
-cr_xp: 15000
 cssclasses:
   - json5e-monster
 data:
@@ -51,25 +37,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 220
-immune:
-  - poison
-languages:
-  - Abyssal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Marilith
 obsidianUIMode: preview
-passive_perception: 18
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: D7969EB9D7EE0A001A2D203C7F
 visibility: party
-vulnerable: []
 ---
 # Marilith
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,9 +1,7 @@
 ---
-ability: null
 aliases:
   - Two-Weapon Fighting
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-category: FS
 content_type: feat
 cssclasses:
   - json5e-feat
@@ -16,9 +14,6 @@ data:
 license: CC-BY-4.0
 name: Two-Weapon Fighting
 obsidianUIMode: preview
-prerequisites:
-  - feature:
-      - Fighting Style
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

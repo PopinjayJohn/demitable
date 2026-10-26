@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 26
-  dex: 11
-  int: 22
-  str: 30
-  wis: 18
-ac: 18
 aliases:
   - Kraken
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - frightened
-  - grappled
-  - paralyzed
-  - restrained
 content_type: monster
-cr: map[cr:23 xpLair:62000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -38,8 +21,8 @@ data:
     - grappled
     - paralyzed
     - restrained
-  cr: map[cr:23 xpLair:62000]
-  cr_xp: 0
+  cr: "23"
+  cr_xp: 50000
   hp: 481
   immune:
     - cold
@@ -58,26 +41,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 481
-immune:
-  - cold
-  - lightning
-languages:
-  - understands Abyssal
-  - Celestial
-  - Infernal
-  - and Primordial but can't speak; telepathy 120 ft.
 license: CC-BY-4.0
 name: Kraken
 obsidianUIMode: preview
-passive_perception: 21
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  swim: 120
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -89,7 +56,6 @@ tags:
 type: content
 uid: 3A20F24F21F71A92666CBD2A35
 visibility: party
-vulnerable: []
 ---
 # Kraken
 *Source: SRD 5.2 and the Free Rules (2024)*  

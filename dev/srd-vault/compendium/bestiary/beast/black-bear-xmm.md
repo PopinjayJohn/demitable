@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 14
-  dex: 12
-  int: 2
-  str: 15
-  wis: 12
-ac: 11
 aliases:
   - Black Bear
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 19
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Black Bear
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: EF3232E1FD913D9E93C9016406
 visibility: party
-vulnerable: []
 ---
 # Black Bear
 *Source: SRD 5.2 and the Free Rules (2024)*  

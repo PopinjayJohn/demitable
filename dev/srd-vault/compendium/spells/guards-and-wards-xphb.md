@@ -2,9 +2,6 @@
 aliases:
   - Guards and Wards
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (a silver rod worth 10+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: <nil> touch
   school: Abjuration
-duration: timed
-level: 6
 license: CC-BY-4.0
 name: Guards and Wards
 obsidianUIMode: preview
-range: <nil> touch
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

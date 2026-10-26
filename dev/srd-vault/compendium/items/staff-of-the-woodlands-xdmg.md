@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Staff of the Woodlands
 obsidianUIMode: preview
-rarity: rare
-reqAttune: by a druid
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

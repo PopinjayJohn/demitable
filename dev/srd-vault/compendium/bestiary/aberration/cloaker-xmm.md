@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 12
-  dex: 15
-  int: 13
-  str: 17
-  wis: 14
-ac: 14
 aliases:
   - Cloaker
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - frightened
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -48,22 +34,10 @@ data:
     walk: 10
   type: aberration
   vulnerable: []
-hp: 91
-immune: []
-languages:
-  - Deep Speech
-  - Undercommon
 license: CC-BY-4.0
 name: Cloaker
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +49,6 @@ tags:
 type: content
 uid: B2B6AB3EA16A77BBD4AAE9F08F
 visibility: party
-vulnerable: []
 ---
 # Cloaker
 *Source: SRD 5.2 and the Free Rules (2024)*  

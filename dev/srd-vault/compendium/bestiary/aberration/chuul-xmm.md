@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 10
-  int: 5
-  str: 19
-  wis: 11
-ac: 16
 aliases:
   - Chuul
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -48,22 +34,10 @@ data:
     walk: 30
   type: aberration
   vulnerable: []
-hp: 76
-immune:
-  - poison
-languages:
-  - understands Deep Speech but can't speak
 license: CC-BY-4.0
 name: Chuul
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +51,6 @@ tags:
 type: content
 uid: 648733C66567F9227595A45DFA
 visibility: party
-vulnerable: []
 ---
 # Chuul
 *Source: SRD 5.2 and the Free Rules (2024)*  

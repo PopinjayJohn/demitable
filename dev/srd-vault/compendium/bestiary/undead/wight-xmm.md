@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 16
-  dex: 14
-  int: 10
-  str: 15
-  wis: 13
-ac: 14
 aliases:
   - Wight
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -50,22 +35,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 82
-immune:
-  - poison
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Wight
 obsidianUIMode: preview
-passive_perception: 13
-resist:
-  - necrotic
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +55,6 @@ tags:
 type: content
 uid: C777D7C8A6783510639934D99A
 visibility: party
-vulnerable: []
 ---
 # Wight
 *Source: SRD 5.2 and the Free Rules (2024)*  

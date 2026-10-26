@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 12
-  dex: 11
-  int: 5
-  str: 12
-  wis: 8
-ac: 11
 aliases:
   - Dretch
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 20
   type: fiend
   vulnerable: []
-hp: 18
-immune:
-  - poison
-languages:
-  - Abyssal; telepathy 60 ft. (works only with creatures that understand Abyssal)
 license: CC-BY-4.0
 name: Dretch
 obsidianUIMode: preview
-passive_perception: 9
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: FB819F6A62FB41B11DE0EE0D03
 visibility: party
-vulnerable: []
 ---
 # Dretch
 *Source: SRD 5.2 and the Free Rules (2024)*  

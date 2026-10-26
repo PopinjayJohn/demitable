@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 19
-  dex: 8
-  int: 5
-  str: 21
-  wis: 9
-ac: 13
 aliases:
   - Hill Giant
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: giant
   vulnerable: []
-hp: 105
-immune: []
-languages:
-  - Giant
 license: CC-BY-4.0
 name: Hill Giant
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 4BB7344664C9E02D1579B93A14
 visibility: party
-vulnerable: []
 ---
 # Hill Giant
 *Source: SRD 5.2 and the Free Rules (2024)*  

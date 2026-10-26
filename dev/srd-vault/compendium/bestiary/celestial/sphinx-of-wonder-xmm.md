@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 13
-  dex: 17
-  int: 15
-  str: 6
-  wis: 12
-ac: 13
 aliases:
   - Sphinx of Wonder
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -49,25 +36,10 @@ data:
     walk: 20
   type: celestial
   vulnerable: []
-hp: 24
-immune: []
-languages:
-  - Celestial
-  - Common
 license: CC-BY-4.0
 name: Sphinx of Wonder
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - necrotic
-  - psychic
-  - radiant
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +53,6 @@ tags:
 type: content
 uid: AD8D98CC358560B9BC1663E757
 visibility: party
-vulnerable: []
 ---
 # Sphinx of Wonder
 *Source: SRD 5.2 and the Free Rules (2024)*  

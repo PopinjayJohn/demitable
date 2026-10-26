@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 16
-  dex: 17
-  int: 6
-  str: 10
-  wis: 10
-ac: 13
 aliases:
   - Fire Elemental
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -65,25 +44,10 @@ data:
     walk: 50
   type: elemental
   vulnerable: []
-hp: 93
-immune:
-  - fire
-  - poison
-languages:
-  - Primordial (Ignan)
 license: CC-BY-4.0
 name: Fire Elemental
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -97,7 +61,6 @@ tags:
 type: content
 uid: 91CFE705CDB4F14F2C55BB4729
 visibility: party
-vulnerable: []
 ---
 # Fire Elemental
 *Source: SRD 5.2 and the Free Rules (2024)*  

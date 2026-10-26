@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Staff of Frost
 obsidianUIMode: preview
-rarity: very rare
-reqAttune: by a druid, sorcerer, warlock, or wizard
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

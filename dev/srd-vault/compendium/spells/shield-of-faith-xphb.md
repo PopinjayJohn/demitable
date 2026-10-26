@@ -2,9 +2,6 @@
 aliases:
   - Shield of Faith
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V, S, M (a prayer scroll)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: 60 feet
   school: Abjuration
-duration: timed
-level: 1
 license: CC-BY-4.0
 name: Shield of Faith
 obsidianUIMode: preview
-range: 60 feet
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 12
-  dex: 12
-  int: 10
-  str: 13
-  wis: 10
-ac: 18
 aliases:
   - Hobgoblin Warrior
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 11
-immune: []
-languages:
-  - Common
-  - Goblin
 license: CC-BY-4.0
 name: Hobgoblin Warrior
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +54,6 @@ tags:
 type: content
 uid: 414EF11B702DBAFB19EB70DF77
 visibility: party
-vulnerable: []
 ---
 # Hobgoblin Warrior
 *Source: SRD 5.2 and the Free Rules (2024)*  

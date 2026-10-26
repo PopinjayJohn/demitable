@@ -2,9 +2,6 @@
 aliases:
   - Light
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, M (a firefly or phosphorescent moss)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 0
   range: <nil> touch
   school: Evocation
-duration: timed
-level: 0
 license: CC-BY-4.0
 name: Light
 obsidianUIMode: preview
-range: <nil> touch
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

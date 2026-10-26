@@ -2,9 +2,6 @@
 aliases:
   - Etherealness
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: <nil> self
   school: Conjuration
-duration: timed
-level: 7
 license: CC-BY-4.0
 name: Etherealness
 obsidianUIMode: preview
-range: <nil> self
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

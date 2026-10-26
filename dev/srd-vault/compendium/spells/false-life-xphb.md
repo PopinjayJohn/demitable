@@ -2,9 +2,6 @@
 aliases:
   - False Life
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a drop of alcohol)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: <nil> self
   school: Necromancy
-duration: Instantaneous
-level: 1
 license: CC-BY-4.0
 name: False Life
 obsidianUIMode: preview
-range: <nil> self
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

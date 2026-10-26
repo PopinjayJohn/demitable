@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 18
-  dex: 17
-  int: 13
-  str: 14
-  wis: 16
-ac: 17
 aliases:
   - Rakshasa
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
 content_type: monster
-cr: "13"
-cr_xp: 10000
 cssclasses:
   - json5e-monster
 data:
@@ -53,21 +38,10 @@ data:
       note: damage from weapons wielded by creatures under the effect of a Bless spell
       vulnerable:
         - piercing
-hp: 221
-immune: []
-languages:
-  - Common
-  - Infernal
 license: CC-BY-4.0
 name: Rakshasa
 obsidianUIMode: preview
-passive_perception: 18
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -81,11 +55,6 @@ tags:
 type: content
 uid: D236D04FC54285A8AB04763E64
 visibility: party
-vulnerable:
-  - cond: true
-    note: damage from weapons wielded by creatures under the effect of a Bless spell
-    vulnerable:
-      - piercing
 ---
 # Rakshasa
 *Source: SRD 5.2 and the Free Rules (2024)*  

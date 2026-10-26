@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 21
-  dex: 15
-  int: 19
-  str: 20
-  wis: 17
-ac: 17
 aliases:
   - Glabrezu
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 189
-immune:
-  - poison
-languages:
-  - Abyssal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Glabrezu
 obsidianUIMode: preview
-passive_perception: 17
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: 7615AE8B3E321DBEFBC2ADD29D
 visibility: party
-vulnerable: []
 ---
 # Glabrezu
 *Source: SRD 5.2 and the Free Rules (2024)*  

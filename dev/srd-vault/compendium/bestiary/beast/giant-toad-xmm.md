@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 13
-  dex: 13
-  int: 2
-  str: 15
-  wis: 10
-ac: 11
 aliases:
   - Giant Toad
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 39
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Toad
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +49,6 @@ tags:
 type: content
 uid: 00FC029A9D7BEF2D6834450E1B
 visibility: party
-vulnerable: []
 ---
 # Giant Toad
 *Source: SRD 5.2 and the Free Rules (2024)*  

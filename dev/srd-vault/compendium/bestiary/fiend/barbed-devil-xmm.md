@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 18
-  dex: 17
-  int: 12
-  str: 16
-  wis: 14
-ac: 15
 aliases:
   - Barbed Devil
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 110
-immune:
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Barbed Devil
 obsidianUIMode: preview
-passive_perception: 18
-resist:
-  - cold
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: 7645B6BC5336A7B354D3B04A7B
 visibility: party
-vulnerable: []
 ---
 # Barbed Devil
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 13
-  dex: 18
-  int: 2
-  str: 10
-  wis: 10
-ac: 14
 aliases:
   - Giant Venomous Snake
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Venomous Snake
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +51,6 @@ tags:
 type: content
 uid: C3EAEE417CF2759F79EAF60091
 visibility: party
-vulnerable: []
 ---
 # Giant Venomous Snake
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Ring of Mind Shielding
 obsidianUIMode: preview
-rarity: uncommon
-reqAttune: "true"
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

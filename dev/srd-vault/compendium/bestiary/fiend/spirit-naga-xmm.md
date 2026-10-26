@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 14
-  dex: 17
-  int: 16
-  str: 18
-  wis: 15
-ac: 17
 aliases:
   - Spirit Naga
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - poisoned
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -50,22 +35,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 135
-immune:
-  - poison
-languages:
-  - Abyssal
-  - Common
 license: CC-BY-4.0
 name: Spirit Naga
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +52,6 @@ tags:
 type: content
 uid: B1504D8977AA90FC9F7C19E83C
 visibility: party
-vulnerable: []
 ---
 # Spirit Naga
 *Source: SRD 5.2 and the Free Rules (2024)*  

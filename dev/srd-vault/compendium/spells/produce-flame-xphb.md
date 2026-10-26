@@ -2,9 +2,6 @@
 aliases:
   - Produce Flame
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 0
   range: <nil> self
   school: Conjuration
-duration: timed
-level: 0
 license: CC-BY-4.0
 name: Produce Flame
 obsidianUIMode: preview
-range: <nil> self
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

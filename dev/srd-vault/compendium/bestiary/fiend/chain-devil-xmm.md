@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 18
-  dex: 15
-  int: 11
-  str: 18
-  wis: 12
-ac: 15
 aliases:
   - Chain Devil
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -52,26 +38,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 85
-immune:
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Chain Devil
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - bludgeoning
-  - cold
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -84,7 +54,6 @@ tags:
 type: content
 uid: ADCC5906B5478CC720B03B3916
 visibility: party
-vulnerable: []
 ---
 # Chain Devil
 *Source: SRD 5.2 and the Free Rules (2024)*  

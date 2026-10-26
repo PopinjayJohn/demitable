@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 15
-  dex: 6
-  int: 10
-  str: 19
-  wis: 10
-ac: 13
 aliases:
   - Awakened Tree
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -47,22 +34,10 @@ data:
   type: plant
   vulnerable:
     - fire
-hp: 59
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Awakened Tree
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - bludgeoning
-  - piercing
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -74,8 +49,6 @@ tags:
 type: content
 uid: 7FA456DD9BF732AFC9199CEE70
 visibility: party
-vulnerable:
-  - fire
 ---
 # Awakened Tree
 *Source: SRD 5.2 and the Free Rules (2024)*  

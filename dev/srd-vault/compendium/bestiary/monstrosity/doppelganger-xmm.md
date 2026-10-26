@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 14
-  dex: 18
-  int: 11
-  str: 11
-  wis: 12
-ac: 14
 aliases:
   - Doppelganger
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -46,20 +32,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 52
-immune: []
-languages:
-  - Common plus three other languages
 license: CC-BY-4.0
 name: Doppelganger
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: 5B17FB14A27998678BB14D46A6
 visibility: party
-vulnerable: []
 ---
 # Doppelganger
 *Source: SRD 5.2 and the Free Rules (2024)*  

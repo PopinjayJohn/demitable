@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 12
-  dex: 13
-  int: 2
-  str: 16
-  wis: 11
-ac: 11
 aliases:
   - Riding Horse
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 60
   type: beast
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Riding Horse
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 60
 src: xmm
 system: dnd5e
 tags:
@@ -68,7 +46,6 @@ tags:
 type: content
 uid: 55CBD535EE390361682C0CAFEB
 visibility: party
-vulnerable: []
 ---
 # Riding Horse
 *Source: SRD 5.2 and the Free Rules (2024)*  

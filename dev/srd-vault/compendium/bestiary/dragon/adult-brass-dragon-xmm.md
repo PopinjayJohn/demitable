@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 17
-  con: 21
-  dex: 10
-  int: 14
-  str: 23
-  wis: 13
-ac: 18
 aliases:
   - Adult Brass Dragon
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:13 xpLair:11500]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Good
   condition_immunities: []
-  cr: map[cr:13 xpLair:11500]
-  cr_xp: 0
+  cr: "13"
+  cr_xp: 10000
   hp: 172
   immune:
     - fire
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 172
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Brass Dragon
 obsidianUIMode: preview
-passive_perception: 21
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  burrow: 30
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: DDB97B3DC72C97CA474E41AF96
 visibility: party
-vulnerable: []
 ---
 # Adult Brass Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

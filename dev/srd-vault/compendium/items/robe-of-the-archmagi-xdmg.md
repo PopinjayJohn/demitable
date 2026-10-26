@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Robe of the Archmagi
 obsidianUIMode: preview
-rarity: legendary
-reqAttune: by a sorcerer, warlock, or wizard
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

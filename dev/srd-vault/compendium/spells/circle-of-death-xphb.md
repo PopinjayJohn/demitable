@@ -2,9 +2,6 @@
 aliases:
   - Circle of Death
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (the powder of a crushed black pearl worth 500+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: 150 feet
   school: Necromancy
-duration: Instantaneous
-level: 6
 license: CC-BY-4.0
 name: Circle of Death
 obsidianUIMode: preview
-range: 150 feet
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

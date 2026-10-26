@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 15
-  dex: 17
-  int: 3
-  str: 18
-  wis: 12
-ac: 13
 aliases:
   - Saber-Toothed Tiger
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 52
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Saber-Toothed Tiger
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: B6C3563190BA73A6B1BCB72426
 visibility: party
-vulnerable: []
 ---
 # Saber-Toothed Tiger
 *Source: SRD 5.2 and the Free Rules (2024)*  

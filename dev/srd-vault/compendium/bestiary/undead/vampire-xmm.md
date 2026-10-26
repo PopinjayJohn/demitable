@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 18
-  dex: 18
-  int: 17
-  str: 18
-  wis: 15
-ac: 16
 aliases:
   - Vampire
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:13 xpLair:11500]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Evil
   condition_immunities: []
-  cr: map[cr:13 xpLair:11500]
-  cr_xp: 0
+  cr: "13"
+  cr_xp: 10000
   hp: 195
   immune: []
   languages:
@@ -46,22 +33,10 @@ data:
     walk: 40
   type: undead
   vulnerable: []
-hp: 195
-immune: []
-languages:
-  - Common plus two other languages
 license: CC-BY-4.0
 name: Vampire
 obsidianUIMode: preview
-passive_perception: 17
-resist:
-  - necrotic
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +49,6 @@ tags:
 type: content
 uid: 7B1F88FECC42472DC6CDB34DDE
 visibility: party
-vulnerable: []
 ---
 # Vampire
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Linen (1 sq. yd.)
 obsidianUIMode: preview
-rarity: none
-reqAttune: ""
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

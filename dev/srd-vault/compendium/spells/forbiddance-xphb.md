@@ -2,9 +2,6 @@
 aliases:
   - Forbiddance
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S, M (ruby dust worth 1,000+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: <nil> touch
   school: Abjuration
-duration: timed
-level: 6
 license: CC-BY-4.0
 name: Forbiddance
 obsidianUIMode: preview
-range: <nil> touch
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

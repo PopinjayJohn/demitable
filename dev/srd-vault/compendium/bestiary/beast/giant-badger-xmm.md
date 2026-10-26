@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 17
-  dex: 10
-  int: 2
-  str: 13
-  wis: 12
-ac: 13
 aliases:
   - Giant Badger
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 15
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Badger
 obsidianUIMode: preview
-passive_perception: 13
-resist:
-  - poison
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  burrow: 10
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: C2F11A7EBF67D7B021240B68F6
 visibility: party
-vulnerable: []
 ---
 # Giant Badger
 *Source: SRD 5.2 and the Free Rules (2024)*  

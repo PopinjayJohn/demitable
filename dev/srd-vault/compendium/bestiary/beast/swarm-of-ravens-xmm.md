@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 12
-  dex: 14
-  int: 5
-  str: 6
-  wis: 12
-ac: 12
 aliases:
   - Swarm of Ravens
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -63,23 +42,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Swarm of Ravens
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 50
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -93,7 +59,6 @@ tags:
 type: content
 uid: BE56607537CE89F6C9E9EBC905
 visibility: party
-vulnerable: []
 ---
 # Swarm of Ravens
 *Source: SRD 5.2 and the Free Rules (2024)*  

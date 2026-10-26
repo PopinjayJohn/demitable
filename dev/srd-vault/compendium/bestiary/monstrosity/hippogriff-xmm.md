@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 13
-  dex: 13
-  int: 2
-  str: 17
-  wis: 12
-ac: 11
 aliases:
   - Hippogriff
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 26
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Hippogriff
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 5A995069260069530BDB95A952
 visibility: party
-vulnerable: []
 ---
 # Hippogriff
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 10
-  dex: 18
-  int: 14
-  str: 3
-  wis: 13
-ac: 15
 aliases:
   - Sprite
-alignment:
-  - Neutral Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 10
   type: fey
   vulnerable: []
-hp: 10
-immune: []
-languages:
-  - Common
-  - Elvish
-  - Sylvan
 license: CC-BY-4.0
 name: Sprite
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +51,6 @@ tags:
 type: content
 uid: 305C74FEF3B864A8DFC8FBB7D9
 visibility: party
-vulnerable: []
 ---
 # Sprite
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 13
-  dex: 12
-  int: 2
-  str: 15
-  wis: 10
-ac: 12
 aliases:
   - Giant Lizard
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 19
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Lizard
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: 6DAAD8E53CC167EA09122CA1E5
 visibility: party
-vulnerable: []
 ---
 # Giant Lizard
 *Source: SRD 5.2 and the Free Rules (2024)*  

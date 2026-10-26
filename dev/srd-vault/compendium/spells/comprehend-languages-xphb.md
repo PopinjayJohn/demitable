@@ -2,9 +2,6 @@
 aliases:
   - Comprehend Languages
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a pinch of soot and salt)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: <nil> self
   school: Divination
-duration: timed
-level: 1
 license: CC-BY-4.0
 name: Comprehend Languages
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

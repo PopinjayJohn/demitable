@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 9
-  dex: 15
-  int: 8
-  str: 7
-  wis: 7
-ac: 14
 aliases:
   - Kobold Warrior
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 7
-immune: []
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Kobold Warrior
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +55,6 @@ tags:
 type: content
 uid: 613888CC8045277A361F6D2B1B
 visibility: party
-vulnerable: []
 ---
 # Kobold Warrior
 *Source: SRD 5.2 and the Free Rules (2024)*  

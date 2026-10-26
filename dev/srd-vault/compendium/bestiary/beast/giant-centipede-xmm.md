@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 12
-  dex: 14
-  int: 1
-  str: 5
-  wis: 7
-ac: 14
 aliases:
   - Giant Centipede
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 9
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Centipede
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 349D0320E9D02B6B4BD1CA1ACF
 visibility: party
-vulnerable: []
 ---
 # Giant Centipede
 *Source: SRD 5.2 and the Free Rules (2024)*  

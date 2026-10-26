@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 10
-  dex: 15
-  int: 2
-  str: 12
-  wis: 9
-ac: 13
 aliases:
   - Pteranodon
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Pteranodon
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: B779CC9A8692BD3B34B2FA6199
 visibility: party
-vulnerable: []
 ---
 # Pteranodon
 *Source: SRD 5.2 and the Free Rules (2024)*  

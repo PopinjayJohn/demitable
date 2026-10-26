@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 11
-  dex: 15
-  int: 3
-  str: 8
-  wis: 12
-ac: 12
 aliases:
   - Jackal
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 3
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Jackal
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -68,7 +46,6 @@ tags:
 type: content
 uid: 5F5B7B0A6B6A82914063474E38
 visibility: party
-vulnerable: []
 ---
 # Jackal
 *Source: SRD 5.2 and the Free Rules (2024)*  

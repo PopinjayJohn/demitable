@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 11
-  int: 2
-  str: 10
-  wis: 12
-ac: 11
 aliases:
   - Badger
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Badger
 obsidianUIMode: preview
-passive_perception: 13
-resist:
-  - poison
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  burrow: 5
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: 241A0C9C9E947721EE8D7065A2
 visibility: party
-vulnerable: []
 ---
 # Badger
 *Source: SRD 5.2 and the Free Rules (2024)*  

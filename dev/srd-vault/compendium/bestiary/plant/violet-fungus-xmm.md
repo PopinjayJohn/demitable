@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 10
-  dex: 1
-  int: 1
-  str: 3
-  wis: 3
-ac: 5
 aliases:
   - Violet Fungus
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - frightened
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -51,19 +34,10 @@ data:
     walk: 5
   type: plant
   vulnerable: []
-hp: 18
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Violet Fungus
 obsidianUIMode: preview
-passive_perception: 6
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +49,6 @@ tags:
 type: content
 uid: B353F61775A782E543FFA9B9AF
 visibility: party
-vulnerable: []
 ---
 # Violet Fungus
 *Source: SRD 5.2 and the Free Rules (2024)*  

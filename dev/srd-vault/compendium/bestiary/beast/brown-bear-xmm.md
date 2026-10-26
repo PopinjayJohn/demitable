@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 15
-  dex: 12
-  int: 2
-  str: 17
-  wis: 13
-ac: 11
 aliases:
   - Brown Bear
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Brown Bear
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 4BB4429263966C820E146ACF88
 visibility: party
-vulnerable: []
 ---
 # Brown Bear
 *Source: SRD 5.2 and the Free Rules (2024)*  

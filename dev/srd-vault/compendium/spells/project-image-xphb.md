@@ -2,9 +2,6 @@
 aliases:
   - Project Image
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a statuette of yourself worth 5+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: 500 miles
   school: Illusion
-duration: timed
-level: 7
 license: CC-BY-4.0
 name: Project Image
 obsidianUIMode: preview
-range: 500 miles
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

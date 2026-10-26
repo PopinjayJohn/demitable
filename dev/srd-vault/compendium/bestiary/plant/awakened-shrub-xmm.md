@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 11
-  dex: 8
-  int: 10
-  str: 3
-  wis: 10
-ac: 9
 aliases:
   - Awakened Shrub
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -46,21 +33,10 @@ data:
   type: plant
   vulnerable:
     - fire
-hp: 10
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Awakened Shrub
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - piercing
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -72,8 +48,6 @@ tags:
 type: content
 uid: 013CE2A9AB3DE89F7A7418CEE9
 visibility: party
-vulnerable:
-  - fire
 ---
 # Awakened Shrub
 *Source: SRD 5.2 and the Free Rules (2024)*  

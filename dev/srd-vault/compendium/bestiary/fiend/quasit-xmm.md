@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 10
-  dex: 17
-  int: 7
-  str: 5
-  wis: 10
-ac: 13
 aliases:
   - Quasit
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -51,25 +37,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 25
-immune:
-  - poison
-languages:
-  - Abyssal
-  - Common
 license: CC-BY-4.0
 name: Quasit
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: D80EC179FAEFB73A0CF1BF6EB9
 visibility: party
-vulnerable: []
 ---
 # Quasit
 *Source: SRD 5.2 and the Free Rules (2024)*  

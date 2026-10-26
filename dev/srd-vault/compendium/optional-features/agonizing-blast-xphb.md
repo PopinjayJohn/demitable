@@ -19,22 +19,9 @@ data:
         - choose: level=0|class=Warlock
           entry: a Warlock Cantrip That Deals Damage
           entrySummary: Warlock Cantrip That Deals Damage
-featureType:
-  - EI
 license: CC-BY-4.0
 name: Agonizing Blast
 obsidianUIMode: preview
-prerequisites:
-  - level:
-      class:
-        name: Warlock
-        source: XPHB
-        visibleStats: true
-      level: 2
-    spell:
-      - choose: level=0|class=Warlock
-        entry: a Warlock Cantrip That Deals Damage
-        entrySummary: Warlock Cantrip That Deals Damage
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

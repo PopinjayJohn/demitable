@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 22
-  dex: 10
-  int: 11
-  str: 17
-  wis: 10
-ac: 19
 aliases:
   - Xorn
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -52,22 +36,10 @@ data:
     walk: 20
   type: elemental
   vulnerable: []
-hp: 84
-immune:
-  - poison
-languages:
-  - Primordial (Terran)
 license: CC-BY-4.0
 name: Xorn
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  burrow: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +53,6 @@ tags:
 type: content
 uid: 19B92774758E313090F0E588C0
 visibility: party
-vulnerable: []
 ---
 # Xorn
 *Source: SRD 5.2 and the Free Rules (2024)*  

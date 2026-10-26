@@ -2,9 +2,6 @@
 aliases:
   - True Strike
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: S, M (a weapon with which you have proficiency and that is worth 1+ CP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 0
   range: <nil> self
   school: Divination
-duration: Instantaneous
-level: 0
 license: CC-BY-4.0
 name: True Strike
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

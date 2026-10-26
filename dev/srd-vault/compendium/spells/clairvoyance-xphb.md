@@ -2,9 +2,6 @@
 aliases:
   - Clairvoyance
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S, M (a focus worth 100+ GP, either a jeweled horn for hearing or a glass eye for seeing)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 1 miles
   school: Divination
-duration: timed
-level: 3
 license: CC-BY-4.0
 name: Clairvoyance
 obsidianUIMode: preview
-range: 1 miles
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

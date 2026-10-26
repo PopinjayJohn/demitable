@@ -1,15 +1,7 @@
 ---
-ability:
-  - choose:
-      from:
-        - int
-        - wis
-        - cha
-    max: 30
 aliases:
   - Boon of Spell Recall
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-category: EB
 content_type: feat
 cssclasses:
   - json5e-feat
@@ -28,9 +20,6 @@ data:
 license: CC-BY-4.0
 name: Boon of Spell Recall
 obsidianUIMode: preview
-prerequisites:
-  - level: 19
-    spellcasting2020: true
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

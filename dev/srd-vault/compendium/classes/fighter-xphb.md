@@ -2,7 +2,6 @@
 aliases:
   - Fighter
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -19,8 +18,8 @@ data:
       name: Action Surge
     - level: 2
       name: Tactical Mind
-    - level: 0
-      name: map[classFeature:Fighter Subclass
+    - level: 3
+      name: Fighter Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
@@ -29,16 +28,16 @@ data:
       name: Tactical Shift
     - level: 6
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 7
+      name: Subclass Feature
     - level: 8
       name: Ability Score Improvement
     - level: 9
       name: Indomitable
     - level: 9
       name: Tactical Master
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 10
+      name: Subclass Feature
     - level: 11
       name: Two Extra Attacks
     - level: 12
@@ -49,16 +48,16 @@ data:
       name: Studied Attacks
     - level: 14
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 15
+      name: Subclass Feature
     - level: 16
       name: Ability Score Improvement
     - level: 17
       name: Action Surge
     - level: 17
       name: Indomitable
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 18
+      name: Subclass Feature
     - level: 19
       name: Epic Boon
     - level: 20
@@ -93,95 +92,10 @@ data:
     - str
     - con
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Fighting Style
-  - level: 1
-    name: Second Wind
-  - level: 1
-    name: Weapon Mastery
-  - level: 2
-    name: Action Surge
-  - level: 2
-    name: Tactical Mind
-  - level: 0
-    name: map[classFeature:Fighter Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Extra Attack
-  - level: 5
-    name: Tactical Shift
-  - level: 6
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Indomitable
-  - level: 9
-    name: Tactical Master
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 11
-    name: Two Extra Attacks
-  - level: 12
-    name: Ability Score Improvement
-  - level: 13
-    name: Indomitable
-  - level: 13
-    name: Studied Attacks
-  - level: 14
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 16
-    name: Ability Score Improvement
-  - level: 17
-    name: Action Surge
-  - level: 17
-    name: Indomitable
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Three Extra Attacks
-hit_die: 10
 license: CC-BY-4.0
 name: Fighter
 obsidianUIMode: preview
-primary_abilities:
-  - str
-  - con
-proficiencies:
-  armor:
-    - light
-    - medium
-    - heavy
-    - shield
-  skills:
-    - choose:
-        count: 2
-        from:
-          - acrobatics
-          - animal handling
-          - athletics
-          - history
-          - insight
-          - intimidation
-          - persuasion
-          - perception
-          - survival
-  weapons:
-    - simple
-    - martial
-saving_throws:
-  - str
-  - con
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

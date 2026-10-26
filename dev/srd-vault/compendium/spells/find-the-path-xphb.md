@@ -2,9 +2,6 @@
 aliases:
   - Find the Path
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (a set of divination tools—such as cards or runes—worth 100+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: <nil> self
   school: Divination
-duration: timed
-level: 6
 license: CC-BY-4.0
 name: Find the Path
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

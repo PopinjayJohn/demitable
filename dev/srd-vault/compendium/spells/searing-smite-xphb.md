@@ -2,9 +2,6 @@
 aliases:
   - Searing Smite
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: <nil> self
   school: Evocation
-duration: timed
-level: 1
 license: CC-BY-4.0
 name: Searing Smite
 obsidianUIMode: preview
-range: <nil> self
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

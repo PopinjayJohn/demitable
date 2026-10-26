@@ -2,9 +2,6 @@
 aliases:
   - Planar Binding
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (a jewel worth 1,000+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: 60 feet
   school: Abjuration
-duration: timed
-level: 5
 license: CC-BY-4.0
 name: Planar Binding
 obsidianUIMode: preview
-range: 60 feet
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

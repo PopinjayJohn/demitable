@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 18
-  dex: 9
-  int: 6
-  str: 19
-  wis: 10
-ac: 9
 aliases:
   - Flesh Golem
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -58,22 +39,10 @@ data:
     walk: 30
   type: construct
   vulnerable: []
-hp: 127
-immune:
-  - lightning
-  - poison
-languages:
-  - understands Common plus one other language but can't speak
 license: CC-BY-4.0
 name: Flesh Golem
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +54,6 @@ tags:
 type: content
 uid: 4E703F6742883A49D40B4216DE
 visibility: party
-vulnerable: []
 ---
 # Flesh Golem
 *Source: SRD 5.2 and the Free Rules (2024)*  

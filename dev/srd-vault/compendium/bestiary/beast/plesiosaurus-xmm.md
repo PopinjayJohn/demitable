@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 15
-  int: 2
-  str: 18
-  wis: 12
-ac: 13
 aliases:
   - Plesiosaurus
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 68
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Plesiosaurus
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 6A7A1716F6B4FFE512553710B7
 visibility: party
-vulnerable: []
 ---
 # Plesiosaurus
 *Source: SRD 5.2 and the Free Rules (2024)*  

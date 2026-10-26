@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 10
-  dex: 15
-  int: 12
-  str: 10
-  wis: 14
-ac: 12
 aliases:
   - Spy
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 27
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Spy
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: AE0B9D369AAED923254CB4497E
 visibility: party
-vulnerable: []
 ---
 # Spy
 *Source: SRD 5.2 and the Free Rules (2024)*  

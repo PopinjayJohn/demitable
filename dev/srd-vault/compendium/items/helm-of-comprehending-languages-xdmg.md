@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Helm of Comprehending Languages
 obsidianUIMode: preview
-rarity: uncommon
-reqAttune: ""
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

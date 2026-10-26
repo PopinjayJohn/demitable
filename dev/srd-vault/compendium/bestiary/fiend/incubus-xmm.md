@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 13
-  dex: 17
-  int: 15
-  str: 8
-  wis: 12
-ac: 15
 aliases:
   - Incubus
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -51,27 +38,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 66
-immune: []
-languages:
-  - Abyssal
-  - Common
-  - Infernal; telepathy 60 ft.
 license: CC-BY-4.0
 name: Incubus
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - cold
-  - fire
-  - poison
-  - psychic
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +55,6 @@ tags:
 type: content
 uid: 43F6C8B8FCCE9D9DE071826A4E
 visibility: party
-vulnerable: []
 ---
 # Incubus
 *Source: SRD 5.2 and the Free Rules (2024)*  

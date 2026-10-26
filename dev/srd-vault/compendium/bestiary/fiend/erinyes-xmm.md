@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 18
-  dex: 16
-  int: 14
-  str: 18
-  wis: 14
-ac: 18
 aliases:
   - Erinyes
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "12"
-cr_xp: 8400
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 178
-immune:
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Erinyes
 obsidianUIMode: preview
-passive_perception: 16
-resist:
-  - cold
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: 90F1479EE73DD061080E083924
 visibility: party
-vulnerable: []
 ---
 # Erinyes
 *Source: SRD 5.2 and the Free Rules (2024)*  

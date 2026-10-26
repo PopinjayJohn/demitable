@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 17
-  dex: 10
-  int: 12
-  str: 19
-  wis: 11
-ac: 17
 aliases:
   - Silver Dragon Wyrmling
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 45
-immune:
-  - cold
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Silver Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +49,6 @@ tags:
 type: content
 uid: 45F8F4FEA28B74A25FEB324A89
 visibility: party
-vulnerable: []
 ---
 # Silver Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

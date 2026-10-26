@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 10
-  dex: 17
-  int: 4
-  str: 11
-  wis: 12
-ac: 13
 aliases:
   - Giant Weasel
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 9
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Weasel
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: F5AE2EC9E6BAB47D25C4D03448
 visibility: party
-vulnerable: []
 ---
 # Giant Weasel
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 20
-  dex: 3
-  int: 1
-  str: 14
-  wis: 6
-ac: 6
 aliases:
   - Gelatinous Cube
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - prone
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -56,20 +37,10 @@ data:
     walk: 15
   type: ooze
   vulnerable: []
-hp: 63
-immune:
-  - acid
-languages: []
 license: CC-BY-4.0
 name: Gelatinous Cube
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 15
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +52,6 @@ tags:
 type: content
 uid: 612003EA772C3EE1F2D170C06D
 visibility: party
-vulnerable: []
 ---
 # Gelatinous Cube
 *Source: SRD 5.2 and the Free Rules (2024)*  

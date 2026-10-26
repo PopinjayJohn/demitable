@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 19
-  con: 21
-  dex: 10
-  int: 14
-  str: 23
-  wis: 11
-ac: 18
 aliases:
   - Young Red Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "10"
-cr_xp: 5900
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 178
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Red Dragon
 obsidianUIMode: preview
-passive_perception: 18
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 40
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 8721C57DC193192AB21BB4E693
 visibility: party
-vulnerable: []
 ---
 # Young Red Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

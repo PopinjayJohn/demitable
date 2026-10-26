@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 21
-  dex: 12
-  int: 18
-  str: 23
-  wis: 15
-ac: 18
 aliases:
   - Adult Copper Dragon
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:14 xpLair:13000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Good
   condition_immunities: []
-  cr: map[cr:14 xpLair:13000]
-  cr_xp: 0
+  cr: "14"
+  cr_xp: 11500
   hp: 184
   immune:
     - acid
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 184
-immune:
-  - acid
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Copper Dragon
 obsidianUIMode: preview
-passive_perception: 22
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  climb: 40
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 3154528C8BFCD3035B7E027576
 visibility: party
-vulnerable: []
 ---
 # Adult Copper Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

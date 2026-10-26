@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 8
-  dex: 16
-  int: 2
-  str: 3
-  wis: 12
-ac: 13
 aliases:
   - Weasel
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Weasel
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 42B1CD8AA479697FE975A0046F
 visibility: party
-vulnerable: []
 ---
 # Weasel
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,26 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 20
-  dex: 8
-  int: 5
-  str: 20
-  wis: 10
-ac: 17
 aliases:
   - Earth Elemental
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - paralyzed
-  - petrified
-  - poisoned
-  - unconscious
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -57,22 +39,10 @@ data:
   type: elemental
   vulnerable:
     - thunder
-hp: 147
-immune:
-  - poison
-languages:
-  - Primordial (Terran)
 license: CC-BY-4.0
 name: Earth Elemental
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  burrow: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -87,8 +57,6 @@ tags:
 type: content
 uid: 919878FE2A966E15446428DA83
 visibility: party
-vulnerable:
-  - thunder
 ---
 # Earth Elemental
 *Source: SRD 5.2 and the Free Rules (2024)*  

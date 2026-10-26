@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 25
-  con: 27
-  dex: 10
-  int: 18
-  str: 29
-  wis: 17
-ac: 22
 aliases:
   - Ancient Blue Dragon
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:23 xpLair:62000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Evil
   condition_immunities: []
-  cr: map[cr:23 xpLair:62000]
-  cr_xp: 0
+  cr: "23"
+  cr_xp: 50000
   hp: 481
   immune:
     - lightning
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 481
-immune:
-  - lightning
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient Blue Dragon
 obsidianUIMode: preview
-passive_perception: 27
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  burrow: 40
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 4C79DFC1B77E7A39B937B0E0F4
 visibility: party
-vulnerable: []
 ---
 # Ancient Blue Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

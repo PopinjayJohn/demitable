@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 14
-  dex: 11
-  int: 2
-  str: 13
-  wis: 9
-ac: 11
 aliases:
   - Boar
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Boar
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: 6CCED825A0A53C3E3BA24AD804
 visibility: party
-vulnerable: []
 ---
 # Boar
 *Source: SRD 5.2 and the Free Rules (2024)*  

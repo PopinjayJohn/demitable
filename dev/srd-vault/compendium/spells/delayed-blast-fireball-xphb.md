@@ -2,9 +2,6 @@
 aliases:
   - Delayed Blast Fireball
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a ball of bat guano and sulfur)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: 150 feet
   school: Evocation
-duration: timed
-level: 7
 license: CC-BY-4.0
 name: Delayed Blast Fireball
 obsidianUIMode: preview
-range: 150 feet
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

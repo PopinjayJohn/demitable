@@ -2,9 +2,6 @@
 aliases:
   - Dimension Door
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 4
   range: 500 feet
   school: Conjuration
-duration: Instantaneous
-level: 4
 license: CC-BY-4.0
 name: Dimension Door
 obsidianUIMode: preview
-range: 500 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

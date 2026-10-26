@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 10
-  dex: 1
-  int: 1
-  str: 1
-  wis: 3
-ac: 5
 aliases:
   - Shrieker Fungus
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - frightened
 content_type: monster
-cr: map[cr:0 xp:0]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -38,8 +21,8 @@ data:
     - charmed
     - deafened
     - frightened
-  cr: map[cr:0 xp:0]
-  cr_xp: 0
+  cr: "0"
+  cr_xp: 10
   hp: 13
   immune: []
   languages: []
@@ -51,19 +34,10 @@ data:
     walk: 5
   type: plant
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Shrieker Fungus
 obsidianUIMode: preview
-passive_perception: 6
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +49,6 @@ tags:
 type: content
 uid: 035739335C44DB2B9587CD81BF
 visibility: party
-vulnerable: []
 ---
 # Shrieker Fungus
 *Source: SRD 5.2 and the Free Rules (2024)*  

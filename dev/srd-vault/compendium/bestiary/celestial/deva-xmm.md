@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 18
-  dex: 18
-  int: 17
-  str: 18
-  wis: 20
-ac: 17
 aliases:
   - Deva
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
 content_type: monster
-cr: "10"
-cr_xp: 5900
 cssclasses:
   - json5e-monster
 data:
@@ -55,25 +39,10 @@ data:
     walk: 30
   type: celestial
   vulnerable: []
-hp: 229
-immune: []
-languages:
-  - all; telepathy 120 ft.
 license: CC-BY-4.0
 name: Deva
 obsidianUIMode: preview
-passive_perception: 19
-resist:
-  - radiant
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 90
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -86,7 +55,6 @@ tags:
 type: content
 uid: 7421EA94D209FE5DDF6EBEB71F
 visibility: party
-vulnerable: []
 ---
 # Deva
 *Source: SRD 5.2 and the Free Rules (2024)*  

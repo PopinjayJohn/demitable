@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 12
-  dex: 15
-  int: 3
-  str: 14
-  wis: 12
-ac: 12
 aliases:
   - Wolf
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Wolf
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: 54A37CA3AC2E1CAF144322F479
 visibility: party
-vulnerable: []
 ---
 # Wolf
 *Source: SRD 5.2 and the Free Rules (2024)*  

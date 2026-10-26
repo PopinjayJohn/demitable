@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 14
-  dex: 16
-  int: 14
-  str: 15
-  wis: 11
-ac: 15
 aliases:
   - Bandit Captain
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 52
-immune: []
-languages:
-  - Common
-  - Thieves' cant
 license: CC-BY-4.0
 name: Bandit Captain
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: 9F5A7105B5C67818164068EE58
 visibility: party
-vulnerable: []
 ---
 # Bandit Captain
 *Source: SRD 5.2 and the Free Rules (2024)*  

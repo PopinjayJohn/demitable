@@ -2,9 +2,6 @@
 aliases:
   - Heat Metal
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a piece of iron and a flame)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: 60 feet
   school: Transmutation
-duration: timed
-level: 2
 license: CC-BY-4.0
 name: Heat Metal
 obsidianUIMode: preview
-range: 60 feet
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

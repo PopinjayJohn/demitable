@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 13
-  dex: 10
-  int: 2
-  str: 7
-  wis: 12
-ac: 10
 aliases:
   - Vulture
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Vulture
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 50
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: FCA3F822954CDF36942945631E
 visibility: party
-vulnerable: []
 ---
 # Vulture
 *Source: SRD 5.2 and the Free Rules (2024)*  

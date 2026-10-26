@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Staff of Healing
 obsidianUIMode: preview
-rarity: rare
-reqAttune: by a bard, cleric, or druid
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

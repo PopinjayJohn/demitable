@@ -2,9 +2,6 @@
 aliases:
   - Magic Jar
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (a gem, crystal, or reliquary worth 500+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: <nil> self
   school: Necromancy
-duration: permanent
-level: 6
 license: CC-BY-4.0
 name: Magic Jar
 obsidianUIMode: preview
-range: <nil> self
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

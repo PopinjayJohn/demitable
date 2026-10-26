@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 15
-  dex: 8
-  int: 2
-  str: 21
-  wis: 12
-ac: 13
 aliases:
   - Rhinoceros
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 45
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Rhinoceros
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 51016475D4BAA454DA2C9F5E7E
 visibility: party
-vulnerable: []
 ---
 # Rhinoceros
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -2,9 +2,6 @@
 aliases:
   - Simulacrum
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 12 hour
-classes: []
-components: V, S, M (powdered ruby worth 1,500+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: <nil> touch
   school: Illusion
-duration: permanent
-level: 7
 license: CC-BY-4.0
 name: Simulacrum
 obsidianUIMode: preview
-range: <nil> touch
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

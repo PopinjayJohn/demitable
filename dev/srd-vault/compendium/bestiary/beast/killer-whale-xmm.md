@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 13
-  dex: 14
-  int: 3
-  str: 19
-  wis: 12
-ac: 12
 aliases:
   - Killer Whale
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 90
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Killer Whale
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  swim: 60
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 94605B8621020E7EBE88BE5343
 visibility: party
-vulnerable: []
 ---
 # Killer Whale
 *Source: SRD 5.2 and the Free Rules (2024)*  

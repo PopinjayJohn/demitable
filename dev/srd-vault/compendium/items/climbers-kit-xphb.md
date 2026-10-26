@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Climber's Kit
 obsidianUIMode: preview
-rarity: none
-reqAttune: ""
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

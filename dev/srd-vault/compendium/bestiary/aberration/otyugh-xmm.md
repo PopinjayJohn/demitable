@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 19
-  dex: 11
-  int: 6
-  str: 16
-  wis: 13
-ac: 14
 aliases:
   - Otyugh
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: aberration
   vulnerable: []
-hp: 104
-immune: []
-languages:
-  - Otyugh; telepathy 120 ft. (doesn't allow the receiving creature to respond telepathically)
 license: CC-BY-4.0
 name: Otyugh
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: EC3474C894FF3D9877E168ABE1
 visibility: party
-vulnerable: []
 ---
 # Otyugh
 *Source: SRD 5.2 and the Free Rules (2024)*  

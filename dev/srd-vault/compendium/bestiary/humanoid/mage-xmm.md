@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 11
-  dex: 14
-  int: 17
-  str: 9
-  wis: 12
-ac: 15
 aliases:
   - Mage
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 81
-immune: []
-languages:
-  - Common and any three languages
 license: CC-BY-4.0
 name: Mage
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: E27F270E17F04531B0660A2689
 visibility: party
-vulnerable: []
 ---
 # Mage
 *Source: SRD 5.2 and the Free Rules (2024)*  

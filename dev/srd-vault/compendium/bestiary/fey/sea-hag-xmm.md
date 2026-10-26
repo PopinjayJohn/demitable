@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 16
-  dex: 13
-  int: 12
-  str: 16
-  wis: 12
-ac: 14
 aliases:
   - Sea Hag
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 52
-immune: []
-languages:
-  - Common
-  - Giant
-  - Primordial (Aquan)
 license: CC-BY-4.0
 name: Sea Hag
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: 26319A3F749444C8D5134B3F3B
 visibility: party
-vulnerable: []
 ---
 # Sea Hag
 *Source: SRD 5.2 and the Free Rules (2024)*  

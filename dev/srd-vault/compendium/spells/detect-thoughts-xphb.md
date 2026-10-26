@@ -2,9 +2,6 @@
 aliases:
   - Detect Thoughts
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (1 Copper Piece)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: <nil> self
   school: Divination
-duration: timed
-level: 2
 license: CC-BY-4.0
 name: Detect Thoughts
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

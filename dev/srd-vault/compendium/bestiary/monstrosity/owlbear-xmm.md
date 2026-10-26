@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 17
-  dex: 12
-  int: 3
-  str: 20
-  wis: 12
-ac: 13
 aliases:
   - Owlbear
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 59
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Owlbear
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: C237A6313B41901EADEFF091A4
 visibility: party
-vulnerable: []
 ---
 # Owlbear
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 10
-  dex: 15
-  int: 2
-  str: 5
-  wis: 12
-ac: 12
 aliases:
   - Swarm of Bats
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -63,23 +42,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Swarm of Bats
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -94,7 +60,6 @@ tags:
 type: content
 uid: 1B7F486848DC583FA8751F679D
 visibility: party
-vulnerable: []
 ---
 # Swarm of Bats
 *Source: SRD 5.2 and the Free Rules (2024)*  

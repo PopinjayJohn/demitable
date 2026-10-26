@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 12
-  dex: 14
-  int: 11
-  str: 11
-  wis: 13
-ac: 13
 aliases:
   - Scout
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 16
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Scout
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 1842B2D302ACEA0F88A962A852
 visibility: party
-vulnerable: []
 ---
 # Scout
 *Source: SRD 5.2 and the Free Rules (2024)*  

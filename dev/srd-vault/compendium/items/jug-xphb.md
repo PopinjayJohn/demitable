@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Jug
 obsidianUIMode: preview
-rarity: none
-reqAttune: ""
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

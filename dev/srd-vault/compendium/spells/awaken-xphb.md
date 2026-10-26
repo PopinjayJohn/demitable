@@ -2,9 +2,6 @@
 aliases:
   - Awaken
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 8 hour
-classes: []
-components: V, S, M (an agate worth 1,000+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: <nil> touch
   school: Transmutation
-duration: Instantaneous
-level: 5
 license: CC-BY-4.0
 name: Awaken
 obsidianUIMode: preview
-range: <nil> touch
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

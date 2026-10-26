@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Periapt of Proof against Poison
 obsidianUIMode: preview
-rarity: rare
-reqAttune: "true"
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

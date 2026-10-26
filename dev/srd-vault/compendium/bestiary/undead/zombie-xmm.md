@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 6
-  int: 3
-  str: 13
-  wis: 6
-ac: 8
 aliases:
   - Zombie
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -49,21 +34,10 @@ data:
     walk: 20
   type: undead
   vulnerable: []
-hp: 15
-immune:
-  - poison
-languages:
-  - understands Common plus one other language but can't speak
 license: CC-BY-4.0
 name: Zombie
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +52,6 @@ tags:
 type: content
 uid: FCF5E80485A3C72FBF32C928C2
 visibility: party
-vulnerable: []
 ---
 # Zombie
 *Source: SRD 5.2 and the Free Rules (2024)*  

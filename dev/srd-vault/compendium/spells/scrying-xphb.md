@@ -2,9 +2,6 @@
 aliases:
   - Scrying
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S, M (a focus worth 1,000+ GP, such as a crystal ball, mirror, or water-filled font)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: <nil> self
   school: Divination
-duration: timed
-level: 5
 license: CC-BY-4.0
 name: Scrying
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

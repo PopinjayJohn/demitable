@@ -2,7 +2,6 @@
 aliases:
   - Rogue
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -19,8 +18,8 @@ data:
       name: Weapon Mastery
     - level: 2
       name: Cunning Action
-    - level: 0
-      name: map[classFeature:Rogue Subclass
+    - level: 3
+      name: Rogue Subclass
     - level: 3
       name: Steady Aim
     - level: 4
@@ -37,24 +36,24 @@ data:
       name: Reliable Talent
     - level: 8
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 9
+      name: Subclass Feature
     - level: 10
       name: Ability Score Improvement
     - level: 11
       name: Improved Cunning Strike
     - level: 12
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 13
+      name: Subclass Feature
     - level: 14
       name: Devious Strikes
     - level: 15
       name: Slippery Mind
     - level: 16
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 17
+      name: Subclass Feature
     - level: 18
       name: Elusive
     - level: 19
@@ -97,99 +96,10 @@ data:
     - dex
     - int
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Expertise
-  - level: 1
-    name: Sneak Attack
-  - level: 1
-    name: Thieves' Cant
-  - level: 1
-    name: Weapon Mastery
-  - level: 2
-    name: Cunning Action
-  - level: 0
-    name: map[classFeature:Rogue Subclass
-  - level: 3
-    name: Steady Aim
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Cunning Strike
-  - level: 5
-    name: Uncanny Dodge
-  - level: 6
-    name: Expertise
-  - level: 7
-    name: Evasion
-  - level: 7
-    name: Reliable Talent
-  - level: 8
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 10
-    name: Ability Score Improvement
-  - level: 11
-    name: Improved Cunning Strike
-  - level: 12
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 14
-    name: Devious Strikes
-  - level: 15
-    name: Slippery Mind
-  - level: 16
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 18
-    name: Elusive
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Stroke of Luck
-hit_die: 8
 license: CC-BY-4.0
 name: Rogue
 obsidianUIMode: preview
-primary_abilities:
-  - dex
-  - int
-proficiencies:
-  armor:
-    - light
-  skills:
-    - choose:
-        count: 4
-        from:
-          - acrobatics
-          - athletics
-          - deception
-          - insight
-          - intimidation
-          - investigation
-          - perception
-          - persuasion
-          - sleight of hand
-          - stealth
-  toolProficiencies:
-    - thieves' tools: true
-  tools:
-    - '{@item Thieves'' Tools|XPHB}'
-  weaponProficiencies:
-    - all:
-        fromFilter: type=martial weapon|property=light;finesse
-      simple: true
-  weapons:
-    - simple
-    - Martial weapons that have the {@filter Finesse or Light|items|type=martial weapon|property=finesse;light} property
-saving_throws:
-  - dex
-  - int
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

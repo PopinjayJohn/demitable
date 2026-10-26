@@ -2,9 +2,6 @@
 aliases:
   - Control Water
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a mixture of water and dust)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 4
   range: 300 feet
   school: Transmutation
-duration: timed
-level: 4
 license: CC-BY-4.0
 name: Control Water
 obsidianUIMode: preview
-range: 300 feet
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

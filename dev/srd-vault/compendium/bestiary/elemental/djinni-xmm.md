@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 22
-  dex: 15
-  int: 15
-  str: 21
-  wis: 16
-ac: 17
 aliases:
   - Djinni
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "11"
-cr_xp: 7200
 cssclasses:
   - json5e-monster
 data:
@@ -50,26 +37,10 @@ data:
     walk: 30
   type: elemental
   vulnerable: []
-hp: 218
-immune:
-  - lightning
-  - thunder
-languages:
-  - Primordial (Auran)
 license: CC-BY-4.0
 name: Djinni
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 90
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -83,7 +54,6 @@ tags:
 type: content
 uid: 7A7D98611CA57B148D220F8954
 visibility: party
-vulnerable: []
 ---
 # Djinni
 *Source: SRD 5.2 and the Free Rules (2024)*  

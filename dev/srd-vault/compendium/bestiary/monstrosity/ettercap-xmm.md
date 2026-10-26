@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 13
-  dex: 15
-  int: 7
-  str: 14
-  wis: 12
-ac: 13
 aliases:
   - Ettercap
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 44
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Ettercap
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 2A6745DA589C29620A80FB5F4D
 visibility: party
-vulnerable: []
 ---
 # Ettercap
 *Source: SRD 5.2 and the Free Rules (2024)*  

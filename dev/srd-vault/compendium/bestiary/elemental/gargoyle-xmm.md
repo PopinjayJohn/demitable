@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 16
-  dex: 11
-  int: 6
-  str: 15
-  wis: 11
-ac: 15
 aliases:
   - Gargoyle
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - petrified
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -52,22 +36,10 @@ data:
     walk: 30
   type: elemental
   vulnerable: []
-hp: 67
-immune:
-  - poison
-languages:
-  - Primordial (Terran)
 license: CC-BY-4.0
 name: Gargoyle
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: D4D8D06929BB4A6A94B8DA8635
 visibility: party
-vulnerable: []
 ---
 # Gargoyle
 *Source: SRD 5.2 and the Free Rules (2024)*  

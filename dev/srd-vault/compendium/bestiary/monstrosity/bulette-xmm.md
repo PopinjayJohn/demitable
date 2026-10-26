@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 21
-  dex: 11
-  int: 2
-  str: 19
-  wis: 10
-ac: 17
 aliases:
   - Bulette
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 94
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Bulette
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  burrow: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 84EB647F3605C688F6C7D8D55C
 visibility: party
-vulnerable: []
 ---
 # Bulette
 *Source: SRD 5.2 and the Free Rules (2024)*  

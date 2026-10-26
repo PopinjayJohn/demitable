@@ -2,9 +2,6 @@
 aliases:
   - Wall of Force
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a shard of glass)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: 120 feet
   school: Evocation
-duration: timed
-level: 5
 license: CC-BY-4.0
 name: Wall of Force
 obsidianUIMode: preview
-range: 120 feet
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

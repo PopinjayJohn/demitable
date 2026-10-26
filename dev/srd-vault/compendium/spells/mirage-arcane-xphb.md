@@ -2,9 +2,6 @@
 aliases:
   - Mirage Arcane
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: <nil> sight
   school: Illusion
-duration: timed
-level: 7
 license: CC-BY-4.0
 name: Mirage Arcane
 obsidianUIMode: preview
-range: <nil> sight
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

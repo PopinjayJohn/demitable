@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 18
-  dex: 8
-  int: 7
-  str: 18
-  wis: 10
-ac: 17
 aliases:
   - Shield Guardian
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "7"
-cr_xp: 2900
 cssclasses:
   - json5e-monster
 data:
@@ -57,21 +38,10 @@ data:
     walk: 30
   type: construct
   vulnerable: []
-hp: 142
-immune:
-  - poison
-languages:
-  - understands commands given in any language but can't speak
 license: CC-BY-4.0
 name: Shield Guardian
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -83,7 +53,6 @@ tags:
 type: content
 uid: FEAF290D61029B7BBA6CA28D50
 visibility: party
-vulnerable: []
 ---
 # Shield Guardian
 *Source: SRD 5.2 and the Free Rules (2024)*  

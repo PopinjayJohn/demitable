@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 15
-  dex: 12
-  int: 5
-  str: 17
-  wis: 13
-ac: 12
 aliases:
   - Mimic
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - prone
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -46,20 +32,10 @@ data:
     walk: 20
   type: monstrosity
   vulnerable: []
-hp: 58
-immune:
-  - acid
-languages: []
 license: CC-BY-4.0
 name: Mimic
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: 23B0E9732507A37C5403453041
 visibility: party
-vulnerable: []
 ---
 # Mimic
 *Source: SRD 5.2 and the Free Rules (2024)*  

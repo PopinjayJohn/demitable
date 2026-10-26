@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 20
-  dex: 13
-  int: 7
-  str: 18
-  wis: 9
-ac: 15
 aliases:
   - Troll
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: giant
   vulnerable: []
-hp: 94
-immune: []
-languages:
-  - Giant
 license: CC-BY-4.0
 name: Troll
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +51,6 @@ tags:
 type: content
 uid: A0A57B7AF2ACD57CE5E4FD98F8
 visibility: party
-vulnerable: []
 ---
 # Troll
 *Source: SRD 5.2 and the Free Rules (2024)*  

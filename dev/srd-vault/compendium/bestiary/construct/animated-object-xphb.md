@@ -1,18 +1,7 @@
 ---
-abilities:
-  cha: 1
-  con: 10
-  dex: 10
-  int: 3
-  str: 16
-  wis: 3
-ac: 15
 aliases:
   - Animated Object
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
 cssclasses:
   - json5e-monster
@@ -39,19 +28,10 @@ data:
     walk: 30
   type: construct
   vulnerable: []
-immune: []
-languages:
-  - understands the languages you know
 license: CC-BY-4.0
 name: Animated Object
 obsidianUIMode: preview
-passive_perception: 6
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xphb
 system: dnd5e
 tags:
@@ -62,7 +42,6 @@ tags:
 type: content
 uid: CAC5116327496D82820D48534C
 visibility: party
-vulnerable: []
 ---
 # Animated Object
 *Source: SRD 5.2*  

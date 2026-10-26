@@ -480,27 +480,77 @@ func (p *Pack) lintDice() []Issue {
 	for _, r := range p.Resources {
 		resKeys[r.Key] = true
 	}
+	workflowKeys := map[string]bool{}
+	if p.Dice != nil {
+		for _, w := range p.Dice.Workflows {
+			if w.Key != "" {
+				workflowKeys[w.Key] = true
+			}
+		}
+	}
+	isSimpleIdent := func(s string) bool {
+		if s == "" {
+			return false
+		}
+		for i, r := range s {
+			if i == 0 {
+				if !(r == '_' || (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')) {
+					return false
+				}
+			} else {
+				if !(r == '_' || (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9')) {
+					return false
+				}
+			}
+		}
+		return true
+	}
 	checkRef := func(field, ref string) {
 		ref = strings.TrimSpace(ref)
-		if !strings.HasPrefix(ref, "resources.") {
+		if ref == "" {
 			return
 		}
-		if !hasResources {
-			issues = append(issues, Issue{
-				Severity: "error",
-				Kind:     "invariant",
-				Message:  fmt.Sprintf("pack: invariant 1 (a pack need not define resources, but this pack assumes one exists): %s %q references a resource but the pack declares none", field, ref),
-			})
+		if strings.HasPrefix(ref, "resources.") {
+			if !hasResources {
+				issues = append(issues, Issue{
+					Severity: "error",
+					Kind:     "invariant",
+					Message:  fmt.Sprintf("pack: invariant 1 (a pack need not define resources, but this pack assumes one exists): %s %q references a resource but the pack declares none", field, ref),
+				})
+				return
+			}
+			key := strings.TrimPrefix(ref, "resources.")
+			if key != "" && !resKeys[key] {
+				issues = append(issues, Issue{
+					Severity: "error",
+					Kind:     "unresolvable",
+					Message:  fmt.Sprintf("pack: %s %q references undeclared resource %q", field, ref, key),
+				})
+			}
 			return
 		}
-		key := strings.TrimPrefix(ref, "resources.")
-		if key != "" && !resKeys[key] {
-			issues = append(issues, Issue{
-				Severity: "error",
-				Kind:     "unresolvable",
-				Message:  fmt.Sprintf("pack: %s %q references undeclared resource %q", field, ref, key),
-			})
+		if !isSimpleIdent(ref) {
+			return
 		}
+		if workflowKeys[ref] {
+			return
+		}
+		if _, ok := p.Formulas[ref]; ok {
+			return
+		}
+		switch ref {
+		case "proficiency", "level",
+			"attack_bonus", "save_bonus", "check_bonus",
+			"dc", "spell_dc", "to_hit",
+			"damage_avg", "damage_mod",
+			"damage", "success":
+			return
+		}
+		issues = append(issues, Issue{
+			Severity: "error",
+			Kind:     "unresolvable",
+			Message:  fmt.Sprintf("pack: %s %q references undeclared formula %q", field, ref, ref),
+		})
 	}
 	for i, w := range p.Dice.Workflows {
 		where := fmt.Sprintf("dice.workflows[%d]", i)

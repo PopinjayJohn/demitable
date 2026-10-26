@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 16
-  dex: 10
-  int: 5
-  str: 19
-  wis: 12
-ac: 14
 aliases:
   - Wyvern
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 127
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Wyvern
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 4F882C31F8772728C66EB43D8C
 visibility: party
-vulnerable: []
 ---
 # Wyvern
 *Source: SRD 5.2 and the Free Rules (2024)*  

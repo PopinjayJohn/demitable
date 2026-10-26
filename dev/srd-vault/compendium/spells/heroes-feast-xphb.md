@@ -2,9 +2,6 @@
 aliases:
   - Heroes' Feast
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S, M (a gem-encrusted bowl worth 1,000+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: 10 feet
   school: Conjuration
-duration: Instantaneous
-level: 6
 license: CC-BY-4.0
 name: Heroes' Feast
 obsidianUIMode: preview
-range: 10 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

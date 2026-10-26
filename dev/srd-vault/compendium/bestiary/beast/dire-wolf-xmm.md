@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 15
-  dex: 15
-  int: 3
-  str: 17
-  wis: 12
-ac: 14
 aliases:
   - Dire Wolf
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Dire Wolf
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -68,7 +46,6 @@ tags:
 type: content
 uid: ECFFAE6EAF33238B81D3CA815F
 visibility: party
-vulnerable: []
 ---
 # Dire Wolf
 *Source: SRD 5.2 and the Free Rules (2024)*  

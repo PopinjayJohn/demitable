@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 25
-  con: 27
-  dex: 10
-  int: 18
-  str: 29
-  wis: 17
-ac: 22
 aliases:
   - Ancient Bronze Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:22 xpLair:50000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Good
   condition_immunities: []
-  cr: map[cr:22 xpLair:50000]
-  cr_xp: 0
+  cr: "22"
+  cr_xp: 41000
   hp: 444
   immune:
     - lightning
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 444
-immune:
-  - lightning
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient Bronze Dragon
 obsidianUIMode: preview
-passive_perception: 27
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 4C8FB76A0F44AC43174A9520D8
 visibility: party
-vulnerable: []
 ---
 # Ancient Bronze Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

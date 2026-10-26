@@ -2,9 +2,6 @@
 aliases:
   - Imprisonment
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (a statuette of the target worth 5,000+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 9
   range: 30 feet
   school: Abjuration
-duration: permanent
-level: 9
 license: CC-BY-4.0
 name: Imprisonment
 obsidianUIMode: preview
-range: 30 feet
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

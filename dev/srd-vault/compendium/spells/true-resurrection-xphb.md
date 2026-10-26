@@ -2,9 +2,6 @@
 aliases:
   - True Resurrection
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (diamonds worth 25,000+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 9
   range: <nil> touch
   school: Necromancy
-duration: Instantaneous
-level: 9
 license: CC-BY-4.0
 name: True Resurrection
 obsidianUIMode: preview
-range: <nil> touch
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

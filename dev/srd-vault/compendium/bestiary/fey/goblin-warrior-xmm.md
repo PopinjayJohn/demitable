@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 10
-  dex: 15
-  int: 10
-  str: 8
-  wis: 8
-ac: 15
 aliases:
   - Goblin Warrior
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 10
-immune: []
-languages:
-  - Common
-  - Goblin
 license: CC-BY-4.0
 name: Goblin Warrior
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +53,6 @@ tags:
 type: content
 uid: 5D066E377AF34904962BAB7DEC
 visibility: party
-vulnerable: []
 ---
 # Goblin Warrior
 *Source: SRD 5.2 and the Free Rules (2024)*  

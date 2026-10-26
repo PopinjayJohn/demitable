@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 11
-  dex: 15
-  int: 1
-  str: 2
-  wis: 10
-ac: 12
 aliases:
   - Venomous Snake
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Venomous Snake
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +51,6 @@ tags:
 type: content
 uid: F0DD8DD7F47C673F4C14C17B25
 visibility: party
-vulnerable: []
 ---
 # Venomous Snake
 *Source: SRD 5.2 and the Free Rules (2024)*  

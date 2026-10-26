@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 10
-  dex: 14
-  int: 1
-  str: 10
-  wis: 10
-ac: 13
 aliases:
   - Giant Wasp
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Wasp
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 50
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 746DC4A637CC8A281D96ECF6D8
 visibility: party
-vulnerable: []
 ---
 # Giant Wasp
 *Source: SRD 5.2 and the Free Rules (2024)*  

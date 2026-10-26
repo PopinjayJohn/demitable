@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 21
-  dex: 9
-  int: 3
-  str: 24
-  wis: 11
-ac: 13
 aliases:
   - Mammoth
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 126
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Mammoth
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: EDFA2CFE604B12047FF218AF86
 visibility: party
-vulnerable: []
 ---
 # Mammoth
 *Source: SRD 5.2 and the Free Rules (2024)*  

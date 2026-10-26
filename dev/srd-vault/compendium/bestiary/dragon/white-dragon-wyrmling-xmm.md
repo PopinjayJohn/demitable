@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 14
-  dex: 10
-  int: 5
-  str: 14
-  wis: 10
-ac: 16
 aliases:
   - White Dragon Wyrmling
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 32
-immune:
-  - cold
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: White Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  burrow: 15
-  fly: 60
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 859EC723F5AD543A2B496E61E9
 visibility: party
-vulnerable: []
 ---
 # White Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

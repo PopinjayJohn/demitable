@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 12
-  dex: 13
-  int: 11
-  str: 10
-  wis: 14
-ac: 11
 aliases:
   - Merfolk Skirmisher
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 10
   type: elemental
   vulnerable: []
-hp: 11
-immune: []
-languages:
-  - Common
-  - Primordial (Aquan)
 license: CC-BY-4.0
 name: Merfolk Skirmisher
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +49,6 @@ tags:
 type: content
 uid: 0A700F0DD73D0160B4D1B5BB3C
 visibility: party
-vulnerable: []
 ---
 # Merfolk Skirmisher
 *Source: SRD 5.2 and the Free Rules (2024)*  

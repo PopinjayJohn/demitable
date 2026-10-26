@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 17
-  dex: 14
-  int: 14
-  str: 19
-  wis: 11
-ac: 17
 aliases:
   - Gold Dragon Wyrmling
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 60
-immune:
-  - fire
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Gold Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: 903FCAA12D77D0A0598F5FC726
 visibility: party
-vulnerable: []
 ---
 # Gold Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

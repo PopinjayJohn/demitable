@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 11
-  dex: 18
-  int: 1
-  str: 8
-  wis: 10
-ac: 14
 aliases:
   - Swarm of Venomous Snakes
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -63,23 +42,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 36
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Swarm of Venomous Snakes
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -96,7 +62,6 @@ tags:
 type: content
 uid: 9A818FE0C7283912846E762E77
 visibility: party
-vulnerable: []
 ---
 # Swarm of Venomous Snakes
 *Source: SRD 5.2 and the Free Rules (2024)*  

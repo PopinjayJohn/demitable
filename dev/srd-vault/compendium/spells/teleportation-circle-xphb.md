@@ -2,9 +2,6 @@
 aliases:
   - Teleportation Circle
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, M (rare inks worth 50+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: 10 feet
   school: Conjuration
-duration: timed
-level: 5
 license: CC-BY-4.0
 name: Teleportation Circle
 obsidianUIMode: preview
-range: 10 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -2,9 +2,6 @@
 aliases:
   - Planar Ally
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: 60 feet
   school: Conjuration
-duration: Instantaneous
-level: 6
 license: CC-BY-4.0
 name: Planar Ally
 obsidianUIMode: preview
-range: 60 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

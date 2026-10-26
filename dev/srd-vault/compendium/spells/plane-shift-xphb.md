@@ -2,9 +2,6 @@
 aliases:
   - Plane Shift
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a forked, metal rod worth 250+ GP and attuned to a plane of existence)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: <nil> touch
   school: Conjuration
-duration: Instantaneous
-level: 7
 license: CC-BY-4.0
 name: Plane Shift
 obsidianUIMode: preview
-range: <nil> touch
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 11
-  dex: 16
-  int: 12
-  str: 12
-  wis: 10
-ac: 13
 aliases:
   - Satyr
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 40
   type: fey
   vulnerable: []
-hp: 31
-immune: []
-languages:
-  - Common
-  - Elvish
-  - Sylvan
 license: CC-BY-4.0
 name: Satyr
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +50,6 @@ tags:
 type: content
 uid: DE735A12629C48F469DF7F60AF
 visibility: party
-vulnerable: []
 ---
 # Satyr
 *Source: SRD 5.2 and the Free Rules (2024)*  

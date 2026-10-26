@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 19
-  dex: 11
-  int: 3
-  str: 19
-  wis: 14
-ac: 14
 aliases:
   - Chimera
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 114
-immune: []
-languages:
-  - understands Draconic but can't speak
 license: CC-BY-4.0
 name: Chimera
 obsidianUIMode: preview
-passive_perception: 18
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +49,6 @@ tags:
 type: content
 uid: 470F753E6D3B581041F0F8CDF8
 visibility: party
-vulnerable: []
 ---
 # Chimera
 *Source: SRD 5.2 and the Free Rules (2024)*  

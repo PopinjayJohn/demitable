@@ -2,9 +2,6 @@
 aliases:
   - Mind Blank
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 8
   range: <nil> touch
   school: Abjuration
-duration: timed
-level: 8
 license: CC-BY-4.0
 name: Mind Blank
 obsidianUIMode: preview
-range: <nil> touch
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

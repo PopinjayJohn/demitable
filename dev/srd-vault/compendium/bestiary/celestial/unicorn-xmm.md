@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 15
-  dex: 14
-  int: 11
-  str: 18
-  wis: 17
-ac: 12
 aliases:
   - Unicorn
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - paralyzed
-  - poisoned
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -53,23 +37,10 @@ data:
     walk: 50
   type: celestial
   vulnerable: []
-hp: 97
-immune:
-  - poison
-languages:
-  - Celestial
-  - Elvish
-  - Sylvan; telepathy 120 ft.
 license: CC-BY-4.0
 name: Unicorn
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -83,7 +54,6 @@ tags:
 type: content
 uid: 002E1DC07237823D2C3650339F
 visibility: party
-vulnerable: []
 ---
 # Unicorn
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 13
-  dex: 14
-  int: 7
-  str: 12
-  wis: 10
-ac: 15
 aliases:
   - Bullywug Warrior
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 11
-immune: []
-languages:
-  - Bullywug
-  - Common
 license: CC-BY-4.0
 name: Bullywug Warrior
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: 48BFCA5CF43FE4FD80F8FAF035
 visibility: party
-vulnerable: []
 ---
 # Bullywug Warrior
 *Source: the Free Rules (2024)*  

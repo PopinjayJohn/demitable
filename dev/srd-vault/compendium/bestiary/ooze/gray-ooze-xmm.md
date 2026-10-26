@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 16
-  dex: 6
-  int: 1
-  str: 12
-  wis: 6
-ac: 9
 aliases:
   - Gray Ooze
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - grappled
-  - prone
-  - restrained
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -63,23 +42,10 @@ data:
     walk: 10
   type: ooze
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Gray Ooze
 obsidianUIMode: preview
-passive_perception: 8
-resist:
-  - acid
-  - cold
-  - fire
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 10
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -91,7 +57,6 @@ tags:
 type: content
 uid: 999B983D60CF6114EAC0368DEE
 visibility: party
-vulnerable: []
 ---
 # Gray Ooze
 *Source: SRD 5.2 and the Free Rules (2024)*  

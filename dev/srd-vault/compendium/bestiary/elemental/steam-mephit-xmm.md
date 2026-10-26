@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 10
-  dex: 11
-  int: 11
-  str: 5
-  wis: 10
-ac: 10
 aliases:
   - Steam Mephit
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -51,23 +36,10 @@ data:
     walk: 30
   type: elemental
   vulnerable: []
-hp: 17
-immune:
-  - fire
-  - poison
-languages:
-  - Primordial (Aquan, Ignan)
 license: CC-BY-4.0
 name: Steam Mephit
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: 29E1BCB08049CC80F9D9B077D4
 visibility: party
-vulnerable: []
 ---
 # Steam Mephit
 *Source: SRD 5.2 and the Free Rules (2024)*  

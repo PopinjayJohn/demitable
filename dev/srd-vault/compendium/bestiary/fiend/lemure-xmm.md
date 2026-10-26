@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 11
-  dex: 5
-  int: 1
-  str: 10
-  wis: 11
-ac: 9
 aliases:
   - Lemure
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - poisoned
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -53,23 +37,10 @@ data:
     walk: 20
   type: fiend
   vulnerable: []
-hp: 9
-immune:
-  - fire
-  - poison
-languages:
-  - understands Infernal but can't speak
 license: CC-BY-4.0
 name: Lemure
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - cold
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: B4D89D470BE3FEB488FD022106
 visibility: party
-vulnerable: []
 ---
 # Lemure
 *Source: SRD 5.2 and the Free Rules (2024)*  

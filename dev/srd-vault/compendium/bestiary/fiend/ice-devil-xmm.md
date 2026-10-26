@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 18
-  dex: 14
-  int: 18
-  str: 21
-  wis: 15
-ac: 18
 aliases:
   - Ice Devil
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "14"
-cr_xp: 11500
 cssclasses:
   - json5e-monster
 data:
@@ -49,23 +35,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 228
-immune:
-  - cold
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Ice Devil
 obsidianUIMode: preview
-passive_perception: 17
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 4EC7E916623D853563AB2A3A8B
 visibility: party
-vulnerable: []
 ---
 # Ice Devil
 *Source: SRD 5.2 and the Free Rules (2024)*  

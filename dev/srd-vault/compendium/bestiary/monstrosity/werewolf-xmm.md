@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 14
-  dex: 14
-  int: 10
-  str: 16
-  wis: 11
-ac: 15
 aliases:
   - Werewolf
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 71
-immune: []
-languages:
-  - Common (can't speak in wolf form)
 license: CC-BY-4.0
 name: Werewolf
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  alternate:
-    walk:
-      - condition: (wolf form only)
-        number: 40
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 2AFFD225F7B92C2B49EAC0D48B
 visibility: party
-vulnerable: []
 ---
 # Werewolf
 *Source: SRD 5.2 and the Free Rules (2024)*  

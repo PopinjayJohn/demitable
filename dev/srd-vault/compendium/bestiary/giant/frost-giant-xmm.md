@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 21
-  dex: 9
-  int: 9
-  str: 23
-  wis: 10
-ac: 15
 aliases:
   - Frost Giant
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 40
   type: giant
   vulnerable: []
-hp: 149
-immune:
-  - cold
-languages:
-  - Giant
 license: CC-BY-4.0
 name: Frost Giant
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: 5C249836A27FD6C0485457BA18
 visibility: party
-vulnerable: []
 ---
 # Frost Giant
 *Source: SRD 5.2 and the Free Rules (2024)*  

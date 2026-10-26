@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 16
-  dex: 16
-  int: 11
-  str: 16
-  wis: 10
-ac: 16
 aliases:
   - Vampire Spawn
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 90
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Vampire Spawn
 obsidianUIMode: preview
-passive_perception: 13
-resist:
-  - necrotic
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: DB6D8937161FDB515393A58CB3
 visibility: party
-vulnerable: []
 ---
 # Vampire Spawn
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 10
-  dex: 28
-  int: 13
-  str: 1
-  wis: 14
-ac: 19
 aliases:
   - Will-o'-Wisp
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -73,33 +52,10 @@ data:
     walk: 5
   type: undead
   vulnerable: []
-hp: 27
-immune:
-  - lightning
-  - poison
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Will-o'-Wisp
 obsidianUIMode: preview
-passive_perception: 12
-resist:
-  - acid
-  - bludgeoning
-  - cold
-  - fire
-  - necrotic
-  - piercing
-  - slashing
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 50
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -113,7 +69,6 @@ tags:
 type: content
 uid: 65FF2AF88132EC706C224BCD2D
 visibility: party
-vulnerable: []
 ---
 # Will-o'-Wisp
 *Source: SRD 5.2 and the Free Rules (2024)*  

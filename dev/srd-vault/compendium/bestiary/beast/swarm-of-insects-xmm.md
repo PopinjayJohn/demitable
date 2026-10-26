@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 14
-  dex: 13
-  int: 1
-  str: 3
-  wis: 7
-ac: 11
 aliases:
   - Swarm of Insects
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -68,28 +47,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 19
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Swarm of Insects
 obsidianUIMode: preview
-passive_perception: 8
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  choose:
-    amount: 20
-    from:
-      - climb
-      - fly
-    note: (DM's choice)
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -107,7 +68,6 @@ tags:
 type: content
 uid: D60849C3850D73E8A6B5CAA32D
 visibility: party
-vulnerable: []
 ---
 # Swarm of Insects
 *Source: SRD 5.2 and the Free Rules (2024)*  

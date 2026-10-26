@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Dwarven Thrower
 obsidianUIMode: preview
-rarity: very rare
-reqAttune: by a Dwarf or a Creature Attuned to a {@item Belt of Dwarvenkind|XDMG}
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

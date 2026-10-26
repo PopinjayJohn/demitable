@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 8
-  int: 5
-  str: 18
-  wis: 10
-ac: 15
 aliases:
   - Shambling Mound
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - deafened
-  - exhaustion
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -51,23 +36,10 @@ data:
     walk: 30
   type: plant
   vulnerable: []
-hp: 110
-immune:
-  - lightning
-languages: []
 license: CC-BY-4.0
 name: Shambling Mound
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - cold
-  - fire
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 20
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: 54327AFAECF0145CA2DB11FF10
 visibility: party
-vulnerable: []
 ---
 # Shambling Mound
 *Source: SRD 5.2 and the Free Rules (2024)*  

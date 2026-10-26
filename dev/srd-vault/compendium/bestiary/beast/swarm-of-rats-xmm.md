@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 9
-  dex: 11
-  int: 2
-  str: 9
-  wis: 10
-ac: 10
 aliases:
   - Swarm of Rats
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -63,23 +42,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 14
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Swarm of Rats
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -94,7 +60,6 @@ tags:
 type: content
 uid: 6A84B3C007947ADF1DF4287475
 visibility: party
-vulnerable: []
 ---
 # Swarm of Rats
 *Source: SRD 5.2 and the Free Rules (2024)*  

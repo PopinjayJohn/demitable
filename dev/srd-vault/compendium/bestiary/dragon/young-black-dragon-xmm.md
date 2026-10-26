@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 17
-  dex: 14
-  int: 12
-  str: 19
-  wis: 11
-ac: 18
 aliases:
   - Young Black Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "7"
-cr_xp: 2900
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 127
-immune:
-  - acid
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Black Dragon
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 4595D7EE4058F4FFE5ED266A29
 visibility: party
-vulnerable: []
 ---
 # Young Black Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

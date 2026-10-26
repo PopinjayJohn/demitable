@@ -2,9 +2,6 @@
 aliases:
   - Antipathy/Sympathy
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (a mix of vinegar and honey)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 8
   range: 60 feet
   school: Enchantment
-duration: timed
-level: 8
 license: CC-BY-4.0
 name: Antipathy/Sympathy
 obsidianUIMode: preview
-range: 60 feet
-school: Enchantment
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

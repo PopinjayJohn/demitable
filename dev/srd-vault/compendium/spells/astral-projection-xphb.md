@@ -2,9 +2,6 @@
 aliases:
   - Astral Projection
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (for each of the spell's targets, one jacinth worth 1,000+ GP and one silver bar worth 100+ GP, all of which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 9
   range: 10 feet
   school: Necromancy
-duration: permanent
-level: 9
 license: CC-BY-4.0
 name: Astral Projection
 obsidianUIMode: preview
-range: 10 feet
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

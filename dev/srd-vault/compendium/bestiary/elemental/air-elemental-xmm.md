@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 14
-  dex: 20
-  int: 6
-  str: 14
-  wis: 10
-ac: 15
 aliases:
   - Air Elemental
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -70,30 +49,10 @@ data:
     walk: 10
   type: elemental
   vulnerable: []
-hp: 90
-immune:
-  - poison
-  - thunder
-languages:
-  - Primordial (Auran)
 license: CC-BY-4.0
 name: Air Elemental
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - bludgeoning
-  - lightning
-  - piercing
-  - slashing
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 90
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -108,7 +67,6 @@ tags:
 type: content
 uid: 100E2CEE6C7BF5C5A22C86F339
 visibility: party
-vulnerable: []
 ---
 # Air Elemental
 *Source: SRD 5.2 and the Free Rules (2024)*  

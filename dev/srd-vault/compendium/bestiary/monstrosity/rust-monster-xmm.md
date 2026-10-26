@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 13
-  dex: 12
-  int: 2
-  str: 13
-  wis: 13
-ac: 14
 aliases:
   - Rust Monster
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 33
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Rust Monster
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: A408BD9F96BAC845C404CC1BCD
 visibility: party
-vulnerable: []
 ---
 # Rust Monster
 *Source: SRD 5.2 and the Free Rules (2024)*  

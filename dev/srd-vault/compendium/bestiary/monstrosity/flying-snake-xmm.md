@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 11
-  dex: 15
-  int: 2
-  str: 4
-  wis: 12
-ac: 14
 aliases:
   - Flying Snake
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Flying Snake
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 60
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +49,6 @@ tags:
 type: content
 uid: DC6E1E269C516CBE86C0F9016F
 visibility: party
-vulnerable: []
 ---
 # Flying Snake
 *Source: SRD 5.2 and the Free Rules (2024)*  

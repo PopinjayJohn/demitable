@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 14
-  dex: 11
-  int: 1
-  str: 17
-  wis: 13
-ac: 14
 aliases:
   - Ankheg
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 45
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Ankheg
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  burrow: 10
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: D977BB5981966C8BAB872B41CD
 visibility: party
-vulnerable: []
 ---
 # Ankheg
 *Source: SRD 5.2 and the Free Rules (2024)*  

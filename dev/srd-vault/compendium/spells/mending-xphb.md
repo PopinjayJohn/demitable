@@ -2,9 +2,6 @@
 aliases:
   - Mending
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (two lodestones)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 0
   range: <nil> touch
   school: Transmutation
-duration: Instantaneous
-level: 0
 license: CC-BY-4.0
 name: Mending
 obsidianUIMode: preview
-range: <nil> touch
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

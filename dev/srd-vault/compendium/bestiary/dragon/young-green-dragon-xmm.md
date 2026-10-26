@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 17
-  dex: 12
-  int: 16
-  str: 19
-  wis: 13
-ac: 18
 aliases:
   - Young Green Dragon
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 136
-immune:
-  - poison
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Green Dragon
 obsidianUIMode: preview
-passive_perception: 17
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 6B4C72388C09A223CBA2A06D31
 visibility: party
-vulnerable: []
 ---
 # Young Green Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

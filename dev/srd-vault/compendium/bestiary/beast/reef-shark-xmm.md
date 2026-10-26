@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 13
-  dex: 15
-  int: 1
-  str: 14
-  wis: 10
-ac: 12
 aliases:
   - Reef Shark
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Reef Shark
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: C07CAA2D87768C833E24F20716
 visibility: party
-vulnerable: []
 ---
 # Reef Shark
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 12
-  dex: 13
-  int: 3
-  str: 17
-  wis: 12
-ac: 11
 aliases:
   - Giant Goat
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 19
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Goat
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 1FE4337DDC2BA7AE8491CA398C
 visibility: party
-vulnerable: []
 ---
 # Giant Goat
 *Source: SRD 5.2 and the Free Rules (2024)*  

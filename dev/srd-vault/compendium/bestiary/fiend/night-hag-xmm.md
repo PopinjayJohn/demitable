@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 16
-  dex: 15
-  int: 16
-  str: 18
-  wis: 14
-ac: 17
 aliases:
   - Night Hag
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -51,25 +37,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 112
-immune: []
-languages:
-  - Abyssal
-  - Common
-  - Infernal
-  - Primordial
 license: CC-BY-4.0
 name: Night Hag
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - cold
-  - fire
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: 8917DE8AB81955E4FB3DE637B4
 visibility: party
-vulnerable: []
 ---
 # Night Hag
 *Source: SRD 5.2 and the Free Rules (2024)*  

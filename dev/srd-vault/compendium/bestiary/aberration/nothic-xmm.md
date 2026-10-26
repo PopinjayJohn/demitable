@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 16
-  dex: 16
-  int: 13
-  str: 14
-  wis: 10
-ac: 15
 aliases:
   - Nothic
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: aberration
   vulnerable: []
-hp: 45
-immune: []
-languages:
-  - Undercommon
 license: CC-BY-4.0
 name: Nothic
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: BB63966A7E99D0181A95D834CB
 visibility: party
-vulnerable: []
 ---
 # Nothic
 *Source: the Free Rules (2024)*  

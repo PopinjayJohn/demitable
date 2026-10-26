@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Tome of Leadership and Influence
 obsidianUIMode: preview
-rarity: very rare
-reqAttune: ""
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

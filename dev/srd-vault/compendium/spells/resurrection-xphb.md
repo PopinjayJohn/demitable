@@ -2,9 +2,6 @@
 aliases:
   - Resurrection
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (a diamond worth 1,000+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: <nil> touch
   school: Necromancy
-duration: Instantaneous
-level: 7
 license: CC-BY-4.0
 name: Resurrection
 obsidianUIMode: preview
-range: <nil> touch
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

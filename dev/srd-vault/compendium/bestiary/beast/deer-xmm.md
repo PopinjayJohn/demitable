@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 11
-  dex: 16
-  int: 2
-  str: 11
-  wis: 14
-ac: 13
 aliases:
   - Deer
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 4
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Deer
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -68,7 +46,6 @@ tags:
 type: content
 uid: B26AB770E1228C67DDDF599F64
 visibility: party
-vulnerable: []
 ---
 # Deer
 *Source: SRD 5.2 and the Free Rules (2024)*  

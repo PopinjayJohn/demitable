@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Staff of Withering
 obsidianUIMode: preview
-rarity: rare
-reqAttune: by a cleric, druid, or warlock
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

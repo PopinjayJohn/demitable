@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 22
-  con: 22
-  dex: 15
-  int: 20
-  str: 26
-  wis: 16
-ac: 19
 aliases:
   - Balor
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - poisoned
 content_type: monster
-cr: "19"
-cr_xp: 22000
 cssclasses:
   - json5e-monster
 data:
@@ -55,25 +39,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 287
-immune:
-  - fire
-  - poison
-languages:
-  - Abyssal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Balor
 obsidianUIMode: preview
-passive_perception: 19
-resist:
-  - cold
-  - lightning
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -86,7 +55,6 @@ tags:
 type: content
 uid: BD6B28757BBA574A93B8078177
 visibility: party
-vulnerable: []
 ---
 # Balor
 *Source: SRD 5.2 and the Free Rules (2024)*  

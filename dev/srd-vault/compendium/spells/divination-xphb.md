@@ -2,9 +2,6 @@
 aliases:
   - Divination
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (incense worth 25+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 4
   range: <nil> self
   school: Divination
-duration: Instantaneous
-level: 4
 license: CC-BY-4.0
 name: Divination
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

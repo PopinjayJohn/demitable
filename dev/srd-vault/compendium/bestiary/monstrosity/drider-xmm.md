@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 18
-  dex: 19
-  int: 13
-  str: 16
-  wis: 16
-ac: 19
 aliases:
   - Drider
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 123
-immune: []
-languages:
-  - Elvish
-  - Undercommon
 license: CC-BY-4.0
 name: Drider
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +49,6 @@ tags:
 type: content
 uid: EB4B8CA06DE556BCC3EBD1FE41
 visibility: party
-vulnerable: []
 ---
 # Drider
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,28 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 16
-  dex: 5
-  int: 1
-  str: 16
-  wis: 6
-ac: 7
 aliases:
   - Black Pudding
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - grappled
-  - prone
-  - restrained
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -62,24 +42,10 @@ data:
     walk: 20
   type: ooze
   vulnerable: []
-hp: 68
-immune:
-  - acid
-  - cold
-  - lightning
-  - slashing
-languages: []
 license: CC-BY-4.0
 name: Black Pudding
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -91,7 +57,6 @@ tags:
 type: content
 uid: 3E5805C6EB5D9146B312103B0D
 visibility: party
-vulnerable: []
 ---
 # Black Pudding
 *Source: SRD 5.2 and the Free Rules (2024)*  

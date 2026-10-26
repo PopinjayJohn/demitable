@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 14
-  dex: 14
-  int: 3
-  str: 15
-  wis: 13
-ac: 12
 aliases:
   - Death Dog
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - frightened
-  - stunned
-  - unconscious
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -55,19 +36,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 39
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Death Dog
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 115DC6434DEB4F926D7AD46D2A
 visibility: party
-vulnerable: []
 ---
 # Death Dog
 *Source: SRD 5.2 and the Free Rules (2024)*  

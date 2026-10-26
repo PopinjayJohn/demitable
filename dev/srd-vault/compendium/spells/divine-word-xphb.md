@@ -2,9 +2,6 @@
 aliases:
   - Divine Word
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 7
   range: 30 feet
   school: Evocation
-duration: Instantaneous
-level: 7
 license: CC-BY-4.0
 name: Divine Word
 obsidianUIMode: preview
-range: 30 feet
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

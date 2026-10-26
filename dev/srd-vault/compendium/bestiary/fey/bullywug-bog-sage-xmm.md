@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 14
-  dex: 16
-  int: 10
-  str: 8
-  wis: 16
-ac: 16
 aliases:
   - Bullywug Bog Sage
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 52
-immune: []
-languages:
-  - Bullywug
-  - Common
 license: CC-BY-4.0
 name: Bullywug Bog Sage
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: 27051328BFD534EEFEEDD228B9
 visibility: party
-vulnerable: []
 ---
 # Bullywug Bog Sage
 *Source: the Free Rules (2024)*  

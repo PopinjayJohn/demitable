@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 11
-  dex: 10
-  int: 2
-  str: 16
-  wis: 10
-ac: 10
 aliases:
   - Elk
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Elk
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: F6CA8A3DCCB0CA3139A3961CA9
 visibility: party
-vulnerable: []
 ---
 # Elk
 *Source: SRD 5.2 and the Free Rules (2024)*  

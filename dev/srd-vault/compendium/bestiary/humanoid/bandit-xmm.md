@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 12
-  dex: 12
-  int: 10
-  str: 11
-  wis: 10
-ac: 12
 aliases:
   - Bandit
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 11
-immune: []
-languages:
-  - Common
-  - Thieves' cant
 license: CC-BY-4.0
 name: Bandit
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: 6D123A2ECD5F1ED8861A5F147E
 visibility: party
-vulnerable: []
 ---
 # Bandit
 *Source: SRD 5.2 and the Free Rules (2024)*  

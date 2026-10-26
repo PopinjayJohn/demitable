@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 15
-  dex: 10
-  int: 12
-  str: 17
-  wis: 11
-ac: 15
 aliases:
   - Bronze Dragon Wyrmling
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 39
-immune:
-  - lightning
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Bronze Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +49,6 @@ tags:
 type: content
 uid: 80CE8CDD4E6F7C4ABA0DA83C82
 visibility: party
-vulnerable: []
 ---
 # Bronze Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

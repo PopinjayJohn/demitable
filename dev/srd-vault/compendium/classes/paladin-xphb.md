@@ -2,7 +2,6 @@
 aliases:
   - Paladin
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -21,8 +20,8 @@ data:
       name: Paladin's Smite
     - level: 3
       name: Channel Divinity
-    - level: 0
-      name: map[classFeature:Paladin Subclass
+    - level: 3
+      name: Paladin Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
@@ -31,8 +30,8 @@ data:
       name: Faithful Steed
     - level: 6
       name: Aura of Protection
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 7
+      name: Subclass Feature
     - level: 8
       name: Ability Score Improvement
     - level: 9
@@ -45,16 +44,16 @@ data:
       name: Ability Score Improvement
     - level: 14
       name: Restoring Touch
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 15
+      name: Subclass Feature
     - level: 16
       name: Ability Score Improvement
     - level: 18
       name: Aura Expansion
     - level: 19
       name: Epic Boon
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 20
+      name: Subclass Feature
   hit_die: 10
   primary_abilities:
     - wis
@@ -82,84 +81,10 @@ data:
     - wis
     - cha
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Lay on Hands
-  - level: 1
-    name: Spellcasting
-  - level: 1
-    name: Weapon Mastery
-  - level: 2
-    name: Fighting Style
-  - level: 2
-    name: Paladin's Smite
-  - level: 3
-    name: Channel Divinity
-  - level: 0
-    name: map[classFeature:Paladin Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Extra Attack
-  - level: 5
-    name: Faithful Steed
-  - level: 6
-    name: Aura of Protection
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Abjure Foes
-  - level: 10
-    name: Aura of Courage
-  - level: 11
-    name: Radiant Strikes
-  - level: 12
-    name: Ability Score Improvement
-  - level: 14
-    name: Restoring Touch
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 16
-    name: Ability Score Improvement
-  - level: 18
-    name: Aura Expansion
-  - level: 19
-    name: Epic Boon
-  - level: 0
-    name: map[classFeature:Subclass Feature
-hit_die: 10
 license: CC-BY-4.0
 name: Paladin
 obsidianUIMode: preview
-primary_abilities:
-  - wis
-  - cha
-proficiencies:
-  armor:
-    - light
-    - medium
-    - heavy
-    - shield
-  skills:
-    - choose:
-        count: 2
-        from:
-          - athletics
-          - insight
-          - intimidation
-          - medicine
-          - persuasion
-          - religion
-  weapons:
-    - simple
-    - martial
-saving_throws:
-  - wis
-  - cha
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

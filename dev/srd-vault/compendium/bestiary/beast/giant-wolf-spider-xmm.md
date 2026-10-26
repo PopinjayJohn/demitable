@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 13
-  dex: 16
-  int: 3
-  str: 12
-  wis: 12
-ac: 13
 aliases:
   - Giant Wolf Spider
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Wolf Spider
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: 18503E39B0B84602257199619B
 visibility: party
-vulnerable: []
 ---
 # Giant Wolf Spider
 *Source: SRD 5.2 and the Free Rules (2024)*  

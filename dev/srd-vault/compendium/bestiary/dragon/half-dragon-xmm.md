@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 16
-  dex: 14
-  int: 10
-  str: 19
-  wis: 15
-ac: 18
 aliases:
   - Half-Dragon
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 105
-immune: []
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Half-Dragon
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - special: Damage type chosen for the Draconic Origin trait below
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: E76D5B9852B7EF8F21B6A49984
 visibility: party
-vulnerable: []
 ---
 # Half-Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

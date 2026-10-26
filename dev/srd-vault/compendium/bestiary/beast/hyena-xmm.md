@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 12
-  dex: 13
-  int: 2
-  str: 11
-  wis: 12
-ac: 11
 aliases:
   - Hyena
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Hyena
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +48,6 @@ tags:
 type: content
 uid: EB80FDC998EC4F4D800C1CC99F
 visibility: party
-vulnerable: []
 ---
 # Hyena
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -2,9 +2,6 @@
 aliases:
   - Fireball
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a ball of bat guano and sulfur)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 150 feet
   school: Evocation
-duration: Instantaneous
-level: 3
 license: CC-BY-4.0
 name: Fireball
 obsidianUIMode: preview
-range: 150 feet
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

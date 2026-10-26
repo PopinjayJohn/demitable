@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 14
-  dex: 14
-  int: 12
-  str: 15
-  wis: 10
-ac: 17
 aliases:
   - Hobgoblin Captain
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 58
-immune: []
-languages:
-  - Common
-  - Goblin
 license: CC-BY-4.0
 name: Hobgoblin Captain
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +54,6 @@ tags:
 type: content
 uid: DF6410721E0BB259660802041F
 visibility: party
-vulnerable: []
 ---
 # Hobgoblin Captain
 *Source: SRD 5.2 and the Free Rules (2024)*  

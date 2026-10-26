@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 11
-  dex: 16
-  int: 2
-  str: 15
-  wis: 12
-ac: 13
 aliases:
   - Giant Bat
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Bat
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 8381E888AA1AE0F32AC4275F8A
 visibility: party
-vulnerable: []
 ---
 # Giant Bat
 *Source: SRD 5.2 and the Free Rules (2024)*  

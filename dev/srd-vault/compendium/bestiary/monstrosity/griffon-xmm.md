@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 16
-  dex: 15
-  int: 2
-  str: 18
-  wis: 13
-ac: 12
 aliases:
   - Griffon
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 59
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Griffon
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: E195EC0C91F4E06DAD32FC152E
 visibility: party
-vulnerable: []
 ---
 # Griffon
 *Source: SRD 5.2 and the Free Rules (2024)*  

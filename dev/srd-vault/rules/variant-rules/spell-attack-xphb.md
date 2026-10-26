@@ -11,8 +11,6 @@ data:
 license: CC-BY-4.0
 name: Spell Attack
 obsidianUIMode: preview
-rule: C
-rule_type: C
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

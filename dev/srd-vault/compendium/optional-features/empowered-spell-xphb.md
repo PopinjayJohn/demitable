@@ -9,12 +9,9 @@ data:
   featureType:
     - MM
   prerequisites: null
-featureType:
-  - MM
 license: CC-BY-4.0
 name: Empowered Spell
 obsidianUIMode: preview
-prerequisites: null
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

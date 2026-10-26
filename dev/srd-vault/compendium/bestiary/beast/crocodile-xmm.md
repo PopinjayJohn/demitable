@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 13
-  dex: 10
-  int: 2
-  str: 15
-  wis: 10
-ac: 12
 aliases:
   - Crocodile
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Crocodile
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 4B7E5630C02A0880D4E3384A48
 visibility: party
-vulnerable: []
 ---
 # Crocodile
 *Source: SRD 5.2 and the Free Rules (2024)*  

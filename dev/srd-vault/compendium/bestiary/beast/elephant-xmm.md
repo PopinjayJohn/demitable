@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 17
-  dex: 9
-  int: 3
-  str: 22
-  wis: 11
-ac: 12
 aliases:
   - Elephant
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 76
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Elephant
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 944CB419BF5B8C5088250FB74A
 visibility: party
-vulnerable: []
 ---
 # Elephant
 *Source: SRD 5.2 and the Free Rules (2024)*  

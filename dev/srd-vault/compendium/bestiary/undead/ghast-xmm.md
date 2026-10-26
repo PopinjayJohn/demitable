@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 10
-  dex: 17
-  int: 11
-  str: 16
-  wis: 10
-ac: 13
 aliases:
   - Ghast
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -52,22 +36,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 36
-immune:
-  - poison
-languages:
-  - Common
 license: CC-BY-4.0
 name: Ghast
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - necrotic
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +53,6 @@ tags:
 type: content
 uid: F24A22C1D1E1E26E30EFCC3FF5
 visibility: party
-vulnerable: []
 ---
 # Ghast
 *Source: SRD 5.2 and the Free Rules (2024)*  

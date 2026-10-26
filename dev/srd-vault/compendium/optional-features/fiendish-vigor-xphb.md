@@ -15,18 +15,9 @@ data:
           source: XPHB
           visibleStats: true
         level: 2
-featureType:
-  - EI
 license: CC-BY-4.0
 name: Fiendish Vigor
 obsidianUIMode: preview
-prerequisites:
-  - level:
-      class:
-        name: Warlock
-        source: XPHB
-        visibleStats: true
-      level: 2
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

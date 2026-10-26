@@ -2,9 +2,6 @@
 aliases:
   - Find Steed
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: 30 feet
   school: Conjuration
-duration: Instantaneous
-level: 2
 license: CC-BY-4.0
 name: Find Steed
 obsidianUIMode: preview
-range: 30 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 15
-  dex: 10
-  int: 2
-  str: 18
-  wis: 11
-ac: 10
 aliases:
   - Draft Horse
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 15
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Draft Horse
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 2C1762224B3AF3B4D67BEE52B0
 visibility: party
-vulnerable: []
 ---
 # Draft Horse
 *Source: SRD 5.2 and the Free Rules (2024)*  

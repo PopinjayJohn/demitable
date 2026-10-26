@@ -9,12 +9,9 @@ data:
   featureType:
     - EI
   prerequisites: null
-featureType:
-  - EI
 license: CC-BY-4.0
 name: Pact of the Blade
 obsidianUIMode: preview
-prerequisites: null
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

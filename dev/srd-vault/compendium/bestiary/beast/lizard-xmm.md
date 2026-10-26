@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 10
-  dex: 11
-  int: 1
-  str: 2
-  wis: 8
-ac: 10
 aliases:
   - Lizard
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 2
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Lizard
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  climb: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: D8460B8A36C978B50B5087CA19
 visibility: party
-vulnerable: []
 ---
 # Lizard
 *Source: SRD 5.2 and the Free Rules (2024)*  

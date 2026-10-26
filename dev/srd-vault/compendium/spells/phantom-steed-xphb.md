@@ -2,9 +2,6 @@
 aliases:
   - Phantom Steed
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 30 feet
   school: Illusion
-duration: timed
-level: 3
 license: CC-BY-4.0
 name: Phantom Steed
 obsidianUIMode: preview
-range: 30 feet
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

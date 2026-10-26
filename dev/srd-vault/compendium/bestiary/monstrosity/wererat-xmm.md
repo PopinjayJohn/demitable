@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 12
-  dex: 16
-  int: 11
-  str: 10
-  wis: 10
-ac: 13
 aliases:
   - Wererat
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 60
-immune: []
-languages:
-  - Common (can't speak in rat form)
 license: CC-BY-4.0
 name: Wererat
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: 499656109B842E677A87A2F541
 visibility: party
-vulnerable: []
 ---
 # Wererat
 *Source: SRD 5.2 and the Free Rules (2024)*  

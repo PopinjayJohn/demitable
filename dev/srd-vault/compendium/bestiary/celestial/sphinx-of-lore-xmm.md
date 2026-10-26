@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 16
-  dex: 15
-  int: 18
-  str: 18
-  wis: 18
-ac: 17
 aliases:
   - Sphinx of Lore
-alignment:
-  - Lawful Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
 content_type: monster
-cr: map[cr:11 xpLair:8400]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -34,8 +19,8 @@ data:
   condition_immunities:
     - charmed
     - frightened
-  cr: map[cr:11 xpLair:8400]
-  cr_xp: 0
+  cr: "11"
+  cr_xp: 7200
   hp: 170
   immune:
     - psychic
@@ -53,25 +38,10 @@ data:
     walk: 40
   type: celestial
   vulnerable: []
-hp: 170
-immune:
-  - psychic
-languages:
-  - Celestial
-  - Common
 license: CC-BY-4.0
 name: Sphinx of Lore
 obsidianUIMode: preview
-passive_perception: 18
-resist:
-  - necrotic
-  - radiant
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +55,6 @@ tags:
 type: content
 uid: 9F57A3063A90478E4116FBE838
 visibility: party
-vulnerable: []
 ---
 # Sphinx of Lore
 *Source: SRD 5.2 and the Free Rules (2024)*  

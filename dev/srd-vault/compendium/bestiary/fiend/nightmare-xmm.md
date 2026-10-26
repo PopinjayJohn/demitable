@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 16
-  dex: 15
-  int: 10
-  str: 18
-  wis: 13
-ac: 13
 aliases:
   - Nightmare
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -51,27 +38,10 @@ data:
     walk: 60
   type: fiend
   vulnerable: []
-hp: 68
-immune:
-  - fire
-languages:
-  - understands Abyssal
-  - Common
-  - and Infernal but can't speak
 license: CC-BY-4.0
 name: Nightmare
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 90
-  walk: 60
 src: xmm
 system: dnd5e
 tags:
@@ -84,7 +54,6 @@ tags:
 type: content
 uid: 5EF4808A28EAFCBB53E9C9ACF8
 visibility: party
-vulnerable: []
 ---
 # Nightmare
 *Source: SRD 5.2 and the Free Rules (2024)*  

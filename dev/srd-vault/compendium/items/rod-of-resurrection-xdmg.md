@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Rod of Resurrection
 obsidianUIMode: preview
-rarity: legendary
-reqAttune: by a cleric, druid, or paladin
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

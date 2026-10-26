@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 10
-  dex: 12
-  int: 1
-  str: 18
-  wis: 9
-ac: 13
 aliases:
   - Troll Limb
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 20
   type: giant
   vulnerable: []
-hp: 14
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Troll Limb
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +50,6 @@ tags:
 type: content
 uid: 667171341A960E967FD47AA951
 visibility: party
-vulnerable: []
 ---
 # Troll Limb
 *Source: SRD 5.2 and the Free Rules (2024)*  

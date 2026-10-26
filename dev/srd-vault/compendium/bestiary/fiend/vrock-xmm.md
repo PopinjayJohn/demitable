@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 18
-  dex: 15
-  int: 8
-  str: 17
-  wis: 13
-ac: 15
 aliases:
   - Vrock
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -51,25 +37,10 @@ data:
     walk: 40
   type: fiend
   vulnerable: []
-hp: 152
-immune:
-  - poison
-languages:
-  - Abyssal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Vrock
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: AB336A8B8AF50DA400EE48C650
 visibility: party
-vulnerable: []
 ---
 # Vrock
 *Source: SRD 5.2 and the Free Rules (2024)*  

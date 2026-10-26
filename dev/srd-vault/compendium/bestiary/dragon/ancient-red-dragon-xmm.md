@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 27
-  con: 29
-  dex: 10
-  int: 18
-  str: 30
-  wis: 15
-ac: 22
 aliases:
   - Ancient Red Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:24 xpLair:75000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Evil
   condition_immunities: []
-  cr: map[cr:24 xpLair:75000]
-  cr_xp: 0
+  cr: "24"
+  cr_xp: 62000
   hp: 507
   immune:
     - fire
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 507
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient Red Dragon
 obsidianUIMode: preview
-passive_perception: 26
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  climb: 40
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 85D4659118730E80094D8CA8D9
 visibility: party
-vulnerable: []
 ---
 # Ancient Red Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

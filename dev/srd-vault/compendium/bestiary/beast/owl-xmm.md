@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 8
-  dex: 13
-  int: 2
-  str: 3
-  wis: 12
-ac: 11
 aliases:
   - Owl
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Owl
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: 1B57EC27F14A6C67954B5F054E
 visibility: party
-vulnerable: []
 ---
 # Owl
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 23
-  dex: 10
-  int: 16
-  str: 25
-  wis: 15
-ac: 18
 aliases:
   - Adult Bronze Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:15 xpLair:15000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Good
   condition_immunities: []
-  cr: map[cr:15 xpLair:15000]
-  cr_xp: 0
+  cr: "15"
+  cr_xp: 13000
   hp: 212
   immune:
     - lightning
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 212
-immune:
-  - lightning
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Bronze Dragon
 obsidianUIMode: preview
-passive_perception: 22
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: EEEBBDE6722138FC5CB77D9AE9
 visibility: party
-vulnerable: []
 ---
 # Adult Bronze Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

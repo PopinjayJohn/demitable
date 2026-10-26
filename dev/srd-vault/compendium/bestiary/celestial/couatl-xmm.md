@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 17
-  dex: 20
-  int: 18
-  str: 16
-  wis: 20
-ac: 19
 aliases:
   - Couatl
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -50,26 +37,10 @@ data:
     walk: 30
   type: celestial
   vulnerable: []
-hp: 60
-immune:
-  - psychic
-  - radiant
-languages:
-  - all; telepathy 120 ft.
 license: CC-BY-4.0
 name: Couatl
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 90
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -84,7 +55,6 @@ tags:
 type: content
 uid: BD7D1FC8BE668194B657EB15AB
 visibility: party
-vulnerable: []
 ---
 # Couatl
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 19
-  dex: 10
-  int: 2
-  str: 25
-  wis: 12
-ac: 13
 aliases:
   - Tyrannosaurus Rex
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 136
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Tyrannosaurus Rex
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 94733B2AA29D39EA5E13969A4B
 visibility: party
-vulnerable: []
 ---
 # Tyrannosaurus Rex
 *Source: SRD 5.2 and the Free Rules (2024)*  

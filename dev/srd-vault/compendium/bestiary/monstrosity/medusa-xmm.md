@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 16
-  dex: 17
-  int: 12
-  str: 10
-  wis: 13
-ac: 15
 aliases:
   - Medusa
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 127
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Medusa
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: FE540890D689B97D0C95693287
 visibility: party
-vulnerable: []
 ---
 # Medusa
 *Source: SRD 5.2 and the Free Rules (2024)*  

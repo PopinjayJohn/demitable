@@ -2,9 +2,6 @@
 aliases:
   - Sending
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a copper wire)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: <nil> unlimited
   school: Divination
-duration: Instantaneous
-level: 3
 license: CC-BY-4.0
 name: Sending
 obsidianUIMode: preview
-range: <nil> unlimited
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

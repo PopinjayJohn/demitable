@@ -1,30 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 16
-  dex: 16
-  int: 12
-  str: 6
-  wis: 14
-ac: 13
 aliases:
   - Wraith
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -74,32 +52,10 @@ data:
     walk: 5
   type: undead
   vulnerable: []
-hp: 67
-immune:
-  - necrotic
-  - poison
-languages:
-  - Common plus two other languages
 license: CC-BY-4.0
 name: Wraith
 obsidianUIMode: preview
-passive_perception: 12
-resist:
-  - acid
-  - bludgeoning
-  - cold
-  - fire
-  - piercing
-  - slashing
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 60
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -113,7 +69,6 @@ tags:
 type: content
 uid: 712029AF1AC2EEF33618CB810E
 visibility: party
-vulnerable: []
 ---
 # Wraith
 *Source: SRD 5.2 and the Free Rules (2024)*  

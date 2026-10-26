@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 14
-  dex: 14
-  int: 2
-  str: 16
-  wis: 12
-ac: 12
 aliases:
   - Giant Hyena
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 45
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Hyena
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +48,6 @@ tags:
 type: content
 uid: 6BBAAB7FA2FB14E475FFEB819C
 visibility: party
-vulnerable: []
 ---
 # Giant Hyena
 *Source: SRD 5.2 and the Free Rules (2024)*  

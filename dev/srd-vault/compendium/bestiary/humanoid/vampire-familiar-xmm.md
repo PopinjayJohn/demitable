@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 15
-  dex: 16
-  int: 10
-  str: 17
-  wis: 10
-ac: 15
 aliases:
   - Vampire Familiar
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - cond: true
-    conditionImmune:
-      - charmed
-    note: (except from its vampire master)
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -54,22 +37,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 65
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Vampire Familiar
 obsidianUIMode: preview
-passive_perception: 14
-resist:
-  - necrotic
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: E616F324F121F853BE67C5DAB7
 visibility: party
-vulnerable: []
 ---
 # Vampire Familiar
 *Source: SRD 5.2 and the Free Rules (2024)*  

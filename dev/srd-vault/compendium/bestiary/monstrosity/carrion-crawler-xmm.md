@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 13
-  int: 1
-  str: 14
-  wis: 12
-ac: 13
 aliases:
   - Carrion Crawler
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 51
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Carrion Crawler
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 343E9576F76A717FD7D78F82B4
 visibility: party
-vulnerable: []
 ---
 # Carrion Crawler
 *Source: the Free Rules (2024)*  

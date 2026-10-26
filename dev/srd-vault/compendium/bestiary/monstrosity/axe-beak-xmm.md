@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 12
-  dex: 12
-  int: 2
-  str: 14
-  wis: 10
-ac: 11
 aliases:
   - Axe Beak
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 50
   type: monstrosity
   vulnerable: []
-hp: 19
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Axe Beak
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: 152A2151D6AA64F6F8C5F287A2
 visibility: party
-vulnerable: []
 ---
 # Axe Beak
 *Source: SRD 5.2 and the Free Rules (2024)*  

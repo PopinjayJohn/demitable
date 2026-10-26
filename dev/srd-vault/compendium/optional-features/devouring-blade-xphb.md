@@ -17,20 +17,9 @@ data:
         level: 12
       optionalfeature:
         - thirsting blade|xphb
-featureType:
-  - EI
 license: CC-BY-4.0
 name: Devouring Blade
 obsidianUIMode: preview
-prerequisites:
-  - level:
-      class:
-        name: Warlock
-        source: XPHB
-        visibleStats: true
-      level: 12
-    optionalfeature:
-      - thirsting blade|xphb
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

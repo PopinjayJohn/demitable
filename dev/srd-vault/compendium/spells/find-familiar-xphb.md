@@ -2,9 +2,6 @@
 aliases:
   - Find Familiar
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (burning incense worth 10+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: 10 feet
   school: Conjuration
-duration: Instantaneous
-level: 1
 license: CC-BY-4.0
 name: Find Familiar
 obsidianUIMode: preview
-range: 10 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

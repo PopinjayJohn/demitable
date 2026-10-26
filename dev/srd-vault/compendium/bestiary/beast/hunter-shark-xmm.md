@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 15
-  dex: 14
-  int: 1
-  str: 18
-  wis: 10
-ac: 12
 aliases:
   - Hunter Shark
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 45
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Hunter Shark
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 526CB568B9A6BE9132FD6248D4
 visibility: party
-vulnerable: []
 ---
 # Hunter Shark
 *Source: SRD 5.2 and the Free Rules (2024)*  

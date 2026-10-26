@@ -1,24 +1,4 @@
 ---
-ability_choices:
-  - choose:
-      weighted:
-        from:
-          - int
-          - wis
-          - cha
-        weights:
-          - 2
-          - 1
-  - choose:
-      weighted:
-        from:
-          - int
-          - wis
-          - cha
-        weights:
-          - 1
-          - 1
-          - 1
 aliases:
   - Acolyte
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
@@ -65,34 +45,15 @@ data:
         - value: 5000
   tool_proficiencies:
     - calligrapher's supplies
-feats:
-  - magic initiate; cleric|xphb
 license: CC-BY-4.0
 name: Acolyte
 obsidianUIMode: preview
-skill_proficiencies:
-  - insight
-  - religion
 source: SRD 5.2.1
 src: xphb
-starting_equipment:
-  - A:
-      - displayName: Book (Prayers)
-        item: book|xphb
-      - item: calligrapher's supplies|xphb
-      - item: holy symbol|xphb
-      - item: parchment|xphb
-        quantity: 10
-      - item: robe|xphb
-      - value: 800
-    B:
-      - value: 5000
 system: dnd5e
 tags:
   - background
   - compendium/src/5e/xphb
-tool_proficiencies:
-  - calligrapher's supplies
 type: content
 uid: 4DD38328C6E967AE58CBFCDF14
 visibility: party

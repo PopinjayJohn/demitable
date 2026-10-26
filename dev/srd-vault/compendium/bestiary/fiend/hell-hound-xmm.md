@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 14
-  dex: 12
-  int: 6
-  str: 17
-  wis: 13
-ac: 15
 aliases:
   - Hell Hound
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 50
   type: fiend
   vulnerable: []
-hp: 58
-immune:
-  - fire
-languages:
-  - understands Infernal but can't speak
 license: CC-BY-4.0
 name: Hell Hound
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +50,6 @@ tags:
 type: content
 uid: AEED4D2B10018B03C9B6ECADF4
 visibility: party
-vulnerable: []
 ---
 # Hell Hound
 *Source: SRD 5.2 and the Free Rules (2024)*  

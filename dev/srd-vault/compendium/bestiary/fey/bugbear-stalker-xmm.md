@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 14
-  dex: 14
-  int: 11
-  str: 17
-  wis: 12
-ac: 15
 aliases:
   - Bugbear Stalker
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 65
-immune: []
-languages:
-  - Common
-  - Goblin
 license: CC-BY-4.0
 name: Bugbear Stalker
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +51,6 @@ tags:
 type: content
 uid: 0DD4B1D9A81D173E44F81BAB8D
 visibility: party
-vulnerable: []
 ---
 # Bugbear Stalker
 *Source: SRD 5.2 and the Free Rules (2024)*  

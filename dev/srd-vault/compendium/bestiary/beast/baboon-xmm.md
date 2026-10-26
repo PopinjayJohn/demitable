@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 11
-  dex: 14
-  int: 4
-  str: 8
-  wis: 12
-ac: 12
 aliases:
   - Baboon
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 3
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Baboon
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 46D7CE373D9C388F96FC85EE3F
 visibility: party
-vulnerable: []
 ---
 # Baboon
 *Source: SRD 5.2 and the Free Rules (2024)*  

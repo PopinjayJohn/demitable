@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 12
-  dex: 10
-  int: 13
-  str: 16
-  wis: 16
-ac: 13
 aliases:
   - Priest
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 38
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Priest
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 3A137C10A3E81292BDB7A3727E
 visibility: party
-vulnerable: []
 ---
 # Priest
 *Source: SRD 5.2 and the Free Rules (2024)*  

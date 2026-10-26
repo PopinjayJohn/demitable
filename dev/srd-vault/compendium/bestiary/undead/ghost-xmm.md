@@ -1,30 +1,8 @@
 ---
-abilities:
-  cha: 17
-  con: 10
-  dex: 13
-  int: 10
-  str: 7
-  wis: 12
-ac: 11
 aliases:
   - Ghost
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -76,34 +54,10 @@ data:
     walk: 5
   type: undead
   vulnerable: []
-hp: 45
-immune:
-  - necrotic
-  - poison
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Ghost
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - acid
-  - bludgeoning
-  - cold
-  - fire
-  - lightning
-  - piercing
-  - slashing
-  - thunder
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 40
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -116,7 +70,6 @@ tags:
 type: content
 uid: 954215F41ADF55B18FF0B50715
 visibility: party
-vulnerable: []
 ---
 # Ghost
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 15
-  dex: 15
-  int: 8
-  str: 18
-  wis: 10
-ac: 13
 aliases:
   - Merrow
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 10
   type: monstrosity
   vulnerable: []
-hp: 45
-immune: []
-languages:
-  - Abyssal
-  - Primordial (Aquan)
 license: CC-BY-4.0
 name: Merrow
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +49,6 @@ tags:
 type: content
 uid: F32FE3F9CF4D716B5728A3823F
 visibility: party
-vulnerable: []
 ---
 # Merrow
 *Source: SRD 5.2 and the Free Rules (2024)*  

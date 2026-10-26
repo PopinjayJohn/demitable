@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Feed (per day)
 obsidianUIMode: preview
-rarity: none
-reqAttune: ""
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

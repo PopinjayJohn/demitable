@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 17
-  dex: 8
-  int: 6
-  str: 21
-  wis: 10
-ac: 12
 aliases:
   - Ettin
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - frightened
-  - stunned
-  - unconscious
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -56,20 +37,10 @@ data:
     walk: 40
   type: giant
   vulnerable: []
-hp: 85
-immune: []
-languages:
-  - Giant
 license: CC-BY-4.0
 name: Ettin
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -83,7 +54,6 @@ tags:
 type: content
 uid: ABCDD27471C87E9BD5DA5891AF
 visibility: party
-vulnerable: []
 ---
 # Ettin
 *Source: SRD 5.2 and the Free Rules (2024)*  

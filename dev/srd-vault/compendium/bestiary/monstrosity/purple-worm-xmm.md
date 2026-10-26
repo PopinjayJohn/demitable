@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 22
-  dex: 7
-  int: 1
-  str: 28
-  wis: 8
-ac: 18
 aliases:
   - Purple Worm
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "15"
-cr_xp: 13000
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 50
   type: monstrosity
   vulnerable: []
-hp: 247
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Purple Worm
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  burrow: 50
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: C4CA1FD2696F5D65CFCAE22BFF
 visibility: party
-vulnerable: []
 ---
 # Purple Worm
 *Source: SRD 5.2 and the Free Rules (2024)*  

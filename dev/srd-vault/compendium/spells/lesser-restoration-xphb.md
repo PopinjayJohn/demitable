@@ -2,9 +2,6 @@
 aliases:
   - Lesser Restoration
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: <nil> touch
   school: Abjuration
-duration: Instantaneous
-level: 2
 license: CC-BY-4.0
 name: Lesser Restoration
 obsidianUIMode: preview
-range: <nil> touch
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 12
-  dex: 17
-  int: 10
-  str: 12
-  wis: 13
-ac: 13
 aliases:
   - Blink Dog
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: fey
   vulnerable: []
-hp: 22
-immune: []
-languages:
-  - understands Elvish and Sylvan but can't speak them
 license: CC-BY-4.0
 name: Blink Dog
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: F727954C3623427C1532E66CFA
 visibility: party
-vulnerable: []
 ---
 # Blink Dog
 *Source: SRD 5.2 and the Free Rules (2024)*  

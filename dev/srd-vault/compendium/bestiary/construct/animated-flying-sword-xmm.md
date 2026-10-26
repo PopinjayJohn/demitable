@@ -1,28 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 11
-  dex: 15
-  int: 1
-  str: 12
-  wis: 5
-ac: 17
 aliases:
   - Animated Flying Sword
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -63,25 +43,10 @@ data:
     walk: 5
   type: construct
   vulnerable: []
-hp: 14
-immune:
-  - poison
-  - psychic
-languages: []
 license: CC-BY-4.0
 name: Animated Flying Sword
 obsidianUIMode: preview
-passive_perception: 7
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 50
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -93,7 +58,6 @@ tags:
 type: content
 uid: 9A28A4BA656F730EA4BA3C1C2D
 visibility: party
-vulnerable: []
 ---
 # Animated Flying Sword
 *Source: SRD 5.2 and the Free Rules (2024)*  

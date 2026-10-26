@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 20
-  dex: 14
-  int: 16
-  str: 29
-  wis: 20
-ac: 16
 aliases:
   - Storm Giant
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "13"
-cr_xp: 10000
 cssclasses:
   - json5e-monster
 data:
@@ -53,29 +40,10 @@ data:
     walk: 50
   type: giant
   vulnerable: []
-hp: 230
-immune:
-  - lightning
-  - thunder
-languages:
-  - Common
-  - Giant
 license: CC-BY-4.0
 name: Storm Giant
 obsidianUIMode: preview
-passive_perception: 20
-resist:
-  - cold
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 25
-  swim: 50
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -88,7 +56,6 @@ tags:
 type: content
 uid: 2A771C24E78368734A4F263A31
 visibility: party
-vulnerable: []
 ---
 # Storm Giant
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 26
-  con: 29
-  dex: 10
-  int: 18
-  str: 30
-  wis: 15
-ac: 22
 aliases:
   - Ancient Silver Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:23 xpLair:62000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Good
   condition_immunities: []
-  cr: map[cr:23 xpLair:62000]
-  cr_xp: 0
+  cr: "23"
+  cr_xp: 50000
   hp: 468
   immune:
     - cold
@@ -47,23 +34,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 468
-immune:
-  - cold
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient Silver Dragon
 obsidianUIMode: preview
-passive_perception: 26
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: 4F97BA4A9CBB34223834D4FC38
 visibility: party
-vulnerable: []
 ---
 # Ancient Silver Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

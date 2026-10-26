@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 12
-  dex: 14
-  int: 10
-  str: 11
-  wis: 14
-ac: 13
 aliases:
   - Cultist Fanatic
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 44
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Cultist Fanatic
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: E60AE0857589856C44654CD68B
 visibility: party
-vulnerable: []
 ---
 # Cultist Fanatic
 *Source: SRD 5.2 and the Free Rules (2024)*  

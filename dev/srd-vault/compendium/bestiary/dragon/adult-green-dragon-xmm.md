@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 21
-  dex: 12
-  int: 18
-  str: 23
-  wis: 15
-ac: 19
 aliases:
   - Adult Green Dragon
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: map[cr:15 xpLair:15000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -32,8 +18,8 @@ data:
     - Lawful Evil
   condition_immunities:
     - poisoned
-  cr: map[cr:15 xpLair:15000]
-  cr_xp: 0
+  cr: "15"
+  cr_xp: 13000
   hp: 207
   immune:
     - poison
@@ -50,24 +36,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 207
-immune:
-  - poison
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Green Dragon
 obsidianUIMode: preview
-passive_perception: 22
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: FCDEEBF7F5CB307D25CC9D8679
 visibility: party
-vulnerable: []
 ---
 # Adult Green Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

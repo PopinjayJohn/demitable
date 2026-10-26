@@ -2,9 +2,6 @@
 aliases:
   - Shapechange
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a jade circlet worth 1,500+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 9
   range: <nil> self
   school: Transmutation
-duration: timed
-level: 9
 license: CC-BY-4.0
 name: Shapechange
 obsidianUIMode: preview
-range: <nil> self
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

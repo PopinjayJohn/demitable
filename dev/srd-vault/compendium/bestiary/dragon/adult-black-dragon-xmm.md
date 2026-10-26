@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 19
-  con: 21
-  dex: 14
-  int: 14
-  str: 23
-  wis: 13
-ac: 19
 aliases:
   - Adult Black Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:14 xpLair:13000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Evil
   condition_immunities: []
-  cr: map[cr:14 xpLair:13000]
-  cr_xp: 0
+  cr: "14"
+  cr_xp: 11500
   hp: 195
   immune:
     - acid
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 195
-immune:
-  - acid
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Black Dragon
 obsidianUIMode: preview
-passive_perception: 21
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: D258AB3175C316C2BF5442F4D8
 visibility: party
-vulnerable: []
 ---
 # Adult Black Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

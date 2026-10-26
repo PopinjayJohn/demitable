@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 12
-  dex: 15
-  int: 8
-  str: 7
-  wis: 11
-ac: 14
 aliases:
   - Magmin
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: elemental
   vulnerable: []
-hp: 13
-immune:
-  - fire
-languages:
-  - Primordial (Ignan)
 license: CC-BY-4.0
 name: Magmin
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: CE92C50F13B51034A0744E7C1A
 visibility: party
-vulnerable: []
 ---
 # Magmin
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 15
-  dex: 11
-  int: 2
-  str: 19
-  wis: 12
-ac: 15
 aliases:
   - Ankylosaurus
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 68
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Ankylosaurus
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 7D50FF36940C1D0E598A001C8F
 visibility: party
-vulnerable: []
 ---
 # Ankylosaurus
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,17 +1,7 @@
 ---
-abilities:
-  cha: 8
-  con: 14
-  dex: 12
-  int: 6
-  str: 18
-  wis: 12
 aliases:
   - Otherworldly Steed
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
 cssclasses:
   - json5e-monster
@@ -38,24 +28,12 @@ data:
       condition: (requires level 4+ spell)
       number: 60
     walk: 60
-  type: map[choose:[celestial fey fiend]]
+  type: '[celestial fey fiend]'
   vulnerable: []
-immune: []
-languages:
-  - telepathy 1 mile (works only with you)
 license: CC-BY-4.0
 name: Otherworldly Steed
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly:
-    condition: (requires level 4+ spell)
-    number: 60
-  walk: 60
 src: xphb
 system: dnd5e
 tags:
@@ -66,7 +44,6 @@ tags:
 type: content
 uid: EBEC701B9DCCD651AD2D63F848
 visibility: party
-vulnerable: []
 ---
 # Otherworldly Steed
 *Source: SRD 5.2*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 13
-  dex: 10
-  int: 10
-  str: 15
-  wis: 11
-ac: 15
 aliases:
   - Brass Dragon Wyrmling
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 22
-immune:
-  - fire
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Brass Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  burrow: 15
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +49,6 @@ tags:
 type: content
 uid: 35445D66E96C6465EEF9EFCC48
 visibility: party
-vulnerable: []
 ---
 # Brass Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

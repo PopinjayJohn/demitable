@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 14
-  dex: 14
-  int: 9
-  str: 18
-  wis: 13
-ac: 16
 aliases:
   - Centaur Trooper
-alignment:
-  - Neutral Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 50
   type: fey
   vulnerable: []
-hp: 45
-immune: []
-languages:
-  - Elvish
-  - Sylvan
 license: CC-BY-4.0
 name: Centaur Trooper
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +50,6 @@ tags:
 type: content
 uid: 93671308F0ED783494822E9EA8
 visibility: party
-vulnerable: []
 ---
 # Centaur Trooper
 *Source: SRD 5.2 and the Free Rules (2024)*  

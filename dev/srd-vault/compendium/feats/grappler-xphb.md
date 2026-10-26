@@ -1,13 +1,7 @@
 ---
-ability:
-  - choose:
-      from:
-        - str
-        - dex
 aliases:
   - Grappler
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-category: G
 content_type: feat
 cssclasses:
   - json5e-feat
@@ -28,13 +22,6 @@ data:
 license: CC-BY-4.0
 name: Grappler
 obsidianUIMode: preview
-prerequisites:
-  - ability:
-      - str: 13
-    level: 4
-  - ability:
-      - dex: 13
-    level: 4
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 22
-  con: 25
-  dex: 10
-  int: 16
-  str: 27
-  wis: 13
-ac: 19
 aliases:
   - Adult Silver Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:16 xpLair:18000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Good
   condition_immunities: []
-  cr: map[cr:16 xpLair:18000]
-  cr_xp: 0
+  cr: "16"
+  cr_xp: 15000
   hp: 216
   immune:
     - cold
@@ -47,23 +34,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 216
-immune:
-  - cold
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Silver Dragon
 obsidianUIMode: preview
-passive_perception: 21
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: 37965CD6A28532728B0A9DFA70
 visibility: party
-vulnerable: []
 ---
 # Adult Silver Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

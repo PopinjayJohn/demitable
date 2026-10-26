@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 15
-  dex: 12
-  int: 12
-  str: 17
-  wis: 13
-ac: 17
 aliases:
   - Azer Sentinel
-alignment:
-  - Lawful Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -48,22 +34,10 @@ data:
     walk: 30
   type: elemental
   vulnerable: []
-hp: 39
-immune:
-  - fire
-  - poison
-languages:
-  - Primordial (Ignan)
 license: CC-BY-4.0
 name: Azer Sentinel
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +51,6 @@ tags:
 type: content
 uid: FC707F81E6003E6855AFF6D0B6
 visibility: party
-vulnerable: []
 ---
 # Azer Sentinel
 *Source: SRD 5.2 and the Free Rules (2024)*  

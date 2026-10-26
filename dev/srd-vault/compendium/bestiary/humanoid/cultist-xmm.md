@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 10
-  dex: 12
-  int: 10
-  str: 11
-  wis: 11
-ac: 12
 aliases:
   - Cultist
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 9
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Cultist
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 80AD55A9F087F51D44035BCED3
 visibility: party
-vulnerable: []
 ---
 # Cultist
 *Source: SRD 5.2 and the Free Rules (2024)*  

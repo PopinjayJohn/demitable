@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 20
-  dex: 15
-  int: 10
-  str: 23
-  wis: 12
-ac: 17
 aliases:
   - Stone Giant
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "7"
-cr_xp: 2900
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: giant
   vulnerable: []
-hp: 126
-immune: []
-languages:
-  - Giant
 license: CC-BY-4.0
 name: Stone Giant
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 8E565E829E5C708F10D9881AED
 visibility: party
-vulnerable: []
 ---
 # Stone Giant
 *Source: SRD 5.2 and the Free Rules (2024)*  

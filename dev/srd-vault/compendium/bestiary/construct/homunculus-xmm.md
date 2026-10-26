@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 14
-  dex: 15
-  int: 10
-  str: 4
-  wis: 10
-ac: 13
 aliases:
   - Homunculus
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - poisoned
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -50,22 +35,10 @@ data:
     walk: 20
   type: construct
   vulnerable: []
-hp: 4
-immune:
-  - poison
-languages:
-  - understands Common plus one other language but can't speak
 license: CC-BY-4.0
 name: Homunculus
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 470D988E888F4530D9FCA96FDE
 visibility: party
-vulnerable: []
 ---
 # Homunculus
 *Source: SRD 5.2 and the Free Rules (2024)*  

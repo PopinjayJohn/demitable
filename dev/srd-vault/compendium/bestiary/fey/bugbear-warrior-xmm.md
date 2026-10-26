@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 13
-  dex: 14
-  int: 8
-  str: 15
-  wis: 11
-ac: 14
 aliases:
   - Bugbear Warrior
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 33
-immune: []
-languages:
-  - Common
-  - Goblin
 license: CC-BY-4.0
 name: Bugbear Warrior
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +51,6 @@ tags:
 type: content
 uid: 671C3DDBB6F5894FBA593DEA8E
 visibility: party
-vulnerable: []
 ---
 # Bugbear Warrior
 *Source: SRD 5.2 and the Free Rules (2024)*  

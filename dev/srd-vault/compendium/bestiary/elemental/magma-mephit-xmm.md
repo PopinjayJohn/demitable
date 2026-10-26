@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 12
-  dex: 12
-  int: 7
-  str: 8
-  wis: 10
-ac: 11
 aliases:
   - Magma Mephit
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -52,23 +37,10 @@ data:
   type: elemental
   vulnerable:
     - cold
-hp: 18
-immune:
-  - fire
-  - poison
-languages:
-  - Primordial (Ignan, Terran)
 license: CC-BY-4.0
 name: Magma Mephit
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -81,8 +53,6 @@ tags:
 type: content
 uid: 1FD172D4D7E036CAD6A2C38851
 visibility: party
-vulnerable:
-  - cold
 ---
 # Magma Mephit
 *Source: SRD 5.2 and the Free Rules (2024)*  

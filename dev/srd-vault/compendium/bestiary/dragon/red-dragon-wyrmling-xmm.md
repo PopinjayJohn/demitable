@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 17
-  dex: 10
-  int: 12
-  str: 19
-  wis: 11
-ac: 17
 aliases:
   - Red Dragon Wyrmling
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 75
-immune:
-  - fire
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Red Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: 49B8437EA5F5D3251C199B7EEC
 visibility: party
-vulnerable: []
 ---
 # Red Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

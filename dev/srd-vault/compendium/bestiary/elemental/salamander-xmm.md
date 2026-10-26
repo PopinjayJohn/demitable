@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 15
-  dex: 14
-  int: 11
-  str: 18
-  wis: 10
-ac: 15
 aliases:
   - Salamander
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -47,22 +34,10 @@ data:
   type: elemental
   vulnerable:
     - cold
-hp: 90
-immune:
-  - fire
-languages:
-  - Primordial (Ignan)
 license: CC-BY-4.0
 name: Salamander
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -76,8 +51,6 @@ tags:
 type: content
 uid: 5C3790C2FFD3EE51549A71B2A3
 visibility: party
-vulnerable:
-  - cold
 ---
 # Salamander
 *Source: SRD 5.2 and the Free Rules (2024)*  

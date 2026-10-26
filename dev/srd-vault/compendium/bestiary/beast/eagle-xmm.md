@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 12
-  dex: 15
-  int: 2
-  str: 6
-  wis: 14
-ac: 12
 aliases:
   - Eagle
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 4
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Eagle
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +49,6 @@ tags:
 type: content
 uid: 629DAB608B8A5FD4E057918C8F
 visibility: party
-vulnerable: []
 ---
 # Eagle
 *Source: SRD 5.2 and the Free Rules (2024)*  

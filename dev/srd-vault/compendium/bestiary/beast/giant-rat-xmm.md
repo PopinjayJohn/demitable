@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 11
-  dex: 16
-  int: 2
-  str: 7
-  wis: 10
-ac: 13
 aliases:
   - Giant Rat
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 7
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Rat
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +49,6 @@ tags:
 type: content
 uid: A3F8B7DBC487A8938B632C0794
 visibility: party
-vulnerable: []
 ---
 # Giant Rat
 *Source: SRD 5.2 and the Free Rules (2024)*  

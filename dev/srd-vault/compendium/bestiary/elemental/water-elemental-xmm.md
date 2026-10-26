@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 18
-  dex: 14
-  int: 5
-  str: 18
-  wis: 10
-ac: 14
 aliases:
   - Water Elemental
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -64,24 +43,10 @@ data:
     walk: 30
   type: elemental
   vulnerable: []
-hp: 114
-immune:
-  - poison
-languages:
-  - Primordial (Aquan)
 license: CC-BY-4.0
 name: Water Elemental
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - acid
-  - fire
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 90
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -97,7 +62,6 @@ tags:
 type: content
 uid: 4A25223B3B52F674499FF1044C
 visibility: party
-vulnerable: []
 ---
 # Water Elemental
 *Source: SRD 5.2 and the Free Rules (2024)*  

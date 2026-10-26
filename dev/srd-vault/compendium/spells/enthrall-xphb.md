@@ -2,9 +2,6 @@
 aliases:
   - Enthrall
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: 60 feet
   school: Enchantment
-duration: timed
-level: 2
 license: CC-BY-4.0
 name: Enthrall
 obsidianUIMode: preview
-range: 60 feet
-school: Enchantment
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

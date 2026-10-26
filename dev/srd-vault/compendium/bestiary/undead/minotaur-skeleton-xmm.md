@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 15
-  dex: 11
-  int: 6
-  str: 18
-  wis: 8
-ac: 12
 aliases:
   - Minotaur Skeleton
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -50,21 +35,10 @@ data:
   type: undead
   vulnerable:
     - bludgeoning
-hp: 45
-immune:
-  - poison
-languages:
-  - understands Abyssal but can't speak
 license: CC-BY-4.0
 name: Minotaur Skeleton
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,8 +53,6 @@ tags:
 type: content
 uid: 291C92CA9BC5617BCC179ED119
 visibility: party
-vulnerable:
-  - bludgeoning
 ---
 # Minotaur Skeleton
 *Source: SRD 5.2 and the Free Rules (2024)*  

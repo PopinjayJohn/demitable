@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 9
-  dex: 16
-  int: 1
-  str: 13
-  wis: 7
-ac: 13
 aliases:
   - Swarm of Piranhas
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -63,23 +42,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 28
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Swarm of Piranhas
 obsidianUIMode: preview
-passive_perception: 8
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -91,7 +57,6 @@ tags:
 type: content
 uid: 750EB904AD41A801229662D46C
 visibility: party
-vulnerable: []
 ---
 # Swarm of Piranhas
 *Source: SRD 5.2 and the Free Rules (2024)*  

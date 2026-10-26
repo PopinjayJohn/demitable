@@ -2,9 +2,6 @@
 aliases:
   - Purify Food and Drink
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: 10 feet
   school: Transmutation
-duration: Instantaneous
-level: 1
 license: CC-BY-4.0
 name: Purify Food and Drink
 obsidianUIMode: preview
-range: 10 feet
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

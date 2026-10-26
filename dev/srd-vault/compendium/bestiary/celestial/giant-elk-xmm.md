@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 14
-  dex: 18
-  int: 7
-  str: 19
-  wis: 14
-ac: 14
 aliases:
   - Giant Elk
-alignment:
-  - Neutral Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 60
   type: celestial
   vulnerable: []
-hp: 42
-immune: []
-languages:
-  - Celestial; understands Common
-  - Elvish
-  - and Sylvan but can't speak them
 license: CC-BY-4.0
 name: Giant Elk
 obsidianUIMode: preview
-passive_perception: 14
-resist:
-  - necrotic
-  - radiant
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 60
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +52,6 @@ tags:
 type: content
 uid: E363D70425FB75A337FCA46DFF
 visibility: party
-vulnerable: []
 ---
 # Giant Elk
 *Source: SRD 5.2 and the Free Rules (2024)*  

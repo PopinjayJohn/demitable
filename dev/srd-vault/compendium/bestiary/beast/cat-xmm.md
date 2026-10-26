@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 10
-  dex: 15
-  int: 3
-  str: 3
-  wis: 12
-ac: 12
 aliases:
   - Cat
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 2
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Cat
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +49,6 @@ tags:
 type: content
 uid: 2E7285181588237E0C5391607E
 visibility: party
-vulnerable: []
 ---
 # Cat
 *Source: SRD 5.2 and the Free Rules (2024)*  

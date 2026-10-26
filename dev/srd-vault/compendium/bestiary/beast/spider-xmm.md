@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 8
-  dex: 14
-  int: 1
-  str: 2
-  wis: 10
-ac: 12
 aliases:
   - Spider
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Spider
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  climb: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: E33DF03B217BF2AAB6EB104F2C
 visibility: party
-vulnerable: []
 ---
 # Spider
 *Source: SRD 5.2 and the Free Rules (2024)*  

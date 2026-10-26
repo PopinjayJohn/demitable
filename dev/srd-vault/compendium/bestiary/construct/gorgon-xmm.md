@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 18
-  dex: 11
-  int: 2
-  str: 20
-  wis: 12
-ac: 19
 aliases:
   - Gorgon
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - petrified
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -47,19 +32,10 @@ data:
     walk: 40
   type: construct
   vulnerable: []
-hp: 114
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Gorgon
 obsidianUIMode: preview
-passive_perception: 17
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +49,6 @@ tags:
 type: content
 uid: C36B75FBF4F805B49AF21F4088
 visibility: party
-vulnerable: []
 ---
 # Gorgon
 *Source: SRD 5.2 and the Free Rules (2024)*  

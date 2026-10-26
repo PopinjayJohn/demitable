@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 12
-  dex: 14
-  int: 3
-  str: 13
-  wis: 12
-ac: 12
 aliases:
   - Mastiff
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Mastiff
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: 79CE26B1ACA4C546CF907EA98C
 visibility: party
-vulnerable: []
 ---
 # Mastiff
 *Source: SRD 5.2 and the Free Rules (2024)*  

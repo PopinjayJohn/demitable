@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 8
-  dex: 12
-  int: 1
-  str: 1
-  wis: 10
-ac: 12
 aliases:
   - Seahorse
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:0 xp:0]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - U
   condition_immunities: []
-  cr: map[cr:0 xp:0]
-  cr_xp: 0
+  cr: "0"
+  cr_xp: 10
   hp: 1
   immune: []
   languages: []
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Seahorse
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  swim: 20
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: B015AEED0B21BACA71FC4D4445
 visibility: party
-vulnerable: []
 ---
 # Seahorse
 *Source: SRD 5.2 and the Free Rules (2024)*  

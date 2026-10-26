@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 11
-  dex: 13
-  int: 2
-  str: 12
-  wis: 10
-ac: 11
 aliases:
   - Giant Frog
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 18
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Frog
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 9552F0DD44057B64AA2102BDDC
 visibility: party
-vulnerable: []
 ---
 # Giant Frog
 *Source: SRD 5.2 and the Free Rules (2024)*  

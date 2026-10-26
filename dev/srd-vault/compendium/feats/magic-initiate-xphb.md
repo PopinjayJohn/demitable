@@ -1,9 +1,7 @@
 ---
-ability: null
 aliases:
   - Magic Initiate
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-category: O
 content_type: feat
 cssclasses:
   - json5e-feat
@@ -14,7 +12,6 @@ data:
 license: CC-BY-4.0
 name: Magic Initiate
 obsidianUIMode: preview
-prerequisites: null
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,30 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 11
-  dex: 14
-  int: 10
-  str: 1
-  wis: 10
-ac: 12
 aliases:
   - Specter
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -76,34 +54,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 22
-immune:
-  - necrotic
-  - poison
-languages:
-  - understands Common plus one other language but can't speak
 license: CC-BY-4.0
 name: Specter
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - acid
-  - bludgeoning
-  - cold
-  - fire
-  - lightning
-  - piercing
-  - slashing
-  - thunder
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 50
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -116,7 +70,6 @@ tags:
 type: content
 uid: 90D3C70A71F931A1C85A30BFFA
 visibility: party
-vulnerable: []
 ---
 # Specter
 *Source: SRD 5.2 and the Free Rules (2024)*  

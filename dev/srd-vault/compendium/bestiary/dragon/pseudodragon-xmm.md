@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 13
-  dex: 15
-  int: 10
-  str: 6
-  wis: 12
-ac: 14
 aliases:
   - Pseudodragon
-alignment:
-  - Neutral Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 15
   type: dragon
   vulnerable: []
-hp: 10
-immune: []
-languages:
-  - understands Common and Draconic but can't speak
 license: CC-BY-4.0
 name: Pseudodragon
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 15
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +52,6 @@ tags:
 type: content
 uid: 38DCA2B7B09AC220EC4F38AD20
 visibility: party
-vulnerable: []
 ---
 # Pseudodragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

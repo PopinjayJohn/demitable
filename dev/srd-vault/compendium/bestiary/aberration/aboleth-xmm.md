@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 15
-  dex: 9
-  int: 18
-  str: 21
-  wis: 15
-ac: 17
 aliases:
   - Aboleth
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:10 xpLair:7200]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Evil
   condition_immunities: []
-  cr: map[cr:10 xpLair:7200]
-  cr_xp: 0
+  cr: "10"
+  cr_xp: 5900
   hp: 150
   immune: []
   languages:
@@ -45,21 +32,10 @@ data:
     walk: 10
   type: aberration
   vulnerable: []
-hp: 150
-immune: []
-languages:
-  - Deep Speech; telepathy 120 ft.
 license: CC-BY-4.0
 name: Aboleth
 obsidianUIMode: preview
-passive_perception: 20
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: 61036744F1167B5BC472A72A79
 visibility: party
-vulnerable: []
 ---
 # Aboleth
 *Source: SRD 5.2 and the Free Rules (2024)*  

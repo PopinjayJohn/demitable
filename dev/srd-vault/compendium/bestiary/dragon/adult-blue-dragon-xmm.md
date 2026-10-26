@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 23
-  dex: 10
-  int: 16
-  str: 25
-  wis: 15
-ac: 19
 aliases:
   - Adult Blue Dragon
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:16 xpLair:18000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Lawful Evil
   condition_immunities: []
-  cr: map[cr:16 xpLair:18000]
-  cr_xp: 0
+  cr: "16"
+  cr_xp: 15000
   hp: 212
   immune:
     - lightning
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 212
-immune:
-  - lightning
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Blue Dragon
 obsidianUIMode: preview
-passive_perception: 22
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  burrow: 30
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 135866BB2A01FC0CDA8FEE6B3D
 visibility: party
-vulnerable: []
 ---
 # Adult Blue Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

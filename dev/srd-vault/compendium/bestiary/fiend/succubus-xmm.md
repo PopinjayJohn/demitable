@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 20
-  con: 13
-  dex: 17
-  int: 15
-  str: 8
-  wis: 12
-ac: 15
 aliases:
   - Succubus
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -51,27 +38,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 71
-immune: []
-languages:
-  - Abyssal
-  - Common
-  - Infernal; telepathy 60 ft.
 license: CC-BY-4.0
 name: Succubus
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - cold
-  - fire
-  - poison
-  - psychic
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +55,6 @@ tags:
 type: content
 uid: 37521B7E5787059C2BC5B6C965
 visibility: party
-vulnerable: []
 ---
 # Succubus
 *Source: SRD 5.2 and the Free Rules (2024)*  

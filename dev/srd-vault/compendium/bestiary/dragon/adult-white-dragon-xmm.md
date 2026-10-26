@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 22
-  dex: 10
-  int: 8
-  str: 22
-  wis: 12
-ac: 18
 aliases:
   - Adult White Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:13 xpLair:11500]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Evil
   condition_immunities: []
-  cr: map[cr:13 xpLair:11500]
-  cr_xp: 0
+  cr: "13"
+  cr_xp: 10000
   hp: 200
   immune:
     - cold
@@ -49,25 +36,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 200
-immune:
-  - cold
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult White Dragon
 obsidianUIMode: preview
-passive_perception: 21
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  burrow: 30
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 200408ED55B6404D700AAAEBE8
 visibility: party
-vulnerable: []
 ---
 # Adult White Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

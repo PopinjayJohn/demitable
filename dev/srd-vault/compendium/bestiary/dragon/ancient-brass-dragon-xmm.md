@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 22
-  con: 25
-  dex: 10
-  int: 16
-  str: 27
-  wis: 15
-ac: 20
 aliases:
   - Ancient Brass Dragon
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:20 xpLair:33000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Good
   condition_immunities: []
-  cr: map[cr:20 xpLair:33000]
-  cr_xp: 0
+  cr: "20"
+  cr_xp: 25000
   hp: 332
   immune:
     - fire
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 332
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient Brass Dragon
 obsidianUIMode: preview
-passive_perception: 24
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  burrow: 40
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 02BB249E83FB8C5EE2B0823F7A
 visibility: party
-vulnerable: []
 ---
 # Ancient Brass Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

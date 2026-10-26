@@ -1,28 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 13
-  dex: 11
-  int: 1
-  str: 14
-  wis: 3
-ac: 18
 aliases:
   - Animated Armor
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -59,21 +39,10 @@ data:
     walk: 25
   type: construct
   vulnerable: []
-hp: 33
-immune:
-  - poison
-  - psychic
-languages: []
 license: CC-BY-4.0
 name: Animated Armor
 obsidianUIMode: preview
-passive_perception: 6
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 25
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +54,6 @@ tags:
 type: content
 uid: AE254C129F164EFBA964D0DF61
 visibility: party
-vulnerable: []
 ---
 # Animated Armor
 *Source: SRD 5.2 and the Free Rules (2024)*  

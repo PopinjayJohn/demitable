@@ -2,9 +2,6 @@
 aliases:
   - Power Word Heal
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 9
   range: 60 feet
   school: Enchantment
-duration: Instantaneous
-level: 9
 license: CC-BY-4.0
 name: Power Word Heal
 obsidianUIMode: preview
-range: 60 feet
-school: Enchantment
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

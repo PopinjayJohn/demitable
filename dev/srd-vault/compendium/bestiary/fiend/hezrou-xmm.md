@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 20
-  dex: 17
-  int: 5
-  str: 19
-  wis: 12
-ac: 18
 aliases:
   - Hezrou
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 157
-immune:
-  - poison
-languages:
-  - Abyssal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Hezrou
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - cold
-  - fire
-  - lightning
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: AE41A5867C7470DAAFE88A4438
 visibility: party
-vulnerable: []
 ---
 # Hezrou
 *Source: SRD 5.2 and the Free Rules (2024)*  

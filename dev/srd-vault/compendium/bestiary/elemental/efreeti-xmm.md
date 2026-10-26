@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 19
-  con: 24
-  dex: 12
-  int: 16
-  str: 22
-  wis: 15
-ac: 17
 aliases:
   - Efreeti
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "11"
-cr_xp: 7200
 cssclasses:
   - json5e-monster
 data:
@@ -49,25 +36,10 @@ data:
     walk: 40
   type: elemental
   vulnerable: []
-hp: 212
-immune:
-  - fire
-languages:
-  - Primordial (Ignan)
 license: CC-BY-4.0
 name: Efreeti
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 60
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +53,6 @@ tags:
 type: content
 uid: 06EF051D32AE4DB46336E917F5
 visibility: party
-vulnerable: []
 ---
 # Efreeti
 *Source: SRD 5.2 and the Free Rules (2024)*  

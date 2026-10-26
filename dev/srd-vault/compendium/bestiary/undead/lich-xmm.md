@@ -1,26 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 16
-  dex: 16
-  int: 21
-  str: 11
-  wis: 14
-ac: 20
 aliases:
   - Lich
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - paralyzed
-  - poisoned
 content_type: monster
-cr: map[cr:21 xpLair:41000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -40,8 +22,8 @@ data:
     - frightened
     - paralyzed
     - poisoned
-  cr: map[cr:21 xpLair:41000]
-  cr_xp: 0
+  cr: "21"
+  cr_xp: 33000
   hp: 315
   immune:
     - necrotic
@@ -58,24 +40,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 315
-immune:
-  - necrotic
-  - poison
-languages:
-  - all
 license: CC-BY-4.0
 name: Lich
 obsidianUIMode: preview
-passive_perception: 19
-resist:
-  - cold
-  - lightning
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -87,7 +55,6 @@ tags:
 type: content
 uid: 3BD8D5D585C4E8DD1DC1DD34D7
 visibility: party
-vulnerable: []
 ---
 # Lich
 *Source: SRD 5.2 and the Free Rules (2024)*  

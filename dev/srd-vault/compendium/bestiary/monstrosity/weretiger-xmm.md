@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 16
-  dex: 15
-  int: 10
-  str: 17
-  wis: 13
-ac: 12
 aliases:
   - Weretiger
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 120
-immune: []
-languages:
-  - Common (can't speak in tiger form)
 license: CC-BY-4.0
 name: Weretiger
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  alternate:
-    walk:
-      - condition: (tiger form only)
-        number: 40
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +52,6 @@ tags:
 type: content
 uid: D5AFE17210600325A866FEB80F
 visibility: party
-vulnerable: []
 ---
 # Weretiger
 *Source: SRD 5.2 and the Free Rules (2024)*  

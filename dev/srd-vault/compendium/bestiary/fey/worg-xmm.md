@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 13
-  dex: 13
-  int: 7
-  str: 16
-  wis: 11
-ac: 13
 aliases:
   - Worg
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 50
   type: fey
   vulnerable: []
-hp: 26
-immune: []
-languages:
-  - Goblin
-  - Worg
 license: CC-BY-4.0
 name: Worg
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +51,6 @@ tags:
 type: content
 uid: 4A9B468F8CA4BFC493568142ED
 visibility: party
-vulnerable: []
 ---
 # Worg
 *Source: SRD 5.2 and the Free Rules (2024)*  

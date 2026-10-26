@@ -2,9 +2,6 @@
 aliases:
   - Create or Destroy Water
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a mix of water and sand)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: 30 feet
   school: Transmutation
-duration: Instantaneous
-level: 1
 license: CC-BY-4.0
 name: Create or Destroy Water
 obsidianUIMode: preview
-range: 30 feet
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

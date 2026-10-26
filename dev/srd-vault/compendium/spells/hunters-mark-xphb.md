@@ -2,9 +2,6 @@
 aliases:
   - Hunter's Mark
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: 90 feet
   school: Divination
-duration: timed
-level: 1
 license: CC-BY-4.0
 name: Hunter's Mark
 obsidianUIMode: preview
-range: 90 feet
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 12
-  dex: 13
-  int: 7
-  str: 12
-  wis: 10
-ac: 11
 aliases:
   - Harpy
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 20
   type: monstrosity
   vulnerable: []
-hp: 38
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Harpy
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +50,6 @@ tags:
 type: content
 uid: 5EEB4F4B421B5C3ECE945C7A85
 visibility: party
-vulnerable: []
 ---
 # Harpy
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -2,9 +2,6 @@
 aliases:
   - Raise Dead
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 hour
-classes: []
-components: V, S, M (a diamond worth 500+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: <nil> touch
   school: Necromancy
-duration: Instantaneous
-level: 5
 license: CC-BY-4.0
 name: Raise Dead
 obsidianUIMode: preview
-range: <nil> touch
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

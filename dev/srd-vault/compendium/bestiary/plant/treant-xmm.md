@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 21
-  dex: 8
-  int: 12
-  str: 23
-  wis: 16
-ac: 16
 aliases:
   - Treant
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -50,25 +37,10 @@ data:
   type: plant
   vulnerable:
     - fire
-hp: 138
-immune: []
-languages:
-  - Common
-  - Druidic
-  - Elvish
-  - Sylvan
 license: CC-BY-4.0
 name: Treant
 obsidianUIMode: preview
-passive_perception: 13
-resist:
-  - bludgeoning
-  - piercing
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,8 +52,6 @@ tags:
 type: content
 uid: 9E68E531C34D14C8F4355BC639
 visibility: party
-vulnerable:
-  - fire
 ---
 # Treant
 *Source: SRD 5.2 and the Free Rules (2024)*  

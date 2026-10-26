@@ -2,9 +2,6 @@
 aliases:
   - Glibness
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 8
   range: <nil> self
   school: Enchantment
-duration: timed
-level: 8
 license: CC-BY-4.0
 name: Glibness
 obsidianUIMode: preview
-range: <nil> self
-school: Enchantment
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

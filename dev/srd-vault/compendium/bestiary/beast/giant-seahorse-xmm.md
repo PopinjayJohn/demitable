@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 11
-  dex: 12
-  int: 2
-  str: 15
-  wis: 12
-ac: 14
 aliases:
   - Giant Seahorse
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 16
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Seahorse
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: F86F3278E5D325EDEBBC2D67F0
 visibility: party
-vulnerable: []
 ---
 # Giant Seahorse
 *Source: SRD 5.2 and the Free Rules (2024)*  

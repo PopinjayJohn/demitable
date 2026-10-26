@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 13
-  dex: 17
-  int: 11
-  str: 6
-  wis: 12
-ac: 13
 aliases:
   - Imp
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -51,25 +37,10 @@ data:
     walk: 20
   type: fiend
   vulnerable: []
-hp: 21
-immune:
-  - fire
-  - poison
-languages:
-  - Common
-  - Infernal
 license: CC-BY-4.0
 name: Imp
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - cold
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +52,6 @@ tags:
 type: content
 uid: E0366E903B8B31BFFB426E610C
 visibility: party
-vulnerable: []
 ---
 # Imp
 *Source: SRD 5.2 and the Free Rules (2024)*  

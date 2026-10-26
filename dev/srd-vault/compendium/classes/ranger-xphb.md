@@ -2,7 +2,6 @@
 aliases:
   - Ranger
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -19,32 +18,32 @@ data:
       name: Deft Explorer
     - level: 2
       name: Fighting Style
-    - level: 0
-      name: map[classFeature:Ranger Subclass
+    - level: 3
+      name: Ranger Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
       name: Extra Attack
     - level: 6
       name: Roving
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 7
+      name: Subclass Feature
     - level: 8
       name: Ability Score Improvement
     - level: 9
       name: Expertise
     - level: 10
       name: Tireless
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 11
+      name: Subclass Feature
     - level: 12
       name: Ability Score Improvement
     - level: 13
       name: Relentless Hunter
     - level: 14
       name: Nature's Veil
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 15
+      name: Subclass Feature
     - level: 16
       name: Ability Score Improvement
     - level: 17
@@ -83,85 +82,10 @@ data:
     - str
     - dex
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Spellcasting
-  - level: 1
-    name: Favored Enemy
-  - level: 1
-    name: Weapon Mastery
-  - level: 2
-    name: Deft Explorer
-  - level: 2
-    name: Fighting Style
-  - level: 0
-    name: map[classFeature:Ranger Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Extra Attack
-  - level: 6
-    name: Roving
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Expertise
-  - level: 10
-    name: Tireless
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 12
-    name: Ability Score Improvement
-  - level: 13
-    name: Relentless Hunter
-  - level: 14
-    name: Nature's Veil
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 16
-    name: Ability Score Improvement
-  - level: 17
-    name: Precise Hunter
-  - level: 18
-    name: Feral Senses
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Foe Slayer
-hit_die: 10
 license: CC-BY-4.0
 name: Ranger
 obsidianUIMode: preview
-primary_abilities:
-  - str
-  - dex
-proficiencies:
-  armor:
-    - light
-    - medium
-    - shield
-  skills:
-    - choose:
-        count: 3
-        from:
-          - animal handling
-          - athletics
-          - insight
-          - investigation
-          - nature
-          - perception
-          - stealth
-          - survival
-  weapons:
-    - simple
-    - martial
-saving_throws:
-  - str
-  - dex
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

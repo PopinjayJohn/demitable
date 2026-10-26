@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 16
-  dex: 11
-  int: 6
-  str: 18
-  wis: 16
-ac: 14
 aliases:
   - Minotaur of Baphomet
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 85
-immune: []
-languages:
-  - Abyssal
 license: CC-BY-4.0
 name: Minotaur of Baphomet
 obsidianUIMode: preview
-passive_perception: 17
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 48D6AC0258D81116D6A2E8E574
 visibility: party
-vulnerable: []
 ---
 # Minotaur of Baphomet
 *Source: SRD 5.2 and the Free Rules (2024)*  

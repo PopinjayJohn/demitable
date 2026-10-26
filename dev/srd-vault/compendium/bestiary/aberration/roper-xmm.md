@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 17
-  dex: 8
-  int: 7
-  str: 18
-  wis: 16
-ac: 20
 aliases:
   - Roper
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: aberration
   vulnerable: []
-hp: 93
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Roper
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 20
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: CEAA19E65998056BF101FDD6BF
 visibility: party
-vulnerable: []
 ---
 # Roper
 *Source: SRD 5.2 and the Free Rules (2024)*  

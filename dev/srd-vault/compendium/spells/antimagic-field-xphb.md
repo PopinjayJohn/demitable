@@ -2,9 +2,6 @@
 aliases:
   - Antimagic Field
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (iron filings)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 8
   range: 10 feet
   school: Abjuration
-duration: timed
-level: 8
 license: CC-BY-4.0
 name: Antimagic Field
 obsidianUIMode: preview
-range: 10 feet
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

@@ -1,24 +1,4 @@
 ---
-ability_choices:
-  - choose:
-      weighted:
-        from:
-          - dex
-          - con
-          - int
-        weights:
-          - 2
-          - 1
-  - choose:
-      weighted:
-        from:
-          - dex
-          - con
-          - int
-        weights:
-          - 1
-          - 1
-          - 1
 aliases:
   - Criminal
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
@@ -65,34 +45,15 @@ data:
         - value: 5000
   tool_proficiencies:
     - thieves' tools
-feats:
-  - alert|xphb
 license: CC-BY-4.0
 name: Criminal
 obsidianUIMode: preview
-skill_proficiencies:
-  - sleight of hand
-  - stealth
 source: SRD 5.2.1
 src: xphb
-starting_equipment:
-  - A:
-      - item: dagger|xphb
-        quantity: 2
-      - item: thieves' tools|xphb
-      - item: crowbar|xphb
-      - item: pouch|xphb
-        quantity: 2
-      - item: traveler's clothes|xphb
-      - value: 1600
-    B:
-      - value: 5000
 system: dnd5e
 tags:
   - background
   - compendium/src/5e/xphb
-tool_proficiencies:
-  - thieves' tools
 type: content
 uid: AC099265E2E255B2A67A192871
 visibility: party

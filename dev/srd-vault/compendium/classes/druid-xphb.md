@@ -2,7 +2,6 @@
 aliases:
   - Druid
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -19,24 +18,24 @@ data:
       name: Wild Companion
     - level: 2
       name: Wild Shape
-    - level: 0
-      name: map[classFeature:Druid Subclass
+    - level: 3
+      name: Druid Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
       name: Wild Resurgence
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 7
       name: Elemental Fury
     - level: 8
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 10
+      name: Subclass Feature
     - level: 12
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 14
+      name: Subclass Feature
     - level: 15
       name: Improved Elemental Fury
     - level: 16
@@ -77,79 +76,10 @@ data:
     - int
     - wis
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Druidic
-  - level: 1
-    name: Primal Order
-  - level: 1
-    name: Spellcasting
-  - level: 2
-    name: Wild Companion
-  - level: 2
-    name: Wild Shape
-  - level: 0
-    name: map[classFeature:Druid Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Wild Resurgence
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 7
-    name: Elemental Fury
-  - level: 8
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 12
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 15
-    name: Improved Elemental Fury
-  - level: 16
-    name: Ability Score Improvement
-  - level: 18
-    name: Beast Spells
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Archdruid
-hit_die: 8
 license: CC-BY-4.0
 name: Druid
 obsidianUIMode: preview
-primary_abilities:
-  - int
-  - wis
-proficiencies:
-  armor:
-    - light
-    - shield
-  skills:
-    - choose:
-        count: 2
-        from:
-          - arcana
-          - animal handling
-          - insight
-          - medicine
-          - nature
-          - perception
-          - religion
-          - survival
-  toolProficiencies:
-    - herbalism kit: true
-  tools:
-    - '{@item Herbalism Kit|XPHB}'
-  weapons:
-    - simple
-saving_throws:
-  - int
-  - wis
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

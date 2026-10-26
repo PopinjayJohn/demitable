@@ -2,9 +2,6 @@
 aliases:
   - Animate Dead
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (a drop of blood, a piece of flesh, and a pinch of bone dust)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 10 feet
   school: Necromancy
-duration: Instantaneous
-level: 3
 license: CC-BY-4.0
 name: Animate Dead
 obsidianUIMode: preview
-range: 10 feet
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

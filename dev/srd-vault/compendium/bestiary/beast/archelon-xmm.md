@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 13
-  dex: 16
-  int: 4
-  str: 18
-  wis: 14
-ac: 17
 aliases:
   - Archelon
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 90
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Archelon
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  swim: 80
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: A44A8CCEC6B6FD9862CD0098EF
 visibility: party
-vulnerable: []
 ---
 # Archelon
 *Source: SRD 5.2 and the Free Rules (2024)*  

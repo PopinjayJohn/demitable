@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 17
-  dex: 12
-  int: 9
-  str: 16
-  wis: 11
-ac: 13
 aliases:
   - Berserker
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 67
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Berserker
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 70202672922A12B096B325A23F
 visibility: party
-vulnerable: []
 ---
 # Berserker
 *Source: SRD 5.2 and the Free Rules (2024)*  

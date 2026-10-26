@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 12
-  dex: 10
-  int: 1
-  str: 8
-  wis: 7
-ac: 13
 aliases:
   - Giant Fire Beetle
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 4
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Fire Beetle
 obsidianUIMode: preview
-passive_perception: 8
-resist:
-  - fire
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: AC3AA9A4A7F3432EB4C60424E6
 visibility: party
-vulnerable: []
 ---
 # Giant Fire Beetle
 *Source: SRD 5.2 and the Free Rules (2024)*  

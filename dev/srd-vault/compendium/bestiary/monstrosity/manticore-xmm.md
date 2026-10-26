@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 17
-  dex: 16
-  int: 7
-  str: 17
-  wis: 12
-ac: 14
 aliases:
   - Manticore
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 68
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Manticore
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 50
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +51,6 @@ tags:
 type: content
 uid: 4D91AB60F64432EE82F3AD158C
 visibility: party
-vulnerable: []
 ---
 # Manticore
 *Source: SRD 5.2 and the Free Rules (2024)*  

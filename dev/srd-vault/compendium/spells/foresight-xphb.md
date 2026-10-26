@@ -2,9 +2,6 @@
 aliases:
   - Foresight
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 minute
-classes: []
-components: V, S, M (a hummingbird feather)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 9
   range: <nil> touch
   school: Divination
-duration: timed
-level: 9
 license: CC-BY-4.0
 name: Foresight
 obsidianUIMode: preview
-range: <nil> touch
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

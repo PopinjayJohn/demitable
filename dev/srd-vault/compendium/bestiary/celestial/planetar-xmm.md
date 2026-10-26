@@ -1,24 +1,8 @@
 ---
-abilities:
-  cha: 25
-  con: 24
-  dex: 20
-  int: 19
-  str: 24
-  wis: 22
-ac: 19
 aliases:
   - Planetar
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
 content_type: monster
-cr: "16"
-cr_xp: 15000
 cssclasses:
   - json5e-monster
 data:
@@ -55,25 +39,10 @@ data:
     walk: 40
   type: celestial
   vulnerable: []
-hp: 262
-immune: []
-languages:
-  - all; telepathy 120 ft.
 license: CC-BY-4.0
 name: Planetar
 obsidianUIMode: preview
-passive_perception: 21
-resist:
-  - radiant
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 120
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -86,7 +55,6 @@ tags:
 type: content
 uid: 24793F1D907F5808BF6180D96D
 visibility: party
-vulnerable: []
 ---
 # Planetar
 *Source: SRD 5.2 and the Free Rules (2024)*  

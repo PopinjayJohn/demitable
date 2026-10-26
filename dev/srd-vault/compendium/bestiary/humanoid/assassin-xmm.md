@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 14
-  dex: 18
-  int: 16
-  str: 11
-  wis: 11
-ac: 16
 aliases:
   - Assassin
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 97
-immune: []
-languages:
-  - Common
-  - Thieves' cant
 license: CC-BY-4.0
 name: Assassin
 obsidianUIMode: preview
-passive_perception: 16
-resist:
-  - poison
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: 643897DC837E10AF8DC8E98A0C
 visibility: party
-vulnerable: []
 ---
 # Assassin
 *Source: SRD 5.2 and the Free Rules (2024)*  

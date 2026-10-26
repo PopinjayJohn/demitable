@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 23
-  dex: 9
-  int: 10
-  str: 25
-  wis: 14
-ac: 18
 aliases:
   - Fire Giant
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: giant
   vulnerable: []
-hp: 162
-immune:
-  - fire
-languages:
-  - Giant
 license: CC-BY-4.0
 name: Fire Giant
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +48,6 @@ tags:
 type: content
 uid: 962B6516E4DBC006A074FCBC3A
 visibility: party
-vulnerable: []
 ---
 # Fire Giant
 *Source: SRD 5.2 and the Free Rules (2024)*  

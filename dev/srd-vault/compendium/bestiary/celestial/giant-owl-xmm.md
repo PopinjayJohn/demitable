@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 12
-  dex: 15
-  int: 10
-  str: 13
-  wis: 14
-ac: 12
 aliases:
   - Giant Owl
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -49,25 +36,10 @@ data:
     walk: 5
   type: celestial
   vulnerable: []
-hp: 19
-immune: []
-languages:
-  - Celestial; understands Common
-  - Elvish
-  - and Sylvan but can't speak them
 license: CC-BY-4.0
 name: Giant Owl
 obsidianUIMode: preview
-passive_perception: 16
-resist:
-  - necrotic
-  - radiant
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +53,6 @@ tags:
 type: content
 uid: AE58FCFAF1D970146FC07E6593
 visibility: party
-vulnerable: []
 ---
 # Giant Owl
 *Source: SRD 5.2 and the Free Rules (2024)*  

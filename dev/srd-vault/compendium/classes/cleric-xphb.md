@@ -2,7 +2,6 @@
 aliases:
   - Cleric
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -15,14 +14,14 @@ data:
       name: Divine Order
     - level: 2
       name: Channel Divinity
-    - level: 0
-      name: map[classFeature:Cleric Subclass
+    - level: 3
+      name: Cleric Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
       name: Sear Undead
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 7
       name: Blessed Strikes
     - level: 8
@@ -35,8 +34,8 @@ data:
       name: Improved Blessed Strikes
     - level: 16
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 17
+      name: Subclass Feature
     - level: 19
       name: Epic Boon
     - level: 20
@@ -65,67 +64,10 @@ data:
     - wis
     - cha
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Spellcasting
-  - level: 1
-    name: Divine Order
-  - level: 2
-    name: Channel Divinity
-  - level: 0
-    name: map[classFeature:Cleric Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Sear Undead
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 7
-    name: Blessed Strikes
-  - level: 8
-    name: Ability Score Improvement
-  - level: 10
-    name: Divine Intervention
-  - level: 12
-    name: Ability Score Improvement
-  - level: 14
-    name: Improved Blessed Strikes
-  - level: 16
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Greater Divine Intervention
-hit_die: 8
 license: CC-BY-4.0
 name: Cleric
 obsidianUIMode: preview
-primary_abilities:
-  - wis
-  - cha
-proficiencies:
-  armor:
-    - light
-    - medium
-    - shield
-  skills:
-    - choose:
-        count: 2
-        from:
-          - history
-          - insight
-          - medicine
-          - persuasion
-          - religion
-  weapons:
-    - simple
-saving_throws:
-  - wis
-  - cha
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

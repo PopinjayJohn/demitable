@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 8
-  dex: 13
-  int: 1
-  str: 1
-  wis: 8
-ac: 11
 aliases:
   - Frog
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Frog
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  swim: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: BC8C0A7DDB2D8161C5C5D1C42C
 visibility: party
-vulnerable: []
 ---
 # Frog
 *Source: SRD 5.2 and the Free Rules (2024)*  

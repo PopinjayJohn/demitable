@@ -1,20 +1,7 @@
 ---
-abilities:
-  cha: 14
-  con: 17
-  dex: 14
-  int: 10
-  str: 19
-  wis: 14
 aliases:
   - Draconic Spirit
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
-  - poisoned
 content_type: monster
 cssclasses:
   - json5e-monster
@@ -51,27 +38,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-immune: []
-languages:
-  - Draconic
-  - understands the languages you know
 license: CC-BY-4.0
 name: Draconic Spirit
 obsidianUIMode: preview
-passive_perception: 12
-resist:
-  - acid
-  - cold
-  - fire
-  - lightning
-  - poison
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  swim: 30
-  walk: 30
 src: xphb
 system: dnd5e
 tags:
@@ -82,7 +52,6 @@ tags:
 type: content
 uid: 88AD8C70ECBC6628FD8D361649
 visibility: party
-vulnerable: []
 ---
 # Draconic Spirit
 *Source: SRD 5.2*  

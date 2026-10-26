@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 12
-  dex: 14
-  int: 20
-  str: 10
-  wis: 15
-ac: 17
 aliases:
   - Archmage
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - cond: true
-    conditionImmune:
-      - charmed
-    note: (with Mind Blank)
 content_type: monster
-cr: "12"
-cr_xp: 8400
 cssclasses:
   - json5e-monster
 data:
@@ -53,21 +36,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 170
-immune:
-  - psychic
-languages:
-  - Common plus five other languages
 license: CC-BY-4.0
 name: Archmage
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: DB7EB39F2BA4E5D426FD1B5356
 visibility: party
-vulnerable: []
 ---
 # Archmage
 *Source: SRD 5.2 and the Free Rules (2024)*  

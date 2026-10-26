@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 10
-  dex: 16
-  int: 3
-  str: 14
-  wis: 14
-ac: 13
 aliases:
   - Panther
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 50
   type: beast
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Panther
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +48,6 @@ tags:
 type: content
 uid: EDC5FC6B7E1135833269C0B11F
 visibility: party
-vulnerable: []
 ---
 # Panther
 *Source: SRD 5.2 and the Free Rules (2024)*  

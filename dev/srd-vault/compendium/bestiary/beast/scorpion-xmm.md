@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 8
-  dex: 11
-  int: 1
-  str: 2
-  wis: 8
-ac: 11
 aliases:
   - Scorpion
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Scorpion
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -67,7 +45,6 @@ tags:
 type: content
 uid: 2E2747F269549047390A408F15
 visibility: party
-vulnerable: []
 ---
 # Scorpion
 *Source: SRD 5.2 and the Free Rules (2024)*  

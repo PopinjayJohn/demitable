@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 20
-  dex: 10
-  int: 16
-  str: 22
-  wis: 23
-ac: 17
 aliases:
   - Sphinx of Valor
-alignment:
-  - Lawful Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - frightened
 content_type: monster
-cr: map[cr:17 xpLair:20000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -34,8 +19,8 @@ data:
   condition_immunities:
     - charmed
     - frightened
-  cr: map[cr:17 xpLair:20000]
-  cr_xp: 0
+  cr: "17"
+  cr_xp: 18000
   hp: 199
   immune:
     - psychic
@@ -53,25 +38,10 @@ data:
     walk: 40
   type: celestial
   vulnerable: []
-hp: 199
-immune:
-  - psychic
-languages:
-  - Celestial
-  - Common
 license: CC-BY-4.0
 name: Sphinx of Valor
 obsidianUIMode: preview
-passive_perception: 22
-resist:
-  - necrotic
-  - radiant
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +55,6 @@ tags:
 type: content
 uid: FBB3F5481FE5B8AA8051DFFC95
 visibility: party
-vulnerable: []
 ---
 # Sphinx of Valor
 *Source: SRD 5.2 and the Free Rules (2024)*  

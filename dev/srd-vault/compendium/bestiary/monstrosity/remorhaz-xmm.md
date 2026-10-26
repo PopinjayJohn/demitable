@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 21
-  dex: 13
-  int: 4
-  str: 24
-  wis: 10
-ac: 17
 aliases:
   - Remorhaz
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "11"
-cr_xp: 7200
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 40
   type: monstrosity
   vulnerable: []
-hp: 195
-immune:
-  - cold
-  - fire
-languages: []
 license: CC-BY-4.0
 name: Remorhaz
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  burrow: 30
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: CA131C492E6D088D105F470C6A
 visibility: party
-vulnerable: []
 ---
 # Remorhaz
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 10
-  dex: 13
-  int: 9
-  str: 7
-  wis: 11
-ac: 11
 aliases:
   - Ice Mephit
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -52,23 +37,10 @@ data:
   type: elemental
   vulnerable:
     - fire
-hp: 21
-immune:
-  - cold
-  - poison
-languages:
-  - Primordial (Aquan, Auran)
 license: CC-BY-4.0
 name: Ice Mephit
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -81,8 +53,6 @@ tags:
 type: content
 uid: C8344B3D1F71F7244FCE4A19F8
 visibility: party
-vulnerable:
-  - fire
 ---
 # Ice Mephit
 *Source: SRD 5.2 and the Free Rules (2024)*  

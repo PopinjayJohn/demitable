@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 12
-  dex: 12
-  int: 10
-  str: 13
-  wis: 11
-ac: 16
 aliases:
   - Guard
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 11
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Guard
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 1904E600D5FD8E8C43A0A25FCC
 visibility: party
-vulnerable: []
 ---
 # Guard
 *Source: SRD 5.2 and the Free Rules (2024)*  

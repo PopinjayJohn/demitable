@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 20
-  dex: 10
-  int: 10
-  str: 25
-  wis: 12
-ac: 20
 aliases:
   - Dragon Turtle
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "17"
-cr_xp: 18000
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 20
   type: dragon
   vulnerable: []
-hp: 356
-immune: []
-languages:
-  - Draconic
-  - Primordial (Aquan)
 license: CC-BY-4.0
 name: Dragon Turtle
 obsidianUIMode: preview
-passive_perception: 11
-resist:
-  - fire
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  swim: 50
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: DFE9BAAFB9771F1FD6729C9ED1
 visibility: party
-vulnerable: []
 ---
 # Dragon Turtle
 *Source: SRD 5.2 and the Free Rules (2024)*  

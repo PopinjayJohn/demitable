@@ -139,6 +139,20 @@ difficulty:
 formulas:
   max_hp: "10 + attributes.con"
   con_mod: "floor((attributes.con - 10) / 2)"
+  str_mod: "floor((attributes.str - 10) / 2)"
+  dex_mod: "floor((attributes.dex - 10) / 2)"
+  int_mod: "floor((attributes.int - 10) / 2)"
+  wis_mod: "floor((attributes.wis - 10) / 2)"
+  cha_mod: "floor((attributes.cha - 10) / 2)"
+  proficiency: "level"
+  spell_dc: "8 + proficiency + int_mod"
+  dc: "8 + proficiency + int_mod"
+  to_hit: "str_mod + proficiency"
+  attack_bonus: "str_mod + proficiency"
+  save_bonus: "con_mod + proficiency"
+  check_bonus: "str_mod"
+  damage_mod: "str_mod"
+  damage_avg: "2.5 + attributes.str"
 
 dice:
   default: "1d20"

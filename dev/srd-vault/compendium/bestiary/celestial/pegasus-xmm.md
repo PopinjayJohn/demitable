@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 16
-  dex: 15
-  int: 10
-  str: 18
-  wis: 15
-ac: 12
 aliases:
   - Pegasus
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 60
   type: celestial
   vulnerable: []
-hp: 59
-immune: []
-languages:
-  - understands Celestial
-  - Common
-  - Elvish
-  - and Sylvan but can't speak
 license: CC-BY-4.0
 name: Pegasus
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 90
-  walk: 60
 src: xmm
 system: dnd5e
 tags:
@@ -81,7 +54,6 @@ tags:
 type: content
 uid: 80721A9FA8F6C03A576EB458F6
 visibility: party
-vulnerable: []
 ---
 # Pegasus
 *Source: SRD 5.2 and the Free Rules (2024)*  

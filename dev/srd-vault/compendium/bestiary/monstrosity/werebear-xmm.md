@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 17
-  dex: 10
-  int: 11
-  str: 19
-  wis: 12
-ac: 15
 aliases:
   - Werebear
-alignment:
-  - Neutral Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -51,27 +38,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 135
-immune: []
-languages:
-  - Common (can't speak in bear form)
 license: CC-BY-4.0
 name: Werebear
 obsidianUIMode: preview
-passive_perception: 17
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  alternate:
-    walk:
-      - condition: (bear form only)
-        number: 40
-  climb:
-    condition: (bear form only)
-    number: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +55,6 @@ tags:
 type: content
 uid: 2DBEF3B16FFB05DD8139CC5915
 visibility: party
-vulnerable: []
 ---
 # Werebear
 *Source: SRD 5.2 and the Free Rules (2024)*  

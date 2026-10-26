@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 9
-  dex: 11
-  int: 2
-  str: 2
-  wis: 10
-ac: 10
 aliases:
   - Rat
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Rat
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  climb: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -72,7 +49,6 @@ tags:
 type: content
 uid: 355FAA58CA94102C07FFD1ACB0
 visibility: party
-vulnerable: []
 ---
 # Rat
 *Source: SRD 5.2 and the Free Rules (2024)*  

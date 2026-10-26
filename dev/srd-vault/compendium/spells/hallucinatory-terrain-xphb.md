@@ -2,9 +2,6 @@
 aliases:
   - Hallucinatory Terrain
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S, M (a mushroom)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 4
   range: 300 feet
   school: Illusion
-duration: timed
-level: 4
 license: CC-BY-4.0
 name: Hallucinatory Terrain
 obsidianUIMode: preview
-range: 300 feet
-school: Illusion
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

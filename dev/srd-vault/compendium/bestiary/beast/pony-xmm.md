@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 13
-  dex: 10
-  int: 2
-  str: 15
-  wis: 11
-ac: 10
 aliases:
   - Pony
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Pony
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -68,7 +46,6 @@ tags:
 type: content
 uid: 7E0EB4DA19FF4263E76E505E74
 visibility: party
-vulnerable: []
 ---
 # Pony
 *Source: SRD 5.2 and the Free Rules (2024)*  

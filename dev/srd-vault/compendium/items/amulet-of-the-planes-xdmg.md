@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Amulet of the Planes
 obsidianUIMode: preview
-rarity: very rare
-reqAttune: "true"
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

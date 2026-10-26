@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 10
-  dex: 15
-  int: 3
-  str: 7
-  wis: 5
-ac: 12
 aliases:
   - Slaad Tadpole
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -50,26 +37,10 @@ data:
     walk: 30
   type: aberration
   vulnerable: []
-hp: 7
-immune: []
-languages:
-  - understands Slaad but can't speak
 license: CC-BY-4.0
 name: Slaad Tadpole
 obsidianUIMode: preview
-passive_perception: 7
-resist:
-  - acid
-  - cold
-  - fire
-  - lightning
-  - thunder
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  burrow: 10
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: AAA7A54AAC460A0B351967BF70
 visibility: party
-vulnerable: []
 ---
 # Slaad Tadpole
 *Source: the Free Rules (2024)*  

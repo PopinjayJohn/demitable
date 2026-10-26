@@ -1,26 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 17
-  dex: 10
-  int: 11
-  str: 18
-  wis: 19
-ac: 17
 aliases:
   - Mummy Lord
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - paralyzed
-  - poisoned
 content_type: monster
-cr: map[cr:15 xpLair:15000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -40,8 +22,8 @@ data:
     - frightened
     - paralyzed
     - poisoned
-  cr: map[cr:15 xpLair:15000]
-  cr_xp: 0
+  cr: "15"
+  cr_xp: 13000
   hp: 187
   immune:
     - necrotic
@@ -57,22 +39,10 @@ data:
   type: undead
   vulnerable:
     - fire
-hp: 187
-immune:
-  - necrotic
-  - poison
-languages:
-  - Common plus three other languages
 license: CC-BY-4.0
 name: Mummy Lord
 obsidianUIMode: preview
-passive_perception: 19
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -85,8 +55,6 @@ tags:
 type: content
 uid: E3F2F19908AD1CD007FFF9EDDA
 visibility: party
-vulnerable:
-  - fire
 ---
 # Mummy Lord
 *Source: SRD 5.2 and the Free Rules (2024)*  

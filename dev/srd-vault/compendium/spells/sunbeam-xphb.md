@@ -2,9 +2,6 @@
 aliases:
   - Sunbeam
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a magnifying glass)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 6
   range: 60 feet
   school: Evocation
-duration: timed
-level: 6
 license: CC-BY-4.0
 name: Sunbeam
 obsidianUIMode: preview
-range: 60 feet
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

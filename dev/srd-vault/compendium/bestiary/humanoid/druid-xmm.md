@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 13
-  dex: 12
-  int: 12
-  str: 10
-  wis: 16
-ac: 13
 aliases:
   - Druid
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 44
-immune: []
-languages:
-  - Common
-  - Druidic
-  - Sylvan
 license: CC-BY-4.0
 name: Druid
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: CEE9DF896D2DD24B359D4054B9
 visibility: party
-vulnerable: []
 ---
 # Druid
 *Source: SRD 5.2 and the Free Rules (2024)*  

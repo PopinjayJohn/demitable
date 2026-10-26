@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 12
-  dex: 12
-  int: 2
-  str: 6
-  wis: 13
-ac: 11
 aliases:
   - Cockatrice
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - petrified
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -46,20 +32,10 @@ data:
     walk: 20
   type: monstrosity
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Cockatrice
 obsidianUIMode: preview
-passive_perception: 11
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: 620EF330CA2870E2FB456F6201
 visibility: party
-vulnerable: []
 ---
 # Cockatrice
 *Source: SRD 5.2 and the Free Rules (2024)*  

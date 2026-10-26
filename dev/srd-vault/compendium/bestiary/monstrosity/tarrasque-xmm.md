@@ -1,26 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 30
-  dex: 11
-  int: 3
-  str: 30
-  wis: 11
-ac: 25
 aliases:
   - Tarrasque
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - deafened
-  - frightened
-  - paralyzed
-  - poisoned
 content_type: monster
-cr: "30"
-cr_xp: 155000
 cssclasses:
   - json5e-monster
 data:
@@ -60,26 +42,10 @@ data:
     walk: 60
   type: monstrosity
   vulnerable: []
-hp: 697
-immune:
-  - fire
-  - poison
-languages: []
 license: CC-BY-4.0
 name: Tarrasque
 obsidianUIMode: preview
-passive_perception: 19
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  burrow: 40
-  climb: 60
-  walk: 60
 src: xmm
 system: dnd5e
 tags:
@@ -91,7 +57,6 @@ tags:
 type: content
 uid: 8794EC68163AA38E82B542FC3C
 visibility: party
-vulnerable: []
 ---
 # Tarrasque
 *Source: SRD 5.2 and the Free Rules (2024)*  

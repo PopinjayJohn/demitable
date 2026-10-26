@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 16
-  dex: 14
-  int: 11
-  str: 17
-  wis: 10
-ac: 16
 aliases:
   - Tough Boss
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 82
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Tough Boss
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: A21773F1E7913DE4F661C7AC03
 visibility: party
-vulnerable: []
 ---
 # Tough Boss
 *Source: SRD 5.2 and the Free Rules (2024)*  

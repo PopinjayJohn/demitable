@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 14
-  dex: 13
-  int: 7
-  str: 18
-  wis: 12
-ac: 13
 aliases:
   - Winter Wolf
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 50
   type: monstrosity
   vulnerable: []
-hp: 75
-immune:
-  - cold
-languages:
-  - Common
-  - Giant
 license: CC-BY-4.0
 name: Winter Wolf
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: 8BC5A114FD8F5A750C0F4651F8
 visibility: party
-vulnerable: []
 ---
 # Winter Wolf
 *Source: SRD 5.2 and the Free Rules (2024)*  

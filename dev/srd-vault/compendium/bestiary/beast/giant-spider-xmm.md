@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 12
-  dex: 16
-  int: 2
-  str: 14
-  wis: 11
-ac: 14
 aliases:
   - Giant Spider
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 26
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Spider
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: A1E3C69D6902C626F75DFC3B69
 visibility: party
-vulnerable: []
 ---
 # Giant Spider
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 10
-  dex: 14
-  int: 9
-  str: 5
-  wis: 11
-ac: 12
 aliases:
   - Dust Mephit
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -51,22 +36,10 @@ data:
   type: elemental
   vulnerable:
     - fire
-hp: 17
-immune:
-  - poison
-languages:
-  - Primordial (Auran, Terran)
 license: CC-BY-4.0
 name: Dust Mephit
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -79,8 +52,6 @@ tags:
 type: content
 uid: A71D62EA3DC7302F984B6556A7
 visibility: party
-vulnerable:
-  - fire
 ---
 # Dust Mephit
 *Source: SRD 5.2 and the Free Rules (2024)*  

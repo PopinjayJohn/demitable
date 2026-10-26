@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 16
-  dex: 12
-  int: 13
-  str: 18
-  wis: 14
-ac: 17
 aliases:
   - Green Hag
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 82
-immune: []
-languages:
-  - Common
-  - Elvish
-  - Sylvan
 license: CC-BY-4.0
 name: Green Hag
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +51,6 @@ tags:
 type: content
 uid: 8CFC9E2D9020F8A84920F35B55
 visibility: party
-vulnerable: []
 ---
 # Green Hag
 *Source: SRD 5.2 and the Free Rules (2024)*  

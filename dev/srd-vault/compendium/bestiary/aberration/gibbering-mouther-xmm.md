@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 16
-  dex: 8
-  int: 3
-  str: 10
-  wis: 10
-ac: 9
 aliases:
   - Gibbering Mouther
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - prone
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -46,20 +32,10 @@ data:
     walk: 20
   type: aberration
   vulnerable: []
-hp: 52
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Gibbering Mouther
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: 6B9BF0BF9513F3A1D85C91A2D2
 visibility: party
-vulnerable: []
 ---
 # Gibbering Mouther
 *Source: SRD 5.2 and the Free Rules (2024)*  

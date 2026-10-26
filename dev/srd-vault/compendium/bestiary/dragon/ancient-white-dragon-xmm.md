@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 26
-  dex: 10
-  int: 10
-  str: 26
-  wis: 13
-ac: 20
 aliases:
   - Ancient White Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:20 xpLair:33000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Evil
   condition_immunities: []
-  cr: map[cr:20 xpLair:33000]
-  cr_xp: 0
+  cr: "20"
+  cr_xp: 25000
   hp: 333
   immune:
     - cold
@@ -49,25 +36,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 333
-immune:
-  - cold
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient White Dragon
 obsidianUIMode: preview
-passive_perception: 23
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  burrow: 40
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 86940DA733B1A727F77C85FBD4
 visibility: party
-vulnerable: []
 ---
 # Ancient White Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

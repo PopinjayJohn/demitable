@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Carpet of Flying, 5 ft. × 7 ft.
 obsidianUIMode: preview
-rarity: very rare
-reqAttune: ""
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

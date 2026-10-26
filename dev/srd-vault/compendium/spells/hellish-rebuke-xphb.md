@@ -2,9 +2,6 @@
 aliases:
   - Hellish Rebuke
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 reaction
-classes: []
-components: V, S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 1
   range: 60 feet
   school: Evocation
-duration: Instantaneous
-level: 1
 license: CC-BY-4.0
 name: Hellish Rebuke
 obsidianUIMode: preview
-range: 60 feet
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

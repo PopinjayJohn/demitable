@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 22
-  con: 25
-  dex: 12
-  int: 20
-  str: 27
-  wis: 17
-ac: 21
 aliases:
   - Ancient Green Dragon
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: map[cr:22 xpLair:50000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -32,8 +18,8 @@ data:
     - Lawful Evil
   condition_immunities:
     - poisoned
-  cr: map[cr:22 xpLair:50000]
-  cr_xp: 0
+  cr: "22"
+  cr_xp: 41000
   hp: 402
   immune:
     - poison
@@ -50,24 +36,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 402
-immune:
-  - poison
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Ancient Green Dragon
 obsidianUIMode: preview
-passive_perception: 27
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 5C7E55815D20D115B923C1B5D1
 visibility: party
-vulnerable: []
 ---
 # Ancient Green Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

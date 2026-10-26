@@ -1,25 +1,8 @@
 ---
-abilities:
-  cha: 30
-  con: 26
-  dex: 22
-  int: 25
-  str: 26
-  wis: 25
-ac: 21
 aliases:
   - Solar
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - poisoned
 content_type: monster
-cr: "21"
-cr_xp: 33000
 cssclasses:
   - json5e-monster
 data:
@@ -58,26 +41,10 @@ data:
     walk: 50
   type: celestial
   vulnerable: []
-hp: 297
-immune:
-  - poison
-  - radiant
-languages:
-  - all; telepathy 120 ft.
 license: CC-BY-4.0
 name: Solar
 obsidianUIMode: preview
-passive_perception: 24
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 150
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -90,7 +57,6 @@ tags:
 type: content
 uid: CF690CC9CD96C9ABAE3E7357A2
 visibility: party
-vulnerable: []
 ---
 # Solar
 *Source: SRD 5.2 and the Free Rules (2024)*  

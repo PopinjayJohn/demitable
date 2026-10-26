@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 11
-  dex: 12
-  int: 12
-  str: 11
-  wis: 14
-ac: 15
 aliases:
   - Noble
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 9
-immune: []
-languages:
-  - Common plus two other languages
 license: CC-BY-4.0
 name: Noble
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 7745842829D62EA05BCEB8854D
 visibility: party
-vulnerable: []
 ---
 # Noble
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 17
-  dex: 9
-  int: 2
-  str: 21
-  wis: 10
-ac: 14
 aliases:
   - Giant Crocodile
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 85
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Crocodile
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  swim: 50
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: BFFE048E5DC836852F0B4E02DC
 visibility: party
-vulnerable: []
 ---
 # Giant Crocodile
 *Source: SRD 5.2 and the Free Rules (2024)*  

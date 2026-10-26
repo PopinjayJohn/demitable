@@ -1,24 +1,4 @@
 ---
-ability_choices:
-  - choose:
-      weighted:
-        from:
-          - con
-          - int
-          - wis
-        weights:
-          - 2
-          - 1
-  - choose:
-      weighted:
-        from:
-          - con
-          - int
-          - wis
-        weights:
-          - 1
-          - 1
-          - 1
 aliases:
   - Sage
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
@@ -64,33 +44,15 @@ data:
         - value: 5000
   tool_proficiencies:
     - calligrapher's supplies
-feats:
-  - magic initiate; wizard|xphb
 license: CC-BY-4.0
 name: Sage
 obsidianUIMode: preview
-skill_proficiencies:
-  - arcana
-  - history
 source: SRD 5.2.1
 src: xphb
-starting_equipment:
-  - A:
-      - item: quarterstaff|xphb
-      - item: calligrapher's supplies|xphb
-      - item: book|xphb
-      - item: parchment|xphb
-        quantity: 8
-      - item: robe|xphb
-      - value: 800
-    B:
-      - value: 5000
 system: dnd5e
 tags:
   - background
   - compendium/src/5e/xphb
-tool_proficiencies:
-  - calligrapher's supplies
 type: content
 uid: 4E3008CF329B84A7E4E9964086
 visibility: party

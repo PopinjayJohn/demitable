@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 3
-  con: 11
-  dex: 13
-  int: 1
-  str: 13
-  wis: 9
-ac: 15
 aliases:
   - Giant Crab
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: beast
   vulnerable: []
-hp: 13
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Crab
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 0FF397C3A5BC8802D5FAB4F0AB
 visibility: party
-vulnerable: []
 ---
 # Giant Crab
 *Source: SRD 5.2 and the Free Rules (2024)*  

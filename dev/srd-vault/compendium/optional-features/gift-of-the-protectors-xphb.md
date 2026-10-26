@@ -17,20 +17,9 @@ data:
         level: 9
       optionalfeature:
         - pact of the tome|xphb
-featureType:
-  - EI
 license: CC-BY-4.0
 name: Gift of the Protectors
 obsidianUIMode: preview
-prerequisites:
-  - level:
-      class:
-        name: Warlock
-        source: XPHB
-        visibleStats: true
-      level: 9
-    optionalfeature:
-      - pact of the tome|xphb
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

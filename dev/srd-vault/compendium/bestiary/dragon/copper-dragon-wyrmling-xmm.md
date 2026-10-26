@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 13
-  dex: 12
-  int: 14
-  str: 15
-  wis: 11
-ac: 16
 aliases:
   - Copper Dragon Wyrmling
-alignment:
-  - Chaotic Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 22
-immune:
-  - acid
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Copper Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +49,6 @@ tags:
 type: content
 uid: 1BD01C9E0C4CD8687127C3AC40
 visibility: party
-vulnerable: []
 ---
 # Copper Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

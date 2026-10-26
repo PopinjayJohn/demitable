@@ -2,7 +2,6 @@
 aliases:
   - Monk
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -21,8 +20,8 @@ data:
       name: Uncanny Metabolism
     - level: 3
       name: Deflect Attacks
-    - level: 0
-      name: map[classFeature:Monk Subclass
+    - level: 3
+      name: Monk Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 4
@@ -33,8 +32,8 @@ data:
       name: Stunning Strike
     - level: 6
       name: Empowered Strikes
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 7
       name: Evasion
     - level: 8
@@ -45,8 +44,8 @@ data:
       name: Heightened Focus
     - level: 10
       name: Self-Restoration
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 11
+      name: Subclass Feature
     - level: 12
       name: Ability Score Improvement
     - level: 13
@@ -57,8 +56,8 @@ data:
       name: Perfect Focus
     - level: 16
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 17
+      name: Subclass Feature
     - level: 18
       name: Superior Defense
     - level: 19
@@ -96,98 +95,10 @@ data:
     - str
     - dex
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Martial Arts
-  - level: 1
-    name: Unarmored Defense
-  - level: 2
-    name: Monk's Focus
-  - level: 2
-    name: Unarmored Movement
-  - level: 2
-    name: Uncanny Metabolism
-  - level: 3
-    name: Deflect Attacks
-  - level: 0
-    name: map[classFeature:Monk Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 4
-    name: Slow Fall
-  - level: 5
-    name: Extra Attack
-  - level: 5
-    name: Stunning Strike
-  - level: 6
-    name: Empowered Strikes
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 7
-    name: Evasion
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Acrobatic Movement
-  - level: 10
-    name: Heightened Focus
-  - level: 10
-    name: Self-Restoration
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 12
-    name: Ability Score Improvement
-  - level: 13
-    name: Deflect Energy
-  - level: 14
-    name: Disciplined Survivor
-  - level: 15
-    name: Perfect Focus
-  - level: 16
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 18
-    name: Superior Defense
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Body and Mind
-hit_die: 8
 license: CC-BY-4.0
 name: Monk
 obsidianUIMode: preview
-primary_abilities:
-  - str
-  - dex
-proficiencies:
-  skills:
-    - choose:
-        count: 2
-        from:
-          - acrobatics
-          - athletics
-          - history
-          - insight
-          - religion
-          - stealth
-  toolProficiencies:
-    - anyArtisansTool: 1
-    - anyMusicalInstrument: 1
-  tools:
-    - Choose one type of {@item Artisan's Tools|XPHB} or {@item Musical Instrument|XPHB}
-  weaponProficiencies:
-    - all:
-        fromFilter: type=martial weapon|property=light
-      simple: true
-  weapons:
-    - simple
-    - Martial weapons that have the {@filter Light|items|type=martial weapon|property=light} property
-saving_throws:
-  - str
-  - dex
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

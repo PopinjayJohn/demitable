@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 15
-  dex: 12
-  int: 2
-  str: 18
-  wis: 8
-ac: 13
 aliases:
   - Warhorse Skeleton
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -49,20 +34,10 @@ data:
   type: undead
   vulnerable:
     - bludgeoning
-hp: 22
-immune:
-  - poison
-languages: []
 license: CC-BY-4.0
 name: Warhorse Skeleton
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 60
 src: xmm
 system: dnd5e
 tags:
@@ -77,8 +52,6 @@ tags:
 type: content
 uid: 78CBE7CFA2190B0EAD9BC46389
 visibility: party
-vulnerable:
-  - bludgeoning
 ---
 # Warhorse Skeleton
 *Source: SRD 5.2*  

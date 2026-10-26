@@ -1,32 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 11
-  dex: 14
-  int: 5
-  str: 14
-  wis: 10
-ac: 12
 aliases:
   - Swarm of Crawling Claws
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - grappled
-  - incapacitated
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - stunned
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -72,26 +48,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 49
-immune:
-  - necrotic
-  - poison
-languages:
-  - understands Common but can't speak
 license: CC-BY-4.0
 name: Swarm of Crawling Claws
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -103,7 +63,6 @@ tags:
 type: content
 uid: 15B7CD68F9C1208D660BF4011C
 visibility: party
-vulnerable: []
 ---
 # Swarm of Crawling Claws
 *Source: SRD 5.2 and the Free Rules (2024)*  

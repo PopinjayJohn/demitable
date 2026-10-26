@@ -1,29 +1,7 @@
 ---
-ability:
-  - choose:
-      amount: 2
-      from:
-        - str
-        - dex
-        - con
-        - int
-        - wis
-        - cha
-    hidden: true
-  - choose:
-      count: 2
-      from:
-        - str
-        - dex
-        - con
-        - int
-        - wis
-        - cha
-    hidden: true
 aliases:
   - Ability Score Improvement
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-category: G
 content_type: feat
 cssclasses:
   - json5e-feat
@@ -55,8 +33,6 @@ data:
 license: CC-BY-4.0
 name: Ability Score Improvement
 obsidianUIMode: preview
-prerequisites:
-  - level: 4
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

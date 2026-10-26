@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 13
-  dex: 12
-  int: 14
-  str: 15
-  wis: 11
-ac: 17
 aliases:
   - Green Dragon Wyrmling
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -49,23 +35,10 @@ data:
     walk: 30
   type: dragon
   vulnerable: []
-hp: 38
-immune:
-  - poison
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Green Dragon Wyrmling
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  fly: 60
-  swim: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: 8EF8D8130EEC3884B9B0824372
 visibility: party
-vulnerable: []
 ---
 # Green Dragon Wyrmling
 *Source: SRD 5.2 and the Free Rules (2024)*  

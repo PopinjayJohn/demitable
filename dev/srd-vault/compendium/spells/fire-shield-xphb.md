@@ -2,9 +2,6 @@
 aliases:
   - Fire Shield
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a bit of phosphorus or a firefly)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 4
   range: <nil> self
   school: Evocation
-duration: timed
-level: 4
 license: CC-BY-4.0
 name: Fire Shield
 obsidianUIMode: preview
-range: <nil> self
-school: Evocation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

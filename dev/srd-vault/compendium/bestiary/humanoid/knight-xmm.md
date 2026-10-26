@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 14
-  dex: 11
-  int: 11
-  str: 16
-  wis: 11
-ac: 18
 aliases:
   - Knight
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - frightened
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -46,20 +32,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 52
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Knight
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: 79784422D3DC13545EFCB48F78
 visibility: party
-vulnerable: []
 ---
 # Knight
 *Source: SRD 5.2 and the Free Rules (2024)*  

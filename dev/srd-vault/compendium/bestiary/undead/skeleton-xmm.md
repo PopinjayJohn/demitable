@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 15
-  dex: 16
-  int: 6
-  str: 10
-  wis: 8
-ac: 14
 aliases:
   - Skeleton
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: 1/4
-cr_xp: 50
 cssclasses:
   - json5e-monster
 data:
@@ -50,21 +35,10 @@ data:
   type: undead
   vulnerable:
     - bludgeoning
-hp: 13
-immune:
-  - poison
-languages:
-  - understands Common plus one other language but can't speak
 license: CC-BY-4.0
 name: Skeleton
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -79,8 +53,6 @@ tags:
 type: content
 uid: F3E64E6A39AA898F2CBFB5009E
 visibility: party
-vulnerable:
-  - bludgeoning
 ---
 # Skeleton
 *Source: SRD 5.2 and the Free Rules (2024)*  

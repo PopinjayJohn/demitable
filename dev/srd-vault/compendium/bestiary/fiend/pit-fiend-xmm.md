@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 24
-  con: 24
-  dex: 14
-  int: 22
-  str: 26
-  wis: 18
-ac: 21
 aliases:
   - Pit Fiend
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "20"
-cr_xp: 25000
 cssclasses:
   - json5e-monster
 data:
@@ -50,24 +36,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 337
-immune:
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Pit Fiend
 obsidianUIMode: preview
-passive_perception: 20
-resist:
-  - cold
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: 1B466E0283E6AB9E8C9B6DAA0C
 visibility: party
-vulnerable: []
 ---
 # Pit Fiend
 *Source: SRD 5.2 and the Free Rules (2024)*  

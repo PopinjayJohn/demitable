@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 4
-  con: 11
-  dex: 15
-  int: 3
-  str: 4
-  wis: 10
-ac: 12
 aliases:
   - Octopus
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 3
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Octopus
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  swim: 30
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 38C5E1ED59BB54D4D3E5103AFC
 visibility: party
-vulnerable: []
 ---
 # Octopus
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 11
-  dex: 16
-  int: 2
-  str: 4
-  wis: 8
-ac: 13
 aliases:
   - Stirge
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: monstrosity
   vulnerable: []
-hp: 5
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Stirge
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 40
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +53,6 @@ tags:
 type: content
 uid: 56C60F6900A70ECC1EFA9B3D3F
 visibility: party
-vulnerable: []
 ---
 # Stirge
 *Source: SRD 5.2 and the Free Rules (2024)*  

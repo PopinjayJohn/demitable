@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 13
-  dex: 12
-  int: 2
-  str: 16
-  wis: 10
-ac: 11
 aliases:
   - Darkmantle
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: aberration
   vulnerable: []
-hp: 22
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Darkmantle
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  fly: 30
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 9704E110BDE4674329D3CEDB95
 visibility: party
-vulnerable: []
 ---
 # Darkmantle
 *Source: SRD 5.2 and the Free Rules (2024)*  

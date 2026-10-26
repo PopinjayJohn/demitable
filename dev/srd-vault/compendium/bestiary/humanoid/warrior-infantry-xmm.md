@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 11
-  dex: 11
-  int: 8
-  str: 13
-  wis: 11
-ac: 13
 aliases:
   - Warrior Infantry
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 9
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Warrior Infantry
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 4502B73D656408F671DACF17F4
 visibility: party
-vulnerable: []
 ---
 # Warrior Infantry
 *Source: SRD 5.2 and the Free Rules (2024)*  

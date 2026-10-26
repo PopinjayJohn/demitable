@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 18
-  dex: 14
-  int: 5
-  str: 23
-  wis: 12
-ac: 12
 aliases:
   - Giant Ape
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "7"
-cr_xp: 2900
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 168
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Ape
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  climb: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: D28D99063C856CD23D40CADD85
 visibility: party
-vulnerable: []
 ---
 # Giant Ape
 *Source: SRD 5.2 and the Free Rules (2024)*  

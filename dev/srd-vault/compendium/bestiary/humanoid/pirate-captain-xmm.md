@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 17
-  con: 14
-  dex: 18
-  int: 10
-  str: 10
-  wis: 14
-ac: 17
 aliases:
   - Pirate Captain
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 84
-immune: []
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Pirate Captain
 obsidianUIMode: preview
-passive_perception: 15
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 4C70B1B7A493047A90DAEEE43F
 visibility: party
-vulnerable: []
 ---
 # Pirate Captain
 *Source: SRD 5.2 and the Free Rules (2024)*  

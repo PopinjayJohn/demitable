@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 23
-  con: 25
-  dex: 10
-  int: 16
-  str: 27
-  wis: 13
-ac: 19
 aliases:
   - Adult Red Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: map[cr:17 xpLair:20000]
-cr_xp: 0
 cssclasses:
   - json5e-monster
 data:
@@ -30,8 +17,8 @@ data:
   alignment:
     - Chaotic Evil
   condition_immunities: []
-  cr: map[cr:17 xpLair:20000]
-  cr_xp: 0
+  cr: "17"
+  cr_xp: 18000
   hp: 256
   immune:
     - fire
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 256
-immune:
-  - fire
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Adult Red Dragon
 obsidianUIMode: preview
-passive_perception: 23
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  climb: 40
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 3808C6E045CB8FA65C3B1E8262
 visibility: party
-vulnerable: []
 ---
 # Adult Red Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 16
-  con: 22
-  dex: 10
-  int: 12
-  str: 27
-  wis: 16
-ac: 14
 aliases:
   - Cloud Giant
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -49,25 +36,10 @@ data:
     walk: 40
   type: giant
   vulnerable: []
-hp: 200
-immune: []
-languages:
-  - Common
-  - Giant
 license: CC-BY-4.0
 name: Cloud Giant
 obsidianUIMode: preview
-passive_perception: 21
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 20
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 304959B9EDE74B22E0B095347E
 visibility: party
-vulnerable: []
 ---
 # Cloud Giant
 *Source: SRD 5.2 and the Free Rules (2024)*  

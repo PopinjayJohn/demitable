@@ -1,29 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 16
-  dex: 8
-  int: 10
-  str: 12
-  wis: 6
-ac: 9
 aliases:
   - Psychic Gray Ooze
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - blinded
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - grappled
-  - prone
-  - restrained
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -64,24 +43,10 @@ data:
     walk: 10
   type: ooze
   vulnerable: []
-hp: 37
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Psychic Gray Ooze
 obsidianUIMode: preview
-passive_perception: 8
-resist:
-  - acid
-  - cold
-  - fire
-  - psychic
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  climb: 10
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -93,7 +58,6 @@ tags:
 type: content
 uid: 1BF0D5E4C9709D3C29A88EEE38
 visibility: party
-vulnerable: []
 ---
 # Psychic Gray Ooze
 *Source: SRD 5.2*  

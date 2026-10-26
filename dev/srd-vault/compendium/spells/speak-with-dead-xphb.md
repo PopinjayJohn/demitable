@@ -2,9 +2,6 @@
 aliases:
   - Speak with Dead
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (burning incense)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 10 feet
   school: Necromancy
-duration: timed
-level: 3
 license: CC-BY-4.0
 name: Speak with Dead
 obsidianUIMode: preview
-range: 10 feet
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

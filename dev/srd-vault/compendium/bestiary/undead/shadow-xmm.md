@@ -1,30 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 13
-  dex: 14
-  int: 6
-  str: 6
-  wis: 10
-ac: 12
 aliases:
   - Shadow
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - frightened
-  - grappled
-  - paralyzed
-  - petrified
-  - poisoned
-  - prone
-  - restrained
-  - unconscious
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -69,26 +47,10 @@ data:
   type: undead
   vulnerable:
     - radiant
-hp: 27
-immune:
-  - necrotic
-  - poison
-languages: []
 license: CC-BY-4.0
 name: Shadow
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - acid
-  - cold
-  - fire
-  - lightning
-  - thunder
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -103,8 +65,6 @@ tags:
 type: content
 uid: 62D82FFD3F7ED428249B4345A6
 visibility: party
-vulnerable:
-  - radiant
 ---
 # Shadow
 *Source: SRD 5.2 and the Free Rules (2024)*  

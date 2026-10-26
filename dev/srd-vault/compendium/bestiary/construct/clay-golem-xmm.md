@@ -1,27 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 18
-  dex: 9
-  int: 3
-  str: 20
-  wis: 8
-ac: 14
 aliases:
   - Clay Golem
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -62,26 +43,10 @@ data:
     walk: 20
   type: construct
   vulnerable: []
-hp: 123
-immune:
-  - acid
-  - poison
-  - psychic
-languages:
-  - Common plus one other language
 license: CC-BY-4.0
 name: Clay Golem
 obsidianUIMode: preview
-passive_perception: 9
-resist:
-  - bludgeoning
-  - piercing
-  - slashing
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -93,7 +58,6 @@ tags:
 type: content
 uid: A57A2F2D96FD4E235584386C1A
 visibility: party
-vulnerable: []
 ---
 # Clay Golem
 *Source: SRD 5.2 and the Free Rules (2024)*  

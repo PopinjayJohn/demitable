@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 9
-  con: 20
-  dex: 10
-  int: 3
-  str: 28
-  wis: 10
-ac: 15
 aliases:
   - Roc
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "11"
-cr_xp: 7200
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: monstrosity
   vulnerable: []
-hp: 248
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Roc
 obsidianUIMode: preview
-passive_perception: 18
-resist: []
-senses: []
-size: Gargantuan
 source: SRD 5.2.1
-speed:
-  fly: 120
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +50,6 @@ tags:
 type: content
 uid: D0252628E8053784414A4D3C5B
 visibility: party
-vulnerable: []
 ---
 # Roc
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -2,9 +2,6 @@
 aliases:
   - Hallow
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 24 hour
-classes: []
-components: V, S, M (incense worth 1,000+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: <nil> touch
   school: Abjuration
-duration: permanent
-level: 5
 license: CC-BY-4.0
 name: Hallow
 obsidianUIMode: preview
-range: <nil> touch
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

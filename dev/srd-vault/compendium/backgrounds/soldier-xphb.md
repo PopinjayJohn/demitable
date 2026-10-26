@@ -1,24 +1,4 @@
 ---
-ability_choices:
-  - choose:
-      weighted:
-        from:
-          - str
-          - dex
-          - con
-        weights:
-          - 2
-          - 1
-  - choose:
-      weighted:
-        from:
-          - str
-          - dex
-          - con
-        weights:
-          - 1
-          - 1
-          - 1
 aliases:
   - Soldier
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
@@ -65,34 +45,15 @@ data:
         - value: 5000
   tool_proficiencies:
     - anyGamingSet
-feats:
-  - savage attacker|xphb
 license: CC-BY-4.0
 name: Soldier
 obsidianUIMode: preview
-skill_proficiencies:
-  - athletics
-  - intimidation
 source: SRD 5.2.1
 src: xphb
-starting_equipment:
-  - A:
-      - item: spear|xphb
-      - item: shortbow|xphb
-      - item: arrows (20)|xphb
-      - equipmentType: setGaming
-      - item: healer's kit|xphb
-      - item: quiver|xphb
-      - item: traveler's clothes|xphb
-      - value: 1400
-    B:
-      - value: 5000
 system: dnd5e
 tags:
   - background
   - compendium/src/5e/xphb
-tool_proficiencies:
-  - anyGamingSet
 type: content
 uid: F138D158A34F5CEC3C917D76B4
 visibility: party

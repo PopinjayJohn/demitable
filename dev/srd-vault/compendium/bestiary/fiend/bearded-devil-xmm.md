@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 14
-  con: 15
-  dex: 15
-  int: 9
-  str: 16
-  wis: 11
-ac: 13
 aliases:
   - Bearded Devil
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - frightened
-  - poisoned
 content_type: monster
-cr: "3"
-cr_xp: 700
 cssclasses:
   - json5e-monster
 data:
@@ -51,23 +36,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 58
-immune:
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Bearded Devil
 obsidianUIMode: preview
-passive_perception: 10
-resist:
-  - cold
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -80,7 +52,6 @@ tags:
 type: content
 uid: E27E020F930A7B011418C1C76D
 visibility: party
-vulnerable: []
 ---
 # Bearded Devil
 *Source: SRD 5.2 and the Free Rules (2024)*  

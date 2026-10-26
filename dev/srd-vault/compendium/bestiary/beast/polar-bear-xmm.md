@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 16
-  dex: 14
-  int: 2
-  str: 20
-  wis: 13
-ac: 12
 aliases:
   - Polar Bear
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 42
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Polar Bear
 obsidianUIMode: preview
-passive_perception: 15
-resist:
-  - cold
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -71,7 +47,6 @@ tags:
 type: content
 uid: A99AED104CDB6837B2EA7F29B9
 visibility: party
-vulnerable: []
 ---
 # Polar Bear
 *Source: SRD 5.2 and the Free Rules (2024)*  

@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 13
-  con: 16
-  dex: 14
-  int: 12
-  str: 18
-  wis: 14
-ac: 18
 aliases:
   - Guard Captain
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 75
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Guard Captain
 obsidianUIMode: preview
-passive_perception: 14
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: 443B96BDC07EDD7CAD57667B0A
 visibility: party
-vulnerable: []
 ---
 # Guard Captain
 *Source: SRD 5.2 and the Free Rules (2024)*  

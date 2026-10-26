@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: +2 Wand of the War Mage
 obsidianUIMode: preview
-rarity: rare
-reqAttune: by a spellcaster
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

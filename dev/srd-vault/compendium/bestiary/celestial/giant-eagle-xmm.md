@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 10
-  con: 13
-  dex: 17
-  int: 8
-  str: 16
-  wis: 14
-ac: 13
 aliases:
   - Giant Eagle
-alignment:
-  - Neutral Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 10
   type: celestial
   vulnerable: []
-hp: 26
-immune: []
-languages:
-  - Celestial; understands Common and Primordial (Auran) but can't speak them
 license: CC-BY-4.0
 name: Giant Eagle
 obsidianUIMode: preview
-passive_perception: 16
-resist:
-  - necrotic
-  - radiant
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +52,6 @@ tags:
 type: content
 uid: D047865BE8EE80EC9C02505A62
 visibility: party
-vulnerable: []
 ---
 # Giant Eagle
 *Source: SRD 5.2 and the Free Rules (2024)*  

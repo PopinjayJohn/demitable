@@ -2,9 +2,6 @@
 aliases:
   - Gentle Repose
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (2 Copper Pieces, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: <nil> touch
   school: Necromancy
-duration: timed
-level: 2
 license: CC-BY-4.0
 name: Gentle Repose
 obsidianUIMode: preview
-range: <nil> touch
-school: Necromancy
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

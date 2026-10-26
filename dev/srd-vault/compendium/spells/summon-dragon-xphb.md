@@ -2,9 +2,6 @@
 aliases:
   - Summon Dragon
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (an object with the image of a dragon engraved on it worth 500+ GP)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: 60 feet
   school: Conjuration
-duration: timed
-level: 5
 license: CC-BY-4.0
 name: Summon Dragon
 obsidianUIMode: preview
-range: 60 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

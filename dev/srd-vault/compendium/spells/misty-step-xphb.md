@@ -2,9 +2,6 @@
 aliases:
   - Misty Step
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 bonus
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: <nil> self
   school: Conjuration
-duration: Instantaneous
-level: 2
 license: CC-BY-4.0
 name: Misty Step
 obsidianUIMode: preview
-range: <nil> self
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

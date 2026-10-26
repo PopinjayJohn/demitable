@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 17
-  con: 19
-  dex: 10
-  int: 14
-  str: 21
-  wis: 13
-ac: 17
 aliases:
   - Young Bronze Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "8"
-cr_xp: 3900
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 142
-immune:
-  - lightning
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Bronze Dragon
 obsidianUIMode: preview
-passive_perception: 17
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +50,6 @@ tags:
 type: content
 uid: A79557772319D6AB087F821FED
 visibility: party
-vulnerable: []
 ---
 # Young Bronze Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

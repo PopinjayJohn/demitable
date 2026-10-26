@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 10
-  dex: 15
-  int: 10
-  str: 8
-  wis: 8
-ac: 12
 aliases:
   - Goblin Minion
-alignment:
-  - Chaotic Neutral
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -45,21 +32,10 @@ data:
     walk: 30
   type: fey
   vulnerable: []
-hp: 7
-immune: []
-languages:
-  - Common
-  - Goblin
 license: CC-BY-4.0
 name: Goblin Minion
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -77,7 +53,6 @@ tags:
 type: content
 uid: 014E3C2D44463E8EC972423642
 visibility: party
-vulnerable: []
 ---
 # Goblin Minion
 *Source: SRD 5.2 and the Free Rules (2024)*  

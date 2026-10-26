@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 18
-  dex: 16
-  int: 7
-  str: 23
-  wis: 14
-ac: 17
 aliases:
   - Behir
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "11"
-cr_xp: 7200
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 50
   type: monstrosity
   vulnerable: []
-hp: 168
-immune:
-  - lightning
-languages:
-  - Draconic
 license: CC-BY-4.0
 name: Behir
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  climb: 50
-  walk: 50
 src: xmm
 system: dnd5e
 tags:
@@ -73,7 +48,6 @@ tags:
 type: content
 uid: F981FE2147A889C9C69AC38B3F
 visibility: party
-vulnerable: []
 ---
 # Behir
 *Source: SRD 5.2 and the Free Rules (2024)*  

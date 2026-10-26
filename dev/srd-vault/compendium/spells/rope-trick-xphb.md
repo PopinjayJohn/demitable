@@ -2,9 +2,6 @@
 aliases:
   - Rope Trick
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a segment of rope)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: <nil> touch
   school: Transmutation
-duration: timed
-level: 2
 license: CC-BY-4.0
 name: Rope Trick
 obsidianUIMode: preview
-range: <nil> touch
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

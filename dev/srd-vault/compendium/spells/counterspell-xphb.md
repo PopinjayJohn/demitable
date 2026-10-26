@@ -2,9 +2,6 @@
 aliases:
   - Counterspell
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 reaction
-classes: []
-components: S
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 60 feet
   school: Abjuration
-duration: Instantaneous
-level: 3
 license: CC-BY-4.0
 name: Counterspell
 obsidianUIMode: preview
-range: 60 feet
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

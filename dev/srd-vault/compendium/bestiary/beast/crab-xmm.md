@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 12
-  dex: 11
-  int: 1
-  str: 6
-  wis: 8
-ac: 11
 aliases:
   - Crab
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 20
   type: beast
   vulnerable: []
-hp: 3
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Crab
 obsidianUIMode: preview
-passive_perception: 9
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  swim: 20
-  walk: 20
 src: xmm
 system: dnd5e
 tags:
@@ -70,7 +47,6 @@ tags:
 type: content
 uid: 6126BB06D72DE652C730FAA9CB
 visibility: party
-vulnerable: []
 ---
 # Crab
 *Source: SRD 5.2 and the Free Rules (2024)*  

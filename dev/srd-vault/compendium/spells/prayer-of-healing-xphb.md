@@ -2,9 +2,6 @@
 aliases:
   - Prayer of Healing
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 2
   range: 30 feet
   school: Abjuration
-duration: Instantaneous
-level: 2
 license: CC-BY-4.0
 name: Prayer of Healing
 obsidianUIMode: preview
-range: 30 feet
-school: Abjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

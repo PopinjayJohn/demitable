@@ -2,9 +2,6 @@
 aliases:
   - Spirit Guardians
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (a prayer scroll)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 3
   range: 15 feet
   school: Conjuration
-duration: timed
-level: 3
 license: CC-BY-4.0
 name: Spirit Guardians
 obsidianUIMode: preview
-range: 15 feet
-school: Conjuration
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

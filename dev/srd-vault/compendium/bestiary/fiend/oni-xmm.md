@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 15
-  con: 16
-  dex: 11
-  int: 14
-  str: 19
-  wis: 12
-ac: 17
 aliases:
   - Oni
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "7"
-cr_xp: 2900
 cssclasses:
   - json5e-monster
 data:
@@ -50,26 +37,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 119
-immune: []
-languages:
-  - Common
-  - Giant
 license: CC-BY-4.0
 name: Oni
 obsidianUIMode: preview
-passive_perception: 14
-resist:
-  - cold
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  canHover: true
-  fly:
-    condition: (hover)
-    number: 30
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -82,7 +53,6 @@ tags:
 type: content
 uid: FCD205D0074EACE6CEB0DDEE98
 visibility: party
-vulnerable: []
 ---
 # Oni
 *Source: SRD 5.2 and the Free Rules (2024)*  

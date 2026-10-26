@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 12
-  con: 18
-  dex: 10
-  int: 6
-  str: 18
-  wis: 11
-ac: 17
 aliases:
   - Young White Dragon
-alignment:
-  - Chaotic Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "6"
-cr_xp: 2300
 cssclasses:
   - json5e-monster
 data:
@@ -49,25 +36,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 123
-immune:
-  - cold
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young White Dragon
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  burrow: 20
-  fly: 80
-  swim: 40
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +51,6 @@ tags:
 type: content
 uid: 26FD0A5515ED9F05634382ADA1
 visibility: party
-vulnerable: []
 ---
 # Young White Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

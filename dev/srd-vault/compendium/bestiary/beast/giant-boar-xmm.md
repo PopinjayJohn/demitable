@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 16
-  dex: 10
-  int: 2
-  str: 17
-  wis: 7
-ac: 13
 aliases:
   - Giant Boar
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 42
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Boar
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: F68886C8A981BC16504EEB8313
 visibility: party
-vulnerable: []
 ---
 # Giant Boar
 *Source: SRD 5.2 and the Free Rules (2024)*  

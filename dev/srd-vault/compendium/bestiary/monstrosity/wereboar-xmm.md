@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 8
-  con: 15
-  dex: 10
-  int: 10
-  str: 17
-  wis: 11
-ac: 15
 aliases:
   - Wereboar
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "4"
-cr_xp: 1100
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 30
   type: monstrosity
   vulnerable: []
-hp: 97
-immune: []
-languages:
-  - Common (can't speak in boar form)
 license: CC-BY-4.0
 name: Wereboar
 obsidianUIMode: preview
-passive_perception: 12
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  alternate:
-    walk:
-      - condition: (boar form only)
-        number: 40
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -79,7 +52,6 @@ tags:
 type: content
 uid: 64CFB29FEA4571B41355F6343E
 visibility: party
-vulnerable: []
 ---
 # Wereboar
 *Source: SRD 5.2 and the Free Rules (2024)*  

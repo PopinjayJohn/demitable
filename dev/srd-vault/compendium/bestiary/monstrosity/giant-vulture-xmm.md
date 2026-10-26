@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 7
-  con: 16
-  dex: 10
-  int: 6
-  str: 15
-  wis: 12
-ac: 10
 aliases:
   - Giant Vulture
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "1"
-cr_xp: 200
 cssclasses:
   - json5e-monster
 data:
@@ -46,22 +33,10 @@ data:
     walk: 10
   type: monstrosity
   vulnerable: []
-hp: 25
-immune: []
-languages:
-  - understands Common but can't speak
 license: CC-BY-4.0
 name: Giant Vulture
 obsidianUIMode: preview
-passive_perception: 13
-resist:
-  - necrotic
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -75,7 +50,6 @@ tags:
 type: content
 uid: 293BC27C54B57A3241DA929993
 visibility: party
-vulnerable: []
 ---
 # Giant Vulture
 *Source: SRD 5.2 and the Free Rules (2024)*  

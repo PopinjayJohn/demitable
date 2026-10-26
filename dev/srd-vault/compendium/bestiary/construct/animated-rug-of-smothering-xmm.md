@@ -1,28 +1,8 @@
 ---
-abilities:
-  cha: 1
-  con: 10
-  dex: 14
-  int: 1
-  str: 17
-  wis: 3
-ac: 12
 aliases:
   - Animated Rug of Smothering
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - charmed
-  - deafened
-  - exhaustion
-  - frightened
-  - paralyzed
-  - petrified
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -59,21 +39,10 @@ data:
     walk: 10
   type: construct
   vulnerable: []
-hp: 27
-immune:
-  - poison
-  - psychic
-languages: []
 license: CC-BY-4.0
 name: Animated Rug of Smothering
 obsidianUIMode: preview
-passive_perception: 6
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -85,7 +54,6 @@ tags:
 type: content
 uid: 0E49F991CC354AD69C29E5B9CB
 visibility: party
-vulnerable: []
 ---
 # Animated Rug of Smothering
 *Source: SRD 5.2 and the Free Rules (2024)*  

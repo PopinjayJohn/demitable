@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 13
-  dex: 10
-  int: 2
-  str: 14
-  wis: 10
-ac: 10
 aliases:
   - Mule
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/8
-cr_xp: 25
 cssclasses:
   - json5e-monster
 data:
@@ -43,19 +30,10 @@ data:
     walk: 40
   type: beast
   vulnerable: []
-hp: 11
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Mule
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Medium
 source: SRD 5.2.1
-speed:
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +47,6 @@ tags:
 type: content
 uid: 43A54C9F89CEFC96A524ABDEAA
 visibility: party
-vulnerable: []
 ---
 # Mule
 *Source: SRD 5.2 and the Free Rules (2024)*  

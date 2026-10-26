@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 17
-  con: 19
-  dex: 10
-  int: 14
-  str: 21
-  wis: 13
-ac: 18
 aliases:
   - Young Blue Dragon
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -48,24 +35,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 152
-immune:
-  - lightning
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Blue Dragon
 obsidianUIMode: preview
-passive_perception: 19
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  burrow: 20
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 5C3ADCD2B9696CFB5C76EF6408
 visibility: party
-vulnerable: []
 ---
 # Young Blue Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

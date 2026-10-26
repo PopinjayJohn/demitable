@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 6
-  con: 8
-  dex: 16
-  int: 2
-  str: 5
-  wis: 14
-ac: 13
 aliases:
   - Hawk
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 10
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Hawk
 obsidianUIMode: preview
-passive_perception: 16
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 10
 src: xmm
 system: dnd5e
 tags:
@@ -74,7 +51,6 @@ tags:
 type: content
 uid: D251DFCF8D2D7906C68E48C40C
 visibility: party
-vulnerable: []
 ---
 # Hawk
 *Source: SRD 5.2 and the Free Rules (2024)*  

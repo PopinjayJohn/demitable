@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 21
-  dex: 11
-  int: 1
-  str: 23
-  wis: 10
-ac: 13
 aliases:
   - Giant Shark
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "5"
-cr_xp: 1800
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 92
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Giant Shark
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Huge
 source: SRD 5.2.1
-speed:
-  swim: 60
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: BD0304DF7724B624FEF3A87C5F
 visibility: party
-vulnerable: []
 ---
 # Giant Shark
 *Source: SRD 5.2 and the Free Rules (2024)*  

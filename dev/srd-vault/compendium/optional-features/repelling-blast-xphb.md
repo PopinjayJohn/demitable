@@ -19,22 +19,9 @@ data:
         - choose: level=0|class=Warlock|spell attack=m;r;o
           entry: a Warlock Cantrip That Deals Damage via an Attack Roll
           entrySummary: Warlock Cantrip That Deals Damage via an Attack Roll
-featureType:
-  - EI
 license: CC-BY-4.0
 name: Repelling Blast
 obsidianUIMode: preview
-prerequisites:
-  - level:
-      class:
-        name: Warlock
-        source: XPHB
-        visibleStats: true
-      level: 2
-    spell:
-      - choose: level=0|class=Warlock|spell attack=m;r;o
-        entry: a Warlock Cantrip That Deals Damage via an Attack Roll
-        entrySummary: Warlock Cantrip That Deals Damage via an Attack Roll
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

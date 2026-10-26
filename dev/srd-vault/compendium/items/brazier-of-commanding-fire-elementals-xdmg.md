@@ -12,8 +12,6 @@ data:
 license: CC-BY-4.0
 name: Brazier of Commanding Fire Elementals
 obsidianUIMode: preview
-rarity: rare
-reqAttune: ""
 source: SRD 5.2.1
 src: xdmg
 system: dnd5e

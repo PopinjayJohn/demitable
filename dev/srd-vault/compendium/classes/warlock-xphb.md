@@ -2,7 +2,6 @@
 aliases:
   - Warlock
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -17,26 +16,26 @@ data:
       name: Eldritch Invocation Options
     - level: 2
       name: Magical Cunning
-    - level: 0
-      name: map[classFeature:Warlock Subclass
+    - level: 3
+      name: Warlock Subclass
     - level: 4
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 8
       name: Ability Score Improvement
     - level: 9
       name: Contact Patron
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 10
+      name: Subclass Feature
     - level: 11
       name: Mystic Arcanum
     - level: 12
       name: Ability Score Improvement
     - level: 13
       name: Mystic Arcanum
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 14
+      name: Subclass Feature
     - level: 15
       name: Mystic Arcanum
     - level: 16
@@ -71,73 +70,10 @@ data:
     - wis
     - cha
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Eldritch Invocations
-  - level: 1
-    name: Pact Magic
-  - level: 1
-    name: Eldritch Invocation Options
-  - level: 2
-    name: Magical Cunning
-  - level: 0
-    name: map[classFeature:Warlock Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 8
-    name: Ability Score Improvement
-  - level: 9
-    name: Contact Patron
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 11
-    name: Mystic Arcanum
-  - level: 12
-    name: Ability Score Improvement
-  - level: 13
-    name: Mystic Arcanum
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 15
-    name: Mystic Arcanum
-  - level: 16
-    name: Ability Score Improvement
-  - level: 17
-    name: Mystic Arcanum
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Eldritch Master
-hit_die: 8
 license: CC-BY-4.0
 name: Warlock
 obsidianUIMode: preview
-primary_abilities:
-  - wis
-  - cha
-proficiencies:
-  armor:
-    - light
-  skills:
-    - choose:
-        count: 2
-        from:
-          - arcana
-          - deception
-          - history
-          - intimidation
-          - investigation
-          - nature
-          - religion
-  weapons:
-    - simple
-saving_throws:
-  - wis
-  - cha
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:
@@ -155,7 +91,7 @@ visibility: party
 > <table class="class-progression">
 > <thead>
 > <tr><th colspan='8'></th></tr>
-> <tr class="class-progression"><th class"level">Level</th><th class"pb">PB</th><th class"feature">Features</th><th class="value"><a href="compendium/lists/list-optfeaturetype-ei.md">Invocations</a></th><th class="value">Cantrips</th><th class="value">Prepared Spells</th><th class="value">Spell Slots</th><th class="value">Slot Level</th></tr>
+> <tr class="class-progression"><th class"level">Level</th><th class"pb">PB</th><th class"feature">Features</th><th class="value"><a href="#">Invocations</a></th><th class="value">Cantrips</th><th class="value">Prepared Spells</th><th class="value">Spell Slots</th><th class="value">Slot Level</th></tr>
 > </thead><tbody>
 > <tr class="class-progression"><td class"level">1st</td><td class"pb">+2</td><td class"feature"><a href='#Eldritch Invocations (Level 1)' class='internal-link'>Eldritch Invocations</a>, <a href='#Pact Magic (Level 1)' class='internal-link'>Pact Magic</a>, <a href='#Eldritch Invocation Options (Level 1)' class='internal-link'>Eldritch Invocation Options</a></td><td class="value">1</td><td class="value">2</td><td class="value">2</td><td class="value">1</td><td class="value">1</td></tr>
 > <tr class="class-progression"><td class"level">2nd</td><td class"pb">+2</td><td class"feature"><a href='#Magical Cunning (Level 2)' class='internal-link'>Magical Cunning</a></td><td class="value">3</td><td class="value">2</td><td class="value">3</td><td class="value">2</td><td class="value">1</td></tr>
@@ -212,7 +148,7 @@ Once a pact is made, a Warlock's thirst for knowledge and power can't be slaked 
 
 ### Eldritch Invocations (Level 1)
 
-You have unearthed Eldritch Invocations, pieces of forbidden knowledge that imbue you with an abiding magical ability or other lessons. You gain one invocation of your choice, such as Pact of the Tome. Invocations are described in the "Eldritch Invocation Options^[Optional features from [Eldritch Invocation](compendium/lists/list-optfeaturetype-ei.md); defined in Player's Handbook (2024)]" section later in this class's description.
+You have unearthed Eldritch Invocations, pieces of forbidden knowledge that imbue you with an abiding magical ability or other lessons. You gain one invocation of your choice, such as Pact of the Tome. Invocations are described in the "Eldritch Invocation Options^[Optional features from [Eldritch Invocation](#); defined in Player's Handbook (2024)]" section later in this class's description.
 
 **Prerequisites.** If an invocation has a prerequisite, you must meet it to learn that invocation. For example, if an invocation requires you to be a level 5+ Warlock, you can select the invocation once you reach Warlock level 5.
 
@@ -356,5 +292,5 @@ When you use your Magical Cunning feature, you regain all your expended Pact Mag
 ## Optional Features
 
 > [!example]- Optional Features: Eldritch Invocation
-> ![Eldritch Invocation](compendium/lists/list-optfeaturetype-ei.md#Eldritch%20Invocation)
+> ![Eldritch Invocation](##Eldritch%20Invocation)
 ^list-optfeature-ei

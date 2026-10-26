@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 2
-  con: 9
-  dex: 16
-  int: 1
-  str: 2
-  wis: 7
-ac: 13
 aliases:
   - Piranha
-alignment:
-  - U
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "0"
-cr_xp: 10
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 5
   type: beast
   vulnerable: []
-hp: 1
-immune: []
-languages: []
 license: CC-BY-4.0
 name: Piranha
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Tiny
 source: SRD 5.2.1
-speed:
-  swim: 40
-  walk: 5
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: E05B19EEF126CCF0B6FD7727AE
 visibility: party
-vulnerable: []
 ---
 # Piranha
 *Source: SRD 5.2 and the Free Rules (2024)*  

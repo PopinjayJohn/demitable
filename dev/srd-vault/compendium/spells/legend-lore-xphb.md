@@ -2,9 +2,6 @@
 aliases:
   - Legend Lore
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 10 minute
-classes: []
-components: V, S, M (incense worth 250+ GP, which the spell consumes, and four ivory strips worth 50+ GP each)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 5
   range: <nil> self
   school: Divination
-duration: Instantaneous
-level: 5
 license: CC-BY-4.0
 name: Legend Lore
 obsidianUIMode: preview
-range: <nil> self
-school: Divination
 source: SRD 5.2.1
 src: xphb
 system: dnd5e

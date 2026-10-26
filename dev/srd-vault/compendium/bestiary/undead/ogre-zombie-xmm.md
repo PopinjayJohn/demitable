@@ -1,23 +1,8 @@
 ---
-abilities:
-  cha: 5
-  con: 18
-  dex: 6
-  int: 3
-  str: 19
-  wis: 6
-ac: 8
 aliases:
   - Ogre Zombie
-alignment:
-  - Neutral Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - exhaustion
-  - poisoned
 content_type: monster
-cr: "2"
-cr_xp: 450
 cssclasses:
   - json5e-monster
 data:
@@ -49,21 +34,10 @@ data:
     walk: 30
   type: undead
   vulnerable: []
-hp: 85
-immune:
-  - poison
-languages:
-  - understands Common and Giant but can't speak
 license: CC-BY-4.0
 name: Ogre Zombie
 obsidianUIMode: preview
-passive_perception: 8
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +52,6 @@ tags:
 type: content
 uid: F904899870E22A7F291F6AA46D
 visibility: party
-vulnerable: []
 ---
 # Ogre Zombie
 *Source: SRD 5.2 and the Free Rules (2024)*  

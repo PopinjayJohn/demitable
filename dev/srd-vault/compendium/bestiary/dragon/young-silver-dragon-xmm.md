@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 19
-  con: 21
-  dex: 10
-  int: 14
-  str: 23
-  wis: 11
-ac: 18
 aliases:
   - Young Silver Dragon
-alignment:
-  - Lawful Good
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: "9"
-cr_xp: 5000
 cssclasses:
   - json5e-monster
 data:
@@ -47,23 +34,10 @@ data:
     walk: 40
   type: dragon
   vulnerable: []
-hp: 168
-immune:
-  - cold
-languages:
-  - Common
-  - Draconic
 license: CC-BY-4.0
 name: Young Silver Dragon
 obsidianUIMode: preview
-passive_perception: 18
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 80
-  walk: 40
 src: xmm
 system: dnd5e
 tags:
@@ -76,7 +50,6 @@ tags:
 type: content
 uid: BFD2F94E3562FE66748E5F5100
 visibility: party
-vulnerable: []
 ---
 # Young Silver Dragon
 *Source: SRD 5.2 and the Free Rules (2024)*  

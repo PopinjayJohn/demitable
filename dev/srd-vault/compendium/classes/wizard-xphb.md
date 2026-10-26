@@ -2,7 +2,6 @@
 aliases:
   - Wizard
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -17,22 +16,22 @@ data:
       name: Arcane Recovery
     - level: 2
       name: Scholar
-    - level: 0
-      name: map[classFeature:Wizard Subclass
+    - level: 3
+      name: Wizard Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
       name: Memorize Spell
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 8
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 10
+      name: Subclass Feature
     - level: 12
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 14
+      name: Subclass Feature
     - level: 16
       name: Ability Score Improvement
     - level: 18
@@ -63,65 +62,10 @@ data:
     - int
     - wis
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Spellcasting
-  - level: 1
-    name: Ritual Adept
-  - level: 1
-    name: Arcane Recovery
-  - level: 2
-    name: Scholar
-  - level: 0
-    name: map[classFeature:Wizard Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Memorize Spell
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 8
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 12
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 16
-    name: Ability Score Improvement
-  - level: 18
-    name: Spell Mastery
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Signature Spells
-hit_die: 6
 license: CC-BY-4.0
 name: Wizard
 obsidianUIMode: preview
-primary_abilities:
-  - int
-  - wis
-proficiencies:
-  skills:
-    - choose:
-        count: 2
-        from:
-          - arcana
-          - history
-          - insight
-          - investigation
-          - medicine
-          - nature
-          - religion
-  weapons:
-    - simple
-saving_throws:
-  - int
-  - wis
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:

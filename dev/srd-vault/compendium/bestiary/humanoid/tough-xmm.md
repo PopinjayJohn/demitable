@@ -1,21 +1,8 @@
 ---
-abilities:
-  cha: 11
-  con: 14
-  dex: 12
-  int: 10
-  str: 15
-  wis: 10
-ac: 12
 aliases:
   - Tough
-alignment:
-  - "N"
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities: []
 content_type: monster
-cr: 1/2
-cr_xp: 100
 cssclasses:
   - json5e-monster
 data:
@@ -44,20 +31,10 @@ data:
     walk: 30
   type: humanoid
   vulnerable: []
-hp: 32
-immune: []
-languages:
-  - Common
 license: CC-BY-4.0
 name: Tough
 obsidianUIMode: preview
-passive_perception: 10
-resist: []
-senses: []
-size: Small
 source: SRD 5.2.1
-speed:
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -69,7 +46,6 @@ tags:
 type: content
 uid: F6424899E95AF374C71C258B30
 visibility: party
-vulnerable: []
 ---
 # Tough
 *Source: SRD 5.2 and the Free Rules (2024)*  

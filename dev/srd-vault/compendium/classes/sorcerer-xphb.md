@@ -2,7 +2,6 @@
 aliases:
   - Sorcerer
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-caster_progression: ""
 content_type: class
 cssclasses:
   - json5e-class
@@ -19,14 +18,14 @@ data:
       name: Metamagic
     - level: 2
       name: Metamagic Options
-    - level: 0
-      name: map[classFeature:Sorcerer Subclass
+    - level: 3
+      name: Sorcerer Subclass
     - level: 4
       name: Ability Score Improvement
     - level: 5
       name: Sorcerous Restoration
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 6
+      name: Subclass Feature
     - level: 7
       name: Sorcery Incarnate
     - level: 8
@@ -35,14 +34,14 @@ data:
       name: Metamagic
     - level: 12
       name: Ability Score Improvement
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 14
+      name: Subclass Feature
     - level: 16
       name: Ability Score Improvement
     - level: 17
       name: Metamagic
-    - level: 0
-      name: map[classFeature:Subclass Feature
+    - level: 18
+      name: Subclass Feature
     - level: 19
       name: Epic Boon
     - level: 20
@@ -68,70 +67,10 @@ data:
     - con
     - cha
   spellcasting_ability: ""
-features:
-  - level: 1
-    name: Spellcasting
-  - level: 1
-    name: Innate Sorcery
-  - level: 2
-    name: Font of Magic
-  - level: 2
-    name: Metamagic
-  - level: 2
-    name: Metamagic Options
-  - level: 0
-    name: map[classFeature:Sorcerer Subclass
-  - level: 4
-    name: Ability Score Improvement
-  - level: 5
-    name: Sorcerous Restoration
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 7
-    name: Sorcery Incarnate
-  - level: 8
-    name: Ability Score Improvement
-  - level: 10
-    name: Metamagic
-  - level: 12
-    name: Ability Score Improvement
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 16
-    name: Ability Score Improvement
-  - level: 17
-    name: Metamagic
-  - level: 0
-    name: map[classFeature:Subclass Feature
-  - level: 19
-    name: Epic Boon
-  - level: 20
-    name: Arcane Apotheosis
-hit_die: 6
 license: CC-BY-4.0
 name: Sorcerer
 obsidianUIMode: preview
-primary_abilities:
-  - con
-  - cha
-proficiencies:
-  skills:
-    - choose:
-        count: 2
-        from:
-          - arcana
-          - deception
-          - insight
-          - intimidation
-          - persuasion
-          - religion
-  weapons:
-    - simple
-saving_throws:
-  - con
-  - cha
 source: SRD 5.2.1
-spellcasting_ability: ""
 src: xphb
 system: dnd5e
 tags:
@@ -258,7 +197,7 @@ Any spell slot you create with this feature vanishes when you finish a [Long Res
 
 ### Metamagic (Level 2)
 
-Because your magic flows from within, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from "Metamagic Options^[Optional features from [Metamagic](compendium/lists/list-optfeaturetype-mm.md); defined in Player's Handbook (2024)]" later in this class's description. You use the chosen options to temporarily modify spells you cast. To use an option, you must spend the number of Sorcery Points that it costs.
+Because your magic flows from within, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from "Metamagic Options^[Optional features from [Metamagic](#); defined in Player's Handbook (2024)]" later in this class's description. You use the chosen options to temporarily modify spells you cast. To use an option, you must spend the number of Sorcery Points that it costs.
 
 You can use only one Metamagic option on a spell when you cast it unless otherwise noted in one of those options.
 
@@ -300,7 +239,7 @@ You gain a feature from your Sorcerer subclass.
 
 If you have no uses of Innate Sorcery left, you can use it if you spend 2 Sorcery Points when you take the [Bonus Action](rules/variant-rules/bonus-action-xphb.md) to activate it.
 
-In addition, while your Innate Sorcery feature is active, you can use up to two of your [Metamagic options](compendium/lists/list-optfeaturetype-mm.md) on each spell you cast.
+In addition, while your Innate Sorcery feature is active, you can use up to two of your [Metamagic options](#) on each spell you cast.
 
 ### Ability Score Improvement (Level 8)
 
@@ -308,7 +247,7 @@ You gain the [Ability Score Improvement](compendium/feats/ability-score-improvem
 
 ### Metamagic (Level 10)
 
-Because your magic flows from within you, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from the "Metamagic Options^[Optional features from [Metamagic](compendium/lists/list-optfeaturetype-mm.md); defined in Player's Handbook (2024)]" section later in this class's description.
+Because your magic flows from within you, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from the "Metamagic Options^[Optional features from [Metamagic](#); defined in Player's Handbook (2024)]" section later in this class's description.
 
 You can use only one Metamagic option on a spell when you cast it, unless otherwise noted in one of those options.
 
@@ -328,7 +267,7 @@ You gain the [Ability Score Improvement](compendium/feats/ability-score-improvem
 
 ### Metamagic (Level 17)
 
-Because your magic flows from within you, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from the "Metamagic Options^[Optional features from [Metamagic](compendium/lists/list-optfeaturetype-mm.md); defined in Player's Handbook (2024)]" section later in this class's description.
+Because your magic flows from within you, you can alter your spells to suit your needs; you gain two Metamagic options of your choice from the "Metamagic Options^[Optional features from [Metamagic](#); defined in Player's Handbook (2024)]" section later in this class's description.
 
 You can use only one Metamagic option on a spell when you cast it, unless otherwise noted in one of those options.
 
@@ -349,5 +288,5 @@ While your Innate Sorcery feature is active, you can use one Metamagic option on
 ## Optional Features
 
 > [!example]- Optional Features: Metamagic
-> ![Metamagic](compendium/lists/list-optfeaturetype-mm.md#Metamagic)
+> ![Metamagic](##Metamagic)
 ^list-optfeature-mm

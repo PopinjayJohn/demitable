@@ -151,7 +151,7 @@ in every emitted note.
                                  │
                  ┌───────────────┴───────────────┐
                  ▼                               ▼
-     packs/dnd5e.yaml                   dev/srd-vault/
+     internal/pack/packs/dnd5e.yaml     dev/srd-vault/
      (the mechanics pack)               (the enriched content vault)
                  └────────────►  committed  ◄────────────┘
 ```
@@ -231,7 +231,7 @@ when the enrichment rules change.
 ### 2.4 Where the outputs live
 
 ```
-packs/dnd5e.yaml              the mechanics pack — committed, ships
+internal/pack/packs/dnd5e.yaml  the mechanics pack — committed, ships
 dev/srd-vault/                the enriched content vault — committed, does not ship
 fixtures/                      the source corpus — gitignored, transient
 tools/srdenrich/               the pipeline — committed

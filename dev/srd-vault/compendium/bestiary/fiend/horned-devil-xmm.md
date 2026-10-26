@@ -1,22 +1,8 @@
 ---
-abilities:
-  cha: 18
-  con: 21
-  dex: 17
-  int: 12
-  str: 22
-  wis: 16
-ac: 18
 aliases:
   - Horned Devil
-alignment:
-  - Lawful Evil
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-condition_immunities:
-  - poisoned
 content_type: monster
-cr: "11"
-cr_xp: 7200
 cssclasses:
   - json5e-monster
 data:
@@ -49,23 +35,10 @@ data:
     walk: 30
   type: fiend
   vulnerable: []
-hp: 199
-immune:
-  - fire
-  - poison
-languages:
-  - Infernal; telepathy 120 ft.
 license: CC-BY-4.0
 name: Horned Devil
 obsidianUIMode: preview
-passive_perception: 13
-resist: []
-senses: []
-size: Large
 source: SRD 5.2.1
-speed:
-  fly: 60
-  walk: 30
 src: xmm
 system: dnd5e
 tags:
@@ -78,7 +51,6 @@ tags:
 type: content
 uid: 2ABD04B8991C39AAC8AECED6FB
 visibility: party
-vulnerable: []
 ---
 # Horned Devil
 *Source: SRD 5.2 and the Free Rules (2024)*  

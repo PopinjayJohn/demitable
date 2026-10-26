@@ -2,9 +2,6 @@
 aliases:
   - Stoneskin
 attribution: Wizards of the Coast — D&D System Reference Document 5.2.1
-casting_time: 1 action
-classes: []
-components: V, S, M (diamond dust worth 100+ GP, which the spell consumes)
 content_type: spell
 cssclasses:
   - json5e-spell
@@ -16,13 +13,9 @@ data:
   level: 4
   range: <nil> touch
   school: Transmutation
-duration: timed
-level: 4
 license: CC-BY-4.0
 name: Stoneskin
 obsidianUIMode: preview
-range: <nil> touch
-school: Transmutation
 source: SRD 5.2.1
 src: xphb
 system: dnd5e
