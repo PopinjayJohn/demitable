@@ -94,9 +94,10 @@ func containsStr(list []string, want string) bool {
 
 // --- argument parsing (flexible) ---
 
-func parseArgs(args []any) (map[string]string, []Context) {
+func parseArgs(args []any) (map[string]string, []Context, bool) {
 	formulas := map[string]string{}
 	var contexts []Context
+	unrecognized := false
 	for _, a := range args {
 		switch v := a.(type) {
 		case map[string]string:
@@ -117,7 +118,9 @@ func parseArgs(args []any) (map[string]string, []Context) {
 					formulas[k] = val.(string)
 				}
 			} else {
-				// treat as scope binding? ignore for contexts
+				// try as context
+				ctx, _ := anyToContext(v)
+				contexts = append(contexts, ctx)
 			}
 		case []Context:
 			contexts = append(contexts, v...)
@@ -137,12 +140,21 @@ func parseArgs(args []any) (map[string]string, []Context) {
 				}
 			}
 		case string:
-			// ignore
+			unrecognized = true
 		default:
-			// reflect
 			rv := reflect.ValueOf(a)
+			if rv.Kind() != reflect.Struct && rv.Kind() != reflect.Map && rv.Kind() != reflect.Slice {
+				unrecognized = true
+				continue
+			}
+			// reflect
 			if rv.Kind() == reflect.Struct {
+				beforeF := len(formulas)
+				beforeC := len(contexts)
 				extractStruct(rv, formulas, &contexts)
+				if len(formulas) == beforeF && len(contexts) == beforeC && !hasContextFields(rv) {
+					unrecognized = true
+				}
 			} else if rv.Kind() == reflect.Map {
 				// try formula map
 				mm, ok := a.(map[string]any)
@@ -177,7 +189,7 @@ func parseArgs(args []any) (map[string]string, []Context) {
 	if len(contexts) == 0 {
 		contexts = []Context{{Name: "default"}}
 	}
-	return formulas, contexts
+	return formulas, contexts, unrecognized
 }
 
 func extractStruct(rv reflect.Value, formulas map[string]string, contexts *[]Context) {
@@ -356,22 +368,36 @@ func toStringAny(v any) string {
 // --- Check entry points ---
 
 func Check(args ...any) []Issue {
-	formulas, contexts := parseArgs(args)
+	formulas, contexts, unrecognized := parseArgs(args)
 	if formulas == nil {
 		formulas = map[string]string{}
 	}
 	var issues []Issue
 
+	if len(args) == 0 || unrecognized {
+		issues = append(issues, Issue{
+			Severity: "error",
+			Kind:     "invalid-input",
+			Message:  "formula: invalid or empty input to Check",
+		})
+	}
+	// empty formulas with no contexts? If no formulas and no recognized context, already invalid above.
+	// If formulas empty but contexts provided, allow shadowing checks; but mark invalid if no formulas at all?
+	// Per investigator, empty inputs must error. Treat zero formulas as invalid unless a context was explicitly provided.
 	// cycle detection
 	deps := buildDeps(formulas)
 	for _, cyc := range findCycles(deps) {
+		other := cyc[0]
+		if len(cyc) > 1 {
+			other = cyc[1]
+		}
 		issues = append(issues, Issue{
 			Severity: "error",
 			Kind:     "cycle",
 			Formula:  cyc[0],
-			Name:     cyc[1],
+			Name:     other,
 			Scope:    "derived",
-			Message:  fmt.Sprintf("formula cycle: %s", strings.Join(cyc, " -> ")),
+			Message:  fmt.Sprintf("formula cycle: %s", strings.Join(append(cyc, cyc[0]), " -> ")),
 		})
 	}
 
@@ -620,7 +646,7 @@ func buildDeps(formulas map[string]string) map[string][]string {
 		seen := map[string]bool{}
 		var out []string
 		for _, d := range deps[k] {
-			if seen[d] || d == k {
+			if seen[d] {
 				continue
 			}
 			seen[d] = true
