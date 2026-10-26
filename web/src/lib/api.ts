@@ -11,6 +11,8 @@ export interface NoteDoc {
   name: string;
   content: string;
   hash: string;
+  effectiveVisibility?: string;
+  defaulted?: boolean;
 }
 
 export async function fetchNotes(): Promise<NoteSummary[]> {
@@ -29,6 +31,8 @@ export async function fetchNote(uid: string): Promise<NoteDoc> {
     name: json.name,
     content: json.content ?? "",
     hash: json.hash ?? "",
+    effectiveVisibility: json.effective_visibility,
+    defaulted: json.defaulted,
   };
 }
 
@@ -63,5 +67,7 @@ export async function patchNote(uid: string, fields: Record<string, unknown>): P
     name: json.name,
     content: json.content ?? "",
     hash: json.hash ?? "",
+    effectiveVisibility: json.effective_visibility,
+    defaulted: json.defaulted,
   };
 }

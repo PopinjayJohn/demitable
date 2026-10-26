@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { fetchNotes, fetchNote, saveNote, patchNote, type NoteSummary, type NoteDoc } from "./lib/api";
   import Editor from "./lib/Editor.svelte";
+  import VisibilityBadge from "./components/VisibilityBadge.svelte";
 
   let notes = $state<NoteSummary[]>([]);
   let selectedUid = $state<string | null>(null);
@@ -102,7 +103,7 @@
 
     <section>
       {#if doc}
-        <h2>{doc.name}</h2>
+        <h2>{doc.name} {#if doc.effectiveVisibility}<VisibilityBadge visibility={doc.effectiveVisibility} defaulted={doc.defaulted ?? false} />{/if}</h2>
         <Editor value={buffer} onchange={onBufferChange} />
         <div class="actions">
           <button type="button" onclick={save}>Save</button>

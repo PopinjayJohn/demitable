@@ -54,6 +54,8 @@ content:
       - { key: heritage, label: Heritage, type: text }
       - { key: background, label: Background, type: text }
       - { key: vice, label: Vice, type: text }
+      - { key: secrets, label: Secrets, type: text, visibility: gm }
+      - { key: notes, label: Notes, type: text, visibility: owner }
   - id: npc
     label: NPC
     visibility: party

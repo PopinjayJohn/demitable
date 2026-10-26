@@ -2,6 +2,17 @@ id: dnd5e
 name: D&D 5e (SRD 5.2)
 version: 1.0.0
 content:
+  - id: character
+    label: Character
+    visibility: party
+    fields:
+      - { key: name, label: Name, type: text }
+      - { key: class, label: Class, type: text }
+      - { key: species, label: Species, type: text }
+      - { key: background, label: Background, type: text }
+      - { key: alignment, label: Alignment, type: text }
+      - { key: secrets, label: Secrets, type: text, visibility: gm }
+      - { key: hit_points, label: Hit Points, type: number, visibility: owner }
   - id: class
     label: Class
     visibility: party
@@ -112,6 +123,11 @@ content:
     label: Reference
     visibility: party
     fields: []
+
+views:
+  sheet:
+    - { type: attribute, key: attributes.str, label: Strength }
+    - { type: resource, key: resources.hp, label: Hit Points }
 
 attributes:
   - { key: str, label: Strength, type: number, default: 10, min: 1, max: 30 }
