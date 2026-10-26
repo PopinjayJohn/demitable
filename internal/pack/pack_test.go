@@ -161,18 +161,6 @@ content: []
 			block: "formula",
 		},
 		{
-			name: "dice",
-			src: `
-id: x
-name: X
-version: 1.0.0
-dice:
-  default: "1d20"
-content: []
-`,
-			block: "dice",
-		},
-		{
 			name: "formulas",
 			src: `
 id: x
@@ -369,5 +357,36 @@ func TestYAML11BooleanWordsAccepted(t *testing.T) {
 		if strings.Contains(err.Error(), "boolean") || strings.Contains(err.Error(), "timestamp") {
 			t.Fatalf("word %q rejected by profile: %v", word, err)
 		}
+	}
+}
+
+func TestDiceBlockAdditive(t *testing.T) {
+	// pack with dice block loads and yields workflows
+	src := `
+id: x
+name: X
+version: 1.0.0
+dice:
+  default: "1d20"
+  workflows:
+    - key: attack
+      label: Attack
+      dice: "1d20"
+content: []
+`
+	p, err := Parse([]byte(src))
+	if err != nil {
+		t.Fatalf("parse with dice: %v", err)
+	}
+	if p.Dice == nil {
+		t.Fatal("Dice is nil")
+	}
+	if len(p.Dice.Workflows) != 1 {
+		t.Fatalf("workflows = %d", len(p.Dice.Workflows))
+	}
+	// phase-1 pack without dice loads unchanged
+	p2 := mustParse(t, goodPack)
+	if p2.Dice != nil {
+		t.Fatal("phase-1 pack Dice should be nil")
 	}
 }
