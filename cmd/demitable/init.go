@@ -123,7 +123,7 @@ Welcome. See [[Campaign]].
 		{"content", "Notes/Content/Example Content.md", "Example Content", "content_type: character\nvisibility: party\n"},
 		{"handout", "Notes/Handouts/Example Handout.md", "Example Handout", "visibility: party\n"},
 		{"message", "Campaigns/demo/Chat/Example Message.md", "Example Message", "visibility: party\n"},
-		{"journal", "Campaigns/demo/Journals/Example Journal.md", "Example Journal", "visibility: private\nplayer: p_placeholder\n"},
+		{"journal", "Campaigns/demo/Journals/Example Journal.md", "Example Journal", "visibility: party\n"},
 		{"document", "Notes/Documents/Example Document.md", "Example Document", "visibility: public\n"},
 	}
 	for _, s := range specs {
