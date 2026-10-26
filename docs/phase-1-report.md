@@ -26,6 +26,11 @@ and **the projection computes audiences rather than rule verdicts**.
 The two things it got wrong were both found by measuring rather than by
 reasoning, and both are now fixed.
 
+It found **fourteen things** in all, four of them defects that a
+worker's own report did not flag. The most common shape of the findings
+is the one phase 0 warned about: **a thing that is counted rather than
+asserted**, and therefore passes.
+
 ---
 
 ## The eight milestones
@@ -33,14 +38,14 @@ reasoning, and both are now fixed.
 | | Milestone | The number that says it works |
 |---|---|---|
 | **M0** | the skeleton, the build pipeline, the configuration | 5 targets cross-compile with `CGO_ENABLED=0`; `GET /` is byte-identical to the built bundle; `SIGTERM` exits 0 |
-| **M1** | the vault service, the index, the watcher, the journal, the assets, the store | parse **268 ms** against a 1 s criterion; insert **148 ms** against 250 ms; corpus audit **1,692 / 1,692** |
+| **M1** | the vault service, the index, the watcher, the journal, the assets, the store | parse **309 ms** against a 1 s criterion; insert **162 ms** against 250 ms; corpus audit **1,692 / 1,692** |
 | **M2** | the minimal pack format | 15 tests; the example pack declares an owner-scoped and a gm-scoped field |
 | **M3** | the plugin host's core | 9 capabilities in 3 kinds, 6 host functions; `api` checked before load; the bridge strips the owner-scoped fields |
 | **M4** | the editor | the corpus round-trips byte-identically; the two parsers agree on **all 1,693 links** |
 | **M5** | accounts, the campaign, the projection | six expectation tables, both directions, note for note |
 | **M6** | the browser and search plugins | 5,000 notes filter and sort in **25 ms** |
-| **M7** | the scaffolder, the demo campaign, the published schema | *see below* |
-| **M8** | the export plugin, and the `api: 1` freeze | *see below* |
+| **M7** | the scaffolder, the demo campaign, the published schema | **16** notes, one per core type, real ULIDs, **0** invisible; the demo campaign's **21** notes round-trip byte-identically |
+| **M8** | the export plugin, and the `api: 1` freeze | GM export **20** notes, player export **17**, **0** leaks, **0** script tags, **0** remote references |
 
 ---
 
@@ -201,14 +206,95 @@ Two accepted ADRs disagreed about one field, and the disagreement was
 resolved in favour of the later and the corrective one. **The ADR was not
 edited** — the resolution is recorded in the code and in the report.
 
+### 10. Sorting by a field did not sort
+
+M6's sort precomputed the sort keys into a parallel slice and then ran
+`sort.SliceStable` over the notes, comparing against `keys[i]` and
+`keys[j]`. Those indices are positions in the *original* slice, and the
+sort swaps the notes as it goes — so from the first swap the keys and the
+notes describe different things. **Every sort by name, by title or by any
+field returned the notes in the wrong order.**
+
+The keys were precomputed for a reason — re-reading the field on every
+comparison is what made a 5,000-note sort slow — so the precomputation
+stays and only the desynchronisation goes. The notes and their keys are
+now sorted together, as one slice of pairs.
+
+**The predicate had no committed test**, so nothing caught it. The worker
+measured the 25 ms and reported it, and the number was right about a sort
+that did not sort. The new test asserts the result is *ordered* —
+ascending and descending — so a benchmark over a no-op cannot pass.
+
+### 11. A `private` note with no `player` is invisible to everyone
+
+M7's scaffolder produced a journal with `visibility: private` and **no
+`player`**. ADR-0048 is explicit: `private` means *"the note's `player`,
+and nobody else — not even the GM"*, and the personal player journal is
+`player: <the owner>`, `visibility: private`.
+
+A `private` note with no owner belongs to nobody, and — because `private`
+is checked *before* the GM shortcut — it is invisible to everyone. The
+vault indexed all 16 scaffolded notes; the API returned 15, and the
+missing one was the journal.
+
+**And the "opens with zero errors logged" predicate passed**, because a
+note with no `player` is not a parse error. The predicate that would have
+caught it is **visibility**: a test now asserts that no scaffolded note
+is invisible, so the class of bug cannot come back.
+
+### 12. The scaffolded uids were placeholders
+
+Every scaffolded note had `uid: scaffold-02`. Design §5.3 says a note
+gets *"a short ULID. Never reused, never changed, machine-only"*, and the
+tech stack says ULID is deliberately *not* a dependency: *"the uid format
+is about sixty lines and we want the uid derivation to be ours."*
+
+So it is now ours: 48 bits of millisecond timestamp, 80 bits of
+cryptographic randomness, Crockford base32 — sortable by creation time,
+never derived from the note's name, and **with no fallback**, because a
+uid generator that degrades is the same defect the credential generator
+had.
+
+### 13. The export needed one thing the editor's plugin did not
+
+ADR-0019 requires a **second, non-UI consumer** before the plugin API
+can freeze, and the export is it. It found exactly what ADR-0019
+predicted: the export needed **asset bytes**, which the editor's plugin
+never wanted. The `vault.assets` capability is in the vocabulary but its
+host function is still unimplemented, and the `VaultService` seam exposed
+only notes.
+
+The seam now provides `AssetPaths` and `AssetBytes`. **That widened the Go
+seam, not the frozen `api: 1` bridge** — the capability vocabulary, the
+host primitives and the `NoteView` shape are untouched, and the branch
+that froze them has no changes to `internal/plugin/caps/` or
+`internal/plugin/manifest/`. A second, smaller finding: `NoteView` carries
+no custom fields, so the export reads them from the raw note after a
+`Visible` check. That is right for now, and it is written down where a
+later change would break it.
+
+### 14. The export's tests were deleted before the commit
+
+M8's first report claimed eight numbers — the 20 notes, the 17, the 0
+leaks, the 3 assets, the 2, the 0 script tags, the 0 remote references,
+the 1 refusal, the escaped script. **The branch had no test file at
+all.** The worker's report said the tests were "scratch" and removed them.
+
+Every one of those numbers was therefore unverifiable, and a predicate
+measured once by hand and then deleted is not a predicate. Nine tests now
+commit them, one per predicate.
+
+**The same lesson as the conformance suite, twice in one phase** — and
+both times the disagreement was *counted* rather than *asserted*.
+
 ---
 
 ## What was measured
 
 | | measured | criterion |
 |---|---|---|
-| parse 5,000 notes | **268–294 ms** | 1 s |
-| insert 5,000 notes, fresh index | **148–160 ms** | 250 ms |
+| parse 5,000 notes | **309 ms** | 1 s |
+| insert 5,000 notes, fresh index | **162 ms** | 250 ms |
 | corpus audit | **1,692 / 1,692** | all |
 | touch → HTTP, from the fsnotify event | **3.8 ms** | 200 ms |
 | 400 concurrent inserts | **0** "database is locked" | 0 |
@@ -216,6 +302,9 @@ edited** — the resolution is recorded in the code and in the report.
 | conformance: links | **0 mismatches** in 1,693 | 0 |
 | conformance: text | **3**, all named and explained | 0 |
 | the binary, five platforms | **10.3–11.3 MB** | no limit |
+| scaffolded notes | **16**, all with a real ULID, **0** invisible | 16, 0 |
+| demo campaign round-trip | **21 / 21** byte-identical | all |
+| export: GM / player notes | **20 / 17**, **0** leaks | 0 leaks |
 
 **The macOS watcher numbers are still untaken.** They need a Mac. The
 polling watcher is implemented and Linux holds **+0 fds** for 1,693 notes,
@@ -281,6 +370,16 @@ audience.** The two-index partition was measured in phase 0 with 1,169
 synthetic GM-only notes; the phase-1 index has 21 notes and one GM-only
 one. The partition is load-bearing and the corpus does not test it.
 
+Fourth, **the projection needs an audience that is not the GM.** Every
+list endpoint in phase 1 resolves against the GM principal, because
+there are no accounts yet. That is why a scaffolded `private` journal
+was invisible to the only principal the server had — and the API
+returned 15 of the 16 notes without anyone noticing. Phase 2's accounts
+make the second principal real, and **the moment it does, every list
+endpoint becomes a place where the projection is applied to somebody
+other than the GM.** The seam is `principalFromRequest`, and it exists;
+what does not exist is a second principal to test it with.
+
 ---
 
 ## What I would do differently
@@ -302,7 +401,17 @@ one. The partition is load-bearing and the corpus does not test it.
   credential fallback were both in the M5 worker's first report, both in
   the diff, and neither was flagged by the worker. They were caught by
   reading the diff — which is what review is for, but a checklist item
-  would have found them sooner.
+  would have found them sooner. The same is true of the search
+  restriction that vanished on an empty set, the sort that did not sort,
+  the conformance suite that logged its disagreements and passed, the
+  export whose tests were deleted before the commit, the alias sprawl in
+  the pack package, and the twelve-megabyte cap that would have broken
+  the one-file promise. **None of those were in a worker's report. Every
+  one was found by reading the diff.**
+- **Assert the property, not the absence of an error.** The "opens with
+  zero errors logged" predicate passed on a scaffolded journal nobody
+  could read, because a note with no `player` is not a parse error.
+  **Visibility** was the predicate that would have caught it.
 
 ---
 
@@ -320,10 +429,11 @@ a worker had actually written rather than what it said it had written.
 **And the review found things the workers did not.** The rate limiter
 that never engaged, the credential fallback, the search restriction that
 vanished on an empty set, the conformance suite that logged its
-disagreements and passed, the alias sprawl in the pack package, and the
-twelve-megabyte cap that would have broken the one-file promise: none of
-those were in a worker's report. Every one was found by reading the
-diff.
+disagreements and passed, the sort that did not sort, the journal nobody
+could read, the export whose tests were deleted before the commit, the
+alias sprawl in the pack package, and the twelve-megabyte cap that would
+have broken the one-file promise: none of those were in a worker's
+report. Every one was found by reading the diff.
 
 That is the whole argument for the review step, and it is why this
 document is longer about what was found than about what was built.

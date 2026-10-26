@@ -74,7 +74,7 @@ Read these, in this order, before dispatching anything.
 | [`docs/threat-model.md`](threat-model.md) | **What is defended and what is not.** Read this before touching the projection or the logs |
 | [`docs/design-system.md`](design-system.md) | The token layer, the type scale, the colour rules |
 | [`docs/phase-0-report.md`](phase-0-report.md) | What phase 0 found, and the three lessons it would tell the next person |
-| [`docs/phase-1-report.md`](phase-1-report.md) | What phase 1 found, and the nine findings it would tell the next person |
+| [`docs/phase-1-report.md`](phase-1-report.md) | What phase 1 found, and the fourteen findings it would tell the next person |
 | [`AGENTS.md`](../AGENTS.md) | The rules that get broken by accident |
 
 ---
