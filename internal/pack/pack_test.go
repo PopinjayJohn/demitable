@@ -360,7 +360,9 @@ dice:
     - key: attack
       label: Attack
       dice: "1d20"
-content: []
+content:
+  - id: character
+    label: Character
 `
 	p, err := Parse([]byte(src))
 	if err != nil {
