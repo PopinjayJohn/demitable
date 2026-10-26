@@ -47,6 +47,11 @@ func main() {
 }
 
 func run(args []string) error {
+	// Subcommands are dispatched before flag parsing, so that `demitable
+	// init <dir>` does not choke on the global flags' defaults.
+	if len(args) > 0 && args[0] == "init" {
+		return runInit(args[1:])
+	}
 	fs := flag.NewFlagSet("demitable", flag.ContinueOnError)
 	cfg := config.Config{}
 	fs.StringVar(&cfg.Vault, "vault", "", "the vault directory")
