@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -76,6 +77,18 @@ func Import(ctx context.Context, opts Options) (Report, error) {
 				return rep, err
 			}
 		}
+		if strings.TrimSpace(m.Requires.App) != "" {
+			current := opts.AppVersion
+			if strings.TrimSpace(current) == "" {
+				current = AppVersion
+			}
+			if !appVersionOK(current, m.Requires.App) {
+				err := fmt.Errorf("import: requires.app: required app version %q exceeds current %q", m.Requires.App, current)
+				rep.FinishedAt = time.Now().UTC()
+				StoreReport(rep)
+				return rep, err
+			}
+		}
 	}
 
 	// plugin policy
@@ -120,4 +133,63 @@ func Import(ctx context.Context, opts Options) (Report, error) {
 		opts.Audit.Record(ctx, "import.completed")
 	}
 	return rep, nil
+}
+
+// appVersionOK reports whether the running app (current) satisfies the
+// archive's required app version. A required version equal to or lower
+// than current is acceptable; a higher (or unparseable) one is not.
+func appVersionOK(current, required string) bool {
+	current = strings.TrimSpace(current)
+	required = strings.TrimSpace(required)
+	if required == "" {
+		return true
+	}
+	if required == current {
+		return true
+	}
+	c, ok1 := parseAppVersion(current)
+	r, ok2 := parseAppVersion(required)
+	if !ok1 || !ok2 {
+		// Fail closed on anything we cannot compare.
+		return false
+	}
+	for i := 0; i < len(c) || i < len(r); i++ {
+		cv, rv := 0, 0
+		if i < len(c) {
+			cv = c[i]
+		}
+		if i < len(r) {
+			rv = r[i]
+		}
+		if rv > cv {
+			return false
+		}
+		if rv < cv {
+			return true
+		}
+	}
+	return true
+}
+
+func parseAppVersion(v string) ([]int, bool) {
+	parts := strings.Split(v, ".")
+	out := make([]int, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			return nil, false
+		}
+		n := 0
+		for _, r := range p {
+			if r < '0' || r > '9' {
+				return nil, false
+			}
+			n = n*10 + int(r-'0')
+		}
+		out = append(out, n)
+	}
+	if len(out) == 0 {
+		return nil, false
+	}
+	return out, true
 }

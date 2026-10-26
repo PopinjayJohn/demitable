@@ -52,9 +52,14 @@ type Report struct {
 }
 
 // Options controls one import run.
+// AppVersion is the running app's version, used to enforce Requires.App.
+// An empty value falls back to the package default.
+var AppVersion = "1.0.0"
+
 type Options struct {
 	VaultRoot      string
 	URL            string
+	AppVersion     string
 	Force          bool
 	Skip           bool
 	IncludePlugins bool

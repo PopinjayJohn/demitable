@@ -581,6 +581,16 @@ func Validate(x any) error {
 			return fmt.Errorf("pack: %s", is.Message)
 		}
 	}
+	for _, is := range p.lintInvariants() {
+		if is.Severity == "error" {
+			return fmt.Errorf("pack: %s", is.Message)
+		}
+	}
+	for _, is := range p.lintDice() {
+		if is.Severity == "error" {
+			return fmt.Errorf("pack: %s", is.Message)
+		}
+	}
 	if errs := p.validateBlocks(); len(errs) > 0 {
 		return errs[0]
 	}
