@@ -326,7 +326,26 @@ func (p *Pack) lintFormulas() []Issue {
 	return formula.Check(fm, ctx)
 }
 
-func Lint(p *Pack) []Issue {
+func toPack(x any) (*Pack, error) {
+	switch v := x.(type) {
+	case *Pack:
+		return v, nil
+	case Pack:
+		cp := v
+		return &cp, nil
+	case []byte:
+		return Parse(v)
+	case string:
+		return Parse([]byte(v))
+	}
+	return nil, fmt.Errorf("pack: unsupported lint input %T", x)
+}
+
+func Lint(x any) []Issue {
+	p, err := toPack(x)
+	if err != nil {
+		return []Issue{{Severity: "error", Kind: "invalid-input", Message: err.Error()}}
+	}
 	if p == nil {
 		return []Issue{{Severity: "error", Kind: "invalid-input", Message: "pack: nil pack"}}
 	}
@@ -341,8 +360,8 @@ func Lint(p *Pack) []Issue {
 	return issues
 }
 
-func LintPack(p *Pack) []error   { return issuesToErrors(Lint(p)) }
-func LintErrors(p *Pack) []error { return issuesToErrors(Lint(p)) }
+func LintPack(x any) []error   { return issuesToErrors(Lint(x)) }
+func LintErrors(x any) []error { return issuesToErrors(Lint(x)) }
 func IssuesToErrors(issues []Issue) []error {
 	var errs []error
 	for _, is := range issues {
@@ -354,7 +373,11 @@ func issuesToErrors(issues []Issue) []error { return IssuesToErrors(issues) }
 
 func (p *Pack) Lint() []Issue { return Lint(p) }
 
-func Validate(p *Pack) error {
+func Validate(x any) error {
+	p, err := toPack(x)
+	if err != nil {
+		return err
+	}
 	if p == nil {
 		return errors.New("pack: nil pack")
 	}
