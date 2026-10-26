@@ -309,13 +309,21 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			}
 			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 		}
+		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		content := string(n.Raw)
+		view := n.View(true)
+		if !prin.IsGM() {
+			vw := vault.Project(prin, *n)
+			view = vw
+			content = vw.Body
+		}
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
 			"uid":     n.UID,
 			"path":    n.Path,
 			"name":    n.Name,
-			"view":    n.View(true),
-			"content": string(n.Raw),
+			"view":    view,
+			"content": content,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -746,6 +754,13 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+	})
+
+	// WebSocket surface (N7b).
+	tokenKey := tokenKeyFor(vlt)
+	hub := &wsHub{}
+	m.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
+		handleWS(w, r, vlt, tokenKey, hub)
 	})
 
 	// Auth surface (M5a).
