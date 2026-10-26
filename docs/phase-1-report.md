@@ -61,6 +61,11 @@ taken before the frontend was embedded. M0's real binary was **10.77 MiB**
 with **1.23 MiB** of headroom — and phase 1 still owed the editor, the
 packs, the plugin host and the FTS5 index.
 
+**It would have been breached inside the phase.** The finished binary is
+**12.4–13.2 MiB** across the five targets, and it passed through
+**11.29 MiB** on M0's own build — the export plugin, the UID package and
+the editor's Go surface all landed after the cap was written.
+
 **A cap that fires on legitimate progress is worse than no cap.** The
 cheapest ways back under the line were all bad: drop the embedded
 frontend, drop SQLite, drop the packs embed, or link dynamically and break
@@ -301,7 +306,7 @@ both times the disagreement was *counted* rather than *asserted*.
 | 5,000 notes, filter and sort | **25 ms** | 100 ms |
 | conformance: links | **0 mismatches** in 1,693 | 0 |
 | conformance: text | **3**, all named and explained | 0 |
-| the binary, five platforms | **10.3–11.3 MB** | no limit |
+| the binary, five platforms | **12.4–13.2 MiB** | no limit |
 | scaffolded notes | **16**, all with a real ULID, **0** invisible | 16, 0 |
 | demo campaign round-trip | **21 / 21** byte-identical | all |
 | export: GM / player notes | **20 / 17**, **0** leaks | 0 leaks |
