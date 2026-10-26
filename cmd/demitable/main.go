@@ -26,10 +26,12 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/assets"
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/dice"
+	"github.com/PopinjayJohn/demitable/internal/formula"
 	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
+	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 
@@ -283,7 +285,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if s := r.URL.Query().Get("sort"); s != "" {
 			q.Sort = s
 		}
-		principal := vault.GM()
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
 		notes := vlt.List(principal, q)
 		out := make([]vault.NoteView, 0, len(notes))
 		for _, n := range notes {
@@ -326,13 +328,19 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
-		principal := vault.GM()
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
 		if !vault.Visible(principal, *n) {
 			http.NotFound(w, r)
 			return
 		}
-		// declared fields from the example pack
-		pk, _ := pack.Example()
+		packID := n.System
+		if packID == "" {
+			packID = "example"
+		}
+		pk, _ := pack.Load(packID)
+		if pk == nil {
+			pk, _ = pack.Example()
+		}
 		var ct *pack.ContentType
 		if pk != nil {
 			for i := range pk.Content {
@@ -341,7 +349,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 					break
 				}
 			}
-			if ct == nil {
+			if ct == nil && pk != nil {
 				for i := range pk.Content {
 					if pk.Content[i].ID == "character" {
 						ct = &pk.Content[i]
@@ -355,22 +363,87 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if ct != nil {
 			for _, f := range ct.Fields {
 				declared = append(declared, f.Key)
-				if v, ok := n.Fields[f.Key]; ok {
-					fields[f.Key] = v
+				v := any(nil)
+				if raw, ok := n.Fields[f.Key]; ok {
+					if fv, ok := raw.(frontmatter.Value); ok {
+						v = fmValueToAny(fv)
+					} else {
+						v = raw
+					}
+				} else if dataRaw, ok := n.Fields["data"]; ok {
+					if fv, ok := dataRaw.(frontmatter.Value); ok {
+						if m, ok := fmValueToAny(fv).(map[string]any); ok {
+							if val, ok := m[f.Key]; ok {
+								v = val
+							}
+						}
+					} else if m, ok := dataRaw.(map[string]any); ok {
+						if val, ok := m[f.Key]; ok {
+							v = val
+						}
+					}
+				}
+				fields[f.Key] = v
+			}
+		}
+		attrs := map[string]any{}
+		resources := map[string]any{}
+		if raw, ok := n.Fields["attributes"]; ok {
+			if fv, ok := raw.(frontmatter.Value); ok {
+				if m, ok := fmValueToAny(fv).(map[string]any); ok {
+					attrs = m
+				}
+			} else if m, ok := raw.(map[string]any); ok {
+				attrs = m
+			}
+		}
+		if raw, ok := n.Fields["resources"]; ok {
+			if fv, ok := raw.(frontmatter.Value); ok {
+				if m, ok := fmValueToAny(fv).(map[string]any); ok {
+					resources = m
+				}
+			} else if m, ok := raw.(map[string]any); ok {
+				resources = m
+			}
+		}
+		computed := map[string]any{}
+		if pk != nil && pk.Formulas != nil {
+			entity := map[string]any{}
+			for k, v := range n.Fields {
+				if fv, ok := v.(frontmatter.Value); ok {
+					entity[k] = fmValueToAny(fv)
 				} else {
-					fields[f.Key] = nil
+					entity[k] = v
+				}
+			}
+			if len(attrs) > 0 {
+				entity["attributes"] = attrs
+			}
+			if len(resources) > 0 {
+				entity["resources"] = resources
+			}
+			scope := formula.NewScope(nil, entity, nil)
+			scope.SetFormulas(pk.Formulas)
+			for name := range pk.Formulas {
+				if val, err := scope.EvalFormula(name); err == nil {
+					computed[name] = val
 				}
 			}
 		}
+		allowOwner := principal.IsGM() || (principal.Kind == "account" && principal.ID != "" && principal.ID == n.Player)
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
-			"uid":      n.UID,
-			"name":     n.Name,
-			"type":     n.Type,
-			"fields":   fields,
-			"declared": declared,
-			"view":     n.View(true),
-			"expand":   r.URL.Query().Get("expand") == "1",
+			"uid":        n.UID,
+			"name":       n.Name,
+			"type":       n.Type,
+			"system":     n.System,
+			"fields":     fields,
+			"declared":   declared,
+			"attributes": attrs,
+			"resources":  resources,
+			"computed":   computed,
+			"view":       n.View(allowOwner),
+			"expand":     r.URL.Query().Get("expand") == "1",
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -380,6 +453,15 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		n := vlt.GetNote(uid)
 		if n == nil {
 			http.NotFound(w, r)
+			return
+		}
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if !vault.Visible(principal, *n) {
+			http.NotFound(w, r)
+			return
+		}
+		if n.Workflow == "submitted" && !principal.IsGM() {
+			http.Error(w, "submitted note is read-only", http.StatusForbidden)
 			return
 		}
 		body, err := io.ReadAll(r.Body)
@@ -428,6 +510,15 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		n := vlt.GetNote(uid)
 		if n == nil {
 			http.NotFound(w, r)
+			return
+		}
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if !vault.Visible(principal, *n) {
+			http.NotFound(w, r)
+			return
+		}
+		if n.Workflow == "submitted" && !principal.IsGM() {
+			http.Error(w, "submitted note is read-only", http.StatusForbidden)
 			return
 		}
 		body, err := io.ReadAll(r.Body)
@@ -747,6 +838,239 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
 	})
+
+	// Packs (N6).
+	m.HandleFunc("GET /api/v1/packs", func(w http.ResponseWriter, r *http.Request) {
+		ids, err := pack.ListIDs()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		out := []map[string]any{}
+		for _, id := range ids {
+			pk, err := pack.Load(id)
+			if err != nil {
+				continue
+			}
+			out = append(out, map[string]any{"id": pk.ID, "name": pk.Name, "version": pk.Version})
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+	})
+	m.HandleFunc("GET /api/v1/packs/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		pk, err := pack.Load(id)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id": pk.ID, "name": pk.Name, "version": pk.Version,
+			"content": pk.Content, "attributes": pk.Attributes,
+			"resources": pk.Resources, "formulas": pk.Formulas,
+			"views": pk.Views, "dice": pk.Dice,
+		})
+	})
+	m.HandleFunc("GET /api/v1/packs/{id}/content", func(w http.ResponseWriter, r *http.Request) {
+		ct := r.URL.Query().Get("content_type")
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		notes := vlt.List(principal, vault.Query{Type: "content"})
+		out := []vault.NoteView{}
+		for _, n := range notes {
+			if ct != "" {
+				got := ""
+				if raw, ok := n.Fields["content_type"]; ok {
+					if fv, ok := raw.(frontmatter.Value); ok {
+						if str, ok := fmValueToAny(fv).(string); ok {
+							got = str
+						}
+					} else if str, ok := raw.(string); ok {
+						got = str
+					}
+				}
+				if got != ct {
+					continue
+				}
+			}
+			out = append(out, vault.Project(principal, n))
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+	})
+	m.HandleFunc("GET /api/v1/packs/{id}/validate", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		pk, err := pack.Load(id)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		issues := pk.Lint()
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"issues": issues, "count": len(issues)})
+	})
+
+	// Characters (N6).
+	m.HandleFunc("POST /api/v1/characters", func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var req map[string]any
+		if len(bytes.TrimSpace(body)) > 0 {
+			if err := json.Unmarshal(body, &req); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		} else {
+			req = map[string]any{}
+		}
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		system := "example"
+		if v, ok := req["system"].(string); ok && v != "" {
+			system = v
+		}
+		name := "New Character"
+		if v, ok := req["name"].(string); ok && v != "" {
+			name = v
+		}
+		kind := "pc"
+		if v, ok := req["kind"].(string); ok && v != "" {
+			kind = v
+		}
+		player := ""
+		if v, ok := req["player"].(string); ok {
+			player = v
+		}
+		if player == "" && principal.Kind == "account" {
+			player = principal.ID
+		}
+		workflow := "draft"
+		if principal.IsGM() {
+			workflow = "active"
+		}
+		if v, ok := req["workflow"].(string); ok && v != "" {
+			workflow = v
+		}
+		visibility := ""
+		if v, ok := req["visibility"].(string); ok && v != "" {
+			visibility = v
+		}
+		if visibility == "" {
+			if pk, err := pack.Load(system); err == nil {
+				for i := range pk.Content {
+					if pk.Content[i].ID == "character" {
+						visibility = pk.Content[i].Visibility
+					}
+				}
+			}
+		}
+		if visibility == "" {
+			visibility = "party"
+		}
+		campaign := ""
+		if v, ok := req["campaign"].(string); ok && v != "" {
+			campaign = v
+		}
+		if campaign == "" {
+			campaign = "[[Campaign]]"
+		}
+		uidVal, _ := uid.New()
+		attrs := req["attributes"]
+		resources := req["resources"]
+		data := req["data"]
+		if data == nil {
+			if v, ok := req["fields"].(map[string]any); ok {
+				data = v
+			}
+		}
+		var b strings.Builder
+		b.WriteString("---\n")
+		b.WriteString("type: character\n")
+		b.WriteString(fmt.Sprintf("uid: %q\n", uidVal))
+		b.WriteString(fmt.Sprintf("name: %s\n", name))
+		b.WriteString(fmt.Sprintf("system: %s\n", system))
+		b.WriteString(fmt.Sprintf("campaign: %q\n", campaign))
+		b.WriteString(fmt.Sprintf("kind: %s\n", kind))
+		b.WriteString(fmt.Sprintf("workflow: %s\n", workflow))
+		b.WriteString(fmt.Sprintf("visibility: %s\n", visibility))
+		if player != "" {
+			b.WriteString(fmt.Sprintf("player: %s\n", player))
+		}
+		if attrs != nil {
+			ab, _ := json.Marshal(attrs)
+			b.WriteString("attributes: " + string(ab) + "\n")
+		}
+		if resources != nil {
+			rb, _ := json.Marshal(resources)
+			b.WriteString("resources: " + string(rb) + "\n")
+		}
+		if data != nil {
+			db, _ := json.Marshal(data)
+			b.WriteString("data: " + string(db) + "\n")
+		}
+		b.WriteString("---\n\n# " + name + "\n\n")
+		content := b.String()
+		rel := "Notes/Characters/" + name + ".md"
+		full := filepath.Join(vlt.Root, filepath.FromSlash(rel))
+		os.MkdirAll(filepath.Dir(full), 0o755)
+		if err := os.WriteFile(full, []byte(content), 0o644); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := vlt.Load(); err != nil {
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"uid": uidVal, "name": name, "system": system, "workflow": workflow, "visibility": visibility, "player": player})
+	})
+	m.HandleFunc("POST /api/v1/characters/{uid}/submit", func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if !vault.Visible(principal, *n) {
+			http.NotFound(w, r)
+			return
+		}
+		if !principal.IsGM() && !(principal.Kind == "account" && principal.ID == n.Player) {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		full := filepath.Join(vlt.Root, filepath.FromSlash(n.Path))
+		data, err := os.ReadFile(full)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		doc, err := frontmatter.Parse(data)
+		if err != nil || !doc.HasBlock {
+			http.Error(w, "no frontmatter", http.StatusBadRequest)
+			return
+		}
+		newInner, err := doc.Block.Apply(frontmatter.Set{Key: "workflow", Value: frontmatter.String("submitted")})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var buf bytes.Buffer
+		buf.Write(doc.Block.Open)
+		buf.Write(newInner)
+		buf.Write(doc.Block.Close)
+		buf.Write(doc.Body)
+		if err := vlt.SaveNote(uid, buf.Bytes()); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"uid": uid, "workflow": "submitted"})
+	})
+
+	// Enforce edit permissions on PUT/PATCH notes: submitted notes read-only for non-GM.
+	// (Handled in handlers below via principal check.)
 
 	// Auth surface (M5a).
 	limiter := newAuthLimiter()
