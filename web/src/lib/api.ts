@@ -18,7 +18,11 @@ export interface NoteDoc {
 export async function fetchNotes(): Promise<NoteSummary[]> {
   const res = await fetch("/api/v1/notes");
   if (!res.ok) throw new Error(`notes: ${res.status}`);
-  return (await res.json()) as NoteSummary[];
+  const json = (await res.json()) as any;
+  // The server returns a paged envelope {count, items}; accept a bare
+  // array too so the client does not silently render nothing.
+  if (Array.isArray(json)) return json as NoteSummary[];
+  return (json.items ?? []) as NoteSummary[];
 }
 
 export async function fetchNote(uid: string): Promise<NoteDoc> {

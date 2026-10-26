@@ -107,6 +107,10 @@ questions, and what can read it.
 - The **MCP plugin** (ADR-0014).
 - The **cross-browser harness** for the shadow host, which gates the plugin
   host's UI tier (ADR-0029).
+- The **full UI surfaces**: the GM dashboard and whatever else of
+  `spikes/ui/` phase 2 did not need — badge, inspector and player view
+  land in phase 2 (N6d), the rest lands here, because a dashboard over
+  live content wants the query language above (ADR-0047).
 
 > **Done when** a third party can write a WASM plugin that installs without
 > rebuilding the app; a program can query the vault with the fixed
@@ -154,6 +158,7 @@ weeks. The SRD pipeline stays in phase 2.
 | The MCP plugin | Phase 3 (was 1.5) | 0014 |
 | The cross-browser harness | Phase 3 | 0029 |
 | Live sessions, seats, session codes, the scratch log | Phase 4 | 0038, 0048 |
+| The full UI surfaces (GM dashboard; badge, inspector, player view land in phase 2) | Phase 3 | 0052 |
 | The encounter runner, the tabletop, chat, the shared display | Phase 4 | 0016, 0048 |
 | The session write-back contract | Phase 4 | 0039 |
 | Recording, transcription, session logs, music | Phase 5 | 0018 |
