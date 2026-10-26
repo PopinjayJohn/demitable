@@ -4,8 +4,13 @@
   import { EditorView, keymap, lineNumbers } from "@codemirror/view";
   import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
   import { markdown } from "@codemirror/lang-markdown";
+  import { widgetExtension, type WidgetRegistry, defaultWidgetRegistry } from "./widgets";
 
-  let { value = $bindable(""), onchange }: { value?: string; onchange?: (v: string) => void } = $props();
+  let { value = $bindable(""), onchange, registry = defaultWidgetRegistry }: {
+    value?: string;
+    onchange?: (v: string) => void;
+    registry?: WidgetRegistry;
+  } = $props();
 
   let host: HTMLDivElement;
   let view: EditorView | null = null;
@@ -17,6 +22,7 @@
         lineNumbers(),
         history(),
         markdown(),
+        widgetExtension(registry),
         keymap.of([...defaultKeymap, ...historyKeymap]),
         EditorView.updateListener.of((u) => {
           if (u.docChanged) {

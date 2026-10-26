@@ -17,7 +17,7 @@ import (
 func TestVaultHTTPNoteReturnsUpdatedContent(t *testing.T) {
 	dir := t.TempDir()
 	notePath := filepath.Join(dir, "note.md")
-	os.WriteFile(notePath, []byte("---\nuid: u1\nname: Note\n---\nhello\n"), 0o644)
+	os.WriteFile(notePath, []byte("---\nuid: u1\nname: Note\nvisibility: public\n---\nhello\n"), 0o644)
 
 	v, err := vault.Open(dir)
 	if err != nil {
@@ -40,7 +40,7 @@ func TestVaultHTTPNoteReturnsUpdatedContent(t *testing.T) {
 
 	// touch-modify
 	time.Sleep(10 * time.Millisecond)
-	os.WriteFile(notePath, []byte("---\nuid: u1\nname: Note\n---\nworld\n"), 0o644)
+	os.WriteFile(notePath, []byte("---\nuid: u1\nname: Note\nvisibility: public\n---\nworld\n"), 0o644)
 
 	// wait for fsnotify event stamp
 	deadline := time.Now().Add(200 * time.Millisecond)

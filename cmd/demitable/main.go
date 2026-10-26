@@ -312,6 +312,14 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			}
 			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 		}
+		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		content := string(n.Raw)
+		view := n.View(true)
+		if !prin.IsGM() {
+			vw := vault.Project(prin, *n)
+			view = vw
+			content = vw.Body
+		}
 		w.Header().Set("Content-Type", "application/json")
 		principal := principalFromRequest(r, tokenKeyFor(vlt))
 		visible := vault.Visible(principal, *n)
@@ -337,8 +345,8 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			"uid":                  n.UID,
 			"path":                 n.Path,
 			"name":                 n.Name,
-			"view":                 n.View(true),
-			"content":              string(n.Raw),
+			"view":                 view,
+			"content":              content,
 			"effective_visibility": eff,
 			"defaulted":            defaulted,
 			"visible":              visible,
@@ -1118,6 +1126,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		saveJoinCodes(vlt.Root, codes)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"name": body.Name, "join_code": code, "expires_at": time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339)})
+	})
+	// WebSocket surface (N7b).
+	tokenKey := tokenKeyFor(vlt)
+	hub := &wsHub{}
+	m.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
+		handleWS(w, r, vlt, tokenKey, hub)
 	})
 
 	// Auth surface (M5a).
