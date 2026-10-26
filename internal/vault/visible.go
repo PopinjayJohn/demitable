@@ -29,8 +29,6 @@ import (
 // It is not an ordered rule list. "The first rule that applies wins" is
 // the phrasing ADR-0033 used and ADR-0057 retired, because under it the
 // narrowing rules lost.
-var secretCalloutRe = regexp.MustCompile(`^>\s*\[!secret\]`)
-
 func Visible(p Principal, n Note) bool {
 	// `private` is visible to its player and to nobody else — not even the
 	// GM (ADR-0048, ADR-0057). Checked before the GM shortcut.
@@ -168,7 +166,9 @@ func Project(p Principal, n Note) NoteView {
 		v.Discovered = n.Discovered
 	}
 	v.Revealed = n.Revealed
-	if !p.IsGM() {
+	if !Visible(p, n) {
+		v.Body = ""
+	} else if !p.IsGM() {
 		v.Body = projectBody(p, n)
 	}
 	return v
@@ -282,8 +282,6 @@ func findSecretBlocks(body string, p *pack.Pack) []SecretBlock {
 	callouts, codeKeys := secretVocab(p)
 	var out []SecretBlock
 	pos := 0
-	lines := splitLines(body)
-	_ = lines
 	for pos < len(body) {
 		line, next := lineAt(body, pos)
 		trimmed := strings.TrimSpace(line)
@@ -402,9 +400,10 @@ func findSecretBlocks(body string, p *pack.Pack) []SecretBlock {
 }
 
 func secretVocab(p *pack.Pack) (map[string]bool, map[string]bool) {
+	// Defaults are the floor: a pack may only ADD to the stripping
+	// vocabulary, never remove from it (fail closed).
 	callouts := map[string]bool{}
 	codeKeys := map[string]bool{}
-	// defaults (fail closed-ish backward compat)
 	for _, c := range []string{"secret", "gm-only", "hidden"} {
 		callouts[c] = true
 	}
@@ -412,20 +411,23 @@ func secretVocab(p *pack.Pack) (map[string]bool, map[string]bool) {
 		codeKeys[k] = true
 	}
 	if p != nil && p.Secrets != nil {
-		// pack vocabulary overrides/augments defaults
-		callouts = map[string]bool{}
-		codeKeys = map[string]bool{}
 		for _, c := range p.Secrets.CalloutTypes {
-			callouts[strings.ToLower(strings.TrimSpace(c))] = true
+			c = strings.ToLower(strings.TrimSpace(c))
+			if c != "" {
+				callouts[c] = true
+			}
 		}
 		for _, k := range p.Secrets.CodeBlockKeys {
-			codeKeys[strings.ToLower(strings.TrimSpace(k))] = true
+			k = strings.ToLower(strings.TrimSpace(k))
+			if k != "" {
+				codeKeys[k] = true
+			}
 		}
-		// keep "secret" always
-		callouts["secret"] = true
-		codeKeys["gm"] = true
-		codeKeys["secret"] = true
 	}
+	// "secret" is always a secret, regardless of pack.
+	callouts["secret"] = true
+	codeKeys["gm"] = true
+	codeKeys["secret"] = true
 	return callouts, codeKeys
 }
 
@@ -516,10 +518,6 @@ func truthy(v string) bool {
 	v = strings.ToLower(strings.TrimSpace(v))
 	v = strings.Trim(v, "\"'")
 	return v == "true" || v == "yes" || v == "1"
-}
-
-func splitLines(s string) []string {
-	return strings.Split(s, "\n")
 }
 
 func blockIDLines(lines []string) string {
