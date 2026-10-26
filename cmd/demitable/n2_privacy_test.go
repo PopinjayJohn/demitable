@@ -30,7 +30,9 @@ func TestSharedFalseInvisibleToPlayer(t *testing.T) {
 	req, _ := http.NewRequest("GET", srv.URL+"/api/v1/rolls", nil)
 	req.Header.Set("Authorization", "Bearer "+tok)
 	r2, err := http.DefaultClient.Do(req)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer r2.Body.Close()
 	var out map[string]any
 	json.NewDecoder(r2.Body).Decode(&out)
@@ -43,7 +45,9 @@ func TestSharedFalseInvisibleToPlayer(t *testing.T) {
 	req2, _ := http.NewRequest("GET", srv.URL+"/api/v1/rolls", nil)
 	req2.Header.Set("Authorization", "Bearer "+gmTok)
 	r3, err := http.DefaultClient.Do(req2)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer r3.Body.Close()
 	var out3 map[string]any
 	json.NewDecoder(r3.Body).Decode(&out3)

@@ -15,9 +15,15 @@ content:
     fields:
       - { key: stage, label: Stage, type: text, required: true }
       - { key: giver, label: Giver, type: text, visibility: gm }
+
 dice:
   default: "1d20"
   direction: high
+  tables:
+    - id: shadow
+      name: shadow
+      faces:
+        - { id: pack-face, label: PackFace, symbol: "P" }
   workflows:
     - key: attack
       label: Attack Roll

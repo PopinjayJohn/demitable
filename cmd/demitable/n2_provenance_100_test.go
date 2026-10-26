@@ -29,7 +29,9 @@ func TestHundredRollProvenance(t *testing.T) {
 	req, _ := http.NewRequest("GET", srv.URL+"/api/v1/rolls", nil)
 	req.Header.Set("Authorization", "Bearer "+gmTok)
 	r, err := http.DefaultClient.Do(req)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer r.Body.Close()
 	var out map[string]any
 	json.NewDecoder(r.Body).Decode(&out)
