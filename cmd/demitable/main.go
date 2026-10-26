@@ -4,6 +4,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -312,12 +313,27 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 		}
 		w.Header().Set("Content-Type", "application/json")
+		eff := n.Visibility
+		defaulted := false
+		if eff == "" {
+			if n.Campaign != "" {
+				eff = "party"
+			} else {
+				eff = "gm"
+			}
+			defaulted = true
+		}
+		if !isKnownVis(eff) {
+			eff = "gm"
+		}
 		payload := map[string]any{
-			"uid":     n.UID,
-			"path":    n.Path,
-			"name":    n.Name,
-			"view":    n.View(true),
-			"content": string(n.Raw),
+			"uid":                  n.UID,
+			"path":                 n.Path,
+			"name":                 n.Name,
+			"view":                 n.View(true),
+			"content":              string(n.Raw),
+			"effective_visibility": eff,
+			"defaulted":            defaulted,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -948,11 +964,13 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		workflow := "draft"
 		if principal.IsGM() {
+			// GM one-steps create-and-approve; honor an explicit active only from GM.
 			workflow = "active"
+			if v, ok := req["workflow"].(string); ok && v == "draft" {
+				workflow = "draft"
+			}
 		}
-		if v, ok := req["workflow"].(string); ok && v != "" {
-			workflow = v
-		}
+		// Non-GM callers cannot self-approve: force draft, ignore client workflow.
 		visibility := ""
 		if v, ok := req["visibility"].(string); ok && v != "" {
 			visibility = v
@@ -1071,6 +1089,28 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 
 	// Enforce edit permissions on PUT/PATCH notes: submitted notes read-only for non-GM.
 	// (Handled in handlers below via principal check.)
+
+	// Players (N6, extends accounts).
+	m.HandleFunc("POST /api/v1/players", func(w http.ResponseWriter, r *http.Request) {
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if !principal.IsGM() {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		var body struct {
+			Name string `json:"name"`
+		}
+		json.NewDecoder(r.Body).Decode(&body)
+		if body.Name == "" {
+			body.Name = "Player"
+		}
+		code := randomJoinCode()
+		codes := loadJoinCodes(vlt.Root)
+		codes = append(codes, storedJoinCode{Code: code, Campaign: "[[Campaign]]", ExpiresAt: time.Now().Add(24 * time.Hour)})
+		saveJoinCodes(vlt.Root, codes)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"name": body.Name, "join_code": code, "expires_at": time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339)})
+	})
 
 	// Auth surface (M5a).
 	limiter := newAuthLimiter()
@@ -1330,4 +1370,17 @@ func fmValueToAny(v frontmatter.Value) any {
 		return v.Raw
 	}
 	return nil
+}
+
+func randomJoinCode() string {
+	const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+	b := make([]byte, 8)
+	// use crypto/rand
+	data := make([]byte, 8)
+	rand.Read(data)
+	for i := range b {
+		b[i] = alpha[int(data[i])%len(alpha)]
+	}
+	// format xxxx-xxxx
+	return string(b[:4]) + "-" + string(b[4:])
 }

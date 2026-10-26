@@ -44,7 +44,10 @@ func n6Setup(t *testing.T) (string, *httptest.Server, string) {
 }
 
 func n6GMToken(t *testing.T, srv *httptest.Server, secret string) string {
-	resp, _ := http.Post(srv.URL+"/api/v1/auth/gm", "application/json", bytes.NewBufferString(fmt.Sprintf(`{"secret":%q}`, secret)))
+	resp, err := http.Post(srv.URL+"/api/v1/auth/gm", "application/json", bytes.NewBufferString(fmt.Sprintf(`{"secret":%q}`, secret)))
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer resp.Body.Close()
 	var body map[string]any
 	json.NewDecoder(resp.Body).Decode(&body)
