@@ -19,6 +19,12 @@ func TestGoldenABIInstantiates(t *testing.T) {
 		t.Fatalf("golden ABI failed to instantiate: %v", err)
 	}
 	defer inst.Close(context.Background())
+	// Pin one wire name literally: the guest and host share the Fn* constants,
+	// so a rename keeps both sides in sync and the instantiation above still
+	// passes. A literal check catches a silent rename of an api:1 name.
+	if _, ok := eng.hostMod.ExportedFunctionDefinitions()["host_log"]; !ok {
+		t.Fatal("host_log not exported under its api:1 wire name")
+	}
 }
 
 type fakeVault struct{}

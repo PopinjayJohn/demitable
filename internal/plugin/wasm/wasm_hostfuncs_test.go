@@ -1,11 +1,15 @@
 package wasm
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/PopinjayJohn/demitable/internal/vault"
@@ -209,6 +213,18 @@ func TestHostHTTPScopeRespected(t *testing.T) {
 	}
 }
 
+// fakeTransport returns a canned 200 without dialling, so a guard-removed
+// mutant would report r.OK == true and fail this test.
+type fakeTransport struct{}
+
+func (fakeTransport) RoundTrip(*http.Request) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewReader([]byte("ok"))),
+		Header:     http.Header{},
+	}, nil
+}
+
 func TestHostHTTPSSRFRefused(t *testing.T) {
 	store := vault.NewStore()
 	eng, _ := NewEngine(context.Background())
@@ -218,7 +234,10 @@ func TestHostHTTPSSRFRefused(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer inst.Close(context.Background())
-	req := []byte(`{"url":"http://127.0.0.1/"}`)
+	// Inject a transport that would succeed if the request were actually
+	// dialed, so the only way to get a refusal is the SSRF guard.
+	inst.httpClient = &http.Client{Transport: fakeTransport{}}
+	req := []byte(`{"url":"https://127.0.0.1/"}`)
 	mem := inst.mod.Memory()
 	mem.Write(1024, req)
 	ptr := inst.hostHTTPFetch(context.Background(), inst.mod, 1024, uint32(len(req)))
@@ -229,5 +248,10 @@ func TestHostHTTPSSRFRefused(t *testing.T) {
 	}
 	if r.OK {
 		t.Fatal("expected ssrf refusal")
+	}
+	// The refusal must come from the guard, not a dial failure: guard errors
+	// are prefixed "import:"; a dial failure is not.
+	if r.Error == nil || r.Error.Code != "invalid" || !strings.Contains(r.Error.Message, "import:") {
+		t.Fatalf("got %+v, want guard refusal (import: ...)", r.Error)
 	}
 }

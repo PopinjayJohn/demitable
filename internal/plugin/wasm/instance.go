@@ -177,9 +177,10 @@ type Instance struct {
 	// crash: a host may still hold *Instance after the host removed it.
 	lifeMu sync.RWMutex
 
-	// httpClient, when set, is used by host_http_fetch instead of the
-	// SSRF-hardened default. Tests set it to observe a successful fetch
-	// without dialling a private test server (which the default refuses).
+	// httpClient, when set, overrides the client used by host_http_fetch.
+	// The SSRF guard (ValidateScheme + ResolvePublicIPs) still runs first,
+	// so an injected client can never bypass it; tests use it to return a
+	// canned response without dialling.
 	httpClient *http.Client
 }
 
@@ -358,40 +359,6 @@ func readUntilNull(mem api.Memory, ptr uint32) []byte {
 }
 
 // --- host functions -------------------------------------------------------
-
-func registerHostFunctions(b wazero.HostModuleBuilder, inst *Instance) {
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostLog(ctx, m, ptr, size)
-	}).Export(FnLog)
-
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostVaultRead(ctx, m, ptr, size)
-	}).Export(FnVaultRead)
-
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostVaultWrite(ctx, m, ptr, size)
-	}).Export(FnVaultWrite)
-
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostVaultQuery(ctx, m, ptr, size)
-	}).Export(FnVaultQuery)
-
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostVaultAssets(ctx, m, ptr, size)
-	}).Export(FnVaultAssets)
-
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostHTTPFetch(ctx, m, ptr, size)
-	}).Export(FnHTTPFetch)
-
-	b.NewFunctionBuilder().WithFunc(func() uint64 {
-		return uint64(time.Now().UnixMilli())
-	}).Export(FnNow)
-
-	b.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
-		return inst.hostRandom(ctx, m, ptr, size)
-	}).Export(FnRandom)
-}
 
 func (i *Instance) readInput(m api.Module, ptr, size uint32) ([]byte, bool) {
 	if size == 0 {
@@ -652,18 +619,23 @@ func (i *Instance) hostHTTPFetch(ctx context.Context, m api.Module, ptr, size ui
 	if port == "" {
 		port = "443"
 	}
-	tr := &http.Transport{
-		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-			d := &net.Dialer{Timeout: 10 * time.Second}
-			return d.DialContext(ctx, network, net.JoinHostPort(pinned.String(), port))
-		},
-		TLSClientConfig:       &tls.Config{ServerName: u.Hostname()},
-		ResponseHeaderTimeout: 10 * time.Second,
-	}
-	client := &http.Client{
-		Transport:     tr,
-		Timeout:       30 * time.Second,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
+	var client *http.Client
+	if i.httpClient != nil {
+		client = i.httpClient
+	} else {
+		tr := &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				d := &net.Dialer{Timeout: 10 * time.Second}
+				return d.DialContext(ctx, network, net.JoinHostPort(pinned.String(), port))
+			},
+			TLSClientConfig:       &tls.Config{ServerName: u.Hostname()},
+			ResponseHeaderTimeout: 10 * time.Second,
+		}
+		client = &http.Client{
+			Transport:     tr,
+			Timeout:       30 * time.Second,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
+		}
 	}
 	req, err := http.NewRequestWithContext(ctx, "GET", a.URL, nil)
 	if err != nil {
