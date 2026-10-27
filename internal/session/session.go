@@ -71,6 +71,19 @@ type Seat struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// ScratchEntry is one disposable, session-tier note (ADR-0048). It lives in
+// SQLite only, never in the vault or the journal, and is purged on close.
+type ScratchEntry struct {
+	ID        string    `json:"id"`
+	SessionID string    `json:"session_id"`
+	SeatID    string    `json:"seat_id,omitempty"`
+	Author    string    `json:"author,omitempty"`
+	Content   string    `json:"content"`
+	Tags      []string  `json:"tags,omitempty"`
+	NoteUID   string    `json:"note_uid,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 // Store is the SQLite-backed session store.
 type Store struct {
 	db *sql.DB
@@ -132,6 +145,17 @@ func (s *Store) migrate() error {
 			character_uid TEXT NOT NULL DEFAULT '',
 			account_id TEXT NOT NULL DEFAULT '',
 			claimed INTEGER NOT NULL DEFAULT 0,
+			created_at TEXT NOT NULL,
+			FOREIGN KEY(session_id) REFERENCES sessions(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS scratch (
+			id TEXT PRIMARY KEY,
+			session_id TEXT NOT NULL,
+			seat_id TEXT NOT NULL DEFAULT '',
+			author TEXT NOT NULL DEFAULT '',
+			content TEXT NOT NULL DEFAULT '',
+			tags TEXT NOT NULL DEFAULT '[]',
+			note_uid TEXT NOT NULL DEFAULT '',
 			created_at TEXT NOT NULL,
 			FOREIGN KEY(session_id) REFERENCES sessions(id)
 		);`,
@@ -432,6 +456,7 @@ func (s *Store) CloseSession(id, batchID string) error {
 		if sess.CloseBatchID == "" {
 			sess.CloseBatchID = batchID
 		}
+		_, _ = s.db.Exec(`DELETE FROM scratch WHERE session_id = ?`, id)
 		return s.UpdateSession(*sess)
 	}
 	now := time.Now().UTC()
@@ -440,6 +465,8 @@ func (s *Store) CloseSession(id, batchID string) error {
 	if sess.CloseBatchID == "" {
 		sess.CloseBatchID = batchID
 	}
+	// Scratch is disposable: purge all rows for this session on close.
+	_, _ = s.db.Exec(`DELETE FROM scratch WHERE session_id = ?`, id)
 	return s.UpdateSession(*sess)
 }
 
@@ -457,6 +484,89 @@ func (s *Store) SetCodeAttempts(id string, n int) error {
 	}
 	sess.CodeAttempts = n
 	return s.UpdateSession(*sess)
+}
+
+// AppendScratch inserts a scratch entry. Closed sessions reject writes.
+func (s *Store) AppendScratch(e ScratchEntry) (ScratchEntry, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, e.SessionID).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ScratchEntry{}, fmt.Errorf("session: not found: %w", err)
+		}
+		return ScratchEntry{}, err
+	}
+	if status == StatusClosed {
+		return ScratchEntry{}, ErrSessionClosed
+	}
+	if e.ID == "" {
+		id := ""
+		if id == "" {
+			id = fmt.Sprintf("scratch-%d", time.Now().UnixNano())
+		}
+		e.ID = id
+	}
+	if e.CreatedAt.IsZero() {
+		e.CreatedAt = time.Now().UTC()
+	}
+	tags, _ := json.Marshal(e.Tags)
+	if e.Tags == nil {
+		tags = []byte("[]")
+	}
+	_, err := s.db.Exec(
+		`INSERT INTO scratch (id, session_id, seat_id, author, content, tags, note_uid, created_at) VALUES (?,?,?,?,?,?,?,?)`,
+		e.ID, e.SessionID, e.SeatID, e.Author, e.Content, string(tags), e.NoteUID, e.CreatedAt.UTC().Format(time.RFC3339Nano),
+	)
+	if err != nil {
+		return ScratchEntry{}, err
+	}
+	return e, nil
+}
+
+// ListScratch returns all scratch rows for a session, oldest first.
+func (s *Store) ListScratch(sessionID string) ([]ScratchEntry, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	rows, err := s.db.Query(`SELECT id, session_id, seat_id, author, content, tags, note_uid, created_at FROM scratch WHERE session_id = ? ORDER BY created_at, id`, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []ScratchEntry
+	for rows.Next() {
+		var e ScratchEntry
+		var created string
+		var tags string
+		if err := rows.Scan(&e.ID, &e.SessionID, &e.SeatID, &e.Author, &e.Content, &tags, &e.NoteUID, &created); err != nil {
+			return nil, err
+		}
+		_ = json.Unmarshal([]byte(tags), &e.Tags)
+		t, _ := time.Parse(time.RFC3339Nano, created)
+		e.CreatedAt = t
+		out = append(out, e)
+	}
+	if out == nil {
+		out = []ScratchEntry{}
+	}
+	return out, rows.Err()
+}
+
+// PurgeScratch deletes all scratch rows for a session.
+func (s *Store) PurgeScratch(sessionID string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, err := s.db.Exec(`DELETE FROM scratch WHERE session_id = ?`, sessionID)
+	return err
+}
+
+// IsClosed reports whether the session is closed.
+func (s *Store) IsClosed(id string) bool {
+	sess, err := s.GetSession(id)
+	if err != nil || sess == nil {
+		return true
+	}
+	return sess.Status == StatusClosed
 }
 
 // --- store registry (for seat-token validation across the request path) ---
