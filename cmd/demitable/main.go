@@ -33,6 +33,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/mcp"
 	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/server"
+	"github.com/PopinjayJohn/demitable/internal/session"
 	"github.com/PopinjayJohn/demitable/internal/store"
 	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault"
@@ -178,8 +179,26 @@ func run(args []string) error {
 	}
 
 	handler := mux()
+	var sessStore *session.Store
 	if vlt != nil {
-		handler = muxWithVault(vlt, audit, cfg)
+		path := os.Getenv("DEMITABLE_SESSION_DB")
+		if path == "" {
+			if dd, err := store.DataDir(); err == nil {
+				path = filepath.Join(dd, "sessions.db")
+			} else {
+				path = ":memory:"
+			}
+		}
+		if s, err := session.Open(path); err == nil {
+			sessStore = s
+		}
+	}
+	if vlt != nil {
+		extras := []any{audit, cfg}
+		if sessStore != nil {
+			extras = append(extras, sessStore)
+		}
+		handler = muxWithVault(vlt, extras...)
 	}
 	srv := &http.Server{
 		Handler:           handler,
@@ -202,6 +221,9 @@ func run(args []string) error {
 				wtr.Stop()
 			}
 			st.Close()
+			if sessStore != nil {
+				sessStore.Close()
+			}
 			return err
 		}
 	case <-ctx.Done():
@@ -215,10 +237,16 @@ func run(args []string) error {
 			wtr.Stop()
 		}
 		st.Close()
+		if sessStore != nil {
+			sessStore.Close()
+		}
 		return fmt.Errorf("shutdown: %w", err)
 	}
 	if wtr != nil {
 		wtr.Stop()
+	}
+	if sessStore != nil {
+		sessStore.Close()
 	}
 	if err := st.Close(); err != nil {
 		return fmt.Errorf("store close: %w", err)
@@ -281,6 +309,23 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 	}
 	m := mux().(*http.ServeMux)
+
+	// Session tier store (F1). Threading through extras allows callers (main)
+	// to pass a durable store; tests get an in-memory one.
+	var sessStore *session.Store
+	for _, e := range extras {
+		if s, ok := e.(*session.Store); ok {
+			sessStore = s
+		}
+	}
+	if sessStore == nil {
+		if s, err := session.Open(":memory:"); err == nil {
+			sessStore = s
+		}
+	}
+	if sessStore != nil && vlt != nil {
+		session.RegisterStore(tokenKeyFor(vlt), sessStore)
+	}
 	m.HandleFunc("GET /api/v1/notes", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		q := vault.Query{
@@ -1206,6 +1251,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	limiter := newAuthLimiter()
 	authHandlers(m, vlt, audit, cfg, limiter)
 	registerF0b(m, vlt, cfg, audit, limiter)
+
+	// Session tier (F1).
+	if sessStore != nil {
+		sessionLimiter := newSessionCodeLimiter()
+		sessionHandlers(m, vlt, sessStore, audit, sessionLimiter, tokenKeyFor(vlt))
+	}
 
 	// Import (N8).
 	m.HandleFunc("POST /api/v1/import", func(w http.ResponseWriter, r *http.Request) {
