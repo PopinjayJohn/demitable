@@ -686,22 +686,20 @@ func TestF2B_PrivateRollSilence(t *testing.T) {
 		t.Fatalf("gm rolls: %+v", gout)
 	}
 	// private-roll absence from encounter-rolls for seats
-	if seatToken != "" {
-		reqse, _ := http.NewRequest("GET", srv.URL+"/api/v1/sessions/"+sid+"/encounters/"+eid+"/rolls", nil)
-		reqse.Header.Set("Authorization", "Bearer "+seatToken)
-		respse, err := http.DefaultClient.Do(reqse)
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer respse.Body.Close()
-		var seout map[string]any
-		json.NewDecoder(respse.Body).Decode(&seout)
-		if items, ok := seout["items"].([]any); ok {
-			for _, it := range items {
-				if m, ok := it.(map[string]any); ok {
-					if shared, ok := m["shared"].(bool); ok && shared == false {
-						t.Fatalf("private roll leaked to seat: %+v", m)
-					}
+	reqse, _ := http.NewRequest("GET", srv.URL+"/api/v1/sessions/"+sid+"/encounters/"+eid+"/rolls", nil)
+	reqse.Header.Set("Authorization", "Bearer "+seatToken)
+	respse, err := http.DefaultClient.Do(reqse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer respse.Body.Close()
+	var seout map[string]any
+	json.NewDecoder(respse.Body).Decode(&seout)
+	if items, ok := seout["items"].([]any); ok {
+		for _, it := range items {
+			if m, ok := it.(map[string]any); ok {
+				if shared, ok := m["shared"].(bool); ok && shared == false {
+					t.Fatalf("private roll leaked to seat: %+v", m)
 				}
 			}
 		}
