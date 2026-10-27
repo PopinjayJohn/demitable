@@ -1173,6 +1173,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		opts := importer.Options{
 			VaultRoot:      vlt.Root,
 			URL:            req.URL,
+			AppVersion:     version,
 			Force:          req.Force,
 			Skip:           req.Skip,
 			IncludePlugins: req.IncludePlugins,

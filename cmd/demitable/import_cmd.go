@@ -68,6 +68,7 @@ func runImport(args []string) error {
 	opts := importer.Options{
 		VaultRoot:      vaultRoot,
 		URL:            urlStr,
+		AppVersion:     version,
 		Force:          *force,
 		Skip:           *skip,
 		IncludePlugins: *includePlugins,

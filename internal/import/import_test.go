@@ -145,6 +145,80 @@ func TestRequiresMissingPackRefusal(t *testing.T) {
 	}
 }
 
+// TestAppVersionOK pins the comparison behind requires.app. The rule is
+// fail-closed: anything the comparison cannot parse is a refusal, because an
+// archive that asks for an app version we cannot read is an archive we cannot
+// prove we satisfy.
+func TestAppVersionOK(t *testing.T) {
+	cases := []struct {
+		name     string
+		current  string
+		required string
+		want     bool
+	}{
+		{"equal", "1.0.0", "1.0.0", true},
+		{"current higher patch", "1.0.1", "1.0.0", true},
+		{"current higher minor", "2.1.0", "2.0.9", true},
+		{"required higher patch", "1.0.0", "1.0.1", false},
+		{"required higher major", "1.9.9", "2.0.0", false},
+		{"missing component is zero", "1.2", "1.2.0", true},
+		{"numeric comparison, not lexical", "1.10.0", "1.9.0", true},
+		{"empty required passes", "1.0.0", "", true},
+		{"whitespace trimmed", " 1.0.0 ", "1.0.0", true},
+		{"unparseable required fails closed", "1.0.0", "1.0.x", false},
+		{"unparseable current fails closed", "dev", "1.0.0", false},
+		{"empty component fails closed", "1.0.0", "1..0", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := appVersionOK(c.current, c.required); got != c.want {
+				t.Fatalf("appVersionOK(%q, %q) = %v, want %v", c.current, c.required, got, c.want)
+			}
+		})
+	}
+}
+
+// TestRequiresAppRefusal is the manifest-level pin: the check lives in the
+// Import pipeline, so a version-gated archive must be refused there and the
+// error must name the field the archive declared.
+func TestRequiresAppRefusal(t *testing.T) {
+	cases := []struct {
+		name     string
+		current  string
+		required string
+		wantErr  bool
+	}{
+		{"newer required is refused", "1.0.0", "2.0.0", true},
+		{"unparseable required is refused", "1.0.0", "next-release", true},
+		{"equal is accepted", "1.0.0", "1.0.0", false},
+		{"older required is accepted", "2.0.0", "1.9.9", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			zipPath := buildRequiresAppZip(t, c.required)
+			vaultDir := t.TempDir()
+			_, err := Import(t.Context(), Options{
+				VaultRoot:  vaultDir,
+				URL:        "file://" + zipPath,
+				AllowHTTP:  true,
+				AppVersion: c.current,
+			})
+			if !c.wantErr {
+				if err != nil {
+					t.Fatalf("expected acceptance, got %v", err)
+				}
+				return
+			}
+			if err == nil {
+				t.Fatal("expected refusal, got nil")
+			}
+			if !strings.Contains(err.Error(), "requires.app") {
+				t.Fatalf("error %q does not name requires.app", err.Error())
+			}
+		})
+	}
+}
+
 func TestJournalEntriesAfterImport(t *testing.T) {
 	zipPath := buildSimpleZip(t)
 	vaultDir := t.TempDir()
@@ -209,6 +283,22 @@ func buildRequiresZip(t *testing.T, packs []string) string {
 	defer f.Close()
 	zw := zip.NewWriter(f)
 	manifest := fmt.Sprintf(`{"id":"x","name":"X","version":"1.0.0","requires":{"packs":%s}}`, mustJSON(packs))
+	mw, _ := zw.Create("demitable-import.json")
+	mw.Write([]byte(manifest))
+	nw, _ := zw.Create("note.md")
+	nw.Write([]byte("hello"))
+	zw.Close()
+	return zipPath
+}
+
+func buildRequiresAppZip(t *testing.T, app string) string {
+	t.Helper()
+	dir := t.TempDir()
+	zipPath := filepath.Join(dir, "requires-app.zip")
+	f, _ := os.Create(zipPath)
+	defer f.Close()
+	zw := zip.NewWriter(f)
+	manifest := fmt.Sprintf(`{"id":"x","name":"X","version":"1.0.0","requires":{"app":%s}}`, mustJSON(app))
 	mw, _ := zw.Create("demitable-import.json")
 	mw.Write([]byte(manifest))
 	nw, _ := zw.Create("note.md")

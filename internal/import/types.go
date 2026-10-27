@@ -53,7 +53,9 @@ type Report struct {
 
 // Options controls one import run.
 // AppVersion is the running app's version, used to enforce Requires.App.
-// An empty value falls back to the package default.
+// An empty value falls back to the package default. Callers that know the
+// binary's stamped version should pass it: an unstamped build reports "dev",
+// which fails closed because it cannot be compared.
 var AppVersion = "1.0.0"
 
 type Options struct {
