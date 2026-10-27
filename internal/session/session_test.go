@@ -113,3 +113,64 @@ func TestStoreClosedEnforcement(t *testing.T) {
 		t.Fatalf("SetCodeAttempts: got %v", err)
 	}
 }
+
+func TestStoreScratchPurgeOnClose(t *testing.T) {
+	s, err := Open(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if err := s.CreateSession(Session{ID: "s1", Code: "ABCDEF", Status: StatusOpen, CreatedAt: time.Now().UTC()}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.AppendScratch(ScratchEntry{SessionID: "s1", Content: "x"}); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := s.ListScratch("s1"); err != nil || len(got) != 1 {
+		t.Fatalf("pre-close scratch = %d (err %v), want 1", len(got), err)
+	}
+	if err := s.CloseSession("s1", "batch-1"); err != nil {
+		t.Fatal(err)
+	}
+	got, err := s.ListScratch("s1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("post-close scratch = %d, want 0", len(got))
+	}
+}
+
+func TestUpdateSessionClosedGuard(t *testing.T) {
+	s, err := Open(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if err := s.CreateSession(Session{ID: "s1", Code: "ABCDEF", Status: StatusOpen, CreatedAt: time.Now().UTC()}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.CloseSession("s1", "b"); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.UpdateSession(Session{ID: "s1", Code: "ZZZZZZ", Status: StatusOpen, CreatedAt: time.Now().UTC()}); !errors.Is(err, ErrSessionClosed) {
+		t.Fatalf("UpdateSession on closed: got %v, want ErrSessionClosed", err)
+	}
+	// close still works (idempotent)
+	if err := s.CloseSession("s1", "b2"); err != nil {
+		t.Fatalf("close after update attempt: %v", err)
+	}
+	// SetCodeAttempts keeps working on an open session
+	s2, _ := Open(":memory:")
+	defer s2.Close()
+	if err := s2.CreateSession(Session{ID: "s2", Code: "ABCDEF", Status: StatusOpen, CreatedAt: time.Now().UTC()}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s2.SetCodeAttempts("s2", 3); err != nil {
+		t.Fatalf("SetCodeAttempts open: %v", err)
+	}
+	got, _ := s2.GetSession("s2")
+	if got.CodeAttempts != 3 {
+		t.Fatalf("CodeAttempts = %d, want 3", got.CodeAttempts)
+	}
+}

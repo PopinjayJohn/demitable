@@ -74,6 +74,21 @@ func assertSameResult(t *testing.T, beforeUIDs []string, beforeCount int, afterU
 	}
 }
 
+var hiddenOracleClasses = []string{"hidden_gm", "hidden_priv", "hidden_disc", "hidden_draft", "hidden_othercamp"}
+
+func assertHiddenAbsent(t *testing.T, uids []string) {
+	t.Helper()
+	set := make(map[string]bool, len(uids))
+	for _, u := range uids {
+		set[u] = true
+	}
+	for _, h := range hiddenOracleClasses {
+		if set[h] {
+			t.Fatalf("hidden note %s present in result: %v", h, uids)
+		}
+	}
+}
+
 func buildAdversarialCorpus(t *testing.T, dir string, v *vault.Vault) {
 	t.Helper()
 	files := map[string]string{
@@ -161,6 +176,7 @@ workflow: active
 	tok := j["token"].(string)
 
 	beforeUIDs, beforeCount := oracleQueryUIDs(t, srv.URL, tok, oracleRare)
+	assertHiddenAbsent(t, beforeUIDs)
 
 	// mutation: GM-only note
 	f1WriteFile(t, filepath.Join(dir, "hidden_gm_extra.md"), `---
@@ -227,6 +243,7 @@ workflow: active
 	tok := j["token"].(string)
 
 	beforeUIDs, beforeCount := oracleQueryUIDs(t, srv.URL, tok, oracleRare)
+	assertHiddenAbsent(t, beforeUIDs)
 
 	f1WriteFile(t, filepath.Join(dir, "hidden_gm_extra2.md"), `---
 type: note
@@ -289,6 +306,7 @@ visibility: party
 	tok := j["token"].(string)
 
 	beforeUIDs, beforeCount := oracleQueryUIDs(t, srv.URL, tok, oracleRare)
+	assertHiddenAbsent(t, beforeUIDs)
 
 	f1WriteFile(t, filepath.Join(dir, "hidden_gm_extra3.md"), `---
 type: note

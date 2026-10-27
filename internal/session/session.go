@@ -278,10 +278,26 @@ func (s *Store) loadSeatsLocked(sessionID string) ([]Seat, error) {
 	return out, rows.Err()
 }
 
-// UpdateSession updates mutable fields.
+// UpdateSession updates mutable fields. Closed sessions reject updates
+// (ErrSessionClosed); CloseSession is the only path that may write closed
+// state, and it bypasses this guard via updateSessionUnlocked.
 func (s *Store) UpdateSession(sess Session) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sess.ID).Scan(&status); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+	} else if status == StatusClosed {
+		return ErrSessionClosed
+	}
+	return s.updateSessionUnlocked(sess)
+}
+
+// updateSessionUnlocked performs the UPDATE without locking or the closed-session
+// guard. Caller must hold s.mu.
+func (s *Store) updateSessionUnlocked(sess Session) error {
 	var closed any
 	if sess.ClosedAt != nil {
 		closed = sess.ClosedAt.UTC().Format(time.RFC3339Nano)
@@ -456,8 +472,11 @@ func (s *Store) CloseSession(id, batchID string) error {
 		if sess.CloseBatchID == "" {
 			sess.CloseBatchID = batchID
 		}
+		s.mu.Lock()
 		_, _ = s.db.Exec(`DELETE FROM scratch WHERE session_id = ?`, id)
-		return s.UpdateSession(*sess)
+		err = s.updateSessionUnlocked(*sess)
+		s.mu.Unlock()
+		return err
 	}
 	now := time.Now().UTC()
 	sess.Status = StatusClosed
@@ -466,8 +485,11 @@ func (s *Store) CloseSession(id, batchID string) error {
 		sess.CloseBatchID = batchID
 	}
 	// Scratch is disposable: purge all rows for this session on close.
+	s.mu.Lock()
 	_, _ = s.db.Exec(`DELETE FROM scratch WHERE session_id = ?`, id)
-	return s.UpdateSession(*sess)
+	err = s.updateSessionUnlocked(*sess)
+	s.mu.Unlock()
+	return err
 }
 
 // SetCodeAttempts updates code attempts count.
