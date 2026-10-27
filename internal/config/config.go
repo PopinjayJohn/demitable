@@ -22,6 +22,8 @@ type Config struct {
 	LogLevel        string
 	LogFormat       string
 	AuditLog        string
+	MCP             bool
+	MCPToken        string
 }
 
 // Validate checks the configuration and returns an error describing the
