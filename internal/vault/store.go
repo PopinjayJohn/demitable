@@ -133,6 +133,19 @@ func (s *Store) AssetBytes(path string) ([]byte, error) {
 	return nil, fmt.Errorf("vault: store has no assets: %w", ErrNotFound)
 }
 
+// UpdateNote updates a note's body in the in-memory store.
+func (s *Store) UpdateNote(uid string, data []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	n, ok := s.notes[uid]
+	if !ok {
+		return fmt.Errorf("vault: store has no note %s: %w", uid, ErrNotFound)
+	}
+	n.Body = string(data)
+	s.notes[uid] = n
+	return nil
+}
+
 // Literal returns the store's in-memory literal index.
 func (s *Store) LiteralIndex() *LiteralIndex {
 	s.mu.RLock()
