@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -54,7 +54,7 @@ func TestO0PrincipalChecks(t *testing.T) {
 	if st != 200 {
 		t.Fatalf("GM gmnote status %d", st)
 	}
-	if !containsBytes(body, []byte("secret text")) {
+	if !bytes.Contains(body, []byte("secret text")) {
 		t.Fatalf("GM did not get raw secret text: %s", body)
 	}
 	for _, tok := range []string{ownerTok, partyTok, ""} {
@@ -72,7 +72,7 @@ func TestO0PrincipalChecks(t *testing.T) {
 	if st != 200 {
 		t.Fatalf("party partynote status %d: %s", st, body)
 	}
-	if containsBytes(body, []byte("secret text")) {
+	if bytes.Contains(body, []byte("secret text")) {
 		t.Fatalf("party got raw secret text: %s", body)
 	}
 
@@ -81,13 +81,13 @@ func TestO0PrincipalChecks(t *testing.T) {
 	if st != 200 {
 		t.Fatalf("owner ownernote status %d: %s", st, body)
 	}
-	if containsBytes(body, []byte("secret text")) {
+	if bytes.Contains(body, []byte("secret text")) {
 		t.Fatalf("owner got raw secret text: %s", body)
 	}
 
 	// GM sees raw on party note.
 	st, body = get(gmTok, "partynote")
-	if st != 200 || !containsBytes(body, []byte("secret text")) {
+	if st != 200 || !bytes.Contains(body, []byte("secret text")) {
 		t.Fatalf("GM partynote not raw: %d %s", st, body)
 	}
 
@@ -98,10 +98,9 @@ func TestO0PrincipalChecks(t *testing.T) {
 	}
 	// Render party note -> projected (no secret text) for party.
 	st, body = renderGet(srv.URL, partyTok, "partynote")
-	if st != 200 || containsBytes(body, []byte("secret text")) {
+	if st != 200 || bytes.Contains(body, []byte("secret text")) {
 		t.Fatalf("render partynote party leaked: %d %s", st, body)
 	}
-	_ = fmt.Sprint
 }
 
 func renderGet(srvURL, tok, uid string) (int, []byte) {
@@ -113,15 +112,4 @@ func renderGet(srvURL, tok, uid string) (int, []byte) {
 	b, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	return resp.StatusCode, b
-}
-
-func containsBytes(b, sub []byte) bool {
-	return len(b) > 0 && (func() bool {
-		for i := 0; i+len(sub) <= len(b); i++ {
-			if string(b[i:i+len(sub)]) == string(sub) {
-				return true
-			}
-		}
-		return false
-	})()
 }
