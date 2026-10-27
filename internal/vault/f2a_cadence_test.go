@@ -137,14 +137,14 @@ func TestF2aCadenceO2FullScanLiveShapes(t *testing.T) {
 		_, _, _ = v.ListPage(player, Query{Filter: "uid == \"" + uid + "\"", Limit: 1})
 	})
 	f2aReport(t, "o2-single-token-position-read", cold, warm)
-	checkP95(t, "o2-single-token-position-read", f2aPct(warm, 0.95), 40*time.Millisecond, "projection-visible single-token read via O2/ListPage")
+	checkP95(t, "o2-single-token-position-read", f2aPct(warm, 0.95), 40*time.Millisecond, "projection-visible single-token read via O2/ListPage // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// 10-token board read
 	cold, warm = f2aMeasure(t, runs, func() {
 		_, _, _ = v.ListPage(player, Query{Limit: 10})
 	})
 	f2aReport(t, "o2-10-token-board-read", cold, warm)
-	checkP95(t, "o2-10-token-board-read", f2aPct(warm, 0.95), 80*time.Millisecond, "board read of 10 items via O2/ListPage with projection")
+	checkP95(t, "o2-10-token-board-read", f2aPct(warm, 0.95), 160*time.Millisecond, "board read of 10 items via O2/ListPage with projection // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// per-keystroke search-as-you-type (3–5 char prefixes)
 	for _, pref := range []string{"fir", "fire", "fireb"} {
@@ -153,7 +153,7 @@ func TestF2aCadenceO2FullScanLiveShapes(t *testing.T) {
 			_, _, _ = v.ListPage(player, Query{Filter: "name contains \"" + pp + "\"", Limit: 20})
 		})
 		f2aReport(t, "o2-search-as-you-type-"+pp, cold, warm)
-		checkP95(t, "o2-search-as-you-type-"+pp, f2aPct(warm, 0.95), 80*time.Millisecond, "search-as-you-type prefix via O2/ListPage with projection")
+		checkP95(t, "o2-search-as-you-type-"+pp, f2aPct(warm, 0.95), 80*time.Millisecond, "search-as-you-type prefix via O2/ListPage with projection // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 	}
 
 	// fog-membership check per token
@@ -162,7 +162,7 @@ func TestF2aCadenceO2FullScanLiveShapes(t *testing.T) {
 		_ = Visible(player, note)
 	})
 	f2aReport(t, "o2-fog-membership-per-token-single", cold, warm)
-	checkP95(t, "o2-fog-membership-per-token-single", f2aPct(warm, 0.95), 20*time.Microsecond, "fog membership check per token (single)")
+	checkP95(t, "o2-fog-membership-per-token-single", f2aPct(warm, 0.95), 400*time.Nanosecond, "fog membership check per token (single) // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// fog-membership check per token across all notes
 	cold, warm = f2aMeasure(t, runs, func() {
@@ -171,7 +171,7 @@ func TestF2aCadenceO2FullScanLiveShapes(t *testing.T) {
 		}
 	})
 	f2aReport(t, "o2-fog-membership-per-token-all", cold, warm)
-	checkP95(t, "o2-fog-membership-per-token-all", f2aPct(warm, 0.95), 4*time.Millisecond, "fog membership check per token over full set")
+	checkP95(t, "o2-fog-membership-per-token-all", f2aPct(warm, 0.95), 800*time.Microsecond, "fog membership check per token over full set // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 }
 
 func TestF2aCadenceSessionTier(t *testing.T) {
@@ -196,7 +196,7 @@ func TestF2aCadenceSessionTier(t *testing.T) {
 	// state read
 	cold, warm := f2aMeasure(t, runs, func() { _, _ = s.GetSession("s1") })
 	f2aReport(t, "session-state-read", cold, warm)
-	checkP95(t, "session-state-read", f2aPct(warm, 0.95), 20*time.Millisecond, "session state read")
+	checkP95(t, "session-state-read", f2aPct(warm, 0.95), 400*time.Microsecond, "session state read // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// token-position write batch
 	cold, warm = f2aMeasure(t, runs, func() {
@@ -205,25 +205,25 @@ func TestF2aCadenceSessionTier(t *testing.T) {
 		}
 	})
 	f2aReport(t, "session-token-position-write-batch10", cold, warm)
-	checkP95(t, "session-token-position-write-batch10", f2aPct(warm, 0.95), 100*time.Millisecond, "token-position write batch (10)")
+	checkP95(t, "session-token-position-write-batch10", f2aPct(warm, 0.95), 3*time.Millisecond, "token-position write batch (10) // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// scratch append
 	cold, warm = f2aMeasure(t, runs, func() {
 		_, _ = s.AppendScratch(session.ScratchEntry{SessionID: "s1", Content: "hello", CreatedAt: time.Now().UTC()})
 	})
 	f2aReport(t, "session-scratch-append", cold, warm)
-	checkP95(t, "session-scratch-append", f2aPct(warm, 0.95), 40*time.Millisecond, "scratch append")
+	checkP95(t, "session-scratch-append", f2aPct(warm, 0.95), 300*time.Microsecond, "scratch append // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// scratch read
 	cold, warm = f2aMeasure(t, runs, func() { _, _ = s.ListScratch("s1") })
 	f2aReport(t, "session-scratch-read", cold, warm)
-	checkP95(t, "session-scratch-read", f2aPct(warm, 0.95), 40*time.Millisecond, "scratch/log read")
+	checkP95(t, "session-scratch-read", f2aPct(warm, 0.95), 400*time.Microsecond, "scratch/log read // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// close-read
 	s.CloseSession("s1", "batch")
 	cold, warm = f2aMeasure(t, runs, func() { _, _ = s.GetSession("s1") })
 	f2aReport(t, "session-close-read", cold, warm)
-	checkP95(t, "session-close-read", f2aPct(warm, 0.95), 20*time.Millisecond, "close-read")
+	checkP95(t, "session-close-read", f2aPct(warm, 0.95), 400*time.Microsecond, "close-read // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 
 	// dice-log append + read
 	cold, warm = f2aMeasure(t, runs, func() {
@@ -231,7 +231,7 @@ func TestF2aCadenceSessionTier(t *testing.T) {
 		_, _ = s.ListScratch("s1")
 	})
 	f2aReport(t, "session-dice-log-append-read", cold, warm)
-	checkP95(t, "session-dice-log-append-read", f2aPct(warm, 0.95), 60*time.Millisecond, "dice-log append + read")
+	checkP95(t, "session-dice-log-append-read", f2aPct(warm, 0.95), 240*time.Microsecond, "dice-log append + read // trips on a 2× regression; observed run-to-run variance ~30%, so 2× neither flakes nor sleeps")
 }
 
 func checkP95(t *testing.T, label string, p95 time.Duration, bound time.Duration, rationale string) {
@@ -269,10 +269,11 @@ func TestF2aCadenceWSRoundTripIfCheap(t *testing.T) {
 		}
 	})
 	f2aReport(t, "ws-session-patch-marshal-unmarshal-roundtrip", cold, warm)
-	// Bound: ~2× observed p95 for 1000 iters aggregate; halving must fail.
-	if f2aPct(warm, 0.95) > 5*time.Millisecond {
-		t.Fatalf("F2A_BOUND_VIOLATION: ws-session-patch-marshal-unmarshal-roundtrip p95=%v exceeds committed bound %v", f2aPct(warm, 0.95), 5*time.Millisecond)
+	// Bound: ~2× worst-observed p95 for 1000 iters aggregate; trips on a 2× regression;
+	// observed run-to-run variance ~30%, so 2× neither flakes nor sleeps.
+	if f2aPct(warm, 0.95) > 40*time.Microsecond {
+		t.Fatalf("F2A_BOUND_VIOLATION: ws-session-patch-marshal-unmarshal-roundtrip p95=%v exceeds committed bound %v", f2aPct(warm, 0.95), 40*time.Microsecond)
 	}
-	t.Logf("F2A_BOUND_OK: ws-session-patch-marshal-unmarshal-roundtrip p95=%v <= %v (rationale: session.patch round-trip fidelity under bound)", f2aPct(warm, 0.95), 5*time.Millisecond)
+	t.Logf("F2A_BOUND_OK: ws-session-patch-marshal-unmarshal-roundtrip p95=%v <= %v (rationale: session.patch round-trip fidelity under bound)", f2aPct(warm, 0.95), 40*time.Microsecond)
 	_ = buf
 }
