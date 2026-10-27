@@ -3,8 +3,11 @@
   import { fetchNotes, fetchNote, saveNote, patchNote, type NoteSummary, type NoteDoc } from "./lib/api";
   import Editor from "./lib/Editor.svelte";
   import VisibilityBadge from "./components/VisibilityBadge.svelte";
+  import GmDashboard from "./surfaces/GmDashboard.svelte";
+  import PlayerView from "./surfaces/PlayerView.svelte";
 
   let notes = $state<NoteSummary[]>([]);
+  let view = $state<"notes" | "dashboard" | "player">("notes");
   let selectedUid = $state<string | null>(null);
   let doc = $state<NoteDoc | null>(null);
   let buffer = $state<string>("");
@@ -86,7 +89,17 @@
 <main>
   <h1>Demitable</h1>
   <p role="status">Status: {status}</p>
+  <nav class="views">
+    <button onclick={() => (view = "notes")}>Notes</button>
+    <button onclick={() => (view = "dashboard")}>Dashboard</button>
+    <button onclick={() => (view = "player")}>Player view</button>
+  </nav>
 
+  {#if view === "dashboard"}
+    <GmDashboard />
+  {:else if view === "player"}
+    <PlayerView />
+  {:else}
   <div class="layout">
     <aside>
       <h2>Notes</h2>
@@ -125,6 +138,7 @@
       {/if}
     </section>
   </div>
+  {/if}
 </main>
 
 <style>

@@ -156,6 +156,24 @@ func Project(p Principal, n Note) NoteView {
 		Tags:       n.Tags,
 		Body:       n.Body,
 	}
+	eff := n.Visibility
+	defaulted := false
+	if eff == "" {
+		if n.Campaign != "" {
+			eff = "party"
+		} else {
+			eff = "gm"
+		}
+		defaulted = true
+	}
+	// Unknown values fail closed to `gm`, mirroring Visible() (ADR-0033 /
+	// ADR-0057 unknown-value rule). A badge must never display a nonsense
+	// label just because the declared value was unrecognised.
+	if !isKnownVisibility(eff) {
+		eff = "gm"
+	}
+	v.EffectiveVisibility = eff
+	v.Defaulted = defaulted
 	isOwner := n.Player != "" && n.Player == p.ID
 	if p.IsGM() || isOwner {
 		v.Player = n.Player

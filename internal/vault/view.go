@@ -19,8 +19,13 @@ type NoteView struct {
 	Campaign   string `json:"campaign"`
 	Kind       string `json:"kind"`
 	Visibility string `json:"visibility"`
-	Workflow   string `json:"workflow,omitempty"`
-	Body       string `json:"body,omitempty"`
+	// EffectiveVisibility is the resolved visibility the principal's
+	// projection reports (ADR-0033 defaulting). Populated server-side so
+	// client surfaces never recompute it (O5c projection discipline).
+	EffectiveVisibility string `json:"effective_visibility,omitempty"`
+	Defaulted           bool   `json:"defaulted,omitempty"`
+	Workflow            string `json:"workflow,omitempty"`
+	Body                string `json:"body,omitempty"`
 	// Owner-scoped: present only when allowed.
 	Player     string   `json:"player,omitempty"`
 	Grants     []string `json:"grants,omitempty"`
@@ -56,6 +61,23 @@ func (n *Note) View(allowOwner bool) NoteView {
 		Tags:       n.Tags,
 		Revealed:   n.Revealed,
 	}
+	eff := n.Visibility
+	defaulted := false
+	if eff == "" {
+		if n.Campaign != "" {
+			eff = "party"
+		} else {
+			eff = "gm"
+		}
+		defaulted = true
+	}
+	// Unknown values fail closed to `gm`, mirroring Visible() (ADR-0033 /
+	// ADR-0057 unknown-value rule).
+	if !isKnownVisibility(eff) {
+		eff = "gm"
+	}
+	v.EffectiveVisibility = eff
+	v.Defaulted = defaulted
 	if allowOwner {
 		v.Player = n.Player
 		v.Grants = n.Grants
