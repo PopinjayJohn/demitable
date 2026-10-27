@@ -450,6 +450,26 @@ func tokenKeyFor(vlt *vault.Vault) string {
 	return tk
 }
 
+func mcpTokenFor(vlt *vault.Vault) string {
+	dir := filepath.Join(vlt.Root, ".demitable")
+	path := filepath.Join(dir, "mcp_token")
+	if data, err := os.ReadFile(path); err == nil {
+		t := strings.TrimSpace(string(data))
+		if t != "" {
+			return t
+		}
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return ""
+	}
+	tok := randomSecret(24)
+	if err := os.WriteFile(path, []byte(tok), 0o600); err != nil {
+		return tok
+	}
+	fmt.Fprintf(os.Stderr, "demitable: MCP token (store this safely): %s\n", tok)
+	return tok
+}
+
 func isKnownVis(v string) bool {
 	switch v {
 	case "public", "party", "owner", "private", "discovered", "gm":

@@ -30,6 +30,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/formula"
 	"github.com/PopinjayJohn/demitable/internal/import"
 	"github.com/PopinjayJohn/demitable/internal/logging"
+	"github.com/PopinjayJohn/demitable/internal/mcp"
 	"github.com/PopinjayJohn/demitable/internal/pack"
 	"github.com/PopinjayJohn/demitable/internal/server"
 	"github.com/PopinjayJohn/demitable/internal/store"
@@ -74,6 +75,8 @@ func run(args []string) error {
 	fs.StringVar(&cfg.LogLevel, "log-level", "info", "debug, info, warn or error")
 	fs.StringVar(&cfg.LogFormat, "log-format", "text", "text or json")
 	fs.StringVar(&cfg.AuditLog, "audit-log", "", "the audit log's path; empty disables it")
+	fs.BoolVar(&cfg.MCP, "mcp", false, "enable the MCP endpoint (off by default)")
+	fs.StringVar(&cfg.MCPToken, "mcp-token", "", "MCP bearer token; generated if empty")
 	showVersion := fs.Bool("version", false, "print the version and exit")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -159,6 +162,14 @@ func run(args []string) error {
 
 	if !cfg.NoBrowser && !cfg.Expose {
 		go openBrowser(urlStr, logger)
+	}
+
+	if cfg.MCP {
+		fmt.Fprintln(os.Stderr, mcp.PrivacyPrompt)
+		if audit != nil {
+			audit.Record(context.Background(), "mcp.enabled", slog.String("privacy", "acknowledged"))
+		}
+		logger.Warn("MCP enabled: campaign may leave the machine")
 	}
 
 	handler := mux()
@@ -1230,6 +1241,16 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(rep)
 	})
+
+	if cfg.MCP {
+		token := cfg.MCPToken
+		if token == "" {
+			token = mcpTokenFor(vlt)
+		}
+		mcpSrv := mcp.NewServer(vlt, token, nil)
+		m.Handle("POST /mcp", mcpSrv)
+		m.Handle("GET /mcp", mcpSrv)
+	}
 
 	return m
 }
