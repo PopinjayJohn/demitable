@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"math/rand"
@@ -13,10 +14,10 @@ import (
 	"time"
 
 	"github.com/PopinjayJohn/demitable/internal/pack"
-	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 	"github.com/PopinjayJohn/demitable/internal/session"
 	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault"
+	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 )
 
 // ---- encounter data model (F2b) --------------------------------------------
@@ -38,25 +39,25 @@ type encounterToken struct {
 }
 
 type encounterState struct {
-	ID               string                `json:"id"`
-	UID              string                `json:"uid"`
-	SessionID        string                `json:"session_id"`
-	Session          string                `json:"session"`
-	Name             string                `json:"name"`
-	System           string                `json:"system"`
-	Pack             string                `json:"pack"`
-	Campaign         string                `json:"campaign"`
+	ID               string                 `json:"id"`
+	UID              string                 `json:"uid"`
+	SessionID        string                 `json:"session_id"`
+	Session          string                 `json:"session"`
+	Name             string                 `json:"name"`
+	System           string                 `json:"system"`
+	Pack             string                 `json:"pack"`
+	Campaign         string                 `json:"campaign"`
 	Participants     []encounterParticipant `json:"participants"`
-	Initiative       []string              `json:"initiative"`
-	InitiativeOrder  []string              `json:"initiative_order"`
-	CurrentTurn      int                   `json:"current_turn"`
-	Turn             int                   `json:"turn"`
-	Round            int                   `json:"round"`
-	Tokens           []encounterToken      `json:"tokens"`
-	Budget           map[string]any        `json:"budget"`
-	OppositionBudget map[string]any        `json:"opposition_budget"`
-	CreatedAt        string                `json:"created_at"`
-	UpdatedAt        string                `json:"updated_at"`
+	Initiative       []string               `json:"initiative"`
+	InitiativeOrder  []string               `json:"initiative_order"`
+	CurrentTurn      int                    `json:"current_turn"`
+	Turn             int                    `json:"turn"`
+	Round            int                    `json:"round"`
+	Tokens           []encounterToken       `json:"tokens"`
+	Budget           map[string]any         `json:"budget"`
+	OppositionBudget map[string]any         `json:"opposition_budget"`
+	CreatedAt        string                 `json:"created_at"`
+	UpdatedAt        string                 `json:"updated_at"`
 }
 
 func (e *encounterState) syncAliases() {
@@ -133,13 +134,155 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		st.UpdatedAt = now
 		raw, _ := json.Marshal(st)
-		// closed check happens in store
 		err := sess.UpdateEncounterState(sid, st.ID, raw)
 		if err != nil {
-			// try create
-			err = sess.CreateEncounter(sid, st.ID, raw)
+			if errors.Is(err, session.ErrSessionClosed) {
+				return err
+			}
+			if strings.Contains(err.Error(), "not found") {
+				return sess.CreateEncounter(sid, st.ID, raw)
+			}
+			return err
 		}
-		return err
+		return nil
+	}
+
+	filterParticipants := func(principal vault.Principal, parts []encounterParticipant) []encounterParticipant {
+		if principal.IsGM() {
+			return parts
+		}
+		out := []encounterParticipant{}
+		for _, pp := range parts {
+			if pp.UID == "" {
+				continue
+			}
+			if vlt == nil {
+				continue
+			}
+			n := vlt.GetNote(pp.UID)
+			if n == nil {
+				continue
+			}
+			if !vault.Visible(principal, *n) {
+				continue
+			}
+			out = append(out, pp)
+		}
+		return out
+	}
+
+	projectEncounter := func(sid string, st *encounterState, principal vault.Principal, seatID string) map[string]any {
+		visibleTokens := []string{}
+		visibleTokenObjs := []encounterToken{}
+		hiddenTokens := []string{}
+		for _, tok := range st.Tokens {
+			if tok.Hidden {
+				if principal.IsGM() {
+					visibleTokens = append(visibleTokens, tok.ID)
+					visibleTokenObjs = append(visibleTokenObjs, tok)
+					continue
+				}
+				hiddenTokens = append(hiddenTokens, tok.ID)
+				continue
+			}
+			if len(tok.VisibleTo) > 0 {
+				allowed := false
+				for _, s := range tok.VisibleTo {
+					if s == seatID || s == principal.ID || s == "*" {
+						allowed = true
+					}
+				}
+				if !allowed && !principal.IsGM() {
+					hiddenTokens = append(hiddenTokens, tok.ID)
+					continue
+				}
+			}
+			if tok.NoteUID != "" && vlt != nil {
+				n := vlt.GetNote(tok.NoteUID)
+				if n != nil {
+					if !vault.Visible(principal, *n) {
+						hiddenTokens = append(hiddenTokens, tok.ID)
+						continue
+					}
+				} else {
+					if !principal.IsGM() {
+						hiddenTokens = append(hiddenTokens, tok.ID)
+						continue
+					}
+				}
+			}
+			visibleTokens = append(visibleTokens, tok.ID)
+			visibleTokenObjs = append(visibleTokenObjs, tok)
+		}
+		visibleNotes := []string{}
+		seen := map[string]bool{}
+		for _, tok := range visibleTokenObjs {
+			if tok.NoteUID != "" && !seen[tok.NoteUID] {
+				seen[tok.NoteUID] = true
+				visibleNotes = append(visibleNotes, tok.NoteUID)
+			}
+		}
+		for _, pp := range st.Participants {
+			if pp.UID != "" && vlt != nil {
+				n := vlt.GetNote(pp.UID)
+				if n == nil {
+					// skip unknown notes (latent fix i)
+					continue
+				}
+				if vault.Visible(principal, *n) {
+					if !seen[pp.UID] {
+						seen[pp.UID] = true
+						visibleNotes = append(visibleNotes, pp.UID)
+					}
+				}
+			}
+		}
+		sort.Strings(visibleTokens)
+		sort.Strings(hiddenTokens)
+		sort.Strings(visibleNotes)
+		res := map[string]any{
+			"seat":           seatID,
+			"seat_id":        seatID,
+			"principal":      principal.Kind,
+			"encounter":      st.ID,
+			"encounter_id":   st.ID,
+			"session":        sid,
+			"session_id":     sid,
+			"visible_tokens": visibleTokens,
+			"visibleTokens":  visibleTokens,
+			"tokens":         visibleTokenObjs,
+			"visible_notes":  visibleNotes,
+			"visibleNotes":   visibleNotes,
+			"note_refs":      visibleNotes,
+			"hidden_tokens":  hiddenTokens,
+			"hiddenTokens":   hiddenTokens,
+		}
+		if principal.IsGM() {
+			res["encounter_obj"] = st
+			res["encounter"] = st
+		} else {
+			// For non-GM, return projected view - do not include raw hidden tokens/GM notes; structure per fog semantics
+			res["encounter"] = map[string]any{
+				"id":                st.ID,
+				"uid":               st.UID,
+				"name":              st.Name,
+				"system":            st.System,
+				"pack":              st.Pack,
+				"campaign":          st.Campaign,
+				"session_id":        st.SessionID,
+				"session":           st.Session,
+				"initiative":        st.Initiative,
+				"initiative_order":  st.InitiativeOrder,
+				"current_turn":      st.CurrentTurn,
+				"turn":              st.Turn,
+				"round":             st.Round,
+				"tokens":            visibleTokenObjs,
+				"participants":      filterParticipants(principal, st.Participants),
+				"budget":            st.Budget,
+				"opposition_budget": st.OppositionBudget,
+			}
+		}
+		return res
 	}
 
 	budgetFor := func(system string, st *encounterState, vlt *vault.Vault) map[string]any {
@@ -150,9 +293,9 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		if pk == nil || pk.Difficulty == nil {
 			return map[string]any{
-				"model":  "",
-				"error":  "unsupported",
-				"code":   "unsupported_difficulty_model",
+				"model":   "",
+				"error":   "unsupported",
+				"code":    "unsupported_difficulty_model",
 				"message": "pack has no difficulty model",
 			}
 		}
@@ -163,6 +306,14 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				"error":   "unsupported",
 				"code":    "unsupported_difficulty_model",
 				"message": "pack difficulty model is empty",
+			}
+		}
+		if strings.TrimSpace(model) == "none" {
+			return map[string]any{
+				"model":   "none",
+				"error":   "unsupported",
+				"code":    "unsupported_difficulty_model",
+				"message": "pack has no difficulty model",
 			}
 		}
 		out := map[string]any{"model": model}
@@ -477,6 +628,9 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		st.Budget = budgetFor(system, st, vlt)
 		st.syncAliases()
 		// create vault note
+		// NOTE (F2b): live encounter state is stored in the session store as a snapshot at mutation time;
+		// mutations do not sync back to the vault note on every turn/update (vault-note/create-time snapshot divergence).
+		// The vault note is a registration/artifact created at create time; F4 must not assume per-turn vault mutation.
 		if vlt != nil {
 			rel := "Encounters/" + safeFileName(name) + ".md"
 			full := filepath.Join(vlt.Root, filepath.FromSlash(rel))
@@ -507,12 +661,12 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
-			"encounter": st,
-			"uid":       uidVal,
-			"id":        uidVal,
-			"session":   sid,
-			"session_id": sid,
-			"budget":    st.Budget,
+			"encounter":         st,
+			"uid":               uidVal,
+			"id":                uidVal,
+			"session":           sid,
+			"session_id":        sid,
+			"budget":            st.Budget,
 			"opposition_budget": st.Budget,
 		})
 	}
@@ -532,7 +686,6 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		principal := principalFromRequest(r, tk)
 		if !allowedSession(principal, sid) && !principal.IsGM() {
-			// if no sid, allow GM only
 			if sid == "" {
 				if !principal.IsGM() {
 					writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
@@ -546,7 +699,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		// note visibility check
 		if vlt != nil {
 			if n := vlt.GetNote(eid); n != nil {
-				if !vault.Visible(principal, *n) && !allowedSession(principal, sid) {
+				if !vault.Visible(principal, *n) && !allowedSession(principal, sid) && !principal.IsGM() {
 					writeErr(w, "not_found", "no such encounter", http.StatusNotFound)
 					return
 				}
@@ -554,22 +707,12 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		st, ok := loadState(sid, eid)
 		if !ok {
-			// maybe sid unknown; try any session
-			if sid != "" {
-				// search all? not; try empty
-			}
-			// try store list? 
 			writeErr(w, "not_found", "no such encounter", http.StatusNotFound)
 			return
 		}
+		res := projectEncounter(sid, st, principal, "")
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"encounter": st,
-			"id":        st.ID,
-			"uid":       st.UID,
-			"session":   st.SessionID,
-			"session_id": st.SessionID,
-		})
+		_ = json.NewEncoder(w).Encode(res)
 	}
 
 	listHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -621,9 +764,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				sid = r.URL.Query().Get("session_id")
 			}
 		}
-		ss, err := sess.GetSession(sid)
-		if err != nil || ss == nil {
-			// try load state to get sid
+		// enforce session scoping explicitly
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
+			return
 		}
 		if sid != "" {
 			if s2, _ := sess.GetSession(sid); s2 != nil && s2.Status == session.StatusClosed {
@@ -694,6 +838,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
 			return
 		}
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
+			return
+		}
 		if sid != "" {
 			if ss, _ := sess.GetSession(sid); ss != nil && ss.Status == session.StatusClosed {
 				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
@@ -749,6 +897,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
 			return
 		}
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
+			return
+		}
 		if sid != "" {
 			if ss, _ := sess.GetSession(sid); ss != nil && ss.Status == session.StatusClosed {
 				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
@@ -802,6 +954,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
 			return
 		}
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
+			return
+		}
 		if sid != "" {
 			if ss, _ := sess.GetSession(sid); ss != nil && ss.Status == session.StatusClosed {
 				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
@@ -832,6 +988,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		principal := principalFromRequest(r, tk)
 		if !principal.IsGM() {
 			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
+			return
+		}
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
 			return
 		}
 		if sid != "" {
@@ -886,7 +1046,6 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			seatID = r.URL.Query().Get("seat_id")
 		}
 		if seatID == "" {
-			// body
 			b := map[string]any{}
 			_ = json.NewDecoder(r.Body).Decode(&b)
 			if v, ok := b["seat"].(string); ok {
@@ -898,17 +1057,28 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				}
 			}
 		}
-		// if seat provided, build principal from store
-		if seatID != "" && sid != "" {
-			if st, ok, _ := sess.FindSeat(sid, seatID); ok {
-				// seat principal
-				p := vault.Seat(st.ID, st.Character, principal.Campaigns...)
-				p.Session = sid
+		if seatID != "" {
+			if !principal.IsGM() {
+				writeErr(w, "forbidden", "gm required", http.StatusForbidden)
+				return
+			}
+			if sid != "" {
+				if st, ok, _ := sess.FindSeat(sid, seatID); ok {
+					p := vault.Seat(st.ID, st.Character, principal.Campaigns...)
+					p.Session = sid
+					principal = p
+				} else {
+					p := vault.Seat(seatID, "", principal.Campaigns...)
+					p.Session = sid
+					principal = p
+				}
+			} else {
+				p := vault.Seat(seatID, "", principal.Campaigns...)
+				p.Session = ""
 				principal = p
 			}
 		}
 		if !allowedSession(principal, sid) && !principal.IsGM() {
-			// anonymous etc
 			if sid != "" {
 				writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
 				return
@@ -919,95 +1089,9 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			writeErr(w, "not_found", "no such encounter", http.StatusNotFound)
 			return
 		}
-		// compute visible tokens
-		visibleTokens := []string{}
-		visibleTokenObjs := []encounterToken{}
-		hiddenTokens := []string{}
-		for _, tok := range st.Tokens {
-			if tok.Hidden {
-				// GM sees hidden? fog hides from all except GM maybe; GM sees all
-				if principal.IsGM() {
-					visibleTokens = append(visibleTokens, tok.ID)
-					visibleTokenObjs = append(visibleTokenObjs, tok)
-				} else {
-					hiddenTokens = append(hiddenTokens, tok.ID)
-				}
-				continue
-			}
-			// visible_to filter
-			if len(tok.VisibleTo) > 0 {
-				allowed := false
-				for _, s := range tok.VisibleTo {
-					if s == seatID || s == principal.ID || s == "*" {
-						allowed = true
-					}
-				}
-				if !allowed && !principal.IsGM() {
-					hiddenTokens = append(hiddenTokens, tok.ID)
-					continue
-				}
-			}
-			// projection check via note
-			if tok.NoteUID != "" && vlt != nil {
-				n := vlt.GetNote(tok.NoteUID)
-				if n != nil {
-					if !vault.Visible(principal, *n) {
-						hiddenTokens = append(hiddenTokens, tok.ID)
-						continue
-					}
-				} else {
-					// unknown note: GM only
-					if !principal.IsGM() {
-						hiddenTokens = append(hiddenTokens, tok.ID)
-						continue
-					}
-				}
-			}
-			visibleTokens = append(visibleTokens, tok.ID)
-			visibleTokenObjs = append(visibleTokenObjs, tok)
-		}
-		// visible note refs
-		visibleNotes := []string{}
-		seen := map[string]bool{}
-		for _, tok := range visibleTokenObjs {
-			if tok.NoteUID != "" && !seen[tok.NoteUID] {
-				seen[tok.NoteUID] = true
-				visibleNotes = append(visibleNotes, tok.NoteUID)
-			}
-		}
-		// also participants whose notes visible
-		for _, pp := range st.Participants {
-			if pp.UID != "" && vlt != nil {
-				n := vlt.GetNote(pp.UID)
-				if n == nil || vault.Visible(principal, *n) {
-					if !seen[pp.UID] {
-						seen[pp.UID] = true
-						visibleNotes = append(visibleNotes, pp.UID)
-					}
-				}
-			}
-		}
-		sort.Strings(visibleTokens)
-		sort.Strings(hiddenTokens)
-		sort.Strings(visibleNotes)
+		res := projectEncounter(sid, st, principal, seatID)
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"seat":            seatID,
-			"seat_id":         seatID,
-			"principal":       principal.Kind,
-			"encounter":       eid,
-			"encounter_id":    eid,
-			"session":         sid,
-			"session_id":      sid,
-			"visible_tokens":  visibleTokens,
-			"visibleTokens":   visibleTokens,
-			"tokens":          visibleTokenObjs,
-			"visible_notes":   visibleNotes,
-			"visibleNotes":    visibleNotes,
-			"note_refs":       visibleNotes,
-			"hidden_tokens":   hiddenTokens,
-			"hiddenTokens":    hiddenTokens,
-		})
+		_ = json.NewEncoder(w).Encode(res)
 	}
 
 	budgetHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -1249,4 +1333,3 @@ func safeFileName(s string) string {
 	}
 	return out
 }
-
