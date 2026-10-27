@@ -2,6 +2,14 @@ export interface NoteSummary {
   uid: string;
   path?: string;
   name?: string;
+  type?: string;
+  campaign?: string;
+  workflow?: string;
+  visibility?: string;
+  effective_visibility?: string;
+  effectiveVisibility?: string;
+  defaulted?: boolean;
+  grants?: string[];
   [key: string]: unknown;
 }
 

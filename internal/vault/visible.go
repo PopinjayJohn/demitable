@@ -156,6 +156,18 @@ func Project(p Principal, n Note) NoteView {
 		Tags:       n.Tags,
 		Body:       n.Body,
 	}
+	eff := n.Visibility
+	defaulted := false
+	if eff == "" {
+		if n.Campaign != "" {
+			eff = "party"
+		} else {
+			eff = "gm"
+		}
+		defaulted = true
+	}
+	v.EffectiveVisibility = eff
+	v.Defaulted = defaulted
 	isOwner := n.Player != "" && n.Player == p.ID
 	if p.IsGM() || isOwner {
 		v.Player = n.Player
