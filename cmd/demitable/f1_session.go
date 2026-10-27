@@ -590,7 +590,8 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		if ss, _ := sess.GetSession(id); ss != nil {
 			batchID = ss.CloseBatchID
 		}
-		// stub: record close intent + batch id; F4 fills apply.
+		// stub: record close intent + batch id ONLY. No journal write-back
+		// and no vault mutation here — that is F4's job.
 		if audit != nil {
 			audit.Record(r.Context(), "session.close", slog.String("id", id), slog.String("batch_id", batchID))
 		}
