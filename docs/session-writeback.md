@@ -192,12 +192,16 @@ knows them.
 
 ## 6. The visibility model, formalised
 
-**Completed by [ADR-0033](decisions/0033-campaign-and-grants.md)**, which
-is now authoritative. It adds the campaign dimension, grant sets, revealable
-secrets, the default, and the no-owner fallback.
+**Completed by [ADR-0033](decisions/0033-campaign-and-grants.md)**, amended
+by [ADR-0057](decisions/0057-audiences.md) on the algorithm: ADR-0033's
+ordered-rules phrasing is retired in favour of the audience computation
+(intersection of every applicable constraint, widened only by permitted
+grants). It adds the campaign dimension, grant sets, revealable secrets, the
+default, and the no-owner fallback.
 
-> **A note is visible to a player if any *grant* applies. `gm` is an absolute
-> *deny* that overrides every grant.**
+> **A note is visible to a player when its audience includes that player: the
+> intersection of every applicable constraint, widened only by the grants
+> permitted to widen it. `gm` is an absolute *deny* that no grant overrides.**
 
 ### Grants
 

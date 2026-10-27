@@ -658,6 +658,32 @@ func (v *Vault) AssetBytes(path string) ([]byte, error) {
 	return data, nil
 }
 
+// WriteAsset writes an asset file (vault-relative path) and records the
+// write in the journal so it is revertible like every other mutation. It
+// does not overwrite: callers must check existence first. The in-memory
+// index is not rebuilt here; the caller invokes Load.
+func (v *Vault) WriteAsset(actor, rel string, data []byte) error {
+	if v.Root == "" {
+		return fmt.Errorf("vault: no root")
+	}
+	clean := filepath.ToSlash(filepath.Clean(rel))
+	if clean == "." || strings.HasPrefix(clean, "..") || strings.HasPrefix(clean, "/") {
+		return fmt.Errorf("vault: bad asset path %q", rel)
+	}
+	full := filepath.Join(v.Root, filepath.FromSlash(clean))
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		return err
+	}
+	// journal before write
+	if _, err := NewJournal(v.Root).AppendWrite(actor, "upload", "create", "", clean, "", nil, data, nil); err != nil {
+		return fmt.Errorf("vault: journal write: %w", err)
+	}
+	if err := os.WriteFile(full, data, 0o644); err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdateNote replaces a note's file content after a write.
 func (v *Vault) UpdateNote(uid string, data []byte) error {
 	v.mu.RLock()
@@ -708,6 +734,40 @@ func (v *Vault) WriteNoteJournaled(actor, source, uid string, data []byte) error
 		}
 		return fmt.Errorf("vault: journal write: %w", err)
 	}
+	return nil
+}
+
+// DeleteNoteJournaled removes a note and records the deletion in the journal,
+// so it is revertible like every other app-initiated write. The before bytes
+// are stored; reverting restores the file. The in-memory index is rebuilt
+// from the on-disk state by the caller (or by a watcher) after revert.
+func (v *Vault) DeleteNoteJournaled(actor, source, uid string) error {
+	v.mu.RLock()
+	n := v.Notes[uid]
+	v.mu.RUnlock()
+	if n == nil {
+		return fmt.Errorf("vault: unknown note %s", uid)
+	}
+	before := append([]byte(nil), n.Raw...)
+	if _, err := NewJournal(v.Root).AppendWrite(actor, source, "delete", uid, n.Path, "", before, nil, nil); err != nil {
+		return fmt.Errorf("vault: journal write: %w", err)
+	}
+	full := filepath.Join(v.Root, filepath.FromSlash(n.Path))
+	if err := os.Remove(full); err != nil {
+		return fmt.Errorf("vault: delete file: %w", err)
+	}
+	v.mu.Lock()
+	delete(v.Notes, uid)
+	delete(v.ByPath, n.Path)
+	filtered := v.Order[:0]
+	for _, u := range v.Order {
+		if u != uid {
+			filtered = append(filtered, u)
+		}
+	}
+	v.Order = filtered
+	v.mu.Unlock()
+	v.Literal.Rebuild(v)
 	return nil
 }
 

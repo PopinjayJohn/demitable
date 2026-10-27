@@ -252,24 +252,206 @@ func saveAccounts(vaultRoot string, accts []storedAccount) {
 	_ = os.WriteFile(filepath.Join(vaultRoot, ".demitable", "accounts.json"), data, 0o600)
 }
 
-func findAccount(accts []storedAccount, player string) *storedAccount {
+func findAccountIndex(accts []storedAccount, player string) int {
 	for i := range accts {
-		if accts[i].Player == player {
-			return &accts[i]
+		if accts[i].Player == player || accts[i].ID == player {
+			return i
 		}
 	}
-	return nil
+	return -1
+}
+
+// --- auth state (rotatable) ---
+
+type authState struct {
+	mu       sync.RWMutex
+	gmSecret string
+	tokenKey string
+}
+
+func (s *authState) gmSecretVal() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.gmSecret
+}
+
+func (s *authState) tokenKeyVal() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.tokenKey
+}
+
+func (s *authState) set(gs, tk string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.gmSecret = gs
+	s.tokenKey = tk
+}
+
+func rotateVaultAuth(vlt *vault.Vault, state *authState) (string, string, error) {
+	newGM := randomSecret(32)
+	newTK := randomSecret(32)
+	dir := filepath.Join(vlt.Root, ".demitable")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", "", err
+	}
+	c := vaultConfig{GMSecret: newGM, TokenKey: newTK}
+	data, err := yaml.Marshal(c)
+	if err != nil {
+		return "", "", err
+	}
+	if err := os.WriteFile(filepath.Join(dir, "config.yaml"), data, 0o600); err != nil {
+		return "", "", err
+	}
+	state.set(newGM, newTK)
+	return newGM, newTK, nil
 }
 
 // --- handlers ---
 
 func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg config.Config, limiter *authLimiter) {
-	tokenKey, gmSecret, _ := func() (string, string, error) {
-		gs, tk, err := ensureVaultConfig(vlt.Root)
-		return tk, gs, err
-	}()
-	_ = gmSecret
+	gs, tk, _ := ensureVaultConfig(vlt.Root)
+	state := &authState{gmSecret: gs, tokenKey: tk}
 	secure := cfg.Expose || (cfg.PublicURL != "" && strings.HasPrefix(cfg.PublicURL, "https"))
+
+	setPassphraseHandler := func(w http.ResponseWriter, r *http.Request) {
+		ip := clientIP(r)
+		if !limiter.allow(ip) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		var body struct {
+			Player            string `json:"player"`
+			Passphrase        string `json:"passphrase"`
+			NewPassphrase     string `json:"new_passphrase"`
+			Password          string `json:"password"`
+			OldPassphrase     string `json:"old_passphrase"`
+			CurrentPassphrase string `json:"current_passphrase"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		pass := body.Passphrase
+		if pass == "" {
+			pass = body.NewPassphrase
+		}
+		if pass == "" {
+			pass = body.Password
+		}
+		if pass == "" {
+			limiter.fail(ip)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "missing passphrase"})
+			return
+		}
+		player := body.Player
+		// A bearer token from join identifies the account that is setting
+		// its passphrase. This is the normal flow; the body's player field
+		// is a fallback for callers that already know it.
+		if h := r.Header.Get("Authorization"); h != "" && strings.HasPrefix(h, "Bearer ") {
+			if c, ok := verifyToken(state.tokenKeyVal(), strings.TrimPrefix(h, "Bearer ")); ok && c.Kind == "account" {
+				player = c.ID
+			}
+		}
+		if ck, err := r.Cookie("demitable_session"); err == nil && player == "" {
+			if c, ok := verifyToken(state.tokenKeyVal(), ck.Value); ok && c.Kind == "account" {
+				player = c.ID
+			}
+		}
+		if player == "" {
+			limiter.fail(ip)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "missing player"})
+			return
+		}
+		hash, err := account.HashPassphrase(pass)
+		if err != nil {
+			limiter.fail(ip)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+		accts := loadAccounts(vlt.Root)
+		idx := findAccountIndex(accts, player)
+		if idx < 0 {
+			limiter.fail(ip)
+			if audit != nil {
+				audit.Record(r.Context(), "auth.set_passphrase", slog.String("outcome", "failure"), slog.String("reason", "not_found"), slog.String("remote_addr", r.RemoteAddr))
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": account.ErrWrongPassphrase.Error()})
+			return
+		}
+		// Initial set (no credential yet): bind to the join credential.
+		// A bare body.player with no proof of the join must not win a
+		// pre-set race (F0b follow-up a). Require the bearer token issued
+		// at join, matching this account.
+		if accts[idx].PassphraseHash == "" {
+			authorised := false
+			if h := r.Header.Get("Authorization"); h != "" && strings.HasPrefix(h, "Bearer ") {
+				if c, ok := verifyToken(state.tokenKeyVal(), strings.TrimPrefix(h, "Bearer ")); ok && c.Kind == "account" && c.ID == accts[idx].ID {
+					authorised = true
+				}
+			}
+			if !authorised {
+				if ck, err := r.Cookie("demitable_session"); err == nil {
+					if c, ok := verifyToken(state.tokenKeyVal(), ck.Value); ok && c.Kind == "account" && c.ID == accts[idx].ID {
+						authorised = true
+					}
+				}
+			}
+			if !authorised {
+				limiter.fail(ip)
+				if audit != nil {
+					audit.Record(r.Context(), "auth.set_passphrase", slog.String("outcome", "failure"), slog.String("reason", "missing_join_token"), slog.String("remote_addr", r.RemoteAddr))
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_ = json.NewEncoder(w).Encode(map[string]string{"error": account.ErrWrongPassphrase.Error()})
+				return
+			}
+		} else {
+			// Change: require the current passphrase (existing behaviour).
+			old := body.OldPassphrase
+			if old == "" {
+				old = body.CurrentPassphrase
+			}
+			if !account.VerifyPassphrase(accts[idx].PassphraseHash, old) {
+				limiter.fail(ip)
+				if audit != nil {
+					audit.Record(r.Context(), "auth.set_passphrase", slog.String("outcome", "failure"), slog.String("reason", "wrong_passphrase"), slog.String("remote_addr", r.RemoteAddr))
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_ = json.NewEncoder(w).Encode(map[string]string{"error": account.ErrWrongPassphrase.Error()})
+				return
+			}
+		}
+		accts[idx].PassphraseHash = hash
+		saveAccounts(vlt.Root, accts)
+		limiter.success(ip)
+		if audit != nil {
+			audit.Record(r.Context(), "auth.set_passphrase", slog.String("outcome", "success"), slog.String("principal", "account:"+accts[idx].ID), slog.String("remote_addr", r.RemoteAddr))
+		}
+		tok, err := issueToken(state.tokenKeyVal(), tokenClaims{Kind: "account", ID: accts[idx].ID, Campaigns: accts[idx].Campaigns})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		exp := time.Now().Add(24 * time.Hour)
+		setAuthCookie(w, tok, secure)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"token":      tok,
+			"expires_at": exp.UTC().Format(time.RFC3339),
+			"player":     accts[idx].ID,
+		})
+	}
 
 	m.HandleFunc("POST /api/v1/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		ip := clientIP(r)
@@ -286,10 +468,10 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			return
 		}
 		accts := loadAccounts(vlt.Root)
-		a := findAccount(accts, body.Player)
+		idx := findAccountIndex(accts, body.Player)
 		var stored *storedAccount
-		if a != nil {
-			tmp := *a
+		if idx >= 0 {
+			tmp := accts[idx]
 			stored = &tmp
 		}
 		acc := (*account.Account)(nil)
@@ -311,7 +493,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 		if audit != nil {
 			audit.Record(r.Context(), "auth.login", slog.String("outcome", "success"), slog.String("principal", "account:"+res.ID), slog.String("remote_addr", r.RemoteAddr))
 		}
-		tok, err := issueToken(tokenKey, tokenClaims{Kind: "account", ID: res.ID, Campaigns: res.Campaigns})
+		tok, err := issueToken(state.tokenKeyVal(), tokenClaims{Kind: "account", ID: res.ID, Campaigns: res.Campaigns})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -368,11 +550,12 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 			return
 		}
-		// redeem
+		// redeem: create an account with NO passphrase. The player chooses
+		// one via the set-passphrase endpoint. The consumed code is never
+		// stored as a credential (ADR-0009).
 		newID := "p_" + body.Code
-		hash, _ := account.HashPassphrase(body.Code)
 		accts := loadAccounts(vlt.Root)
-		accts = append(accts, storedAccount{ID: newID, Player: newID, Campaigns: []string{codes[idx].Campaign}, PassphraseHash: hash})
+		accts = append(accts, storedAccount{ID: newID, Player: newID, Campaigns: []string{codes[idx].Campaign}, PassphraseHash: ""})
 		saveAccounts(vlt.Root, accts)
 		codes[idx].Used = true
 		codes[idx].UsedBy = newID
@@ -381,7 +564,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 		if audit != nil {
 			audit.Record(r.Context(), "auth.join", slog.String("outcome", "success"), slog.String("principal", "account:"+newID), slog.String("remote_addr", r.RemoteAddr))
 		}
-		tok, _ := issueToken(tokenKey, tokenClaims{Kind: "account", ID: newID, Campaigns: []string{codes[idx].Campaign}})
+		tok, _ := issueToken(state.tokenKeyVal(), tokenClaims{Kind: "account", ID: newID, Campaigns: []string{codes[idx].Campaign}})
 		exp := time.Now().Add(24 * time.Hour)
 		setAuthCookie(w, tok, secure)
 		w.Header().Set("Content-Type", "application/json")
@@ -391,6 +574,58 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			"player":     newID,
 		})
 	})
+
+	rotateHandler := func(w http.ResponseWriter, r *http.Request) {
+		ip := clientIP(r)
+		if !limiter.allow(ip) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		var body struct {
+			Secret string `json:"secret"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		// Authorise by GM principal or by the current GM secret.
+		authorised := false
+		if h := r.Header.Get("Authorization"); h != "" && strings.HasPrefix(h, "Bearer ") {
+			if c, ok := verifyToken(state.tokenKeyVal(), strings.TrimPrefix(h, "Bearer ")); ok && c.Kind == "gm" {
+				authorised = true
+			}
+		}
+		if ck, err := r.Cookie("demitable_session"); err == nil && !authorised {
+			if c, ok := verifyToken(state.tokenKeyVal(), ck.Value); ok && c.Kind == "gm" {
+				authorised = true
+			}
+		}
+		if !authorised && body.Secret != "" && body.Secret == state.gmSecretVal() {
+			authorised = true
+		}
+		if !authorised {
+			limiter.fail(ip)
+			if audit != nil {
+				audit.Record(r.Context(), "auth.rotate", slog.String("outcome", "failure"), slog.String("remote_addr", r.RemoteAddr))
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "invalid GM secret"})
+			return
+		}
+		newGM, _, err := rotateVaultAuth(vlt, state)
+		if err != nil {
+			limiter.fail(ip)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		limiter.success(ip)
+		if audit != nil {
+			audit.Record(r.Context(), "auth.rotate", slog.String("outcome", "success"), slog.String("principal", "gm"), slog.String("remote_addr", r.RemoteAddr))
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"gm_secret": newGM,
+			"rotated":   true,
+		})
+	}
 
 	m.HandleFunc("POST /api/v1/auth/gm", func(w http.ResponseWriter, r *http.Request) {
 		ip := clientIP(r)
@@ -405,7 +640,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		if body.Secret != gmSecret {
+		if body.Secret != state.gmSecretVal() {
 			limiter.fail(ip)
 			if audit != nil {
 				audit.Record(r.Context(), "auth.gm", slog.String("outcome", "failure"), slog.String("remote_addr", r.RemoteAddr))
@@ -419,7 +654,7 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 		if audit != nil {
 			audit.Record(r.Context(), "auth.gm", slog.String("outcome", "success"), slog.String("principal", "gm"), slog.String("remote_addr", r.RemoteAddr))
 		}
-		tok, _ := issueToken(tokenKey, tokenClaims{Kind: "gm"})
+		tok, _ := issueToken(state.tokenKeyVal(), tokenClaims{Kind: "gm"})
 		exp := time.Now().Add(24 * time.Hour)
 		setAuthCookie(w, tok, secure)
 		w.Header().Set("Content-Type", "application/json")
@@ -429,6 +664,24 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			"role":       "gm",
 		})
 	})
+
+	// set-passphrase aliases
+	for _, p := range []string{
+		"POST /api/v1/auth/set-passphrase",
+		"POST /api/v1/auth/passphrase",
+		"POST /api/v1/auth/set_passphrase",
+	} {
+		m.HandleFunc(p, setPassphraseHandler)
+	}
+	// gm rotation aliases
+	for _, p := range []string{
+		"POST /api/v1/auth/gm/rotate",
+		"POST /api/v1/auth/rotate",
+		"POST /api/v1/auth/gm-secret/rotate",
+		"POST /api/v1/auth/rotate-gm-secret",
+	} {
+		m.HandleFunc(p, rotateHandler)
+	}
 }
 
 func setAuthCookie(w http.ResponseWriter, tok string, secure bool) {
