@@ -33,6 +33,8 @@ func (c *wsConn) writeJSON(v any) {
 	_ = writeWSFrame(c.conn, 0x1, b)
 }
 
+var globalHub *wsHub
+
 type wsHub struct {
 	mu    sync.Mutex
 	conns []*wsConn

@@ -348,6 +348,9 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 			writeErr(w, "internal", "delete failed", http.StatusInternalServerError)
 			return
 		}
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": uid, "kind": "deleted"}})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"uid": uid, "deleted": true})
 	}
@@ -549,9 +552,9 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 				writeErr(w, "forbidden", "forbidden", http.StatusForbidden)
 				return
 			}
-			newWF := "rejected"
+			newWF := "draft"
 			if approve {
-				newWF = "approved"
+				newWF = "active"
 			}
 			// apply via frontmatter
 			full := filepath.Join(vlt.Root, filepath.FromSlash(n.Path))
@@ -579,6 +582,12 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 			if err := vlt.WriteNoteJournaled(actor, "app", uid, buf.Bytes()); err != nil {
 				writeErr(w, "internal", "save failed", http.StatusInternalServerError)
 				return
+			}
+			if globalHub != nil {
+				if n2 := vlt.GetNote(uid); n2 != nil {
+					globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": uid, "hash": n2.Hash}})
+				}
+				globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": uid, "kind": "updated"}})
 			}
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(map[string]any{"uid": uid, "workflow": newWF})

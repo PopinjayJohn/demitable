@@ -309,6 +309,8 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 	}
 	m := mux().(*http.ServeMux)
+	hub := &wsHub{}
+	globalHub = hub
 
 	// Session tier store (F1). Threading through extras allows callers (main)
 	// to pass a durable store; tests get an in-memory one.
@@ -609,13 +611,16 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		updated := vlt.GetNote(uid)
+		hub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": updated.UID, "hash": updated.Hash}})
+		hub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": updated.UID, "kind": "updated"}})
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
-			"uid":     updated.UID,
-			"path":    updated.Path,
-			"name":    updated.Name,
-			"content": string(updated.Raw),
-			"hash":    updated.Hash,
+			"uid":                  updated.UID,
+			"path":                 updated.Path,
+			"name":                 updated.Name,
+			"content":              string(updated.Raw),
+			"hash":                 updated.Hash,
+			"effective_visibility": updated.Visibility,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -727,13 +732,18 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		updated := vlt.GetNote(uid)
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": updated.UID, "hash": updated.Hash}})
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": updated.UID, "kind": "updated"}})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
-			"uid":     updated.UID,
-			"path":    updated.Path,
-			"name":    updated.Name,
-			"content": string(updated.Raw),
-			"hash":    updated.Hash,
+			"uid":                  updated.UID,
+			"path":                 updated.Path,
+			"name":                 updated.Name,
+			"content":              string(updated.Raw),
+			"hash":                 updated.Hash,
+			"effective_visibility": updated.Visibility,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -960,7 +970,14 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		rec.SyncAliases()
 		appendRoll(vlt, rec)
 
-		// broadcast? skip websocket for now
+		hub.broadcast(map[string]any{
+			"v":    1,
+			"type": "roll.result",
+			"data": map[string]any{
+				"roll":   rec,
+				"result": res,
+			},
+		})
 
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -1212,6 +1229,10 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": uid, "hash": vlt.GetNote(uid).Hash}})
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": uid, "kind": "updated"}})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"uid": uid, "workflow": "submitted"})
 	})
@@ -1242,7 +1263,6 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	})
 	// WebSocket surface (N7b).
 	tokenKey := tokenKeyFor(vlt)
-	hub := &wsHub{}
 	m.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
 		handleWS(w, r, vlt, tokenKey, hub)
 	})
