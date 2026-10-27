@@ -65,9 +65,9 @@ jobs:
   corpus:
     name: corpus
     runs-on: ubuntu-latest
-    # The golden-corpus suites run against the committed vault, which does
-    # not exist yet. The job turns itself on when it does, so the corpus
-    # cannot silently stop being checked.
+    # Runs the golden-corpus suites (go test -run Corpus) against the
+    # committed SRD vault under dev/srd-vault. Gated on that directory so
+    # the corpus cannot silently stop being checked.
     if: hashFiles('dev/srd-vault/**') != ''
     steps:
       - uses: actions/checkout@v4

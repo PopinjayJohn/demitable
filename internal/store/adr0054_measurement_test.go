@@ -10,7 +10,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
-// packDefaults mirrors ADR-0033's content-type visibility defaults, as
+// adr0054PackDefaults mirrors ADR-0033's content-type visibility defaults, as
 // applied in spikes/measurement/search for the SRD corpus.
 var adr0054PackDefaults = map[string]string{
 	"class":           "party",
@@ -26,6 +26,16 @@ var adr0054PackDefaults = map[string]string{
 	"rule":            "party",
 }
 
+// adr0054Fixtures returns the SRD corpus root, or skips.
+//
+// The corpus is a transient build input: manually acquired, gitignored, and
+// deleted after a build (docs/corpus-provenance.md). CI cannot obtain it, so
+// in the test job this suite skips. That is an accepted risk, recorded here
+// rather than hidden: the coverage is a maintainer check (`make corpus`, which
+// selects every TestCorpus... name) and the bounds are the ones measured on
+// 2026-10-26 — topChanges=3, maxShift=16, maxSwing=103.96%. If the corpus
+// appears in CI (a cache step, a published artefact), this suite starts running
+// with no code change; see the corpus job in .github/workflows/ci.yml.
 func adr0054Fixtures(t *testing.T) string {
 	t.Helper()
 	root := filepath.Join("..", "..", "fixtures")
@@ -33,7 +43,7 @@ func adr0054Fixtures(t *testing.T) string {
 		root = r
 	}
 	if _, err := os.Stat(filepath.Join(root, "rules")); err != nil {
-		t.Skip("SRD fixtures absent")
+		t.Skip("SRD fixtures absent (transient build input; see docs/corpus-provenance.md)")
 	}
 	return root
 }
@@ -138,7 +148,32 @@ func adr0054Title(n *vault.Note) string {
 	return strings.TrimSuffix(base, filepath.Ext(base))
 }
 
-func TestADR0054PartitionMeasurement(t *testing.T) {
+// TestCorpusADR0054PartitionMeasurement reproduces ADR-0054 §5 over the SRD
+// corpus: two indexes, one GM and one player, the same eight GM queries and
+// the same BM25 weights. It is named TestCorpus... so `make corpus`
+// (`go test -run Corpus ./...`) selects it; the corpus is a build input and
+// its absence is the documented reason this skips.
+//
+// Counting conventions, stated because the ADR's prose and its table disagree
+// if they are not:
+//
+//   - topChanges counts a query only when both indexes return a top hit and
+//     the two UIDs differ. "goblin" returns 13 GM hits and 0 player hits (every
+//     goblin is a monster, and every monster is gm), so its top result does
+//     change but it is not counted. The ADR's "3 of 8" is this convention;
+//     counting "the player index has no top hit" as a change would make it 4.
+//   - maxShift is the largest |playerRank − gmRank| among player hits in the
+//     top 10 that also appear in the GM top 20. It is 16 (the Wizard note for
+//     "magic missile").
+//   - maxSwing is the largest |(player − gm) / gm| over every player hit that
+//     also appears in the GM top 20 — not the top hit's swing. It is 103.96%,
+//     on the Elf race note for "darkvision" (gm −2.4570 → player −5.0113).
+//     The Darkvision spell itself swings 100.6% (gm −3.8382 → player −7.7002),
+//     which is the figure ADR-0054 §5 recorded; 100.6% is that note's swing,
+//     not the maximum.
+//
+// The bounds below are the recorded values, so a drift fails the suite.
+func TestCorpusADR0054PartitionMeasurement(t *testing.T) {
 	root := adr0054Fixtures(t)
 	v, err := vault.Open(root)
 	if err != nil {
@@ -225,7 +260,8 @@ func TestADR0054PartitionMeasurement(t *testing.T) {
 			gmRank[h.UID] = i
 			gmScore[h.UID] = h.Score
 		}
-		// top result change?
+		// top result change? Only when both indexes have a top hit; see the
+		// counting convention on the test's doc comment.
 		gmTop := ""
 		if len(gmHits) > 0 {
 			gmTop = gmHits[0].UID
@@ -252,7 +288,7 @@ func TestADR0054PartitionMeasurement(t *testing.T) {
 				}
 			}
 		}
-		// max score swing
+		// max score swing across every overlapping hit, not the top hit
 		for _, h := range plHits {
 			if gs, ok := gmScore[h.UID]; ok {
 				if gs == 0 {
@@ -267,7 +303,6 @@ func TestADR0054PartitionMeasurement(t *testing.T) {
 				}
 			}
 		}
-		_ = plTop
 	}
 
 	t.Logf("ADR-0054 measurement: topChanges=%d maxShift=%d maxSwing=%.2f%%", topChanges, maxShift, maxSwing)

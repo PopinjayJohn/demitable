@@ -13,6 +13,7 @@ GOFLAGS ?=
 BIN     ?= dist/demitable
 PKG     ?= ./cmd/demitable
 PORT    ?= 8080
+VERSION ?= 1.0.0
 
 # The frontend does not exist yet. When it does, `web/` appears and these
 # targets start doing the frontend half as well.
@@ -44,7 +45,7 @@ ifdef HAVE_WEB
 	cp -r $(WEB_DIR)/dist/. internal/server/webdist/
 	touch internal/server/webdist/.gitkeep
 endif
-	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -trimpath -ldflags "-s -w" -o $(BIN) $(PKG)
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -trimpath -ldflags "-s -w -X main.version=$(VERSION)" -o $(BIN) $(PKG)
 	@echo "built $(BIN)"
 
 .PHONY: install
@@ -158,5 +159,5 @@ endif
 		if [ "$$goos" = "windows" ]; then out=$$out.exe; fi; \
 		echo "  $$target"; \
 		CGO_ENABLED=0 GOOS=$$goos GOARCH=$$goarch \
-			$(GO) build $(GOFLAGS) -trimpath -ldflags "-s -w" -o $$out $(PKG) || exit 1; \
+			$(GO) build $(GOFLAGS) -trimpath -ldflags "-s -w -X main.version=$(VERSION)" -o $$out $(PKG) || exit 1; \
 	done
