@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"log/slog"
@@ -74,6 +76,7 @@ func assetVisible(vlt *vault.Vault, prin vault.Principal, assetPath string) bool
 	if prin.IsGM() {
 		return true
 	}
+	base := filepath.Base(assetPath)
 	for _, n := range vlt.AllNotes() {
 		if n == nil {
 			continue
@@ -81,38 +84,56 @@ func assetVisible(vlt *vault.Vault, prin vault.Principal, assetPath string) bool
 		if !vault.Visible(prin, *n) {
 			continue
 		}
-		if noteReferencesAsset(n, assetPath) {
+		// Match against the caller's projected view only — never raw bytes.
+		// Secret blocks (and any content withheld from this caller) are
+		// stripped from the projected body, so a reference that lives
+		// inside a GM-only block cannot widen visibility. (ADR-0057)
+		proj := vault.Project(prin, *n)
+		if containsAssetRef(proj.Body, assetPath, base) {
 			return true
+		}
+		// Resolved link targets, but only if the link survived projection
+		// (i.e. is not hidden inside a stripped block).
+		for _, l := range n.Links {
+			t := l.Target
+			if l.Resolved != "" {
+				t = l.Resolved
+			}
+			if !assetTargetMatch(t, assetPath, base) {
+				continue
+			}
+			if strings.Contains(proj.Body, l.Target) ||
+				strings.Contains(proj.Body, t) ||
+				(l.Text != "" && strings.Contains(proj.Body, l.Text)) {
+				return true
+			}
 		}
 	}
 	return false
 }
 
-func noteReferencesAsset(n *vault.Note, assetPath string) bool {
-	if n == nil {
+func containsAssetRef(body, assetPath, base string) bool {
+	if assetPath != "" && strings.Contains(body, assetPath) {
+		return true
+	}
+	if base != "" && base != "." && strings.Contains(body, base) {
+		return true
+	}
+	return false
+}
+
+func assetTargetMatch(t, assetPath, base string) bool {
+	if t == "" {
 		return false
 	}
-	base := filepath.Base(assetPath)
-	if strings.Contains(string(n.Raw), assetPath) {
+	if t == assetPath {
 		return true
 	}
-	if base != "" && strings.Contains(string(n.Raw), base) {
+	if base != "" && filepath.Base(t) == base {
 		return true
 	}
-	for _, l := range n.Links {
-		t := l.Target
-		if l.Resolved != "" {
-			t = l.Resolved
-		}
-		if t == assetPath {
-			return true
-		}
-		if filepath.Base(t) == base && base != "" {
-			return true
-		}
-		if strings.HasSuffix(t, assetPath) {
-			return true
-		}
+	if strings.HasSuffix(t, assetPath) {
+		return true
 	}
 	return false
 }
@@ -234,7 +255,12 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 				system = s
 			}
 		}
-		// expression field is intentionally not evaluated (no arbitrary eval).
+		// expression field is never evaluated (no arbitrary eval). A
+		// request that supplies one is rejected outright.
+		if req.Expression != "" {
+			writeErr(w, "invalid", "expression is not supported", http.StatusBadRequest)
+			return
+		}
 		_ = req.Expression
 
 		var n *vault.Note
@@ -347,9 +373,18 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 				target = l.Target
 			}
 			resolvedUID := target
-			// resolve via vault index
+			// resolve via vault index, but never expose a UID the caller
+			// may not resolve: a target that is invisible to the caller
+			// stays as its raw (possibly unresolved) form.
 			if nn := findNote(vlt, target, target); nn != nil {
-				resolvedUID = nn.UID
+				if vault.Visible(principal, *nn) {
+					resolvedUID = nn.UID
+				} else {
+					resolvedUID = l.Target
+					if resolvedUID == "" {
+						resolvedUID = target
+					}
+				}
 			}
 			outgoing = append(outgoing, map[string]any{
 				"kind":     l.Kind,
@@ -540,7 +575,8 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 			buf.Write(newInner)
 			buf.Write(doc.Block.Close)
 			buf.Write(doc.Body)
-			if err := vlt.SaveNote(uid, buf.Bytes()); err != nil {
+			actor := "gm"
+			if err := vlt.WriteNoteJournaled(actor, "app", uid, buf.Bytes()); err != nil {
 				writeErr(w, "internal", "save failed", http.StatusInternalServerError)
 				return
 			}
@@ -577,7 +613,6 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 			}
 			file, header, err := r.FormFile("file")
 			if err != nil {
-				// try other field names
 				for _, name := range []string{"upload", "asset", "data"} {
 					file, header, err = r.FormFile(name)
 					if err == nil {
@@ -592,6 +627,10 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 			defer file.Close()
 			b, err := io.ReadAll(file)
 			if err != nil {
+				if strings.Contains(err.Error(), "too large") || strings.Contains(err.Error(), "request body too large") {
+					writeErr(w, "invalid", "too large", http.StatusRequestEntityTooLarge)
+					return
+				}
 				writeErr(w, "invalid", "read failed", http.StatusBadRequest)
 				return
 			}
@@ -602,6 +641,10 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 		} else {
 			b, err := io.ReadAll(r.Body)
 			if err != nil {
+				if strings.Contains(err.Error(), "too large") || strings.Contains(err.Error(), "request body too large") {
+					writeErr(w, "invalid", "too large", http.StatusRequestEntityTooLarge)
+					return
+				}
 				writeErr(w, "invalid", "read failed", http.StatusBadRequest)
 				return
 			}
@@ -627,31 +670,76 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 			writeErr(w, "invalid", "disallowed type", http.StatusUnsupportedMediaType)
 			return
 		}
-		if filename == "" {
-			filename = "upload.bin"
+		// Server-generated safe basename: never trust caller-controlled
+		// directory components. Extension derived from detected type.
+		ext := extFromContentType(detected)
+		if ext == "" {
+			e := strings.ToLower(filepath.Ext(filename))
+			if allowedAssetExt(e) {
+				ext = e
+			}
 		}
-		filename = filepath.Base(filename)
-		rel := "Assets/" + filename
+		if ext == "" {
+			ext = ".bin"
+		}
+		safeName := randomHex(16) + ext
+		rel := "Assets/" + safeName
+		// Honor a caller-supplied directory only if it stays inside the
+		// assets subtree; basenames are always server-generated.
 		if q := r.URL.Query().Get("path"); q != "" {
-			rel = q
+			cleaned := filepath.ToSlash(filepath.Clean(q))
+			if cleaned != "Assets" && !strings.HasPrefix(cleaned, "Assets/") {
+				writeErr(w, "invalid", "path escapes assets subtree", http.StatusBadRequest)
+				return
+			}
+			dirPart := filepath.ToSlash(filepath.Dir(cleaned))
+			if dirPart == "." || dirPart == "/" {
+				dirPart = "Assets"
+			}
+			rel = dirPart + "/" + safeName
 		}
+
+		// Confinement: clean + join, then prefix check on final path.
 		rel = filepath.ToSlash(filepath.Clean(rel))
 		if rel == "." || strings.HasPrefix(rel, "..") || strings.HasPrefix(rel, "/") {
 			writeErr(w, "invalid", "bad path", http.StatusBadRequest)
 			return
 		}
 		full := filepath.Join(vlt.Root, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
-			writeErr(w, "internal", "mkdir failed", http.StatusInternalServerError)
+		assetsDir := filepath.Join(vlt.Root, "Assets")
+		if !strings.HasPrefix(full+string(os.PathSeparator), assetsDir+string(os.PathSeparator)) {
+			writeErr(w, "invalid", "path escapes assets subtree", http.StatusBadRequest)
 			return
 		}
-		if err := os.WriteFile(full, data, 0o644); err != nil {
+		// Never overwrite an existing vault note or anything under .demitable.
+		if strings.Contains("/"+rel+"/", "/.demitable/") {
+			writeErr(w, "conflict", "refusing to overwrite protected path", http.StatusConflict)
+			return
+		}
+		if vlt.NoteByPath(rel) != nil {
+			writeErr(w, "conflict", "refusing to overwrite note", http.StatusConflict)
+			return
+		}
+		if _, err := os.Stat(full); err == nil {
+			writeErr(w, "conflict", "refusing to overwrite existing file", http.StatusConflict)
+			return
+		}
+		actor := principal.ID
+		if actor == "" || principal.IsGM() {
+			actor = "gm"
+		}
+		if principal.Kind == "account" && principal.ID != "" {
+			actor = principal.ID
+		}
+		if err := vlt.WriteAsset(actor, rel, data); err != nil {
 			writeErr(w, "internal", "write failed", http.StatusInternalServerError)
 			return
 		}
+		_ = vlt.Load()
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"path": rel, "size": len(data), "content_type": detected})
 	}
+
 	for _, p := range []string{
 		"POST /api/v1/assets",
 		"POST /api/v1/assets/upload",
@@ -687,4 +775,40 @@ func findNote(vlt *vault.Vault, target, _ string) *vault.Note {
 }
 
 // vault.NewJournal constructor alias
+
+func extFromContentType(ct string) string {
+	switch ct {
+	case "image/png":
+		return ".png"
+	case "image/jpeg":
+		return ".jpg"
+	case "image/webp":
+		return ".webp"
+	case "image/gif":
+		return ".gif"
+	case "image/svg+xml":
+		return ".svg"
+	case "application/pdf":
+		return ".pdf"
+	}
+	return ""
+}
+
+func allowedAssetExt(e string) bool {
+	switch e {
+	case ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".pdf":
+		return true
+	}
+	return false
+}
+
+func randomHex(n int) string {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		// fallback to time-based is unacceptable for security; panic.
+		panic("crypto/rand failed: " + err.Error())
+	}
+	return hex.EncodeToString(b)
+}
+
 func init() {}
