@@ -1,7 +1,7 @@
 # ADR-0061: The ADR-0054 §5 measurement, corrected — the maximum swing is 103.96%, and the count is 3
 
-- **Status:** Proposed — drafted during phase 3's O0 follow-up for the
-  orchestrator to land; it is not accepted until it is landed
+- **Status:** Accepted (landed 2026-10-27; measured value reproduced by two
+  independent verification runs against the committed SRD vault)
 - **Date:** 2026-10-26
 - **Amends:** ADR-0054 §5 (the two-index partition is load-bearing)
 - **Addresses:** the verification finding that the committed ADR-0054 suite

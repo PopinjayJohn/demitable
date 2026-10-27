@@ -57,13 +57,14 @@ one means writing a new ADR that supersedes it.
 | [0051](0051-threat-model-and-not-defended-list.md) | The threat model, the not-defended list, and the derived phase-1 exposure checklist | Accepted |
 | [0052](0052-the-projection-consequences-belong-in-the-ui.md) | The projection's consequences belong in the UI | Accepted |
 | [0053](0053-the-renderer-renders-constructs-not-documents.md) | The renderer renders constructs, not documents | Accepted |
-| [0054](0054-the-search-index-measured.md) | The search index, measured — headings, columns, and content fences | Accepted |
+| [0054](0054-the-search-index-measured.md) | The search index, measured — headings, columns, and content fences | Accepted, amended by 0061 |
 | [0055](0055-the-watcher-and-the-index-measured.md) | The watcher and the index, measured — and one criterion that fails | Accepted |
 | [0056](0056-the-plugin-manifest-and-the-api-1-freeze.md) | The plugin manifest, the capability kinds, and the `api: 1` freeze | Accepted |
 | [0057](0057-the-visibility-model-computes-audiences.md) | The visibility model computes audiences, not rule verdicts | Accepted |
 | [0058](0058-structured-logging-and-the-audit-log.md) | Structured logging with `log/slog`, and a separate audit log | Accepted |
 | [0059](0059-the-phase-map-is-re-cut.md) | The phase map is re-cut — four phases become five, and 1.5 is abolished | Accepted |
 | [0060](0060-the-binary-has-no-size-limit.md) | The binary has no size limit — the invariant is one file with no runtime dependencies | Accepted |
+| [0061](0061-adr-0054-measurement-amended.md) | The ADR-0054 §5 measurement, corrected — max swing 103.96%, count 3 | Accepted |
 
 ## The shape of the decisions
 
