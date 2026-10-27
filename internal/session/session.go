@@ -854,7 +854,6 @@ func (s *Store) AppendRoll(sessionID, encounterID string, rec dice.RollRecord) (
 }
 
 // ListRolls returns rolls for a session, optionally filtered by encounter.
-// Closed sessions return no rows (consistent with scratch).
 func (s *Store) ListRolls(sessionID, encounterID string) ([]dice.RollRecord, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

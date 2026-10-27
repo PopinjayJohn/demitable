@@ -254,8 +254,11 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			"visible_notes":  visibleNotes,
 			"visibleNotes":   visibleNotes,
 			"note_refs":      visibleNotes,
-			"hidden_tokens":  hiddenTokens,
-			"hiddenTokens":   hiddenTokens,
+		}
+		if principal.IsGM() {
+			// GM sees hidden token IDs for orchestration; non-GM: hidden token IDs are stripped (strict).
+			res["hidden_tokens"] = hiddenTokens
+			res["hiddenTokens"] = hiddenTokens
 		}
 		if principal.IsGM() {
 			res["encounter_obj"] = st
@@ -734,11 +737,11 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				ids = l
 			}
 		}
-		// also vault notes of type encounter for session/campaign
+		// route list items through the same per-principal projection as getHandler
 		items := []map[string]any{}
 		for _, id := range ids {
 			if st, ok := loadState(sid, id); ok {
-				items = append(items, map[string]any{"id": id, "uid": id, "encounter": st})
+				items = append(items, projectEncounter(sid, st, principal, ""))
 			} else {
 				items = append(items, map[string]any{"id": id, "uid": id})
 			}
@@ -775,10 +778,11 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				return
 			}
 		}
-		// closed check via store update will catch; but pre-check if possible
+		// GM PATCH on nonexistent eid -> 404 not_found, never create (creation is POST-only)
 		st, ok := loadState(sid, eid)
 		if !ok {
-			st = &encounterState{ID: eid, UID: eid, SessionID: sid}
+			writeErr(w, "not_found", "no such encounter", http.StatusNotFound)
+			return
 		}
 		body := map[string]any{}
 		_ = json.NewDecoder(r.Body).Decode(&body)
@@ -1245,7 +1249,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		m.HandleFunc(pth, budgetHandler)
 	}
 
-	// rolls (session tier, encounter scoped)
+	// rolls (session tier, encounter or session scoped)
 	rollsHandler := func(w http.ResponseWriter, r *http.Request) {
 		sid, eid := pathSE(r)
 		principal := principalFromRequest(r, tk)
