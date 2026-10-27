@@ -38,6 +38,7 @@ var globalHub *wsHub
 type wsHub struct {
 	mu    sync.Mutex
 	conns []*wsConn
+	vault *vault.Vault
 }
 
 func (h *wsHub) add(c *wsConn) {
@@ -58,10 +59,45 @@ func (h *wsHub) remove(c *wsConn) {
 	h.conns = out
 }
 
+// eventUID extracts a note uid from a broadcast payload, if the event is
+// note-scoped. Both "uid" and "note_uid" are recognised.
+func eventUID(v any) string {
+	m, ok := v.(map[string]any)
+	if !ok {
+		return ""
+	}
+	data, ok := m["data"].(map[string]any)
+	if !ok {
+		return ""
+	}
+	if u, ok := data["uid"].(string); ok && u != "" {
+		return u
+	}
+	if u, ok := data["note_uid"].(string); ok && u != "" {
+		return u
+	}
+	return ""
+}
+
 func (h *wsHub) broadcast(v any) {
+	uid := eventUID(v)
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	for _, c := range h.conns {
+		if uid != "" {
+			// Note-scoped event: only deliver to connections whose
+			// principal may see the note (ADR-0057). Anonymous and other
+			// non-visible principals get nothing note-scoped.
+			visible := c.prin.IsGM()
+			if !visible && h.vault != nil {
+				if n := h.vault.GetNote(uid); n != nil {
+					visible = vault.Visible(c.prin, *n)
+				}
+			}
+			if !visible {
+				continue
+			}
+		}
 		c.writeJSON(v)
 	}
 }

@@ -238,3 +238,60 @@ func sliceContains(list []string, want string) bool {
 	}
 	return false
 }
+
+func TestB5PlayerRevealRefused(t *testing.T) {
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "n.md"), []byte("---\nuid: u1\nname: Note\nvisibility: gm\n---\n> [!secret] secret text\n> body ^blk1\n"), 0o644)
+	v, _ := vault.Open(dir)
+	handler := muxWithVault(v)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+
+	tk := tokenKeyFor(v)
+	playerTok, _ := issueToken(tk, tokenClaims{Kind: "account", ID: "p1"})
+
+	pc := dialWSN7(t, srv, playerTok)
+	defer pc.Close()
+	readFrameN7(pc) // hello
+
+	msg, _ := json.Marshal(map[string]any{
+		"v": 1, "type": "secret.reveal",
+		"data": map[string]any{
+			"note_uid": "u1",
+			"block_id": "blk1",
+			"audience": map[string]any{"players": []string{"p1"}},
+		},
+	})
+	writeFrameN7(pc, msg)
+
+	pc.SetReadDeadline(time.Now().Add(5 * time.Second))
+	payload, err := readFrameN7(pc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var env map[string]any
+	json.Unmarshal(payload, &env)
+	if env["type"] != "error" {
+		t.Fatalf("got %v want error", env["type"])
+	}
+	data, _ := env["data"].(map[string]any)
+	if data["message"] != "gm only" {
+		t.Fatalf("got %v", data)
+	}
+
+	// subsequent GET shows no secret bytes
+	req, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/u1", nil)
+	req.Header.Set("Authorization", "Bearer "+playerTok)
+	resp, _ := http.DefaultClient.Do(req)
+	b, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("status %d want 404", resp.StatusCode)
+	}
+	if len(b) != 0 {
+		t.Fatalf("expected zero bytes, got %d", len(b))
+	}
+	if strings.Contains(string(b), "secret text") {
+		t.Fatalf("secret leaked")
+	}
+}
