@@ -428,8 +428,9 @@ func TestF0bAssetExcludedCaller(t *testing.T) {
 }
 
 func TestF0bForgedExpiredBearer(t *testing.T) {
-	_, srv, _, gmToken := f0aSetup(t)
+	dir, srv, _, gmToken := f0aSetup(t)
 	_ = gmToken
+	_ = dir
 	// forged
 	forged := "aaaa.bbbb"
 	// expired token signed with key? need key; use gmToken? We'll just use malformed.
@@ -452,10 +453,8 @@ func TestF0bForgedExpiredBearer(t *testing.T) {
 		}
 	}
 	// expired token signed with the vault key
-	dir2 := t.TempDir()
-	os.WriteFile(filepath.Join(dir2, "n.md"), []byte("---\nuid: x\nname: X\nvisibility: public\n---\n"), 0o644)
-	v2, _ := vault.Open(dir2)
-	key := tokenKeyFor(v2)
+	v, _ := vault.Open(dir)
+	key := tokenKeyFor(v)
 	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"kind":"account","id":"player1","exp":1}`))
 	sig := signToken(key, payload)
 	expired := payload + "." + sig
@@ -467,5 +466,198 @@ func TestF0bForgedExpiredBearer(t *testing.T) {
 		if r.StatusCode != http.StatusUnauthorized {
 			t.Errorf("%s %s expired: status=%d want 401", ep.method, ep.path, r.StatusCode)
 		}
+	}
+}
+
+func TestF0bSetPassphraseNoJoinBearer401(t *testing.T) {
+	_, srv, _, gmToken := f0aSetup(t)
+	code := f0aMintJoinCode(t, srv, gmToken)
+	r1, err := http.Post(srv.URL+"/api/v1/auth/join", "application/json", bytes.NewBufferString(fmt.Sprintf(`{"code":%q}`, code)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var j map[string]any
+	json.NewDecoder(r1.Body).Decode(&j)
+	r1.Body.Close()
+	player := j["player"].(string)
+
+	bb, _ := json.Marshal(map[string]any{"player": player, "passphrase": "hunter2"})
+	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/auth/set-passphrase", bytes.NewReader(bb))
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("status=%d want 401", resp.StatusCode)
+	}
+	_ = gmToken
+}
+
+func TestF0bLinksInvisibleTargetNoUIDLeak(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "visible.md"), []byte("---\nuid: visible\nname: Visible\nvisibility: public\n---\nSee `[[Secret]]`\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "secret.md"), []byte("---\nuid: secretuid\nname: Secret\nvisibility: gm\n---\nhidden body\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	v, err := vault.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := muxWithVault(v)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	playerTok := f0bPlayerToken(v, "player1")
+	req, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes/visible/links", nil)
+	req.Header.Set("Authorization", "Bearer "+playerTok)
+	r, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _ := io.ReadAll(r.Body)
+	r.Body.Close()
+	if r.StatusCode != http.StatusOK {
+		t.Fatalf("status=%d body=%s", r.StatusCode, string(b))
+	}
+	if strings.Contains(string(b), "secretuid") {
+		t.Fatalf("hidden uid leaked in links response: %s", string(b))
+	}
+}
+
+func TestF0bSecretBlockAssetStays404(t *testing.T) {
+	dir := t.TempDir()
+	v, err := vault.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := muxWithVault(v)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	gmTok := f0bGMToken(v)
+
+	// upload an asset as GM
+	png := []byte{0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a}
+	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/assets", bytes.NewReader(png))
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Authorization", "Bearer "+gmTok)
+	r, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var resp map[string]any
+	json.NewDecoder(r.Body).Decode(&resp)
+	r.Body.Close()
+	assetPath := resp["path"].(string)
+
+	// visible note references the asset ONLY inside a secret block
+	content := "---\nuid: n1\nname: N1\nvisibility: public\n---\nVisible note body.\n\n> [!secret] hidden\n> " + assetPath + "\n"
+	if err := os.WriteFile(filepath.Join(dir, "note.md"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := v.Load(); err != nil {
+		t.Fatal(err)
+	}
+
+	playerTok := f0bPlayerToken(v, "player1")
+
+	// player fetch -> 404, 0 bytes
+	areq, _ := http.NewRequest("GET", srv.URL+"/asset/"+assetPath, nil)
+	areq.Header.Set("Authorization", "Bearer "+playerTok)
+	ar, err := http.DefaultClient.Do(areq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(ar.Body)
+	ar.Body.Close()
+	if ar.StatusCode != http.StatusNotFound {
+		t.Fatalf("player status=%d want 404", ar.StatusCode)
+	}
+	if len(body) != 0 {
+		t.Fatalf("player body bytes=%d want 0", len(body))
+	}
+
+	// GM fetch -> 200
+	greq, _ := http.NewRequest("GET", srv.URL+"/asset/"+assetPath, nil)
+	greq.Header.Set("Authorization", "Bearer "+gmTok)
+	gr, err := http.DefaultClient.Do(greq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gbody, _ := io.ReadAll(gr.Body)
+	gr.Body.Close()
+	if gr.StatusCode != http.StatusOK {
+		t.Fatalf("gm status=%d want 200", gr.StatusCode)
+	}
+	if len(gbody) != len(png) {
+		t.Fatalf("gm bytes=%d want %d", len(gbody), len(png))
+	}
+}
+
+func TestF0bApproveRejectJournalEntry(t *testing.T) {
+	dir, v := f0bVaultWithNote(t, "---\nuid: c1\nname: C1\nvisibility: public\nworkflow: submitted\n---\nbody\n")
+	_ = dir
+	handler := muxWithVault(v)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	gmTok := f0bGMToken(v)
+
+	// approve
+	areq, _ := http.NewRequest("POST", srv.URL+"/api/v1/characters/c1/approve", nil)
+	areq.Header.Set("Authorization", "Bearer "+gmTok)
+	ar, err := http.DefaultClient.Do(areq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _ := io.ReadAll(ar.Body)
+	ar.Body.Close()
+	if ar.StatusCode != http.StatusOK {
+		t.Fatalf("approve status=%d body=%s", ar.StatusCode, string(b))
+	}
+
+	// journal lists the entry
+	jreq, _ := http.NewRequest("GET", srv.URL+"/api/v1/journal", nil)
+	jreq.Header.Set("Authorization", "Bearer "+gmTok)
+	jr, err := http.DefaultClient.Do(jreq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var jout map[string]any
+	json.NewDecoder(jr.Body).Decode(&jout)
+	jr.Body.Close()
+	items, _ := jout["items"].([]any)
+	var entryID string
+	for _, it := range items {
+		mm, _ := it.(map[string]any)
+		if mm["uid"] == "c1" {
+			entryID = mm["id"].(string)
+		}
+	}
+	if entryID == "" {
+		t.Fatal("no journal entry for c1")
+	}
+
+	// revert
+	rreq, _ := http.NewRequest("POST", srv.URL+"/api/v1/journal/"+entryID+"/revert", nil)
+	rreq.Header.Set("Authorization", "Bearer "+gmTok)
+	rr, err := http.DefaultClient.Do(rreq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr.Body.Close()
+	if rr.StatusCode != http.StatusOK {
+		t.Fatalf("revert status=%d", rr.StatusCode)
+	}
+
+	// workflow restored to submitted
+	if n := v.GetNote("c1"); n == nil || n.Workflow != "submitted" {
+		t.Fatalf("workflow=%v want submitted", func() any {
+			if n == nil {
+				return nil
+			}
+			return n.Workflow
+		}())
 	}
 }
