@@ -63,13 +63,15 @@ test.describe('ADR-0029 shadow-host contract', () => {
       }
       // document-level selection
       const dsel = window.getSelection();
-      try { dsel.setBaseAndExtent(tn, 0, tn, 8); } catch (e) {}
+      if (dsel) {
+        try { dsel.setBaseAndExtent(tn, 0, tn, 8); } catch (e) {}
+      }
       return {
         hasShadowSel,
         shadowToString,
         shadowAnchorIsReal,
-        docToString: dsel.toString(),
-        docAnchorIsReal: dsel.anchorNode === tn,
+        docToString: dsel?.toString() ?? '',
+        docAnchorIsReal: dsel?.anchorNode === tn,
       };
     });
 
@@ -109,8 +111,27 @@ test.describe('ADR-0029 shadow-host contract', () => {
   });
 
   test('R6: all:initial on :host sets display:inline (documented gotcha)', async ({ page }) => {
-    // We do not apply all:initial in fixture; instead verify :host display can be set.
-    // Check that inherited font-family crosses into shadow for a div.
+    // `all: initial` resets inherited values and sets display:inline; a later
+    // display declaration restores the layout, and custom properties are not
+    // reset by `all`.
+    const result = await page.evaluate(() => {
+      const hostReset = (window as any).__hostReset as HTMLElement;
+      const hostResetFixed = (window as any).__hostResetFixed as HTMLElement;
+      const shadowReset = hostReset.shadowRoot as ShadowRoot;
+      const brand = shadowReset.getElementById('reset-brand') as HTMLElement;
+      return {
+        resetDisplay: getComputedStyle(hostReset).display,
+        fixedDisplay: getComputedStyle(hostResetFixed).display,
+        brandColor: getComputedStyle(brand).color,
+      };
+    });
+    expect(result.resetDisplay).toBe('inline');
+    expect(result.fixedDisplay).toBe('block');
+    // custom properties survive `all: initial` on the host
+    expect(result.brandColor).toBe('rgb(0, 128, 0)');
+  });
+
+  test('inheritance: font-family crosses the boundary into shadow content', async ({ page }) => {
     const result = await page.evaluate(() => {
       const shadow = (window as any).__shadow;
       const inner = shadow.getElementById('inner') as HTMLElement;
@@ -187,13 +208,16 @@ test.describe('ADR-0029 shadow-host contract', () => {
     await page.dragAndDrop('#light-src', '#shadow-target');
     const dropped = await page.locator('#shadow-target').getAttribute('data-dropped');
     expect(dropped).toBe('payload-light');
-    // verify isTrusted via a listener recorded during the drag
+    const trusted = await page.locator('#shadow-target').getAttribute('data-drop-trusted');
+    expect(trusted).toBe('true');
   });
 
   test('drag: shadow -> light native (isTrusted) drop fires with payload', async ({ page }) => {
     await page.dragAndDrop('#shadow-src', '#light-target');
     const dropped = await page.locator('#light-target').getAttribute('data-dropped');
     expect(dropped).toBe('payload-shadow');
+    const trusted = await page.locator('#light-target').getAttribute('data-drop-trusted');
+    expect(trusted).toBe('true');
   });
 
   test('drag: custom MIME type survives the shadow boundary', async ({ page }) => {

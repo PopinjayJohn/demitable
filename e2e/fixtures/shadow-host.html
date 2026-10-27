@@ -18,6 +18,10 @@
     <div id="host"></div>
   </div>
 
+  <!-- R6: a second and third host, to test `all: initial` on :host itself. -->
+  <div id="host-reset"></div>
+  <div id="host-reset-fixed"></div>
+
   <div id="light-src" draggable="true">LIGHT_SOURCE</div>
   <div id="light-target" class="dropzone">LIGHT_TARGET</div>
 
@@ -47,6 +51,23 @@
     sheet.replaceSync('#adopted-probe { color: rgb(7,7,7); }');
     shadow.adoptedStyleSheets = [sheet];
 
+    // R6: `all: initial` on :host resets inherited values and sets
+    // display:inline; custom properties are not reset. The second host proves
+    // that a later `display` declaration restores the layout.
+    const hostReset = document.getElementById('host-reset');
+    const shadowReset = hostReset.attachShadow({ mode: 'open' });
+    shadowReset.innerHTML = `
+      <style>:host { all: initial; }</style>
+      <div id="reset-brand">reset-brand</div>
+    `;
+    shadowReset.getElementById('reset-brand').style.color = 'var(--brand)';
+    const hostResetFixed = document.getElementById('host-reset-fixed');
+    const shadowResetFixed = hostResetFixed.attachShadow({ mode: 'open' });
+    shadowResetFixed.innerHTML = `
+      <style>:host { all: initial; display: block; }</style>
+      <div>reset-fixed</div>
+    `;
+
     // shadow-side drag nodes
     const shadowSrc = document.createElement('div');
     shadowSrc.id = 'shadow-src'; shadowSrc.draggable = true; shadowSrc.textContent = 'SHADOW_SOURCE';
@@ -63,7 +84,13 @@
     }
     function setupDrop(tgt) {
       tgt.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
-      tgt.addEventListener('drop', (e) => { e.preventDefault(); tgt.setAttribute('data-dropped', e.dataTransfer.getData('text/plain')); });
+      tgt.addEventListener('drop', (e) => {
+        e.preventDefault();
+        tgt.setAttribute('data-dropped', e.dataTransfer.getData('text/plain'));
+        // The tests drive the browser's real input path, so the event must be
+        // trusted. Record it rather than trusting the test title.
+        tgt.setAttribute('data-drop-trusted', String(e.isTrusted));
+      });
     }
     setupDrag(document.getElementById('light-src'), 'payload-light');
     setupDrag(shadowSrc, 'payload-shadow');
@@ -74,6 +101,8 @@
     window.__host = host;
     window.__shadow = shadow;
     window.__inner = shadow.getElementById('inner');
+    window.__hostReset = hostReset;
+    window.__hostResetFixed = hostResetFixed;
   </script>
 </body>
 </html>
