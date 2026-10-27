@@ -63,6 +63,8 @@ server-side (`GET /characters/:uid` returns `computed` plus `?expand=1`;
 POST /api/v1/auth/join      { code }              → { token, expires_at, player }
 POST /api/v1/auth/login     { player, passphrase } → { token, expires_at, player }
 POST /api/v1/auth/gm        { secret }             → { token, expires_at, role: "gm" }
+POST /api/v1/auth/set-passphrase { passphrase }    → { token? }   (aliases: /auth/passphrase, /auth/set_passphrase)
+POST /api/v1/auth/gm/rotate { secret }            → { gm_secret, rotated }   (aliases: /auth/rotate, /auth/gm-secret/rotate, /auth/rotate-gm-secret)
 POST /api/v1/sessions/:id/join { code }           → { token, expires_at, seat }
 ```
 
@@ -172,6 +174,8 @@ GET  /api/v1/packs/:id/content        content notes of a given content_type
 
 ### Sessions and seats
 
+Status: F1 scope; none of these endpoints are implemented in F0.
+
 A **session** is one sitting of a table. A **seat** is one person at that
 table, playing one character, or watching.
 
@@ -253,9 +257,9 @@ POST /api/v1/journal/:id/revert       revert one change, or a batch
 ### Accounts (GM only)
 
 ```
-GET  /api/v1/players                  accounts
+GET  /api/v1/players                  accounts  (not yet implemented)
 POST /api/v1/players                  create a player, returns a join code
-POST /api/v1/players/:id/join-code    mint a fresh one
+POST /api/v1/players/:id/join-code    mint a fresh one  (not yet implemented)
 ```
 
 ### Import
@@ -395,8 +399,8 @@ GET /asset/<vault-relative-path>
 ```
 
 - Requires the caller's token.
-- **Role-scoped** (ADR-0026): served only if a note visible to the caller
-  references it, or if it is explicitly public.
+- **Role-scoped** (ADR-0026, F0b): served only if a note visible to the
+  caller references it (GMs see everything).
 - **404, not 403**, for anything the caller may not see.
 - `ETag` from the content hash; `If-None-Match` yields a 304. Range requests
   supported, so a native app can stream a large map progressively.
@@ -521,21 +525,43 @@ SDKs are a separate product decision, and a large one.
 
 ## 10. Open items
 
-- **The endpoint list above is a sketch, not a spec.** It needs to become an
-  OpenAPI document, ideally generated from the Go handlers so it cannot drift.
-  Meanwhile: `DELETE /notes/:uid`, `/notes/:uid/links`, `/journal`,
-  `/compute`, all `/sessions*`, character `requests`, and asset upload are
-  sketched but unimplemented (F0 scope); the rest is implemented.
-- **The filter and query language for `list_by`** is ADR-0047, one SQL
-  implementation shared by REST and MCP (O2) — no longer undefined.
-- **Cursor format** for pagination is opaque, signed, rejection-on-forgery
-  (O2) — no longer undefined.
-- **Whether `GET /api/v1/notes` returns computed values by default** or only
-  with `?expand=1`: `GET /characters/:uid` supports `?expand=1` today; the
-  generic answer rides on `POST /compute` (F0).
-- **A native-client SDK** — Swift and Kotlin — is a large piece of work, and
-  it is *not* implied by this contract. The contract is the enabler; the SDK
-  is a separate product decision.
-- **Offline behaviour for a native client.** The server is local to the GM,
-  so a player app has no server between sessions. Whether a native app caches
-  its own view, and how it reconciles, is undecided.
+**Closed in F0.**
+
+- `POST /api/v1/compute` — implemented (F0b); the `expression` field is
+  rejected, not evaluated.
+- `DELETE /api/v1/notes/:uid` — implemented (F0b), journaled.
+- `GET /api/v1/notes/:uid/links` — implemented (F0b), outgoing links and
+  backlinks, projection-filtered.
+- `GET /api/v1/journal` and `POST /api/v1/journal/:id/revert` —
+  implemented (F0b).
+- `GET /api/v1/characters/:uid/requests`, `POST .../approve`,
+  `POST .../reject` — implemented (F0b); approve/reject are journaled.
+- `POST /api/v1/assets` (plus `/assets/upload`, `/upload`, `/asset/upload`,
+  `/asset`) — implemented (F0b); server-generated basenames, confined to
+  `Assets/`.
+- `GET /asset/<path>` projection-scoping — closed by F0b (`assetVisible`
+  over projected note bodies). Range, ETag and 304 behaviour as in §6
+  (single range).
+- `POST /api/v1/characters/:uid/submit` — implemented (was mislabeled
+  unimplemented); sets `workflow: submitted`.
+- Auth (F0a): `POST /api/v1/auth/set-passphrase` and
+  `POST /api/v1/auth/gm/rotate`, with seven route aliases (three and four).
+- Character computed values: `GET /api/v1/characters/:uid?expand=1` and
+  generic evaluation via `POST /api/v1/compute` (F0b).
+- Filter/query language (`list_by`) and opaque signed cursors — closed in
+  O2 (ADR-0047).
+
+**Scoped / not yet implemented.**
+
+- `GET /api/v1/players` and `POST /api/v1/players/:id/join-code` — not
+  implemented (only `POST /api/v1/players` exists).
+- All `/api/v1/sessions/*` — F1 scope, none implemented.
+- OpenAPI document generated from handlers — not yet; the endpoint list
+  remains a sketch.
+- Native-client SDK (Swift/Kotlin) — separate product decision, not
+  implied by this contract.
+- Offline behaviour for a native client — undecided.
+
+**Cut.**
+
+- None.
