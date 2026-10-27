@@ -31,6 +31,8 @@ type Principal struct {
 	// or its `player` value. A seat principal may see that character even
 	// while it is still in draft, because the GM assigned it (ADR-0057 A4).
 	Bound string
+	// Session is the session id a seat principal belongs to (phase 4).
+	Session string
 }
 
 // GM is the vault owner's principal. The GM's view is never filtered,
