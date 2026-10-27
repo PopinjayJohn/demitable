@@ -21,6 +21,12 @@ is either landed in `web/` or recorded-deferred with a reason. Nothing is silent
 | `MarkdownView.svelte` | Partially landed | Markdown rendering goes through `web/src/lib/conformance.ts` + CodeMirror; full construct renderer deferred to phase 4. |
 | `Icon.svelte` | Cut | Inline SVG / text glyphs; no icon font dependency (ADR-0005). |
 
+## Spike library (deliberately not ported)
+
+| Spike path | Status | Reason |
+|---|---|---|
+| `spikes/ui/src/lib/` (esp. `lib/projection.ts`) | Not ported | Client-side projector under retired ordered-rules ADR-0033. The server owns projection (trust boundary); no client recomputation of visibility. |
+
 ## Projection discipline
 
 Every landed surface that shows visibility uses `surfaceVisibility()` from

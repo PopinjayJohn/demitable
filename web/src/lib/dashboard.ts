@@ -75,15 +75,6 @@ export function assertVisibilityAgreement(shown: string, projected: string): voi
   }
 }
 
-function effectiveVis(n: NoteSummary): string {
-  const v = (n as Record<string, unknown>).effective_visibility ??
-    (n as Record<string, unknown>).effectiveVisibility ??
-    (n as Record<string, unknown>).visibility;
-  if (typeof v === "string" && v !== "") return v;
-  const campaign = (n as Record<string, unknown>).campaign;
-  return campaign ? "party" : "gm";
-}
-
 function declaredVis(n: NoteSummary): string {
   const v = (n as Record<string, unknown>).visibility;
   if (typeof v === "string" && v !== "") return v;
@@ -121,8 +112,13 @@ export async function loadDashboard(
     private: 0,
     total: notes.length,
   };
+  // Counts are derived from the server-projected effective_visibility, using
+  // the same discipline as every other surface: surfaceVisibility() throws
+  // on raw (unprojected) data instead of silently defaulting. Aggregates do
+  // NOT get their own fallback — if a note lacks a projection the loader
+  // fails, which is the desired fail-closed behaviour.
   for (const n of notes) {
-    const v = effectiveVis(n);
+    const v = surfaceVisibility(n);
     if (v === "party") counts.party++;
     else if (v === "gm") counts.gm++;
     else if (v === "owner") counts.owner++;

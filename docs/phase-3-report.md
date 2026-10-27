@@ -20,10 +20,14 @@ owner), MarkdownView (partially landed; full renderer phase 4), Icon (cut).
 ## Predicates
 
 - Dashboard render budget: **250 ms** (stated). Measured full request set
-  against the SRD vault (1,690 notes, GM principal, 5 runs):
+  against the SRD vault (1,690 notes, GM principal, 5 runs) — a *manual*
+  measurement (server-side probe, synthetic 1690-note vault), not a CI
+  assertion:
   80.09, 72.23, 65.22, 65.27, 66.64 ms; p95 (max of 5) = **80.09 ms**.
-  Budget met with margin. The client test (`web/src/lib/dashboard.test.ts`)
-  fails when the budget is lowered below the measured time.
+  Budget met with margin. The landed vitest suite enforces the
+  single-request mechanism and budget plumbing; the 80 ms figure is manual.
+  The client test (`web/src/lib/dashboard.test.ts`) fails when the budget is
+  lowered below the measured time.
 - Zero client vault reads: asserted by intercepting the request set in
   `loadDashboard` (`assertZeroVaultReads`); the test fails if a per-note
   (`/api/v1/notes/:uid`) or render request is made. Result: **0 vault
@@ -65,6 +69,6 @@ None found.
 
 ## Unverified
 
-- Cross-browser rendering of the new surfaces is not yet exercised by the
-  Playwright matrix (O4 scope); surfaces use the existing shadow-host
-  contract.
+- Cross-browser rendering of the new surfaces: **Unverified**. The O4
+  harness exists, but running it against the new surfaces is a follow-up,
+  not this milestone.

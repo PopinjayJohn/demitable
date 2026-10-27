@@ -71,6 +71,11 @@ func (n *Note) View(allowOwner bool) NoteView {
 		}
 		defaulted = true
 	}
+	// Unknown values fail closed to `gm`, mirroring Visible() (ADR-0033 /
+	// ADR-0057 unknown-value rule).
+	if !isKnownVisibility(eff) {
+		eff = "gm"
+	}
 	v.EffectiveVisibility = eff
 	v.Defaulted = defaulted
 	if allowOwner {
