@@ -658,6 +658,32 @@ func (v *Vault) AssetBytes(path string) ([]byte, error) {
 	return data, nil
 }
 
+// WriteAsset writes an asset file (vault-relative path) and records the
+// write in the journal so it is revertible like every other mutation. It
+// does not overwrite: callers must check existence first. The in-memory
+// index is not rebuilt here; the caller invokes Load.
+func (v *Vault) WriteAsset(actor, rel string, data []byte) error {
+	if v.Root == "" {
+		return fmt.Errorf("vault: no root")
+	}
+	clean := filepath.ToSlash(filepath.Clean(rel))
+	if clean == "." || strings.HasPrefix(clean, "..") || strings.HasPrefix(clean, "/") {
+		return fmt.Errorf("vault: bad asset path %q", rel)
+	}
+	full := filepath.Join(v.Root, filepath.FromSlash(clean))
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		return err
+	}
+	// journal before write
+	if _, err := NewJournal(v.Root).AppendWrite(actor, "upload", "create", "", clean, "", nil, data, nil); err != nil {
+		return fmt.Errorf("vault: journal write: %w", err)
+	}
+	if err := os.WriteFile(full, data, 0o644); err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdateNote replaces a note's file content after a write.
 func (v *Vault) UpdateNote(uid string, data []byte) error {
 	v.mu.RLock()
