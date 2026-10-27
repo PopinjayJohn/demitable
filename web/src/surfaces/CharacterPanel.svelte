@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { fetchNotes, type NoteSummary } from "../lib/api";
   import { apiFetch } from "../lib/auth";
+  import { surfaceVisibility } from "../lib/dashboard";
 
   let characters = $state<NoteSummary[]>([]);
   let packs = $state<any[]>([]);
@@ -30,6 +31,8 @@
 
   async function open(uid: string) {
     selectedUid = uid;
+    const summary = characters.find((c) => String(c.uid) === uid);
+    if (summary) surfaceVisibility(summary);
     const res = await apiFetch(`/api/v1/characters/${encodeURIComponent(uid)}`);
     if (res.ok) detail = await res.json();
     else detail = null;
