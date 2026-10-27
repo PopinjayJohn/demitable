@@ -322,6 +322,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		// Under --expose, each GM-only note serialized into a list
+		// response is an audit event (one entry per note).
+		for i := range notes {
+			nn := notes[i]
+			auditNoteRead(cfg, audit, r, &nn, principal)
+		}
 		out := make([]vault.NoteView, 0, len(notes))
 		for _, n := range notes {
 			out = append(out, vault.Project(principal, n))
@@ -342,17 +348,10 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		prin := principalFromRequest(r, tokenKeyFor(vlt))
-		// Under --expose, a read of a GM-only note is an audit event.
-		if cfg.Expose && (n.Visibility == "gm" || !isKnownVis(n.Visibility)) && audit != nil {
-			principal := prin.Kind
-			if principal == "" {
-				principal = "anonymous"
-			}
-			if prin.ID != "" {
-				principal = prin.Kind + ":" + prin.ID
-			}
-			audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
-		}
+		// Under --expose, a read of a GM-only note is an audit event
+		// (ADR-0058): every note-serving read surface, including denied
+		// reads, records one entry per GM-only note touched.
+		auditNoteRead(cfg, audit, r, n, prin)
 		// Trust boundary: a principal that may not see the note gets 404
 		// with no body, never the raw note. (ADR-0002, ADR-0057.)
 		if !vault.Visible(prin, *n) {
@@ -401,6 +400,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		auditNoteRead(cfg, audit, r, n, principal)
 		if !vault.Visible(principal, *n) {
 			http.NotFound(w, r)
 			return
@@ -701,6 +701,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		auditNoteRead(cfg, audit, r, n, prin)
 		if !vault.Visible(prin, *n) {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -1543,4 +1544,25 @@ func randomJoinCode() string {
 	}
 	// format xxxx-xxxx
 	return string(b[:4]) + "-" + string(b[4:])
+}
+
+// auditNoteRead records an audit entry for a read of a GM-only note when the
+// server is running under --expose with an audit log configured. The entry
+// names the note by uid and the caller by principal only; it never carries
+// note bytes or credential material (ADR-0058).
+func auditNoteRead(cfg config.Config, audit *logging.Audit, r *http.Request, n *vault.Note, p vault.Principal) {
+	if !cfg.Expose || audit == nil || n == nil {
+		return
+	}
+	if !(n.Visibility == "gm" || !isKnownVis(n.Visibility)) {
+		return
+	}
+	principal := p.Kind
+	if principal == "" {
+		principal = "anonymous"
+	}
+	if p.ID != "" {
+		principal = p.Kind + ":" + p.ID
+	}
+	audit.Record(r.Context(), "note.read", slog.String("uid", n.UID), slog.String("principal", principal), slog.String("remote_addr", r.RemoteAddr))
 }
