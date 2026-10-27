@@ -17,6 +17,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/account"
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/logging"
+	"github.com/PopinjayJohn/demitable/internal/session"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
@@ -75,6 +76,8 @@ func randomSecret(n int) string {
 type tokenClaims struct {
 	Kind      string   `json:"kind"`
 	ID        string   `json:"id"`
+	Bound     string   `json:"bound,omitempty"`
+	Session   string   `json:"session,omitempty"`
 	Campaigns []string `json:"campaigns,omitempty"`
 	Exp       int64    `json:"exp"`
 }
@@ -127,34 +130,68 @@ func principalFromToken(c tokenClaims) vault.Principal {
 	case "display":
 		return vault.Display(c.Campaigns...)
 	case "seat":
-		return vault.Seat(c.ID, "", c.Campaigns...)
+		p := vault.Seat(c.ID, c.Bound, c.Campaigns...)
+		p.Session = c.Session
+		return p
 	default:
 		return vault.Anonymous()
 	}
 }
 
 func principalFromRequest(r *http.Request, tokenKey string) vault.Principal {
+	var p vault.Principal
+	found := false
 	// bearer token
 	if h := r.Header.Get("Authorization"); h != "" {
 		if strings.HasPrefix(h, "Bearer ") {
 			if c, ok := verifyToken(tokenKey, strings.TrimPrefix(h, "Bearer ")); ok {
-				return principalFromToken(c)
+				p = principalFromToken(c)
+				found = true
 			}
 		}
 	}
 	// cookie
-	if ck, err := r.Cookie("demitable_session"); err == nil {
-		if c, ok := verifyToken(tokenKey, ck.Value); ok {
-			return principalFromToken(c)
+	if !found {
+		if ck, err := r.Cookie("demitable_session"); err == nil {
+			if c, ok := verifyToken(tokenKey, ck.Value); ok {
+				p = principalFromToken(c)
+				found = true
+			}
 		}
 	}
 	// query string (websocket)
-	if t := r.URL.Query().Get("token"); t != "" {
-		if c, ok := verifyToken(tokenKey, t); ok {
-			return principalFromToken(c)
+	if !found {
+		if t := r.URL.Query().Get("token"); t != "" {
+			if c, ok := verifyToken(tokenKey, t); ok {
+				p = principalFromToken(c)
+				found = true
+			}
 		}
 	}
-	return vault.Anonymous()
+	if !found {
+		return vault.Anonymous()
+	}
+	// Seat tokens are valid only while their session is open and the seat
+	// still exists. A closed session (or a forged/unknown seat) buys
+	// nothing.
+	if p.IsSeat() {
+		// Fail closed: with no registered store, seat claims buy nothing.
+		st := session.StoreFor(tokenKey)
+		if st == nil {
+			return vault.Anonymous()
+		}
+		sid := p.Session
+		if sid == "" {
+			return vault.Anonymous()
+		}
+		if !st.IsOpen(sid) {
+			return vault.Anonymous()
+		}
+		if _, ok, _ := st.FindSeat(sid, p.ID); !ok {
+			return vault.Anonymous()
+		}
+	}
+	return p
 }
 
 // --- rate limiter ---
