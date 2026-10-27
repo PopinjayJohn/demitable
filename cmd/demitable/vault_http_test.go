@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -68,5 +69,38 @@ func TestVaultHTTPNoteReturnsUpdatedContent(t *testing.T) {
 	t.Logf("measured latency from fsnotify event: %v", latency)
 	if latency > 200*time.Millisecond {
 		t.Fatalf("latency %v exceeds 200 ms", latency)
+	}
+}
+
+func TestRESTNotesHostileSort(t *testing.T) {
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "note.md"), []byte("---\nuid: u1\nname: Note\nvisibility: public\n---\nhello\n"), 0o644)
+	v, err := vault.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := muxWithVault(v)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+
+	for _, sort := range []string{"'", "uid') OR ('1'=='1"} {
+		resp, err := http.Get(srv.URL + "/api/v1/notes?sort=" + url.QueryEscape(sort))
+		if err != nil {
+			t.Fatal(err)
+		}
+		body := make([]byte, 4096)
+		n, _ := resp.Body.Read(body)
+		resp.Body.Close()
+		text := string(body[:n])
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Fatalf("sort=%q status=%d body=%s", sort, resp.StatusCode, text)
+		}
+		if !strings.Contains(strings.ToLower(text), "parse") {
+			t.Fatalf("sort=%q response does not name parse error: %s", sort, text)
+		}
+		low := strings.ToLower(text)
+		if strings.Contains(low, "sqlite") || strings.Contains(low, "sql") {
+			t.Fatalf("sort=%q response leaks SQL text: %s", sort, text)
+		}
 	}
 }

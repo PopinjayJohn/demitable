@@ -115,6 +115,14 @@ func (s *Store) Query(in any, opts ...any) (QueryResult, error) {
 	if sortField == "" {
 		sortField = "uid"
 	}
+	// Whitelist the sort field exactly like validPath does for column
+	// paths: an unvalidated field would be interpolated into ORDER BY
+	// and json_extract, which is an injection vector.
+	if sortField != "uid" {
+		if !validPath(sortField) {
+			return QueryResult{}, &ParseError{Message: "invalid sort field " + sortField, Position: -1}
+		}
+	}
 	desc := req.Desc
 
 	// Build SQL.
@@ -151,9 +159,15 @@ func (s *Store) Query(in any, opts ...any) (QueryResult, error) {
 	}
 	sqlStr += " ORDER BY " + expr + " " + direction + ", uid " + tieDir
 
+	// NOTE: no SQL-level LIMIT is applied here. Every page scans and
+	// materialises the full matching set in Go (cursor keyset filtering
+	// and tie-breaking need the collected rows). Measured on the SRD
+	// corpus (1690 notes): ~63-81 ms per call regardless of page size.
+	// O5 must budget for this or push cursor predicates into SQL; do
+	// not silently assume pagination is cheap.
 	rows, err := s.db.Query(sqlStr, args...)
 	if err != nil {
-		return QueryResult{}, fmt.Errorf("query: exec: %w", err)
+		return QueryResult{}, &ParseError{Message: "query execution failed", Position: -1}
 	}
 	defer rows.Close()
 
@@ -166,7 +180,7 @@ func (s *Store) Query(in any, opts ...any) (QueryResult, error) {
 	for rows.Next() {
 		var uid, metaStr string
 		if err := rows.Scan(&uid, &metaStr); err != nil {
-			return QueryResult{}, fmt.Errorf("query: scan: %w", err)
+			return QueryResult{}, &ParseError{Message: "query scan failed", Position: -1}
 		}
 		var m map[string]any
 		if metaStr != "" {
@@ -179,7 +193,7 @@ func (s *Store) Query(in any, opts ...any) (QueryResult, error) {
 		collected = append(collected, row{UID: uid, Meta: m, Rec: rec})
 	}
 	if err := rows.Err(); err != nil {
-		return QueryResult{}, fmt.Errorf("query: rows: %w", err)
+		return QueryResult{}, &ParseError{Message: "query rows failed", Position: -1}
 	}
 
 	// Decode cursor.
@@ -880,7 +894,7 @@ func compileExpr(e Expr) (string, []any, error) {
 		if op == "or" {
 			return "(" + l + " OR " + r + ")", append(la, ra...), nil
 		}
-		return "", nil, fmt.Errorf("query: unknown binary op %s", v.Op)
+		return "", nil, &ParseError{Message: "unknown binary op " + v.Op, Position: -1}
 	case *notExpr:
 		x, xa, err := compileExpr(v.X)
 		if err != nil {
@@ -890,7 +904,7 @@ func compileExpr(e Expr) (string, []any, error) {
 	case *compareExpr:
 		return compileCompare(v)
 	}
-	return "", nil, fmt.Errorf("query: unknown expr")
+	return "", nil, &ParseError{Message: "unknown expression", Position: -1}
 }
 
 func compileCompare(c *compareExpr) (string, []any, error) {

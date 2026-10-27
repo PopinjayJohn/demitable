@@ -2,6 +2,8 @@ package vault
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"strings"
@@ -174,7 +176,22 @@ func (w *Watcher) processPath(rel, full string) {
 	if err != nil {
 		return
 	}
-	_ = data
+	// Hash short-circuit: if the file's content hash matches the note
+	// already in the vault, there is nothing to reconcile and we can
+	// skip the (expensive) full reload. Measured cost of a full
+	// Vault.Load() on the SRD corpus (1690 notes) is ~340 ms, so a
+	// per-keystroke full rebuild is not viable; O5 must treat fs events
+	// as coarse invalidation, not per-keystroke sync, or invest in
+	// incremental upsert. Keeping this short-circuit preserves store
+	// sync correctness for the no-op case.
+	sum := sha256.Sum256(data)
+	hash := hex.EncodeToString(sum[:])
+	w.Vault.mu.RLock()
+	existing := w.Vault.ByPath[rel]
+	w.Vault.mu.RUnlock()
+	if existing != nil && existing.Hash == hash {
+		return
+	}
 
 	// Re-parse the whole vault so the SQLite query cache stays in sync.
 	// (Cheaper to be correct than to mirror incremental edits in two

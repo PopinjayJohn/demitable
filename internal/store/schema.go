@@ -176,8 +176,9 @@ func (s *Store) FTS(query string) ([]string, error) {
 	return s.ftsQuery(query, nil)
 }
 
-// FTSIn is like FTS but restricted to the given uid set. A nil or empty
-// allowed set means no results.
+// FTSIn is like FTS but restricted to the given uid set.
+// Canonical nil/empty convention (shared with QueryRequest.Allowed):
+// nil means unrestricted (GM path); a non-nil empty slice means no results.
 func (s *Store) FTSIn(query string, allowed []string) ([]string, error) {
 	return s.ftsQuery(query, allowed)
 }

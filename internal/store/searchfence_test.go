@@ -5,7 +5,9 @@ import "testing"
 // The visible set is a restriction, not a hint. An empty visible set must
 // return nothing: a caller that computed a visible set and got nothing
 // back must see nothing.
-func TestSearchFTSInEmptySetReturnsNothing(t *testing.T) {
+// Canonical nil/empty convention for QueryRequest.Allowed (and FTSIn):
+// nil means unrestricted (GM path); a non-nil empty slice means no results.
+func TestQueryEmptyAllowedSetReturnsNothing(t *testing.T) {
 	s, _ := Open(":memory:")
 	defer s.Close()
 	s.Migrate()
@@ -38,7 +40,7 @@ func TestSearchFTSInEmptySetReturnsNothing(t *testing.T) {
 }
 
 // The unrestricted path still works.
-func TestSearchFTSUnrestrictedStillWorks(t *testing.T) {
+func TestQueryUnrestrictedStillWorks(t *testing.T) {
 	s, _ := Open(":memory:")
 	defer s.Close()
 	s.Migrate()
@@ -53,7 +55,7 @@ func TestSearchFTSUnrestrictedStillWorks(t *testing.T) {
 }
 
 // A restricted search returns only what was allowed.
-func TestSearchFTSInRestricts(t *testing.T) {
+func TestQueryAllowedSetRestricts(t *testing.T) {
 	s, _ := Open(":memory:")
 	defer s.Close()
 	s.Migrate()
