@@ -16,18 +16,48 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
-// sessionCodeLimiter counts wrong session-code attempts per key.
+// sessionCodeFailureWindow is how long a failed session-code attempt keeps
+// counting against the per-(session,IP) limiter. Failures older than this
+// stop counting, so a slow brute-forcer cannot be locked out forever and a
+// legitimate user who mistypes a few times is not permanently barred. The
+// trade-off: a window shorter than an attacker's retry cadence turns the
+// limiter into a no-op; longer than a user's patience turns a typo into a
+// lockout. Five minutes is a compromise between availability and the
+// "ten wrong codes" guarantee (ADR-0038 / F1b).
+const sessionCodeFailureWindow = 5 * time.Minute
+
+// sessionCodeLimiter counts wrong session-code attempts per key, with time
+// decay (W1): failures older than sessionCodeFailureWindow stop counting.
 type sessionCodeLimiter struct {
 	mu    sync.Mutex
 	state map[string]*sessionCodeState
+	now   func() time.Time
 }
 
 type sessionCodeState struct {
-	failures int
+	failures []time.Time
 }
 
 func newSessionCodeLimiter() *sessionCodeLimiter {
-	return &sessionCodeLimiter{state: map[string]*sessionCodeState{}}
+	return &sessionCodeLimiter{state: map[string]*sessionCodeState{}, now: time.Now}
+}
+
+func (l *sessionCodeLimiter) nowFunc() time.Time {
+	if l.now != nil {
+		return l.now()
+	}
+	return time.Now()
+}
+
+func (l *sessionCodeLimiter) prune(st *sessionCodeState, now time.Time) {
+	cutoff := now.Add(-sessionCodeFailureWindow)
+	kept := st.failures[:0]
+	for _, t := range st.failures {
+		if t.After(cutoff) {
+			kept = append(kept, t)
+		}
+	}
+	st.failures = kept
 }
 
 func (l *sessionCodeLimiter) allow(key string) bool {
@@ -37,7 +67,12 @@ func (l *sessionCodeLimiter) allow(key string) bool {
 	if !ok {
 		return true
 	}
-	return st.failures < 10
+	l.prune(st, l.nowFunc())
+	if len(st.failures) == 0 {
+		delete(l.state, key)
+		return true
+	}
+	return len(st.failures) < 10
 }
 
 func (l *sessionCodeLimiter) fail(key string) int {
@@ -48,8 +83,10 @@ func (l *sessionCodeLimiter) fail(key string) int {
 		st = &sessionCodeState{}
 		l.state[key] = st
 	}
-	st.failures++
-	return st.failures
+	now := l.nowFunc()
+	l.prune(st, now)
+	st.failures = append(st.failures, now)
+	return len(st.failures)
 }
 
 func (l *sessionCodeLimiter) success(key string) {
@@ -61,10 +98,16 @@ func (l *sessionCodeLimiter) success(key string) {
 func (l *sessionCodeLimiter) count(key string) int {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	if st, ok := l.state[key]; ok {
-		return st.failures
+	st, ok := l.state[key]
+	if !ok {
+		return 0
 	}
-	return 0
+	l.prune(st, l.nowFunc())
+	if len(st.failures) == 0 {
+		delete(l.state, key)
+		return 0
+	}
+	return len(st.failures)
 }
 
 // sessionHandlers registers the F1 session tier routes.
@@ -647,6 +690,148 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		"POST /api/v1/sessions/{id}/code",
 	} {
 		m.HandleFunc(path, rotateHandler)
+	}
+
+	// Scratch log (disposable third tier, ADR-0048). Multiple path aliases
+	// for the same store-backed log.
+	scratchPaths := []string{
+		"/api/v1/sessions/{id}/scratch",
+		"/api/v1/sessions/{id}/scratch/log",
+		"/api/v1/sessions/{id}/scratches",
+		"/api/v1/sessions/{id}/scratch-entries",
+	}
+	scratchGet := func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		ss, err := sess.GetSession(id)
+		if err != nil || ss == nil {
+			writeErr(w, "not_found", "no such session", http.StatusNotFound)
+			return
+		}
+		principal := principalFromRequest(r, tk)
+		allowed := false
+		if principal.IsGM() {
+			allowed = true
+		} else if principal.IsSeat() && principal.Session == id {
+			if _, ok, _ := sess.FindSeat(id, principal.ID); ok {
+				allowed = true
+			}
+		}
+		if !allowed {
+			writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
+			return
+		}
+		// Closed sessions return no stale rows.
+		if ss.Status == session.StatusClosed {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"items": []any{}, "count": 0})
+			return
+		}
+		entries, err := sess.ListScratch(id)
+		if err != nil {
+			writeErr(w, "internal", "read failed", http.StatusInternalServerError)
+			return
+		}
+		// Audience check: an entry referencing a note is visible only if
+		// the requester may see that note. Entries with no reference are
+		// visible to all session members.
+		out := make([]session.ScratchEntry, 0, len(entries))
+		for _, e := range entries {
+			if e.NoteUID != "" {
+				n := vlt.GetNote(e.NoteUID)
+				if n != nil && !vault.Visible(principal, *n) {
+					continue
+				}
+				if n == nil {
+					// unknown note ref: hide from non-GM to avoid leak
+					if !principal.IsGM() {
+						continue
+					}
+				}
+			}
+			out = append(out, e)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+	}
+	scratchPost := func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		ss, err := sess.GetSession(id)
+		if err != nil || ss == nil {
+			writeErr(w, "not_found", "no such session", http.StatusNotFound)
+			return
+		}
+		if ss.Status == session.StatusClosed {
+			writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+			return
+		}
+		principal := principalFromRequest(r, tk)
+		allowed := false
+		seatID := ""
+		author := "gm"
+		if principal.IsGM() {
+			allowed = true
+		} else if principal.IsSeat() && principal.Session == id {
+			if _, ok, _ := sess.FindSeat(id, principal.ID); ok {
+				allowed = true
+				seatID = principal.ID
+				author = principal.ID
+			}
+		}
+		if !allowed {
+			writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
+			return
+		}
+		var body struct {
+			Content string   `json:"content"`
+			Text    string   `json:"text"`
+			Tags    []string `json:"tags"`
+			Note    string   `json:"note"`
+			NoteUID string   `json:"note_uid"`
+			UID     string   `json:"uid"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		content := body.Content
+		if content == "" {
+			content = body.Text
+		}
+		noteUID := body.NoteUID
+		if noteUID == "" {
+			noteUID = body.Note
+		}
+		if noteUID == "" {
+			noteUID = body.UID
+		}
+		// If referencing a note, the author must be able to see it.
+		if noteUID != "" {
+			n := vlt.GetNote(noteUID)
+			if n != nil && !vault.Visible(principal, *n) {
+				writeErr(w, "not_found", "no such note", http.StatusNotFound)
+				return
+			}
+		}
+		entry := session.ScratchEntry{
+			SessionID: id,
+			SeatID:    seatID,
+			Author:    author,
+			Content:   content,
+			Tags:      body.Tags,
+			NoteUID:   noteUID,
+		}
+		out, err := sess.AppendScratch(entry)
+		if err != nil {
+			if errors.Is(err, session.ErrSessionClosed) {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
+			writeErr(w, "internal", "append failed", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"entry": out, "item": out})
+	}
+	for _, base := range scratchPaths {
+		m.HandleFunc("GET "+base, scratchGet)
+		m.HandleFunc("POST "+base, scratchPost)
 	}
 
 }
