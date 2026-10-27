@@ -2,8 +2,6 @@ package vault
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"os"
 	"path/filepath"
 	"strings"
@@ -163,14 +161,7 @@ func (w *Watcher) processPath(rel, full string) {
 	// stat (reconcile CHMOD-as-removal)
 	fi, err := os.Stat(full)
 	if err != nil {
-		// removal
-		if n := w.Vault.NoteByPath(rel); n != nil {
-			w.Vault.mu.Lock()
-			delete(w.Vault.Notes, n.UID)
-			delete(w.Vault.ByPath, rel)
-			w.Vault.mu.Unlock()
-			w.Vault.Literal.Remove(n.UID)
-		}
+		w.Vault.Load()
 		return
 	}
 	if fi.IsDir() {
@@ -183,29 +174,12 @@ func (w *Watcher) processPath(rel, full string) {
 	if err != nil {
 		return
 	}
-	sum := sha256.Sum256(data)
-	hash := hex.EncodeToString(sum[:])
+	_ = data
 
-	existing := w.Vault.NoteByPath(rel)
-	if existing != nil && existing.Hash == hash {
-		return // no change
-	}
-	// parse
-	newNote, err := w.Vault.parseFile(rel)
-	if err != nil {
-		return
-	}
-	if existing != nil {
-		newNote.UID = existing.UID
-	}
-	w.Vault.mu.Lock()
-	if existing != nil {
-		delete(w.Vault.Notes, existing.UID)
-	}
-	w.Vault.Notes[newNote.UID] = newNote
-	w.Vault.ByPath[rel] = newNote
-	w.Vault.mu.Unlock()
-	w.Vault.Literal.Rebuild(w.Vault)
+	// Re-parse the whole vault so the SQLite query cache stays in sync.
+	// (Cheaper to be correct than to mirror incremental edits in two
+	// indexes.)
+	w.Vault.Load()
 }
 
 func (w *Watcher) rescan() {

@@ -18,6 +18,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/PopinjayJohn/demitable/internal/store"
 	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 )
@@ -97,6 +98,7 @@ type Vault struct {
 	Order  []string         // uids in load order
 
 	Literal *LiteralIndex
+	Store   *store.Store
 
 	// LastEvent is set by the watcher when a change is processed; used by
 	// tests to measure from the fsnotify event.
@@ -111,7 +113,17 @@ func Open(root string) (*Vault, error) {
 		ByPath:  map[string]*Note{},
 		Literal: NewLiteralIndex(),
 	}
+	st, err := store.Open(":memory:")
+	if err != nil {
+		return nil, err
+	}
+	if err := st.Migrate(); err != nil {
+		st.Close()
+		return nil, err
+	}
+	v.Store = st
 	if err := v.Load(); err != nil {
+		st.Close()
 		return nil, err
 	}
 	return v, nil
@@ -197,6 +209,24 @@ func (v *Vault) Load() error {
 	for _, rel := range files {
 		if note, ok := byRel[rel]; ok {
 			v.addNote(note)
+		}
+	}
+	// Rebuild the SQLite query cache from the loaded notes.
+	if v.Store != nil {
+		v.Store.DB().Exec("DELETE FROM notes")
+		records := make([]store.NoteRecord, 0, len(v.Notes))
+		for _, n := range v.Notes {
+			records = append(records, noteToRecord(n))
+		}
+		// preserve order
+		ordered := make([]store.NoteRecord, 0, len(v.Order))
+		for _, uid := range v.Order {
+			if n, ok := v.Notes[uid]; ok {
+				ordered = append(ordered, noteToRecord(n))
+			}
+		}
+		if len(ordered) > 0 {
+			v.Store.UpsertNotes(ordered)
 		}
 	}
 	return nil
@@ -393,8 +423,148 @@ func (v *Vault) Get(p Principal, uid string) (Note, error) {
 	return *n, nil
 }
 
-// List implements vault.VaultService for the live vault.
+// List implements vault.VaultService for the live vault (in-memory, fast path).
 func (v *Vault) List(p Principal, q Query) []Note {
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+
+	// Build a combined query string.
+	qstr := strings.TrimSpace(q.Filter)
+	parts := []string{}
+	if q.Type != "" {
+		parts = append(parts, fmt.Sprintf("type == %q", q.Type))
+	}
+	if q.Campaign != "" {
+		parts = append(parts, fmt.Sprintf("campaign == %q", q.Campaign))
+	}
+	for k, val := range q.Fields {
+		parts = append(parts, fmt.Sprintf("%s == %q", k, val))
+	}
+	if qstr != "" {
+		parts = append([]string{qstr}, parts...)
+	}
+	combined := strings.Join(parts, " and ")
+
+	var expr store.Expr
+	if strings.TrimSpace(combined) != "" {
+		e, err := store.ParseQuery(combined)
+		if err != nil {
+			return []Note{}
+		}
+		expr = e
+	}
+
+	lookup := func(n *Note) func(string) any {
+		return func(path string) any {
+			return vaultPathValue(*n, path)
+		}
+	}
+
+	var out []Note
+	for _, uid := range v.Order {
+		n := v.Notes[uid]
+		if n == nil {
+			continue
+		}
+		nn := *n
+		if !Visible(p, nn) {
+			continue
+		}
+		if expr != nil {
+			if !store.EvalExpr(expr, lookup(&nn)) {
+				continue
+			}
+		}
+		out = append(out, nn)
+	}
+	sortNotes(out, q.Sort, q.Desc)
+	if q.Offset > 0 {
+		if q.Offset >= len(out) {
+			out = nil
+		} else {
+			out = out[q.Offset:]
+		}
+	}
+	if q.Limit > 0 && len(out) > q.Limit {
+		out = out[:q.Limit]
+	}
+	if out == nil {
+		out = []Note{}
+	}
+	return out
+}
+
+// ListPage is the cursor-aware variant used by REST and (in O3) by MCP.
+// It returns the visible notes, the next opaque cursor, and any error.
+func (v *Vault) ListPage(p Principal, q Query) ([]Note, string, error) {
+	if v.Store == nil {
+		// Fallback for a Vault without a store (should not happen in
+		// production). Keeps the old in-memory path working.
+		return v.listInMemory(p, q), "", nil
+	}
+	// Compute the visible set for non-GM principals.
+	var allowed []string
+	if p.IsGM() {
+		allowed = nil
+	} else {
+		allowed = []string{}
+		v.mu.RLock()
+		for _, uid := range v.Order {
+			n := v.Notes[uid]
+			if n == nil {
+				continue
+			}
+			if Visible(p, *n) {
+				allowed = append(allowed, uid)
+			}
+		}
+		v.mu.RUnlock()
+	}
+
+	// Build the query string from the structured Query fields when no
+	// explicit filter string was given.
+	qstr := strings.TrimSpace(q.Filter)
+	parts := []string{}
+	if q.Type != "" {
+		parts = append(parts, fmt.Sprintf("type == %q", q.Type))
+	}
+	if q.Campaign != "" {
+		parts = append(parts, fmt.Sprintf("campaign == %q", q.Campaign))
+	}
+	for k, val := range q.Fields {
+		parts = append(parts, fmt.Sprintf("%s == %q", k, val))
+	}
+	if qstr != "" {
+		parts = append([]string{qstr}, parts...)
+	}
+	combined := strings.Join(parts, " and ")
+
+	req := store.QueryRequest{
+		Query:   combined,
+		Sort:    q.Sort,
+		Desc:    q.Desc,
+		Limit:   q.Limit,
+		Offset:  q.Offset,
+		Cursor:  q.Cursor,
+		Allowed: allowed,
+	}
+	res, err := v.Store.Query(req)
+	if err != nil {
+		return []Note{}, "", err
+	}
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+	out := make([]Note, 0, len(res.UIDs))
+	for _, uid := range res.UIDs {
+		if n, ok := v.Notes[uid]; ok {
+			out = append(out, *n)
+		}
+	}
+	return out, res.NextCursor, nil
+}
+
+// listInMemory keeps the pre-O2 in-memory behaviour as a fallback.
+func (v *Vault) listInMemory(p Principal, q Query) []Note {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
 	filters := parseFilters(q)
