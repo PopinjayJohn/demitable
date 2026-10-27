@@ -94,7 +94,7 @@ func (s *searchPlugin) Literal(p vault.Principal, term string) []vault.NoteView 
 // hard-coded filter (M5 wires the projection).
 func (s *searchPlugin) Ranked(p vault.Principal, query string, visible []string) []string {
 	if s.store != nil {
-		uids, err := s.store.SearchFTSIn(query, visible)
+		uids, err := s.store.FTSIn(query, visible)
 		if err != nil {
 			return []string{}
 		}

@@ -352,21 +352,37 @@ func sortNotes(out []Note, sortKey string, desc bool) {
 			keys[i].isNum = true
 		}
 		sort.SliceStable(keys, func(i, j int) bool {
-			if desc {
-				return keys[i].num > keys[j].num
+			if keys[i].num != keys[j].num {
+				if desc {
+					return keys[i].num > keys[j].num
+				}
+				return keys[i].num < keys[j].num
 			}
-			return keys[i].num < keys[j].num
+			// tie-break by uid for parity with the SQL store path
+			if desc {
+				return out[keys[i].index].UID > out[keys[j].index].UID
+			}
+			return out[keys[i].index].UID < out[keys[j].index].UID
 		})
 	} else {
-		// String sort keys, lowercased once.
+		// String sort keys, kept in their original case to match the SQL
+		// store path's BINARY collation (case-sensitive). Lowercasing
+		// here previously made the in-memory path disagree with SQL.
 		for i := range keys {
-			keys[i].str = strings.ToLower(sortKeyString(keys[i].value))
+			keys[i].str = sortKeyString(keys[i].value)
 		}
 		sort.SliceStable(keys, func(i, j int) bool {
-			if desc {
-				return keys[i].str > keys[j].str
+			if keys[i].str != keys[j].str {
+				if desc {
+					return keys[i].str > keys[j].str
+				}
+				return keys[i].str < keys[j].str
 			}
-			return keys[i].str < keys[j].str
+			// tie-break by uid for parity with the SQL store path
+			if desc {
+				return out[keys[i].index].UID > out[keys[j].index].UID
+			}
+			return out[keys[i].index].UID < out[keys[j].index].UID
 		})
 	}
 	// Put the notes back in the order the keys sorted to.

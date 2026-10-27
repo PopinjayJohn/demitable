@@ -31,6 +31,7 @@ type Query struct {
 	Desc     bool
 	Offset   int
 	Limit    int
+	Cursor   string
 }
 
 // Store holds notes, and hands them out as the principal may see them.

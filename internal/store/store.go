@@ -8,6 +8,7 @@
 package store
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -20,8 +21,9 @@ import (
 
 // Store wraps a SQLite cache database.
 type Store struct {
-	db   *sql.DB
-	path string
+	db        *sql.DB
+	path      string
+	cursorKey []byte
 }
 
 // Open opens (or creates) a cache database at path with the pragmas the
@@ -53,7 +55,12 @@ func Open(path string) (*Store, error) {
 			return nil, fmt.Errorf("store: pragma %q: %w", pragma, err)
 		}
 	}
-	return &Store{db: db, path: path}, nil
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("store: cursor key: %w", err)
+	}
+	return &Store{db: db, path: path, cursorKey: key}, nil
 }
 
 // DB returns the underlying *sql.DB.

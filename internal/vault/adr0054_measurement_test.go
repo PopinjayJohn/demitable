@@ -1,4 +1,4 @@
-package store
+package vault
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PopinjayJohn/demitable/internal/vault"
+	"github.com/PopinjayJohn/demitable/internal/store"
 )
 
 // adr0054PackDefaults mirrors ADR-0033's content-type visibility defaults, as
@@ -137,7 +137,7 @@ func adr0054Query(db *sql.DB, match string) ([]adr0054Hit, error) {
 	return out, rows.Err()
 }
 
-func adr0054Title(n *vault.Note) string {
+func adr0054Title(n *Note) string {
 	if len(n.Headings) > 0 && strings.TrimSpace(n.Headings[0]) != "" {
 		return n.Headings[0]
 	}
@@ -175,7 +175,7 @@ func adr0054Title(n *vault.Note) string {
 // The bounds below are the recorded values, so a drift fails the suite.
 func TestCorpusADR0054PartitionMeasurement(t *testing.T) {
 	root := adr0054Fixtures(t)
-	v, err := vault.Open(root)
+	v, err := Open(root)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,9 +196,9 @@ func TestCorpusADR0054PartitionMeasurement(t *testing.T) {
 			n.Campaign = "srd"
 		}
 	}
-	player := vault.Account("p_8f2a", "srd")
+	player := Account("p_8f2a", "srd")
 
-	gmStore, err := Open(":memory:")
+	gmStore, err := store.Open(":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -206,7 +206,7 @@ func TestCorpusADR0054PartitionMeasurement(t *testing.T) {
 	if err := gmStore.Migrate(); err != nil {
 		t.Fatal(err)
 	}
-	plStore, err := Open(":memory:")
+	plStore, err := store.Open(":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,9 +215,9 @@ func TestCorpusADR0054PartitionMeasurement(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var gmDocs []NoteRecord
+	var gmDocs []store.NoteRecord
 	for _, n := range v.AllNotes() {
-		gmDocs = append(gmDocs, NoteRecord{
+		gmDocs = append(gmDocs, store.NoteRecord{
 			UID: n.UID, Path: n.Path, Title: adr0054Title(n),
 			Aliases: n.Aliases, Headings: n.Headings, Tags: n.Tags, Body: n.Prose,
 		})
@@ -225,10 +225,10 @@ func TestCorpusADR0054PartitionMeasurement(t *testing.T) {
 	if err := gmStore.UpsertNotes(gmDocs); err != nil {
 		t.Fatal(err)
 	}
-	var plDocs []NoteRecord
+	var plDocs []store.NoteRecord
 	for _, n := range v.AllNotes() {
-		if vault.Visible(player, *n) {
-			plDocs = append(plDocs, NoteRecord{
+		if Visible(player, *n) {
+			plDocs = append(plDocs, store.NoteRecord{
 				UID: n.UID, Path: n.Path, Title: adr0054Title(n),
 				Aliases: n.Aliases, Headings: n.Headings, Tags: n.Tags, Body: n.Prose,
 			})

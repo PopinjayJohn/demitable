@@ -279,7 +279,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		fields := map[string]string{}
 		for k, vals := range r.URL.Query() {
-			if k == "type" || k == "campaign" || k == "limit" || k == "cursor" || k == "q" || k == "sort" {
+			if k == "type" || k == "campaign" || k == "limit" || k == "cursor" || k == "q" || k == "query" || k == "filter" || k == "sort" {
 				continue
 			}
 			if len(vals) > 0 {
@@ -290,13 +290,33 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if s := r.URL.Query().Get("sort"); s != "" {
 			q.Sort = s
 		}
+		if s := r.URL.Query().Get("cursor"); s != "" {
+			q.Cursor = s
+		}
+		if s := r.URL.Query().Get("q"); s != "" {
+			q.Filter = s
+		} else if s := r.URL.Query().Get("query"); s != "" {
+			q.Filter = s
+		} else if s := r.URL.Query().Get("filter"); s != "" {
+			q.Filter = s
+		}
 		principal := principalFromRequest(r, tokenKeyFor(vlt))
-		notes := vlt.List(principal, q)
+		notes, nextCursor, err := vlt.ListPage(principal, q)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		out := make([]vault.NoteView, 0, len(notes))
 		for _, n := range notes {
 			out = append(out, vault.Project(principal, n))
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+		resp := map[string]any{"items": out, "count": len(out)}
+		if nextCursor != "" {
+			resp["next_cursor"] = nextCursor
+			resp["nextCursor"] = nextCursor
+			resp["cursor"] = nextCursor
+		}
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	m.HandleFunc("GET /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
 		uid := r.PathValue("uid")

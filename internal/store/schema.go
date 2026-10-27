@@ -15,6 +15,7 @@ func (s *Store) Migrate() error {
 			uid TEXT PRIMARY KEY,
 			path TEXT NOT NULL,
 			title TEXT,
+			meta TEXT,
 			fts_rowid INTEGER,
 			updated_at INTEGER
 		);`,
@@ -33,18 +34,40 @@ func (s *Store) Migrate() error {
 			return fmt.Errorf("store: migrate: %w", err)
 		}
 	}
+	// Best-effort column additions for databases created by older versions.
+	for _, col := range []string{"meta TEXT"} {
+		_, _ = db.Exec(`ALTER TABLE notes ADD COLUMN ` + col)
+	}
 	return nil
 }
 
 // NoteRecord is a flat record for store insertion.
+//
+// Universal fields mirror the reserved frontmatter set (ADR-0040); Fields
+// carries the GM's own (non-reserved) top-level fields, including a nested
+// "data" object. Meta, when non-nil, overrides the derived metadata.
 type NoteRecord struct {
-	UID      string
-	Path     string
-	Title    string
-	Aliases  []string
-	Headings []string
-	Tags     []string
-	Body     string
+	UID        string
+	Path       string
+	Title      string
+	Name       string
+	Type       string
+	System     string
+	Campaign   string
+	Kind       string
+	Player     string
+	Workflow   string
+	Visibility string
+	Grants     []string
+	Revealed   []string
+	Discovered []string
+	Aliases    []string
+	Headings   []string
+	Tags       []string
+	Body       string
+	Fields     map[string]any
+	Data       any
+	Meta       map[string]any
 }
 
 // UpsertNote inserts or replaces a note row and its FTS entry.
@@ -101,8 +124,8 @@ func (s *Store) UpsertNotes(notes []NoteRecord) error {
 		return err
 	}
 	defer ftsStmt.Close()
-	notesStmt, err := tx.Prepare(`INSERT INTO notes(uid,path,title,fts_rowid,updated_at) VALUES(?,?,?,?,?)
-		ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,fts_rowid=excluded.fts_rowid,updated_at=excluded.updated_at`)
+	notesStmt, err := tx.Prepare(`INSERT INTO notes(uid,path,title,meta,fts_rowid,updated_at) VALUES(?,?,?,?,?,?)
+		ON CONFLICT(uid) DO UPDATE SET path=excluded.path,title=excluded.title,meta=excluded.meta,fts_rowid=excluded.fts_rowid,updated_at=excluded.updated_at`)
 	if err != nil {
 		return err
 	}
@@ -124,7 +147,11 @@ func (s *Store) UpsertNotes(notes []NoteRecord) error {
 	// Multi-row upsert into notes table via the prepared statement, per row.
 	now := time.Now().Unix()
 	for i, n := range notes {
-		if _, err := notesStmt.Exec(n.UID, n.Path, n.Title, rowids[i], now); err != nil {
+		meta, err := noteMetaJSON(n)
+		if err != nil {
+			return err
+		}
+		if _, err := notesStmt.Exec(n.UID, n.Path, n.Title, meta, rowids[i], now); err != nil {
 			return err
 		}
 	}
@@ -143,62 +170,41 @@ func join(ss []string) string {
 	return out
 }
 
-// SearchFTS runs a MATCH query and returns uids in BM25 order (most
-// relevant first). FTS5's bm25() returns a negative score where more
-// negative is better, so ascending order is the right one.
-// SearchFTS is like SearchFTSIn with no restriction. **It is for the GM
-// only.** A non-GM caller must use SearchFTSIn with its visible set,
-// because an unrestricted search ranks against every note in the index -
-// including the GM-only ones, which is the side channel ADR-0054
-// measured.
-func (s *Store) SearchFTS(query string) ([]string, error) {
-	q := strings.TrimSpace(query)
-	if q == "" {
-		return nil, nil
-	}
-	rows, err := s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? ORDER BY bm25(note_fts)`, q)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []string
-	for rows.Next() {
-		var u string
-		if err := rows.Scan(&u); err != nil {
-			return nil, err
-		}
-		out = append(out, u)
-	}
-	if out == nil {
-		out = []string{}
-	}
-	return out, rows.Err()
+// FTS runs an FTS5 MATCH query and returns uids in BM25 order (most
+// relevant first). It is the unrestricted (GM) index.
+func (s *Store) FTS(query string) ([]string, error) {
+	return s.ftsQuery(query, nil)
 }
 
-// SearchFTSIn is like SearchFTS but restricted to the given uid set, so a
-// caller can rank only within a visible set (ADR-0054's partition).
-//
-// A nil or empty allowed set means **no results**, not "no restriction":
-// a caller that computed a visible set and got nothing back must see
-// nothing, or the restriction is not a restriction. Use SearchFTS
-// explicitly when the unrestricted index is what you want.
-func (s *Store) SearchFTSIn(query string, allowed []string) ([]string, error) {
+// FTSIn is like FTS but restricted to the given uid set.
+// Canonical nil/empty convention (shared with QueryRequest.Allowed):
+// nil means unrestricted (GM path); a non-nil empty slice means no results.
+func (s *Store) FTSIn(query string, allowed []string) ([]string, error) {
+	return s.ftsQuery(query, allowed)
+}
+
+func (s *Store) ftsQuery(query string, allowed []string) ([]string, error) {
 	q := strings.TrimSpace(query)
 	if q == "" {
 		return nil, nil
 	}
-	if len(allowed) == 0 {
-		// The visible set is empty, so nothing is visible.
+	if allowed != nil && len(allowed) == 0 {
 		return []string{}, nil
 	}
-	placeholders := strings.Repeat("?,", len(allowed))
-	placeholders = placeholders[:len(placeholders)-1]
-	args := make([]any, 0, len(allowed)+1)
-	args = append(args, q)
-	for _, u := range allowed {
-		args = append(args, u)
+	var rows *sql.Rows
+	var err error
+	if allowed == nil {
+		rows, err = s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? ORDER BY bm25(note_fts)`, q)
+	} else {
+		placeholders := strings.Repeat("?,", len(allowed))
+		placeholders = placeholders[:len(placeholders)-1]
+		args := make([]any, 0, len(allowed)+1)
+		args = append(args, q)
+		for _, u := range allowed {
+			args = append(args, u)
+		}
+		rows, err = s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? AND uid IN (`+placeholders+`) ORDER BY bm25(note_fts)`, args...)
 	}
-	rows, err := s.db.Query(`SELECT uid FROM note_fts WHERE note_fts MATCH ? AND uid IN (`+placeholders+`) ORDER BY bm25(note_fts)`, args...)
 	if err != nil {
 		return nil, err
 	}
