@@ -3,6 +3,8 @@ package plugin
 import (
 	"context"
 	"encoding/json"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/PopinjayJohn/demitable/internal/plugin/wasm"
@@ -170,4 +172,65 @@ func TestDisableAllClosesInstances(t *testing.T) {
 	if _, err := h.Enable("test.wasm.d6", vault.GM()); err != nil {
 		t.Fatalf("Enable after EnableAll: %v", err)
 	}
+}
+
+// TestWasmWriteJournalledAndReverts proves a WASM write is journalled and
+// revertible (D2).
+func TestWasmWriteJournalledAndReverts(t *testing.T) {
+	dir := t.TempDir()
+	content := "---\ntype: note\nuid: n1\nname: T\nvisibility: party\n---\nhello\n"
+	if err := os.WriteFile(dir+"/n1.md", []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	v, err := vault.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reg := NewRegistry()
+	if err := reg.RegisterWasm(MustManifest(Manifest{
+		ID:           "test.wasm.write",
+		Name:         "W",
+		Version:      "1.0.0",
+		API:          1,
+		Capabilities: []Capability{{ID: "vault.write"}},
+	}), wasm.WriteAttemptModule()); err != nil {
+		t.Fatal(err)
+	}
+	h := NewHost(v, nil)
+	h.SetRegistry(reg)
+	h.EnableAll()
+	p := vault.GM()
+	inst, err := h.Enable("test.wasm.write", p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := inst.Dispatch(Call{Op: "x"})
+	if !res.OK {
+		t.Fatalf("write failed: %+v", res.Error)
+	}
+	j := vault.NewJournal(dir)
+	entries, err := j.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var entryID string
+	found := false
+	for _, e := range entries {
+		if e.UID == "n1" && e.Source == "plugin" {
+			found = true
+			entryID = e.ID
+			break
+		}
+	}
+	if !found {
+		t.Fatal("wasm write not found in journal")
+	}
+	if err := j.Revert(entryID); err != nil {
+		t.Fatal(err)
+	}
+	data, _ := os.ReadFile(dir + "/n1.md")
+	if !strings.Contains(string(data), "hello") {
+		t.Fatalf("revert did not restore original: %q", string(data))
+	}
+	_ = inst
 }
