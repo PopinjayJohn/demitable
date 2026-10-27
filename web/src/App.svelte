@@ -290,7 +290,10 @@
             <button type="button" onclick={() => openNote(String(n.uid))}>
               {n.name ?? n.uid}
             </button>
+            {#if n.snippet}<small class="snippet">{n.snippet}</small>{/if}
           </li>
+        {:else}
+          <li class="empty">No notes match your search.</li>
         {/each}
       </ul>
     </aside>

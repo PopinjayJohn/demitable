@@ -37,14 +37,26 @@ export interface SearchParams {
   [key: string]: unknown;
 }
 
+export function freeTextToO2(input: string): string {
+  const text = input.trim();
+  if (text === "") return "";
+  // Escape backslashes and double quotes per the O2 string rules.
+  const escaped = text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return `name contains "${escaped}" or body contains "${escaped}"`;
+}
+
 function buildQuery(params?: SearchParams | string): string {
   if (!params) return "";
   if (typeof params === "string") params = { q: params };
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (v === undefined || v === null || v === "") continue;
-    if (k === "q" || k === "query" || k === "filter") {
-      // canonical: q
+    if (k === "q" || k === "query") {
+      // Translate free text into a valid O2 expression client-side.
+      sp.set("q", freeTextToO2(String(v)));
+      continue;
+    }
+    if (k === "filter") {
       sp.set("q", String(v));
       continue;
     }

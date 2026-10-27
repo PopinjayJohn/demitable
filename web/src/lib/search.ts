@@ -9,13 +9,24 @@ export interface SearchData {
   requests: string[];
 }
 
+function freeTextToO2(input: string): string {
+  const text = input.trim();
+  if (text === "") return "";
+  const escaped = text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return `name contains "${escaped}" or body contains "${escaped}"`;
+}
+
 function buildQuery(params?: SearchParams | string): string {
   if (!params || typeof params === "function") return "";
   if (typeof params === "string") params = { q: params };
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params as Record<string, unknown>)) {
     if (v === undefined || v === null || v === "") continue;
-    if (k === "q" || k === "query" || k === "filter") {
+    if (k === "q" || k === "query") {
+      sp.set("q", freeTextToO2(String(v)));
+      continue;
+    }
+    if (k === "filter") {
       sp.set("q", String(v));
       continue;
     }
