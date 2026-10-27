@@ -180,6 +180,10 @@ type RollRecord struct {
 	ID                     string           `json:"id"`
 	Roller                 string           `json:"roller"`
 	Actor                  string           `json:"actor"`
+	SessionID              string           `json:"session_id"`
+	Session                string           `json:"session"`
+	EncounterID            string           `json:"encounter_id"`
+	Encounter              string           `json:"encounter"`
 	Workflow               string           `json:"workflow"`
 	Expression             string           `json:"expression"`
 	Individual             []DieResult      `json:"individual"`
@@ -200,6 +204,8 @@ type RollRecord struct {
 // syncRecordAliases fills alias fields.
 func (rec *RollRecord) SyncAliases() {
 	rec.Actor = rec.Roller
+	rec.Session = rec.SessionID
+	rec.Encounter = rec.EncounterID
 	rec.Individual = rec.Result.Faces
 	rec.IndividualResults = rec.Result.Faces
 	rec.IndividualResultsSnake = rec.Result.Faces

@@ -79,6 +79,17 @@ func eventUID(v any) string {
 	return ""
 }
 
+// broadcastGM sends an event only to GM connections (private rolls).
+func (h *wsHub) broadcastGM(v any) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	for _, c := range h.conns {
+		if c.prin.IsGM() {
+			c.writeJSON(v)
+		}
+	}
+}
+
 func (h *wsHub) broadcast(v any) {
 	uid := eventUID(v)
 	h.mu.Lock()

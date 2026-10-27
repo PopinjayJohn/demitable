@@ -829,13 +829,19 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		var req struct {
-			Workflow   string         `json:"workflow"`
-			Actor      string         `json:"actor"`
-			Target     string         `json:"target"`
-			Shared     *bool          `json:"shared"`
-			Expression string         `json:"expression"`
-			Variables  map[string]any `json:"variables"`
-			Direction  string         `json:"direction"`
+			Workflow    string         `json:"workflow"`
+			Actor       string         `json:"actor"`
+			Target      string         `json:"target"`
+			Shared      *bool          `json:"shared"`
+			Expression  string         `json:"expression"`
+			Variables   map[string]any `json:"variables"`
+			Direction   string         `json:"direction"`
+			Session     string         `json:"session"`
+			SessionID   string         `json:"session_id"`
+			SessionId   string         `json:"sessionId"`
+			Encounter   string         `json:"encounter"`
+			EncounterID string         `json:"encounter_id"`
+			EncounterId string         `json:"encounterId"`
 		}
 		if len(bytes.TrimSpace(body)) > 0 {
 			if err := json.Unmarshal(body, &req); err != nil {
@@ -998,17 +1004,59 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			Shared:     shared,
 			Result:     res,
 		}
+		sid := req.SessionID
+		if sid == "" {
+			sid = req.Session
+		}
+		if sid == "" {
+			sid = req.SessionId
+		}
+		eid := req.EncounterID
+		if eid == "" {
+			eid = req.Encounter
+		}
+		if eid == "" {
+			eid = req.EncounterId
+		}
+		rec.SessionID = sid
+		rec.EncounterID = eid
 		rec.SyncAliases()
+
+		if sid != "" && sessStore != nil {
+			if ss, _ := sessStore.GetSession(sid); ss != nil {
+				if ss.Status == session.StatusClosed {
+					writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+					return
+				}
+			}
+		}
+
 		appendRoll(vlt, rec)
 
-		hub.broadcast(map[string]any{
+		if sid != "" && sessStore != nil {
+			if ss, _ := sessStore.GetSession(sid); ss != nil {
+				if _, err := sessStore.AppendRoll(sid, eid, rec); err != nil {
+					if err == session.ErrSessionClosed {
+						writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+						return
+					}
+				}
+			}
+		}
+
+		payload := map[string]any{
 			"v":    1,
 			"type": "roll.result",
 			"data": map[string]any{
 				"roll":   rec,
 				"result": res,
 			},
-		})
+		}
+		if shared {
+			hub.broadcast(payload)
+		} else {
+			hub.broadcastGM(payload)
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -1310,6 +1358,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	if sessStore != nil {
 		sessionLimiter := newSessionCodeLimiter()
 		sessionHandlers(m, vlt, sessStore, audit, sessionLimiter, tokenKeyFor(vlt))
+		encounterHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
 	}
 
 	// Import (N8).

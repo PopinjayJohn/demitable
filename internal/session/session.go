@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/PopinjayJohn/demitable/internal/dice"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -157,6 +159,26 @@ func (s *Store) migrate() error {
 			tags TEXT NOT NULL DEFAULT '[]',
 			note_uid TEXT NOT NULL DEFAULT '',
 			created_at TEXT NOT NULL,
+			FOREIGN KEY(session_id) REFERENCES sessions(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS encounters (
+			id TEXT PRIMARY KEY,
+			session_id TEXT NOT NULL,
+			state TEXT NOT NULL DEFAULT '{}',
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			FOREIGN KEY(session_id) REFERENCES sessions(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS rolls (
+			id TEXT PRIMARY KEY,
+			session_id TEXT NOT NULL,
+			encounter_id TEXT NOT NULL DEFAULT '',
+			roller TEXT NOT NULL DEFAULT '',
+			workflow TEXT NOT NULL DEFAULT '',
+			expression TEXT NOT NULL DEFAULT '',
+			shared INTEGER NOT NULL DEFAULT 1,
+			timestamp TEXT NOT NULL,
+			payload TEXT NOT NULL DEFAULT '{}',
 			FOREIGN KEY(session_id) REFERENCES sessions(id)
 		);`,
 	}
@@ -641,3 +663,228 @@ func (s *Store) RotateCode(id, newCode string) error {
 
 // JSON helpers for seats in responses are handled by callers.
 var _ = json.Marshal
+
+// --- encounter live state (F2b) ---------------------------------------------
+
+// CreateEncounter stores live encounter state for a session. Closed sessions
+// reject writes.
+func (s *Store) CreateEncounter(sessionID, encounterID string, state []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("session: not found: %w", err)
+		}
+		return err
+	}
+	if status == StatusClosed {
+		return ErrSessionClosed
+	}
+	if len(state) == 0 {
+		state = []byte("{}")
+	}
+	now := time.Now().UTC().Format(time.RFC3339Nano)
+	_, err := s.db.Exec(
+		`INSERT INTO encounters (id, session_id, state, created_at, updated_at) VALUES (?,?,?,?,?)`,
+		encounterID, sessionID, string(state), now, now,
+	)
+	if err != nil {
+		// upsert on conflict
+		_, err = s.db.Exec(
+			`UPDATE encounters SET session_id=?, state=?, updated_at=? WHERE id=?`,
+			sessionID, string(state), now, encounterID,
+		)
+	}
+	return err
+}
+
+// GetEncounterState returns the stored live state for an encounter.
+func (s *Store) GetEncounterState(sessionID, encounterID string) ([]byte, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var st string
+	var sid string
+	err := s.db.QueryRow(`SELECT session_id, state FROM encounters WHERE id = ?`, encounterID).Scan(&sid, &st)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, false, nil
+	}
+	if err != nil {
+		return nil, false, err
+	}
+	if sid != sessionID && sessionID != "" {
+		// still return if session matches? enforce session scoping
+		if sid != sessionID {
+			return nil, false, nil
+		}
+	}
+	return []byte(st), true, nil
+}
+
+// UpdateEncounterState updates live state. Closed sessions reject.
+func (s *Store) UpdateEncounterState(sessionID, encounterID string, state []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var sid, status string
+	err := s.db.QueryRow(`SELECT session_id FROM encounters WHERE id = ?`, encounterID).Scan(&sid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			if sessionID == "" {
+				return fmt.Errorf("session: not found: %w", sql.ErrNoRows)
+			}
+			if err2 := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err2 != nil {
+				if errors.Is(err2, sql.ErrNoRows) {
+					return fmt.Errorf("session: not found: %w", err2)
+				}
+				return err2
+			}
+			if status == StatusClosed {
+				return ErrSessionClosed
+			}
+			return fmt.Errorf("encounter not found")
+		}
+		return err
+	}
+	if sid == "" {
+		sid = sessionID
+	}
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sid).Scan(&status); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+	} else if status == StatusClosed {
+		return ErrSessionClosed
+	}
+	if len(state) == 0 {
+		state = []byte("{}")
+	}
+	now := time.Now().UTC().Format(time.RFC3339Nano)
+	res, err := s.db.Exec(`UPDATE encounters SET state=?, updated_at=? WHERE id=? AND session_id=?`, string(state), now, encounterID, sid)
+	if err != nil {
+		return err
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		return fmt.Errorf("encounter not found")
+	}
+	return nil
+}
+
+// ListEncounters returns encounter ids for a session.
+func (s *Store) ListEncounters(sessionID string) ([]string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	rows, err := s.db.Query(`SELECT id FROM encounters WHERE session_id = ? ORDER BY created_at, id`, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		out = append(out, id)
+	}
+	if out == nil {
+		out = []string{}
+	}
+	return out, rows.Err()
+}
+
+// DeleteEncounter removes an encounter live state row.
+func (s *Store) DeleteEncounter(sessionID, encounterID string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if sessionID != "" {
+		var status string
+		if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return fmt.Errorf("session: not found: %w", err)
+			}
+			return err
+		}
+		if status == StatusClosed {
+			return ErrSessionClosed
+		}
+	}
+	_, err := s.db.Exec(`DELETE FROM encounters WHERE id = ? AND session_id = ?`, encounterID, sessionID)
+	return err
+}
+
+// --- rolls (session tier) ---------------------------------------------------
+
+// AppendRoll persists a roll record to the session tier.
+func (s *Store) AppendRoll(sessionID, encounterID string, rec dice.RollRecord) (dice.RollRecord, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return rec, fmt.Errorf("session: not found: %w", err)
+		}
+		return rec, err
+	}
+	if status == StatusClosed {
+		return rec, ErrSessionClosed
+	}
+	if rec.ID == "" {
+		rec.ID = fmt.Sprintf("roll-%d", time.Now().UnixNano())
+	}
+	if rec.Timestamp.IsZero() {
+		rec.Timestamp = time.Now().UTC()
+	}
+	rec.SessionID = sessionID
+	rec.EncounterID = encounterID
+	rec.SyncAliases()
+	payload, _ := json.Marshal(rec)
+	shared := 0
+	if rec.Shared {
+		shared = 1
+	}
+	_, err := s.db.Exec(
+		`INSERT INTO rolls (id, session_id, encounter_id, roller, workflow, expression, shared, timestamp, payload) VALUES (?,?,?,?,?,?,?,?,?)`,
+		rec.ID, sessionID, encounterID, rec.Roller, rec.Workflow, rec.Expression, shared, rec.Timestamp.UTC().Format(time.RFC3339Nano), string(payload),
+	)
+	if err != nil {
+		return rec, err
+	}
+	return rec, nil
+}
+
+// ListRolls returns rolls for a session, optionally filtered by encounter.
+func (s *Store) ListRolls(sessionID, encounterID string) ([]dice.RollRecord, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	q := `SELECT payload, shared FROM rolls WHERE session_id = ?`
+	args := []any{sessionID}
+	if encounterID != "" {
+		q += ` AND encounter_id = ?`
+		args = append(args, encounterID)
+	}
+	q += ` ORDER BY timestamp, id`
+	rows, err := s.db.Query(q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []dice.RollRecord
+	for rows.Next() {
+		var payload string
+		var shared int
+		if err := rows.Scan(&payload, &shared); err != nil {
+			return nil, err
+		}
+		var rec dice.RollRecord
+		if err := json.Unmarshal([]byte(payload), &rec); err != nil {
+			continue
+		}
+		rec.Shared = shared != 0
+		out = append(out, rec)
+	}
+	if out == nil {
+		out = []dice.RollRecord{}
+	}
+	return out, rows.Err()
+}
