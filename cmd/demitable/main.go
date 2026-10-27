@@ -9,6 +9,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"html"
 	"io"
 	"log/slog"
 	"net"
@@ -17,6 +18,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -309,6 +311,8 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 	}
 	m := mux().(*http.ServeMux)
+	hub := &wsHub{vault: vlt}
+	globalHub = hub
 
 	// Session tier store (F1). Threading through extras allows callers (main)
 	// to pass a durable store; tests get an in-memory one.
@@ -377,6 +381,22 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		for _, n := range notes {
 			out = append(out, vault.Project(principal, n))
 		}
+		// Snippets: when a search filter is present, attach an FTS5
+		// snippet to each result (additive).
+		qstr := ""
+		if s := r.URL.Query().Get("q"); s != "" {
+			qstr = s
+		} else if s := r.URL.Query().Get("query"); s != "" {
+			qstr = s
+		} else if s := r.URL.Query().Get("filter"); s != "" {
+			qstr = s
+		}
+		term := snippetTerm(qstr)
+		if term != "" && vlt.Store != nil {
+			for i := range out {
+				out[i].Snippet = vlt.Store.FTSSnippet(term, out[i].UID)
+			}
+		}
 		resp := map[string]any{"items": out, "count": len(out)}
 		if nextCursor != "" {
 			resp["next_cursor"] = nextCursor
@@ -431,6 +451,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			"name":                 n.Name,
 			"view":                 view,
 			"content":              content,
+			"hash":                 n.Hash,
 			"effective_visibility": eff,
 			"defaulted":            defaulted,
 			"visible":              visible,
@@ -609,13 +630,16 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		updated := vlt.GetNote(uid)
+		hub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": updated.UID, "hash": updated.Hash}})
+		hub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": updated.UID, "kind": "updated"}})
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
-			"uid":     updated.UID,
-			"path":    updated.Path,
-			"name":    updated.Name,
-			"content": string(updated.Raw),
-			"hash":    updated.Hash,
+			"uid":                  updated.UID,
+			"path":                 updated.Path,
+			"name":                 updated.Name,
+			"content":              string(updated.Raw),
+			"hash":                 updated.Hash,
+			"effective_visibility": updated.Visibility,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -677,6 +701,18 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			}
 		}
 
+		// Optimistic concurrency: honor a client-supplied hash the same
+		// way PUT does, so PATCH cannot silently clobber a concurrent edit.
+		if h, ok := req["hash"].(string); ok && h != "" && h != n.Hash {
+			http.Error(w, "stale hash", http.StatusConflict)
+			return
+		}
+		if h, ok := fields["hash"].(string); ok && h != "" && h != n.Hash {
+			http.Error(w, "stale hash", http.StatusConflict)
+			return
+		}
+		delete(fields, "hash")
+
 		doc, err := frontmatter.Parse(n.Raw)
 		if err != nil || !doc.HasBlock {
 			http.Error(w, "no frontmatter block", http.StatusBadRequest)
@@ -727,13 +763,18 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		updated := vlt.GetNote(uid)
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": updated.UID, "hash": updated.Hash}})
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": updated.UID, "kind": "updated"}})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		payload := map[string]any{
-			"uid":     updated.UID,
-			"path":    updated.Path,
-			"name":    updated.Name,
-			"content": string(updated.Raw),
-			"hash":    updated.Hash,
+			"uid":                  updated.UID,
+			"path":                 updated.Path,
+			"name":                 updated.Name,
+			"content":              string(updated.Raw),
+			"hash":                 updated.Hash,
+			"effective_visibility": updated.Visibility,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -960,7 +1001,14 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		rec.SyncAliases()
 		appendRoll(vlt, rec)
 
-		// broadcast? skip websocket for now
+		hub.broadcast(map[string]any{
+			"v":    1,
+			"type": "roll.result",
+			"data": map[string]any{
+				"roll":   rec,
+				"result": res,
+			},
+		})
 
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -1168,6 +1216,9 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		if err := vlt.Load(); err != nil {
 		}
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": uidVal, "kind": "created"}})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"uid": uidVal, "name": name, "system": system, "workflow": workflow, "visibility": visibility, "player": player})
 	})
@@ -1212,6 +1263,10 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": uid, "hash": vlt.GetNote(uid).Hash}})
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": uid, "kind": "updated"}})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"uid": uid, "workflow": "submitted"})
 	})
@@ -1242,7 +1297,6 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	})
 	// WebSocket surface (N7b).
 	tokenKey := tokenKeyFor(vlt)
-	hub := &wsHub{}
 	m.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
 		handleWS(w, r, vlt, tokenKey, hub)
 	})
@@ -1406,9 +1460,34 @@ func applyRegisteredType(v frontmatter.Value, t frontmatter.PropertyType) frontm
 	}
 }
 
+// snippetTerm extracts a plain search term from an O2 filter string for use
+// with FTS5 snippet(). Prefers a quoted string; falls back to a single
+// bare token.
+func snippetTerm(q string) string {
+	q = strings.TrimSpace(q)
+	if q == "" {
+		return ""
+	}
+	re := regexp.MustCompile(`"([^"]*)"|'([^']*)'`)
+	if m := re.FindStringSubmatch(q); m != nil {
+		if m[1] != "" {
+			return m[1]
+		}
+		if len(m) > 2 && m[2] != "" {
+			return m[2]
+		}
+	}
+	fields := strings.Fields(q)
+	if len(fields) == 1 {
+		return fields[0]
+	}
+	return ""
+}
+
 func renderMarkdown(src string) string {
-	// Minimal: return escaped-ish placeholder; frontend renders via remark.
-	return src
+	// Minimal mitigation (sanitisation policy pending): escape raw HTML so
+	// a note cannot inject active markup into the preview surface.
+	return html.EscapeString(src)
 }
 
 // --- dice roll log (N2c) ---------------------------------------------------

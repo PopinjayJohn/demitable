@@ -13,6 +13,7 @@
 // caller hands it raw (unprojected) data. See surfaceVisibility.
 
 import type { NoteSummary } from "./api";
+import { authHeaders } from "./auth";
 
 export const DASHBOARD_BUDGET_MS = 250;
 
@@ -92,7 +93,7 @@ export async function loadDashboard(
 
   const url = "/api/v1/notes";
   requests.push(url);
-  const res = await fetchImpl(url);
+  const res = await fetchImpl(url, { headers: authHeaders(), credentials: "same-origin" });
   if (!res.ok) {
     throw new Error(`dashboard notes: ${res.status}`);
   }

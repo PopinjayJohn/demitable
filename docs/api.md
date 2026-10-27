@@ -353,8 +353,8 @@ commands. Both directions use one envelope:
 |---|---|
 | `hello` | session id, role, the vault's clock, the client's capabilities |
 | `vault.changed` | `{ uid, kind: "created\|updated\|deleted" }` |
-| `session.state` | the full live state — entities, initiative, fog |
-| `session.patch` | a delta against the last state |
+| `session.state` | CUT (F5): no live session-state engine; clients read session state via REST |
+| `session.patch` | CUT (F5): no live session-state engine; clients read session state via REST |
 | `roll.result` | a roll that happened, with full provenance |
 | `note.saved` | a note was written, by anyone |
 | `secret.revealed` | a secret was revealed — `{ note_uid, block_id, audience, by }` |

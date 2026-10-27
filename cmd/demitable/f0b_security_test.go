@@ -616,6 +616,20 @@ func TestF0bApproveRejectJournalEntry(t *testing.T) {
 	if ar.StatusCode != http.StatusOK {
 		t.Fatalf("approve status=%d body=%s", ar.StatusCode, string(b))
 	}
+	// workflow becomes exactly active after approve.
+	var aout map[string]any
+	_ = json.Unmarshal(b, &aout)
+	if aout["workflow"] != "active" {
+		t.Fatalf("approve response workflow=%v want active", aout["workflow"])
+	}
+	if n := v.GetNote("c1"); n == nil || n.Workflow != "active" {
+		t.Fatalf("workflow after approve=%v want active", func() any {
+			if n == nil {
+				return nil
+			}
+			return n.Workflow
+		}())
+	}
 
 	// journal lists the entry
 	jreq, _ := http.NewRequest("GET", srv.URL+"/api/v1/journal", nil)

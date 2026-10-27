@@ -26,6 +26,8 @@ type NoteView struct {
 	Defaulted           bool   `json:"defaulted,omitempty"`
 	Workflow            string `json:"workflow,omitempty"`
 	Body                string `json:"body,omitempty"`
+	// Snippet is a short highlighted excerpt for search results (additive).
+	Snippet string `json:"snippet,omitempty"`
 	// Owner-scoped: present only when allowed.
 	Player     string   `json:"player,omitempty"`
 	Grants     []string `json:"grants,omitempty"`

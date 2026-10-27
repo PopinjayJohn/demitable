@@ -222,3 +222,20 @@ func (s *Store) ftsQuery(query string, allowed []string) ([]string, error) {
 	}
 	return out, rows.Err()
 }
+
+// FTSSnippet returns a short snippet for uid matching query, using FTS5's
+// snippet() (highlighted with <b>...</b>). Empty on miss/error.
+func (s *Store) FTSSnippet(query, uid string) string {
+	q := strings.TrimSpace(query)
+	if q == "" || uid == "" {
+		return ""
+	}
+	var sn sql.NullString
+	err := s.db.QueryRow(
+		`SELECT snippet(note_fts, -1, "<b>", "</b>", "...", 12) FROM note_fts WHERE note_fts MATCH ? AND uid = ?`,
+		q, uid).Scan(&sn)
+	if err != nil || !sn.Valid {
+		return ""
+	}
+	return sn.String
+}
