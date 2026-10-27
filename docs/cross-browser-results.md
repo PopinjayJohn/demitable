@@ -108,6 +108,38 @@ runner with a working GL/EGL stack (or a headed display) must close this
 column; the harness itself is unchanged and WebKit is a configured project in
 `e2e/playwright.config.ts`.
 
+## F0 probe (2026-10-27)
+
+Re-probed in the F0 environment on 2026-10-27 to confirm the WebKit column
+before any F2 surface work starts. Result: **red with reason — environmental;
+harness unchanged; no divergence data exists because nothing ran.**
+
+- WebKit binaries present: 2.55.0 (minibrowser-wpe), matching the
+  Environment table above.
+- Launch attempt: MiniBrowser aborts with
+  `Could not create EGL display: no supported platform available. Aborting...`
+- Environment: no `DISPLAY`, no `/dev/dri`, no `Xvfb`; container has no GPU
+  and no EGL-capable virtual framebuffer. This matches
+  `docs/cross-browser-results.md` (WebKit gap section) and `e2e/scripts/run.sh`
+  lines 3–5.
+- No test executed, so no per-rule divergence data exists for WebKit; the
+  column remains `not run` (not "failed").
+
+**Unblock requirement (precise).** Run the WebKit column on a runner that
+provides one of:
+
+1. A GL/EGL-capable runner (GPU or Mesa software rasteriser with EGL), or
+2. `Xvfb` plus Mesa (`Xvfb :99 -screen 0 1280x1024x24` with
+   `DISPLAY=:99` and Mesa's `libEGL`/`libGLESv2` on the loader path), and
+   install WebKit with its system libraries via either
+   `npx playwright install --with-deps webkit` (as root) or the no-root
+   syslibs recipe in `e2e/scripts/run.sh`.
+
+Until one of those is available the column stays red-with-reason; the gate
+decision (waiver vs. blocker before F2) is the orchestrator's, not this
+document's. No ADR is filed for this infra gap: there is zero behavioral
+evidence to record (phase-3 precedent).
+
 ## Deferred with reason
 
 The harness covers the rules that can be asserted against the fixture today.
