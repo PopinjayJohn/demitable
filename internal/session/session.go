@@ -35,6 +35,9 @@ const (
 	StatusClosed = "closed"
 )
 
+// ErrSessionClosed is returned by store methods that mutate a closed session.
+var ErrSessionClosed = errors.New("session_closed")
+
 // Seat kinds (ADR-0038).
 const (
 	KindGM        = "gm"
@@ -158,8 +161,11 @@ func (s *Store) DB() *sql.DB { return s.db }
 // --- code alphabet (single source) ---
 
 // sessionCodeAlphabet is the unambiguous alphabet for session codes: no
-// O/0, I/1, L. Six characters, distinct from the campaign code's eight.
-const sessionCodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+// O/0, I/1, L. Six characters. The alphabet is shared with the campaign
+// join code; disjointness between a session code and a campaign code rests
+// on code length (6 vs 8), the endpoint that consumes it, and the store
+// that validates it — not on disjoint alphabets.
+const sessionCodeAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 
 // NewSessionCode generates a fresh six-character session code.
 func NewSessionCode() (string, error) {
@@ -274,6 +280,16 @@ func nullStr(s string) any {
 func (s *Store) AddSeat(seat Seat) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, seat.SessionID).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("session: not found: %w", err)
+		}
+		return err
+	}
+	if status == StatusClosed {
+		return ErrSessionClosed
+	}
 	if seat.CreatedAt.IsZero() {
 		seat.CreatedAt = time.Now().UTC()
 	}
@@ -292,6 +308,20 @@ func (s *Store) AddSeat(seat Seat) error {
 func (s *Store) UpdateSeat(seat Seat) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	var sessionID string
+	if err := s.db.QueryRow(`SELECT session_id FROM seats WHERE id = ?`, seat.ID).Scan(&sessionID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("session: seat not found: %w", err)
+		}
+		return err
+	}
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err != nil {
+		return err
+	}
+	if status == StatusClosed {
+		return ErrSessionClosed
+	}
 	claimed := 0
 	if seat.Claimed {
 		claimed = 1
@@ -315,6 +345,80 @@ func (s *Store) FindSeat(sessionID, seatID string) (Seat, bool, error) {
 		}
 	}
 	return Seat{}, false, nil
+}
+
+// ClaimSeat atomically claims one unclaimed seat in a session.
+//
+// If accountID is non-empty, only a seat pre-added for that account is
+// claimed; otherwise any unclaimed seat is claimed. The claim is a single
+// transaction (BEGIN IMMEDIATE) so concurrent callers cannot both win the
+// same seat. Returns the claimed seat and true on success; (zero, false, nil)
+// when no suitable unclaimed seat exists; an error (including
+// ErrSessionClosed) on failure.
+func (s *Store) ClaimSeat(sessionID, accountID string) (Seat, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, err := s.db.Exec("BEGIN IMMEDIATE"); err != nil {
+		return Seat{}, false, err
+	}
+	rollback := func() { _, _ = s.db.Exec("ROLLBACK") }
+
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err != nil {
+		rollback()
+		if errors.Is(err, sql.ErrNoRows) {
+			return Seat{}, false, err
+		}
+		return Seat{}, false, err
+	}
+	if status == StatusClosed {
+		rollback()
+		return Seat{}, false, ErrSessionClosed
+	}
+
+	q := `SELECT id, session_id, kind, character_uid, account_id, claimed, created_at
+		FROM seats WHERE session_id = ? AND claimed = 0`
+	args := []any{sessionID}
+	if accountID != "" {
+		q += ` AND account_id = ?`
+		args = append(args, accountID)
+	}
+	q += ` ORDER BY created_at, id LIMIT 1`
+
+	row := s.db.QueryRow(q, args...)
+	var st Seat
+	var created string
+	var claimed int
+	if err := row.Scan(&st.ID, &st.SessionID, &st.Kind, &st.Character, &st.Account, &claimed, &created); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			rollback()
+			return Seat{}, false, nil
+		}
+		rollback()
+		return Seat{}, false, err
+	}
+	st.Claimed = false
+
+	// Atomic claim: only succeeds if still unclaimed.
+	res, err := s.db.Exec(`UPDATE seats SET claimed = 1 WHERE id = ? AND claimed = 0`, st.ID)
+	if err != nil {
+		rollback()
+		return Seat{}, false, err
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		rollback()
+		return Seat{}, false, nil
+	}
+	if _, err := s.db.Exec("COMMIT"); err != nil {
+		_, _ = s.db.Exec("ROLLBACK")
+		return Seat{}, false, err
+	}
+	st.Claimed = true
+	t, _ := time.Parse(time.RFC3339Nano, created)
+	st.CreatedAt = t
+	return st, true, nil
 }
 
 // CloseSession marks a session closed with batch id (idempotent at store level).
@@ -343,7 +447,13 @@ func (s *Store) CloseSession(id, batchID string) error {
 func (s *Store) SetCodeAttempts(id string, n int) error {
 	sess, err := s.GetSession(id)
 	if err != nil || sess == nil {
+		if err == nil {
+			return sql.ErrNoRows
+		}
 		return err
+	}
+	if sess.Status == StatusClosed {
+		return ErrSessionClosed
 	}
 	sess.CodeAttempts = n
 	return s.UpdateSession(*sess)
@@ -385,7 +495,13 @@ func (s *Store) IsOpen(id string) bool {
 func (s *Store) RotateCode(id, newCode string) error {
 	sess, err := s.GetSession(id)
 	if err != nil || sess == nil {
+		if err == nil {
+			return sql.ErrNoRows
+		}
 		return err
+	}
+	if sess.Status == StatusClosed {
+		return ErrSessionClosed
 	}
 	sess.Code = newCode
 	return s.UpdateSession(*sess)
