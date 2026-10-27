@@ -2,27 +2,29 @@ package wasm
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 
+	"github.com/PopinjayJohn/demitable/internal/import"
+	"github.com/PopinjayJohn/demitable/internal/plugin/caps"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
-// Scope mirrors caps.Scope.
-type Scope struct {
-	Paths []string
-	Types []string
-	UIDs  []string
-}
+// Scope is caps.Scope: the wasm tier shares the caps package's scope type so
+// that scope checks delegate to caps.Scope's methods (D5).
+type Scope = caps.Scope
 
 // Grant is one granted capability.
 type Grant struct {
@@ -30,13 +32,21 @@ type Grant struct {
 	Scope Scope
 }
 
-// VaultService is the vault seam the host functions use.
+// VaultService is the vault seam the host functions use. Writes go through
+// the optional journaledVault seam, not UpdateNote: a WASM write must be
+// journalled to be revertible after the plugin is disabled (D2).
 type VaultService interface {
 	Get(p vault.Principal, uid string) (vault.Note, error)
 	List(p vault.Principal, q vault.Query) []vault.Note
 	AssetPaths() []string
 	AssetBytes(path string) ([]byte, error)
-	UpdateNote(uid string, data []byte) error
+}
+
+// journaledVault is the write seam a vault must implement for host_vault_write.
+// UpdateNote alone writes the file with no journal entry, which would leave a
+// plugin's write unrevertible — the opposite of what Disable promises.
+type journaledVault interface {
+	WriteNoteJournaled(actor, source, uid string, data []byte) error
 }
 
 // Result is the JSON envelope returned by host functions and demitable_call.
@@ -533,12 +543,16 @@ func (i *Instance) hostVaultWrite(ctx context.Context, m api.Module, ptr, size u
 	if payload == "" {
 		payload = a.Data
 	}
-	if w, ok := i.vault.(interface{ UpdateNote(string, []byte) error }); ok {
-		if err := w.UpdateNote(a.UID, []byte(payload)); err != nil {
-			return i.writeResult(m, i.fail("invalid", err.Error(), nil))
-		}
-	} else {
-		return i.writeResult(m, i.fail("unsupported", "vault.write not supported by this vault", nil))
+	w, ok := i.vault.(journaledVault)
+	if !ok {
+		return i.writeResult(m, i.fail("unsupported", "vault.write requires a journaled vault", nil))
+	}
+	actor := i.principal.Kind
+	if i.principal.ID != "" {
+		actor += ":" + i.principal.ID
+	}
+	if err := w.WriteNoteJournaled(actor, "plugin", a.UID, []byte(payload)); err != nil {
+		return i.writeResult(m, i.fail("invalid", err.Error(), nil))
 	}
 	return i.writeResult(m, Result{OK: true, Data: json.RawMessage(`{}`)})
 }
@@ -586,7 +600,9 @@ func (i *Instance) hostVaultAssets(ctx context.Context, m api.Module, ptr, size 
 	if len(data) > 0 {
 		_ = json.Unmarshal(data, &a)
 	}
-	_ = sc
+	if !sc.AllowsPath(a.Path) {
+		return i.writeResult(m, i.fail("forbidden", "scope does not cover this asset", map[string]any{"path": a.Path}))
+	}
 	b, err := i.vault.AssetBytes(a.Path)
 	if err != nil {
 		return i.writeResult(m, i.fail("not_found", "no such asset", map[string]any{"path": a.Path}))
@@ -601,7 +617,6 @@ func (i *Instance) hostHTTPFetch(ctx context.Context, m api.Module, ptr, size ui
 	if !ok {
 		return i.writeResult(m, i.fail("ungranted_capability", "capability not granted: http.client", map[string]any{"granted": i.grantedIDs()}))
 	}
-	_ = sc
 	data, ok := i.readInput(m, ptr, size)
 	if !ok {
 		return i.writeResult(m, i.fail("invalid", "memory read failed", nil))
@@ -615,15 +630,53 @@ func (i *Instance) hostHTTPFetch(ctx context.Context, m api.Module, ptr, size ui
 	if a.URL == "" {
 		return i.writeResult(m, i.fail("invalid", "http.client needs a url", nil))
 	}
+	if !sc.AllowsPath(a.URL) {
+		return i.writeResult(m, i.fail("forbidden", "scope does not cover this url", map[string]any{"url": a.URL}))
+	}
+	u, err := url.Parse(a.URL)
+	if err != nil {
+		return i.writeResult(m, i.fail("invalid", err.Error(), nil))
+	}
+	if !u.IsAbs() {
+		return i.writeResult(m, i.fail("invalid", "url must be absolute", nil))
+	}
+	if err := importer.ValidateScheme(u, false); err != nil {
+		return i.writeResult(m, i.fail("invalid", err.Error(), nil))
+	}
+	ips, err := importer.ResolvePublicIPs(u.Hostname())
+	if err != nil {
+		return i.writeResult(m, i.fail("invalid", err.Error(), nil))
+	}
+	pinned := ips[0]
+	port := u.Port()
+	if port == "" {
+		port = "443"
+	}
+	tr := &http.Transport{
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			d := &net.Dialer{Timeout: 10 * time.Second}
+			return d.DialContext(ctx, network, net.JoinHostPort(pinned.String(), port))
+		},
+		TLSClientConfig:       &tls.Config{ServerName: u.Hostname()},
+		ResponseHeaderTimeout: 10 * time.Second,
+	}
+	client := &http.Client{
+		Transport:     tr,
+		Timeout:       30 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
+	}
 	req, err := http.NewRequestWithContext(ctx, "GET", a.URL, nil)
 	if err != nil {
 		return i.writeResult(m, i.fail("invalid", err.Error(), nil))
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return i.writeResult(m, i.fail("invalid", err.Error(), nil))
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+		return i.writeResult(m, i.fail("invalid", "redirects are not followed", nil))
+	}
 	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	raw, _ := json.Marshal(map[string]any{"status": resp.StatusCode, "body": string(body)})
 	return i.writeResult(m, Result{OK: true, Data: raw})
@@ -652,124 +705,10 @@ func (i *Instance) grantedIDs() []string {
 	return out
 }
 
+// scopeAllows delegates to caps.Scope methods (D5): the wasm tier no longer
+// carries its own glob implementation.
 func scopeAllows(sc Scope, n vault.Note) bool {
-	if len(sc.Types) > 0 {
-		ok := false
-		for _, t := range sc.Types {
-			if t == n.Type {
-				ok = true
-				break
-			}
-		}
-		if !ok {
-			return false
-		}
-	}
-	if len(sc.UIDs) > 0 {
-		ok := false
-		for _, u := range sc.UIDs {
-			if u == n.UID {
-				ok = true
-				break
-			}
-		}
-		if !ok {
-			return false
-		}
-	}
-	if len(sc.Paths) > 0 {
-		ok := false
-		for _, g := range sc.Paths {
-			if matchGlob(g, n.Path) {
-				ok = true
-				break
-			}
-		}
-		if !ok {
-			return false
-		}
-	}
-	return true
-}
-
-func matchGlob(glob, path string) bool {
-	// reuse caps logic simplified
-	if !containsStr(glob, "**") {
-		// simple
-		return simpleMatch(glob, path)
-	}
-	parts := splitStr(glob, "**")
-	rest := path
-	for i, part := range parts {
-		if part == "" {
-			continue
-		}
-		idx := indexOf(rest, part)
-		if idx < 0 {
-			return false
-		}
-		if i == 0 && idx != 0 {
-			return false
-		}
-		rest = rest[idx+len(part):]
-	}
-	return true
-}
-
-func simpleMatch(pattern, s string) bool {
-	// glob with * within segment
-	// handle path separators: if pattern has no /, s must have no /
-	if !containsStr(pattern, "/") && containsStr(s, "/") {
-		// allow? caps allows single segment only
-	}
-	// use byte-level glob
-	pi, si := 0, 0
-	star := -1
-	match := 0
-	for si < len(s) {
-		switch {
-		case pi < len(pattern) && pattern[pi] == s[si]:
-			pi++
-			si++
-		case pi < len(pattern) && pattern[pi] == '*':
-			star = pi
-			match = si
-			pi++
-		case star >= 0:
-			pi = star + 1
-			match++
-			si = match
-		default:
-			return false
-		}
-	}
-	for pi < len(pattern) && pattern[pi] == '*' {
-		pi++
-	}
-	return pi == len(pattern)
-}
-
-func containsStr(s, sub string) bool { return indexOf(s, sub) >= 0 }
-func indexOf(s, sub string) int {
-	for i := 0; i+len(sub) <= len(s); i++ {
-		if s[i:i+len(sub)] == sub {
-			return i
-		}
-	}
-	return -1
-}
-func splitStr(s, sep string) []string {
-	var out []string
-	for {
-		i := indexOf(s, sep)
-		if i < 0 {
-			out = append(out, s)
-			break
-		}
-		out = append(out, s[:i])
-		s = s[i+len(sep):]
-	}
-	return out
+	return sc.AllowsType(n.Type) && sc.AllowsUID(n.UID) && sc.AllowsPath(n.Path)
 }
 
 // randRead uses crypto/rand

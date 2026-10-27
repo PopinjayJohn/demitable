@@ -82,3 +82,11 @@ func validateScheme(u *url.URL, allowHTTP bool) error {
 		return fmt.Errorf("import: unsupported scheme %q", u.Scheme)
 	}
 }
+
+// Exported wrappers so other packages (e.g. the WASM host) can reuse the
+// same SSRF posture instead of reimplementing it.
+func IsPrivateIP(ip net.IP) bool { return isPrivateIP(ip) }
+
+func ResolvePublicIPs(host string) ([]net.IP, error) { return resolvePublicIPs(host) }
+
+func ValidateScheme(u *url.URL, allowHTTP bool) error { return validateScheme(u, allowHTTP) }

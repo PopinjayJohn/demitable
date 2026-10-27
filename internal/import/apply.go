@@ -133,7 +133,7 @@ func printPluginWarning(bundles []PluginBundle) {
 		fmt.Println("A component with dom.inline runs with your own permissions: in a GM's session it can read every note in the campaign, including ones marked GM-only, and act on your behalf.")
 	}
 	fmt.Println()
-	fmt.Println("Plugins are executable code. A plugin runs with the permissions of whoever opens it — for the GM, that means the entire vault, including notes marked GM-only. WASM plugins are sandboxed (no network, no filesystem), but they can still read and write whatever their capabilities allow.")
+	fmt.Println("Plugins are executable code. A plugin runs with the permissions of whoever opens it — for the GM, that means the entire vault, including notes marked GM-only. WASM plugins are sandboxed (no filesystem); network access happens only when the http.client capability is granted, and even then only to public addresses.")
 	fmt.Println()
 	fmt.Print("Install them? [y/N] ")
 }

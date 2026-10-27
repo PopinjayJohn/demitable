@@ -513,6 +513,36 @@ func (v *Vault) UpdateNote(uid string, data []byte) error {
 	return nil
 }
 
+// WriteNoteJournaled writes a note and records the before and after bytes in
+// the journal, so the write is revertible — docs/plugin-api.md §8 promises
+// that a disabled plugin's writes remain in the journal.
+//
+// The write and the journal entry are kept together: if the journal cannot
+// record it, the file is restored and the write is refused. An unjournalled
+// write is not revertible, and silently accepting one would break the
+// promise a GM relies on when disabling a plugin mid-session.
+func (v *Vault) WriteNoteJournaled(actor, source, uid string, data []byte) error {
+	v.mu.RLock()
+	n := v.Notes[uid]
+	v.mu.RUnlock()
+	if n == nil {
+		return fmt.Errorf("vault: unknown note %s", uid)
+	}
+	before := append([]byte(nil), n.Raw...)
+	if err := v.UpdateNote(uid, data); err != nil {
+		return err
+	}
+	if _, err := NewJournal(v.Root).AppendWrite(actor, source, "update", uid, n.Path, "", before, data, nil); err != nil {
+		if rbErr := v.UpdateNote(uid, before); rbErr != nil {
+			return fmt.Errorf("vault: journal write failed and rollback failed: %w (rollback: %v)", err, rbErr)
+		}
+		return fmt.Errorf("vault: journal write: %w", err)
+	}
+	return nil
+}
+
+// SaveNote is an alias for UpdateNote; it does not journal. Callers that
+// promise revertibility use WriteNoteJournaled.
 func (v *Vault) SaveNote(uid string, data []byte) error { return v.UpdateNote(uid, data) }
 
 // Content returns the original markdown content for a note.
