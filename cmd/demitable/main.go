@@ -165,6 +165,11 @@ func run(args []string) error {
 	}
 
 	if cfg.MCP {
+		// Journaling is conditional on --audit-log: when audit is nil (no
+		// audit log configured) nothing is recorded in the journal — the
+		// privacy notice goes to stderr (PrivacyPrompt above) and a Warn
+		// log line only. When an audit log is configured, an "mcp.enabled"
+		// event is recorded with privacy=acknowledged.
 		fmt.Fprintln(os.Stderr, mcp.PrivacyPrompt)
 		if audit != nil {
 			audit.Record(context.Background(), "mcp.enabled", slog.String("privacy", "acknowledged"))

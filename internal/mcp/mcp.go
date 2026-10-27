@@ -73,7 +73,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusAccepted)
 		return
 	}
-	res, rpcErr := s.dispatch(r.Context(), req)
+	res, rpcErr := s.dispatch(req)
 	if rpcErr != nil {
 		writeJSONRPCError(w, req.ID, rpcErr.code, rpcErr.msg)
 		return
@@ -104,7 +104,7 @@ func isNotification(m string) bool {
 
 func handleNotification(string) {}
 
-func (s *Server) dispatch(ctx interface{}, req jsonrpcRequest) (any, *rpcError) {
+func (s *Server) dispatch(req jsonrpcRequest) (any, *rpcError) {
 	switch req.Method {
 	case "initialize":
 		return map[string]any{
@@ -634,24 +634,58 @@ func (s *Server) toolListBy(m map[string]any) (map[string]any, error) {
 }
 
 func (s *Server) toolGetLinks(m map[string]any) (map[string]any, error) {
+	// Note: the vault index (n.Links) captures markdown links and, after a
+	// goldmark parse, not Obsidian wikilinks — goldmark splits "[[" across
+	// text nodes, so resolveWikiLinks never sees them and n.Links is empty
+	// for wikilink-only notes. Wikilinks are therefore NOT surfaced here
+	// (index data genuinely unavailable for them); supporting them needs an
+	// extractor change, not a fork of the body parser in this tool.
 	uid, _ := m["uid"].(string)
 	n := s.Vault.GetNote(uid)
 	if n == nil {
 		return nil, fmt.Errorf("note not found: %s", uid)
 	}
-	// outgoing: parse wikilinks from body
+	// Outgoing: read from the vault's indexed links (n.Links), not a
+	// re-parse of the body. Targets are resolved to note uids through the
+	// vault index when possible, so callers see uids rather than raw
+	// display text.
 	outgoing := []map[string]any{}
-	for _, m := range findAllWikiLinks(n.Body) {
-		outgoing = append(outgoing, map[string]any{"kind": "wikilink", "target": m, "text": m})
+	for _, l := range n.Links {
+		target := l.Resolved
+		if target == "" {
+			target = l.Target
+		}
+		resolvedUID := target
+		if nn := findNote(s.Vault, target, target); nn != nil {
+			resolvedUID = nn.UID
+		}
+		outgoing = append(outgoing, map[string]any{
+			"kind":     l.Kind,
+			"target":   resolvedUID,
+			"text":     l.Text,
+			"resolved": resolvedUID,
+		})
 	}
-	// backlinks: notes whose body references this note
+	// Backlinks: notes in the vault index whose links resolve to this note.
+	// Deterministic load order (AllNotes), not map iteration.
 	backlinks := []map[string]any{}
-	for _, other := range s.Vault.Notes {
+	for _, other := range s.Vault.AllNotes() {
 		if other.UID == uid {
 			continue
 		}
-		if strings.Contains(other.Body, "[["+uid+"]]") || strings.Contains(other.Body, "[["+n.Name+"]]") {
-			backlinks = append(backlinks, map[string]any{"uid": other.UID, "name": other.Name})
+		for _, l := range other.Links {
+			t := l.Resolved
+			if t == "" {
+				t = l.Target
+			}
+			ruid := t
+			if nn := findNote(s.Vault, t, t); nn != nil {
+				ruid = nn.UID
+			}
+			if ruid == uid || strings.EqualFold(t, n.Name) || strings.EqualFold(t, uid) {
+				backlinks = append(backlinks, map[string]any{"uid": other.UID, "name": other.Name})
+				break
+			}
 		}
 	}
 	res := map[string]any{"uid": uid, "outgoing": outgoing, "backlinks": backlinks}
