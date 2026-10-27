@@ -175,20 +175,20 @@ func principalFromRequest(r *http.Request, tokenKey string) vault.Principal {
 	// still exists. A closed session (or a forged/unknown seat) buys
 	// nothing.
 	if p.IsSeat() {
-		if st := session.StoreFor(tokenKey); st != nil {
-			sid := p.Session
-			if sid == "" {
-				// Fall back: search stores for the seat id.
-				// (Best-effort; principal should carry Session.)
-			}
-			if sid != "" {
-				if !st.IsOpen(sid) {
-					return vault.Anonymous()
-				}
-				if _, ok, _ := st.FindSeat(sid, p.ID); !ok {
-					return vault.Anonymous()
-				}
-			}
+		// Fail closed: with no registered store, seat claims buy nothing.
+		st := session.StoreFor(tokenKey)
+		if st == nil {
+			return vault.Anonymous()
+		}
+		sid := p.Session
+		if sid == "" {
+			return vault.Anonymous()
+		}
+		if !st.IsOpen(sid) {
+			return vault.Anonymous()
+		}
+		if _, ok, _ := st.FindSeat(sid, p.ID); !ok {
+			return vault.Anonymous()
 		}
 	}
 	return p

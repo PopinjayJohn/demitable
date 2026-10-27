@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -141,24 +142,25 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		// seat-token validity after close: a closed session is still readable
 		// for state, but tokens buy nothing elsewhere.
 		principal := principalFromRequest(r, tk)
-		// If a seat token for a different session is presented, it buys
-		// nothing: treat as anonymous for state purposes.
-		if principal.IsSeat() && principal.ID != "" {
-			// verify the seat belongs to this session
-			if _, ok, _ := sess.FindSeat(id, principal.ID); !ok {
-				principal = vault.Anonymous()
+		allowed := false
+		if principal.IsGM() {
+			allowed = true
+		} else if principal.IsSeat() && principal.Session == id {
+			if _, ok, _ := sess.FindSeat(id, principal.ID); ok {
+				allowed = true
 			}
 		}
-		_ = principal
+		if !allowed {
+			writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
+			return
+		}
 		// Build seats payload.
 		seats := make([]map[string]any, 0, len(s.Seats))
 		for _, st := range s.Seats {
 			seats = append(seats, seatToMap(st))
 		}
 		code := s.Code
-		// Hide code from non-GM? keep for now; GM token check.
-		if !principalFromRequest(r, tk).IsGM() {
-			// non-GM sees no code
+		if !principal.IsGM() {
 			code = ""
 		}
 		resp := map[string]any{
@@ -238,6 +240,12 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		if kind == session.KindSpectator {
 			char = ""
 		}
+		if char != "" && accountID != "" {
+			if !playableCharacter(vlt, sess, id, accountID, char) {
+				writeErr(w, "invalid_character", "character not playable", http.StatusBadRequest)
+				return
+			}
+		}
 		seatID, _ := uid.New()
 		if seatID == "" {
 			seatID = fmt.Sprintf("seat-%d", time.Now().UnixNano())
@@ -252,6 +260,10 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			CreatedAt: time.Now().UTC(),
 		}
 		if err := sess.AddSeat(st); err != nil {
+			if errors.Is(err, session.ErrSessionClosed) {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
 			writeErr(w, "internal", "add seat failed", http.StatusInternalServerError)
 			return
 		}
@@ -284,11 +296,54 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		_ = json.NewDecoder(r.Body).Decode(&body)
 
 		ip := clientIP(r)
+		limiterKey := id + "|" + ip
+
+		// GM-credential holder joins: seats a gm-kind seat with no
+		// character binding. The GM principal otherwise bypasses seats.
+		principal := principalFromRequest(r, tk)
+		if principal.IsGM() {
+			seatID, _ := uid.New()
+			if seatID == "" {
+				seatID = fmt.Sprintf("seat-%d", time.Now().UnixNano())
+			}
+			newSeat := session.Seat{
+				ID:        seatID,
+				SessionID: id,
+				Kind:      session.KindGM,
+				Claimed:   true,
+				CreatedAt: time.Now().UTC(),
+			}
+			if err := sess.AddSeat(newSeat); err != nil {
+				if errors.Is(err, session.ErrSessionClosed) {
+					writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+					return
+				}
+				writeErr(w, "internal", "seat create failed", http.StatusInternalServerError)
+				return
+			}
+			tok, err := issueToken(tk, tokenClaims{
+				Kind:      "seat",
+				ID:        newSeat.ID,
+				Bound:     "",
+				Session:   id,
+				Campaigns: []string{},
+			})
+			if err != nil {
+				writeErr(w, "internal", "token issue failed", http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"seat":  seatToMap(newSeat),
+				"token": tok,
+			})
+			return
+		}
 
 		// Code-based join (guest seat).
 		if body.Code != "" {
-			if !limiter.allow(ip) {
-				n := limiter.count(ip)
+			if !limiter.allow(limiterKey) {
+				n := limiter.count(limiterKey)
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusTooManyRequests)
 				_ = json.NewEncoder(w).Encode(map[string]any{
@@ -300,7 +355,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 				return
 			}
 			if body.Code != s.Code {
-				n := limiter.fail(ip)
+				n := limiter.fail(limiterKey)
 				// also track in session
 				_ = sess.SetCodeAttempts(id, s.CodeAttempts+1)
 				// reload attempts
@@ -317,28 +372,24 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 				})
 				return
 			}
-			limiter.success(ip)
+			limiter.success(limiterKey)
+			_ = sess.SetCodeAttempts(id, 0)
 
-			// claim an unclaimed seat if available
-			var claimed *session.Seat
-			for i := range s.Seats {
-				if !s.Seats[i].Claimed {
-					// claim it
-					st := s.Seats[i]
-					st.Claimed = true
-					if err := sess.UpdateSeat(st); err != nil {
-						writeErr(w, "internal", "claim failed", http.StatusInternalServerError)
-						return
-					}
-					claimed = &st
-					break
+			// claim an unclaimed seat if available (single transaction).
+			claimedSeat, okClaim, err := sess.ClaimSeat(id, "")
+			if err != nil {
+				if errors.Is(err, session.ErrSessionClosed) {
+					writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+					return
 				}
+				writeErr(w, "internal", "claim failed", http.StatusInternalServerError)
+				return
 			}
 			var newSeat session.Seat
-			if claimed != nil {
-				newSeat = *claimed
-			} else {
-				// create a new guest seat with no character
+			if okClaim {
+				newSeat = claimedSeat
+			} else if len(s.Seats) == 0 {
+				// no seats pre-added: create an ad-hoc guest seat
 				seatID, _ := uid.New()
 				if seatID == "" {
 					seatID = fmt.Sprintf("seat-%d", time.Now().UnixNano())
@@ -351,9 +402,16 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 					CreatedAt: time.Now().UTC(),
 				}
 				if err := sess.AddSeat(newSeat); err != nil {
+					if errors.Is(err, session.ErrSessionClosed) {
+						writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+						return
+					}
 					writeErr(w, "internal", "seat create failed", http.StatusInternalServerError)
 					return
 				}
+			} else {
+				writeErr(w, "seat_unavailable", "no seat available", http.StatusConflict)
+				return
 			}
 			// issue seat token
 			tok, err := issueToken(tk, tokenClaims{
@@ -414,33 +472,40 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			kind = session.KindSpectator
 		}
 
-		// claim pre-added seat for this account if exists
+		// claim pre-added seat for this account if exists (single transaction).
 		var newSeat session.Seat
-		claimed := false
-		for i := range s.Seats {
-			if !s.Seats[i].Claimed && s.Seats[i].Account == stored.ID {
-				st := s.Seats[i]
-				if char == "" {
-					char = st.Character
-				}
-				if char == "" {
-					kind = session.KindSpectator
-				} else {
-					kind = session.KindAccount
-				}
-				st.Claimed = true
-				st.Character = char
-				st.Kind = kind
-				if err := sess.UpdateSeat(st); err != nil {
-					writeErr(w, "internal", "claim failed", http.StatusInternalServerError)
+		claimedSeat, okClaim, err := sess.ClaimSeat(id, stored.ID)
+		if err != nil {
+			if errors.Is(err, session.ErrSessionClosed) {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
+			writeErr(w, "internal", "claim failed", http.StatusInternalServerError)
+			return
+		}
+		if okClaim {
+			st := claimedSeat
+			if char == "" {
+				char = st.Character
+			}
+			if char == "" {
+				kind = session.KindSpectator
+			} else {
+				kind = session.KindAccount
+			}
+			st.Claimed = true
+			st.Character = char
+			st.Kind = kind
+			if err := sess.UpdateSeat(st); err != nil {
+				if errors.Is(err, session.ErrSessionClosed) {
+					writeErr(w, "session_closed", "session is closed", http.StatusConflict)
 					return
 				}
-				newSeat = st
-				claimed = true
-				break
+				writeErr(w, "internal", "claim failed", http.StatusInternalServerError)
+				return
 			}
-		}
-		if !claimed {
+			newSeat = st
+		} else {
 			seatID, _ := uid.New()
 			if seatID == "" {
 				seatID = fmt.Sprintf("seat-%d", time.Now().UnixNano())
@@ -455,6 +520,10 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 				CreatedAt: time.Now().UTC(),
 			}
 			if err := sess.AddSeat(newSeat); err != nil {
+				if errors.Is(err, session.ErrSessionClosed) {
+					writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+					return
+				}
 				writeErr(w, "internal", "seat create failed", http.StatusInternalServerError)
 				return
 			}
@@ -491,14 +560,31 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			writeErr(w, "not_found", "no such session", http.StatusNotFound)
 			return
 		}
+		var body struct {
+			BatchID string `json:"batch_id"`
+			BatchId string `json:"batchId"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		clientBatch := body.BatchID
+		if clientBatch == "" {
+			clientBatch = body.BatchId
+		}
 		// idempotent close
 		batchID := s.CloseBatchID
 		if batchID == "" {
-			batchID = fmt.Sprintf("batch-%d", time.Now().UnixNano())
+			if clientBatch != "" {
+				batchID = clientBatch
+			} else {
+				batchID = fmt.Sprintf("batch-%d", time.Now().UnixNano())
+			}
 		}
 		if err := sess.CloseSession(id, batchID); err != nil {
-			writeErr(w, "internal", "close failed", http.StatusInternalServerError)
-			return
+			if errors.Is(err, session.ErrSessionClosed) {
+				// already closed; keep stored batch id
+			} else {
+				writeErr(w, "internal", "close failed", http.StatusInternalServerError)
+				return
+			}
 		}
 		// reload to get canonical batch id
 		if ss, _ := sess.GetSession(id); ss != nil {
@@ -540,6 +626,10 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			return
 		}
 		if err := sess.RotateCode(id, newCode); err != nil {
+			if errors.Is(err, session.ErrSessionClosed) {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
 			writeErr(w, "internal", "rotate failed", http.StatusInternalServerError)
 			return
 		}
