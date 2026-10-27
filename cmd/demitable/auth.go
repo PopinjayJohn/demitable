@@ -387,10 +387,36 @@ func authHandlers(m *http.ServeMux, vlt *vault.Vault, audit *logging.Audit, cfg 
 			_ = json.NewEncoder(w).Encode(map[string]string{"error": account.ErrWrongPassphrase.Error()})
 			return
 		}
-		// If a passphrase already exists, require the current one. This
-		// keeps the endpoint from being a takeover path for an account
-		// that already has a credential.
-		if accts[idx].PassphraseHash != "" {
+		// Initial set (no credential yet): bind to the join credential.
+		// A bare body.player with no proof of the join must not win a
+		// pre-set race (F0b follow-up a). Require the bearer token issued
+		// at join, matching this account.
+		if accts[idx].PassphraseHash == "" {
+			authorised := false
+			if h := r.Header.Get("Authorization"); h != "" && strings.HasPrefix(h, "Bearer ") {
+				if c, ok := verifyToken(state.tokenKeyVal(), strings.TrimPrefix(h, "Bearer ")); ok && c.Kind == "account" && c.ID == accts[idx].ID {
+					authorised = true
+				}
+			}
+			if !authorised {
+				if ck, err := r.Cookie("demitable_session"); err == nil {
+					if c, ok := verifyToken(state.tokenKeyVal(), ck.Value); ok && c.Kind == "account" && c.ID == accts[idx].ID {
+						authorised = true
+					}
+				}
+			}
+			if !authorised {
+				limiter.fail(ip)
+				if audit != nil {
+					audit.Record(r.Context(), "auth.set_passphrase", slog.String("outcome", "failure"), slog.String("reason", "missing_join_token"), slog.String("remote_addr", r.RemoteAddr))
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_ = json.NewEncoder(w).Encode(map[string]string{"error": account.ErrWrongPassphrase.Error()})
+				return
+			}
+		} else {
+			// Change: require the current passphrase (existing behaviour).
 			old := body.OldPassphrase
 			if old == "" {
 				old = body.CurrentPassphrase

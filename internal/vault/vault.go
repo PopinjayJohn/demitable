@@ -711,6 +711,40 @@ func (v *Vault) WriteNoteJournaled(actor, source, uid string, data []byte) error
 	return nil
 }
 
+// DeleteNoteJournaled removes a note and records the deletion in the journal,
+// so it is revertible like every other app-initiated write. The before bytes
+// are stored; reverting restores the file. The in-memory index is rebuilt
+// from the on-disk state by the caller (or by a watcher) after revert.
+func (v *Vault) DeleteNoteJournaled(actor, source, uid string) error {
+	v.mu.RLock()
+	n := v.Notes[uid]
+	v.mu.RUnlock()
+	if n == nil {
+		return fmt.Errorf("vault: unknown note %s", uid)
+	}
+	before := append([]byte(nil), n.Raw...)
+	if _, err := NewJournal(v.Root).AppendWrite(actor, source, "delete", uid, n.Path, "", before, nil, nil); err != nil {
+		return fmt.Errorf("vault: journal write: %w", err)
+	}
+	full := filepath.Join(v.Root, filepath.FromSlash(n.Path))
+	if err := os.Remove(full); err != nil {
+		return fmt.Errorf("vault: delete file: %w", err)
+	}
+	v.mu.Lock()
+	delete(v.Notes, uid)
+	delete(v.ByPath, n.Path)
+	filtered := v.Order[:0]
+	for _, u := range v.Order {
+		if u != uid {
+			filtered = append(filtered, u)
+		}
+	}
+	v.Order = filtered
+	v.mu.Unlock()
+	v.Literal.Rebuild(v)
+	return nil
+}
+
 // SaveNote is an alias for UpdateNote; it does not journal. Callers that
 // promise revertibility use WriteNoteJournaled.
 func (v *Vault) SaveNote(uid string, data []byte) error { return v.UpdateNote(uid, data) }

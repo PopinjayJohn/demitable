@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -36,24 +37,24 @@ func Handler(vaultRoot string, visible VisibilityFunc) http.Handler {
 		// clean
 		p = filepath.ToSlash(filepath.Clean(p))
 		if p == "." || strings.HasPrefix(p, "..") {
-			http.NotFound(w, r)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		full := filepath.Join(vaultRoot, filepath.FromSlash(p))
 		// visibility
 		caller := CallerFromRequest(r)
 		if visible != nil && !visible(r.Context(), caller, p) {
-			http.NotFound(w, r)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		fi, err := os.Stat(full)
 		if err != nil || fi.IsDir() {
-			http.NotFound(w, r)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		data, err := os.ReadFile(full)
 		if err != nil {
-			http.NotFound(w, r)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		sum := sha256.Sum256(data)
@@ -68,9 +69,70 @@ func Handler(vaultRoot string, visible VisibilityFunc) http.Handler {
 		}
 		// content type
 		w.Header().Set("Content-Type", detectContentType(full))
-		// range support
+		// range support (honest, single range)
 		if rng := r.Header.Get("Range"); rng != "" {
-			// simple: ignore range, serve full (acceptable for M1)
+			// parse "bytes=start-end"
+			if !strings.HasPrefix(rng, "bytes=") {
+				w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+				return
+			}
+			spec := strings.TrimPrefix(rng, "bytes=")
+			parts := strings.SplitN(spec, ",", 2)
+			spec = strings.TrimSpace(parts[0])
+			se := strings.SplitN(spec, "-", 2)
+			if len(se) != 2 {
+				w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+				return
+			}
+			startStr := strings.TrimSpace(se[0])
+			endStr := strings.TrimSpace(se[1])
+			var start, end int64
+			total := int64(len(data))
+			if startStr == "" {
+				// suffix range
+				n, err := strconv.ParseInt(endStr, 10, 64)
+				if err != nil || n <= 0 {
+					w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+					return
+				}
+				if n > total {
+					n = total
+				}
+				start = total - n
+				end = total - 1
+			} else {
+				st, err := strconv.ParseInt(startStr, 10, 64)
+				if err != nil || st < 0 {
+					w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+					return
+				}
+				start = st
+				if endStr == "" {
+					end = total - 1
+				} else {
+					en, err := strconv.ParseInt(endStr, 10, 64)
+					if err != nil || en < 0 {
+						w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+						return
+					}
+					end = en
+				}
+			}
+			if start > end || start >= total {
+				w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", total))
+				w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+				return
+			}
+			if end >= total {
+				end = total - 1
+			}
+			w.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, total))
+			w.Header().Set("Content-Length", fmt.Sprintf("%d", end-start+1))
+			w.WriteHeader(http.StatusPartialContent)
+			if r.Method != http.MethodHead {
+				_, _ = w.Write(data[start : end+1])
+			}
+			return
 		}
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 		w.WriteHeader(http.StatusOK)

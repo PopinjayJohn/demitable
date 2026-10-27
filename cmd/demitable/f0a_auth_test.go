@@ -273,8 +273,8 @@ func TestF0aLoginDirect(t *testing.T) {
 }
 
 func TestF0aGMSecretRotationInvalidatesSessions(t *testing.T) {
-	_, srv, gmSecret, oldBearer := f0aSetup(t)
-	_ = gmSecret
+	dir, srv, gmSecret, oldBearer := f0aSetup(t)
+	_ = dir
 
 	req, _ := http.NewRequest("POST", srv.URL+"/api/v1/auth/gm/rotate", bytes.NewBufferString(`{}`))
 	req.Header.Set("Authorization", "Bearer "+oldBearer)
@@ -285,6 +285,14 @@ func TestF0aGMSecretRotationInvalidatesSessions(t *testing.T) {
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("rotate status %d", resp.StatusCode)
+	}
+	// persistence: on-disk config holds the new secret.
+	newGM, _, err := ensureVaultConfig(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if newGM == gmSecret {
+		t.Fatalf("rotation did not persist a new GM secret")
 	}
 
 	// old bearer now invalid: rotate again with old bearer -> 401

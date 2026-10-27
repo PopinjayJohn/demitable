@@ -519,7 +519,6 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
-	allowAll := func(ctx context.Context, caller assets.Caller, p string) bool { return true }
 	m.HandleFunc("PUT /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
 		uid := r.PathValue("uid")
 		n := vlt.GetNote(uid)
@@ -714,7 +713,26 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		_ = json.NewEncoder(w).Encode(map[string]any{"uid": n.UID, "html": renderMarkdown(content)})
 	})
 
-	m.Handle("GET /asset/", assets.Handler(vlt.Root, allowAll))
+	visibility := func(ctx context.Context, caller assets.Caller, p string) bool {
+		prin, _ := ctx.Value(principalCtxKey{}).(vault.Principal)
+		if prin.Kind == "" && prin.ID == "" {
+			prin = vault.Anonymous()
+		}
+		return assetVisible(vlt, prin, p)
+	}
+	baseAsset := assets.Handler(vlt.Root, visibility)
+	m.Handle("GET /asset/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		ctx := context.WithValue(r.Context(), principalCtxKey{}, prin)
+		role := "anonymous"
+		if prin.IsGM() {
+			role = "gm"
+		} else if prin.Kind == "account" {
+			role = "player"
+		}
+		ctx = assets.WithCaller(ctx, assets.Caller{Role: role, AccountID: prin.ID})
+		baseAsset.ServeHTTP(w, r.WithContext(ctx))
+	}))
 
 	// Dice roll path (N2c).
 	m.HandleFunc("POST /api/v1/roll", func(w http.ResponseWriter, r *http.Request) {
@@ -1186,6 +1204,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	// Auth surface (M5a).
 	limiter := newAuthLimiter()
 	authHandlers(m, vlt, audit, cfg, limiter)
+	registerF0b(m, vlt, cfg, audit, limiter)
 
 	// Import (N8).
 	m.HandleFunc("POST /api/v1/import", func(w http.ResponseWriter, r *http.Request) {
