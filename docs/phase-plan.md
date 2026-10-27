@@ -128,6 +128,9 @@ Live play.
 - The **shared display** mode and **chat** (ADR-0048).
 - The **session write-back contract**: partial apply, per-key conflict
   reporting, journal-based recovery (ADR-0039).
+- The **webapp completion**: GM and player login, search, projected preview,
+  full note editing, character sheets — the demo gap phase 3 proved
+  (phase-4-plan §F0/F5).
 
 ### Phase 5 — The Session
 

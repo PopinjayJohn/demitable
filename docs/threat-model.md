@@ -64,7 +64,11 @@ The boundary is the server-side projection (ADR-0002; design §3 Rule 4; ADR-003
 - Players **never receive files**; they receive projections.
 - A native client cannot leak GM-only notes, because it never holds them (api.md §1).
 
-Resolution order, first match wins (ADR-0033, amended by ADR-0050/D13, ADR-0048):
+The boundary computes **audiences** (ADR-0057, which supersedes the ordered
+rules below as an algorithm — they remain the complete list of constraints).
+The audience is the intersection of every applicable constraint, widened only
+by the grants in 5 that are permitted to widen it; 2 and 3 narrow absolutely
+and no grant overrides them:
 
 1. **Scope** — campaign membership.
 2. **Absolute deny** — `visibility: gm`, never serialised to a non-GM response; no grant overrides.
@@ -149,7 +153,7 @@ The phase-0 threat model, being honest about the remainder:
 
 1. **A compromised GM host.** Whole vault exposure; no partial. Defended only by the backup story (which is app-independent by design).
 2. **A GM-installed plugin whose UI is trusted** (or a `dom.inline` plugin). Accepted risk, now written down; capability model covers logic only.
-3. **Credential theft inside its window.** Join code: 24 h single-use; session code: session lifetime; GM secret: long-lived until rotation. Expiry/revocation exist; enforcement (rate limits, attempt counting on the session endpoint) is phase-1 work.
+3. **Credential theft inside its window.** Join code: 24 h single-use; session code: session lifetime; GM secret: long-lived until rotation. Expiry/revocation exist; enforcement (rate limits, attempt counting on the session endpoint) lands with the session endpoint in phase 4 (F1).
 4. **Search ranking side channel.** Measured in phase 0; remedy pending.
 5. **Markdown-renderer XSS.** Sanitisation policy pending before the editor ships.
 6. **Plugin UI isolation in Firefox/Safari.** Shadow DOM behaviour unverified (Chromium only, ADR-0029).
@@ -200,9 +204,9 @@ Verdicts under the threat model written here:
 | Search: filter before BM25/IDF ranking | Phase 1 (before M6 ships) |
 | Markdown sanitisation policy before editor ships | M4 |
 | Plugin UI trust decision (position (a) vs (b)) + delete “unreachable by plugins” from the phase-1 DoD | M3 / M8 |
-| Browser matrix for shadow DOM before plugin host done | Phase 2 |
+| Browser matrix for shadow DOM before plugin host done | Phase 3 — landed Chromium+Firefox (O4); WebKit column open, closes in F0 |
 | Import: unified flag, default-off, https-only, SSRF defence | Phase 2 |
-| MCP: token-gated, off by default, never public by default | Phase 4 |
+| MCP: token-gated, off by default, never public by default | Phase 3 — landed (O3) |
 
 ## 13. What I would do differently
 

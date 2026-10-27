@@ -40,14 +40,15 @@ leak secrets. One implementation, on the server, is the right shape.
 versioning rule has been discussed and never specified. A native client
 developer would be guessing.
 
-**Gap 2 — Auth is browser-shaped.** Sessions are httpOnly cookies, which a
-native app can use but awkwardly. Native clients expect bearer tokens.
+**Gap 2 — Auth was browser-shaped. Closed in implementation.** Every route
+accepts a bearer token, the session cookie, or `?token=` alike, and every
+auth endpoint returns the token as JSON. No refresh endpoint (re-authenticate
+on expiry). What remains is UI: the webapp spends no credential yet (F5).
 
-**Gap 3 — The compute boundary is unspecified.** The formula and dice
-engines are server-side Go packages. A native client has no defined way to
-ask for a computed character sheet, to preview a formula while the user
-adjusts ability scores in a wizard, or to roll a die that lands in the shared
-log.
+**Gap 3 — The compute boundary is half-specified.** The sheet computes
+server-side (`GET /characters/:uid` returns `computed` plus `?expand=1`;
+`POST /roll` rolls into the shared log). The generic escape hatch
+(`POST /compute` for wizard preview) does not exist yet — it is F0 scope.
 
 **Gap 2 and 3 are small and fixable. Gap 1 is the real work.**
 
@@ -522,13 +523,16 @@ SDKs are a separate product decision, and a large one.
 
 - **The endpoint list above is a sketch, not a spec.** It needs to become an
   OpenAPI document, ideally generated from the Go handlers so it cannot drift.
-- **The filter and query language for `list_by`** is undefined. The MCP
-  plugin has the same problem (`list_by(type, filter)`), so one language
-  should serve both.
-- **Cursor format** for pagination is undefined.
+  Meanwhile: `DELETE /notes/:uid`, `/notes/:uid/links`, `/journal`,
+  `/compute`, all `/sessions*`, character `requests`, and asset upload are
+  sketched but unimplemented (F0 scope); the rest is implemented.
+- **The filter and query language for `list_by`** is ADR-0047, one SQL
+  implementation shared by REST and MCP (O2) — no longer undefined.
+- **Cursor format** for pagination is opaque, signed, rejection-on-forgery
+  (O2) — no longer undefined.
 - **Whether `GET /api/v1/notes` returns computed values by default** or only
-  with `?expand=1`. Probably the latter, but it is a real trade: expanding
-  every note is expensive.
+  with `?expand=1`: `GET /characters/:uid` supports `?expand=1` today; the
+  generic answer rides on `POST /compute` (F0).
 - **A native-client SDK** — Swift and Kotlin — is a large piece of work, and
   it is *not* implied by this contract. The contract is the enabler; the SDK
   is a separate product decision.

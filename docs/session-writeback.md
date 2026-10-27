@@ -228,6 +228,13 @@ secrets, the default, and the no-owner fallback.
 > the boundary". A `public` note **with** a campaign is public within that
 > campaign; a `public` note with **no** campaign is public absolutely, and
 > is the only kind of note an anonymous caller can see.
+>
+> **Phase-4 note:** the grant/deny ordering in this section predates
+> ADR-0057 and is kept for history, not for implementation. The
+> authoritative algorithm is the audience computation (intersection of
+> every applicable constraint, widened only by permitted grants). Implement
+> seat and session visibility from ADR-0057 — implementing it from the
+> ordering above rebuilds the defect phase 0 fixed.
 
 The deny is absolute on purpose: a GM-only note that a character once
 discovered must still be hidden, or "discovered" becomes a way to leak

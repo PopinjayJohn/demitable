@@ -1184,8 +1184,10 @@ possible; a **scratch log** as a third, disposable state tier; and the
 **campaign lifecycle** as operations on notes — retirement, handover by
 export, archival.
 
-What remains is the *scope* of phase 1 itself, and one product judgement
-about it:
+What remains is recorded in the phase map ([phase-plan.md](phase-plan.md))
+and the phase reports — the estimate and scope questions below are
+pre-MVP-cut history (the wizard shipped in phase 2, the SRD pipeline with
+it) and are kept for the record, not for planning:
 
 1. **Phase 1 is ~70–90 weeks full-time, or ~3.5–4.5 years part-time.**
    The plan now says so. The question is whether to cut scope to match a
