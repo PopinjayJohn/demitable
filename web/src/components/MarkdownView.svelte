@@ -24,7 +24,7 @@
     onOpenNote?: (uid: string) => void;
   } = $props();
 
-  const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed }));
+  const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed, revealButtons: canReveal }));
 
   function handleClick(ev: MouseEvent) {
     const t = ev.target as HTMLElement;
@@ -59,6 +59,16 @@
   .markdown :global(.admonition), .markdown :global(.secret-block) {
     break-inside: avoid;
   }
+  .markdown :global(.secret-block) { position: relative; }
+  .markdown :global(.secret-reveal) {
+    position: absolute; inset-block-start: var(--space-2); inset-inline-end: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--secret-border); border-radius: var(--radius-sm);
+    background: var(--bg-surface); color: var(--fg-default);
+    font-size: var(--text-xs); cursor: pointer; opacity: 0;
+  }
+  .markdown :global(.secret-block:hover .secret-reveal),
+  .markdown :global(.secret-block:focus-within .secret-reveal) { opacity: 1; }
   .markdown :global(table) { border-collapse: collapse; width: 100%; }
   .markdown :global(th), .markdown :global(td) { border: 1px solid var(--border-default); padding: var(--space-1) var(--space-2); font-size: var(--text-sm); }
   .markdown :global(.block-ref) { font-family: var(--font-mono); font-size: 0.75em; color: var(--fg-subtle); user-select: none; }

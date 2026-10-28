@@ -47,6 +47,13 @@ describe("renderMarkdown", () => {
     const html2 = renderMarkdown("> [!secret] hidden words ^blk1\n");
     expect(html2).not.toContain("secret--revealed");
   });
+  it("adds a hover reveal button in GM view", () => {
+    const html = renderMarkdown("> [!secret] hidden words ^blk1\n", { revealButtons: true });
+    expect(html).toContain("secret-reveal");
+    expect(html).toContain('data-reveal-block="blk1"');
+    const html2 = renderMarkdown("> [!secret] hidden words ^blk1\n", { revealButtons: true, revealed: ["blk1"] });
+    expect(html2).not.toContain("secret-reveal");
+  });
   it("marks bare block ids", () => {
     expect(renderMarkdown("^abc123\n")).toContain("block-ref");
   });

@@ -35,6 +35,7 @@ const CLASS_ALLOW = [
   "admonition__head",
   "callout__label",
   "secret--revealed",
+  "secret-reveal",
 ];
 const CLASS_RE = [/^callout-/, /^admonition-/, /^language-/];
 
@@ -54,11 +55,13 @@ function allowClasses(existing: readonly unknown[] | undefined): unknown[] {
 const attrs = defaultSchema.attributes as Record<string, readonly unknown[] | undefined>;
 const schema = {
   ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames ?? []), "button"],
   attributes: {
     ...defaultSchema.attributes,
-    "*": [...(attrs["*"] ?? []), "dataBlockId", "dataUid"],
+    "*": [...(attrs["*"] ?? []), "dataBlockId", "dataUid", "dataRevealBlock"],
     a: allowClasses(attrs["a"]),
     blockquote: allowClasses(attrs["blockquote"]),
+    button: allowClasses(attrs["button"]),
     div: allowClasses(attrs["div"]),
     p: allowClasses(attrs["p"]),
     pre: allowClasses(attrs["pre"]),
@@ -152,8 +155,9 @@ function firstTextNode(el: HastElement): HastText | null {
   return found;
 }
 
-function rehypeCallouts(options?: { revealed?: string[] }) {
+function rehypeCallouts(options?: { revealed?: string[]; revealButtons?: boolean }) {
   const revealed = new Set(options?.revealed ?? []);
+  const revealButtons = options?.revealButtons ?? false;
   return (tree: HastRoot) => {
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "blockquote") return;
@@ -181,6 +185,17 @@ function rehypeCallouts(options?: { revealed?: string[] }) {
           const last = [...el.children].reverse().find((c) => c.type === "element") as HastElement | undefined;
           const ltn = last ? firstTextNode(last) : null;
           if (ltn) ltn.value = ltn.value.replace(/\s*\^[\w-]+\s*$/, "");
+        }
+        // An in-body reveal affordance for the GM: hidden until the
+        // block is hovered or focused, so reading prose stays clean.
+        // One-way only — the server has no un-reveal.
+        if (revealButtons && idm && !isRevealed) {
+          el.children.push({
+            type: "element",
+            tagName: "button",
+            properties: { className: ["secret-reveal"], dataRevealBlock: idm[1] },
+            children: [{ type: "text", value: "Reveal" }],
+          } as any);
         }
       } else {
         props.className = ["callout", `callout-${kind}`];
@@ -244,8 +259,10 @@ function rehypeStatblocks() {
 
 export interface RenderOptions {
   resolveWiki?: (name: string) => string | null;
-  /** Block ids already revealed to the table: green outline, not violet. */
+  /** Block ids already revealed to the table: green outline, no button. */
   revealed?: string[];
+  /** Append a hover reveal button to unrevealed secrets (GM view). */
+  revealButtons?: boolean;
 }
 
 export function renderMarkdown(src: string, opts: RenderOptions = {}): string {
@@ -256,7 +273,7 @@ export function renderMarkdown(src: string, opts: RenderOptions = {}): string {
       .use(remarkGfm)
       .use(remarkWikilinks as any, opts.resolveWiki)
       .use(remarkRehype)
-      .use(rehypeCallouts as any, { revealed: opts.revealed })
+      .use(rehypeCallouts as any, { revealed: opts.revealed, revealButtons: opts.revealButtons })
       .use(rehypeBlockRefs as any)
       .use(rehypeStatblocks as any)
       .use(rehypeSanitize, schema as any)
