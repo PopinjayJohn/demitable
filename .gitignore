@@ -23,3 +23,7 @@
 /e2e/node_modules/
 /e2e/test-results/
 
+
+# Vault runtime state (accounts, sessions, journal, secrets). App-private,
+# regenerated on launch — never committed.
+dev/demo-campaign/vault/.demitable/

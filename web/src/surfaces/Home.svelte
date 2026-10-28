@@ -173,7 +173,7 @@
           source={homeSource}
           noteUid={homeUid ?? ""}
           resolveWiki={(name) => wikiIndex().get(name) ?? null}
-          onOpenNote={(uid) => { appState.selectedUid = uid; appState.go("wiki", "explorer"); }}
+          onOpenNote={(uid) => { appState.selectedUid = uid; appState.go("wiki", "viewer"); }}
         />
       </article>
 
@@ -217,7 +217,7 @@
             <ul class="attn-list">
               {#each attention as n (n.uid)}
                 <li>
-                  <button class="attn" onclick={() => { appState.selectedUid = String(n.uid); appState.go("wiki", "explorer"); }}>
+                  <button class="attn" onclick={() => { appState.selectedUid = String(n.uid); appState.go("wiki", "viewer"); }}>
                     {String(n.name ?? n.uid)}
                   </button>
                 </li>

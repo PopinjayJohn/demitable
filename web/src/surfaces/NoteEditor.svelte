@@ -12,12 +12,13 @@
   import VisibilityInspector from "../components/VisibilityInspector.svelte";
   import MarkdownView from "../components/MarkdownView.svelte";
   import Icon from "../components/Icon.svelte";
-  import { appState, findSecrets } from "../lib/appstate.svelte";
+  import { appState, findSecrets, revealedIds } from "../lib/appstate.svelte";
 
   let uid = $derived(appState.selectedUid);
   let doc = $state<NoteDoc | null>(null);
   let buffer = $state("");
   let previewSource = $state("");
+  let previewRevealed = $state<string[]>([]);
   let status = $state("idle");
   let conflict = $state<NoteDoc | null>(null);
   let fmVisibility = $state(""), fmWorkflow = $state(""), fmGrants = $state(""),
@@ -45,16 +46,17 @@
       fmCampaign = rec.campaign ?? ""; fmKind = rec.kind ?? ""; fmPlayer = rec.player ?? "";
       status = "loaded";
       if (eyeAs) await renderPreview();
-      else previewSource = buffer;
+      else { previewSource = buffer; previewRevealed = revealedIds((doc as any)?.revealed); }
     } catch (e: any) { status = e?.message ?? "open failed"; }
   }
 
   async function renderPreview() {
-    if (!uid) { previewSource = ""; return; }
+    if (!uid) { previewSource = ""; previewRevealed = []; return; }
     try {
       const prev = await fetchNote(uid, eyeAs ? { as: eyeAs } : {});
       previewSource = prev.content;
-    } catch { previewSource = ""; }
+      previewRevealed = revealedIds((prev as any).revealed);
+    } catch { previewSource = ""; previewRevealed = []; }
   }
   function onEdit(v: string) {
     buffer = v;
@@ -108,7 +110,7 @@
     if (cur !== lastEye) {
       lastEye = cur;
       if (eyeAs) void renderPreview();
-      else if (buffer) previewSource = buffer;
+      else if (buffer) { previewSource = buffer; previewRevealed = doc ? revealedIds((doc as any).revealed) : []; }
     }
   });
   $effect(() => {
@@ -204,7 +206,7 @@
       <div class="eye-note" role="status">Preview of the last <strong>save</strong> as {eyeAs} — save to refresh.</div>
     {/if}
     <div class="preview">
-      <MarkdownView source={previewSource} noteUid={uid ?? ""} canReveal={false} />
+      <MarkdownView source={previewSource} noteUid={uid ?? ""} canReveal={false} revealed={previewRevealed} />
     </div>
   </section>
 </div>

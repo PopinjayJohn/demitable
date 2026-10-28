@@ -48,7 +48,7 @@
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
-    appState.go("wiki", "explorer");
+    appState.go("wiki", "viewer");
     appState.campaignFilter = null;
   }
 </script>

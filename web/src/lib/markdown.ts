@@ -34,6 +34,7 @@ const CLASS_ALLOW = [
   "admonition",
   "admonition__head",
   "callout__label",
+  "secret--revealed",
 ];
 const CLASS_RE = [/^callout-/, /^admonition-/, /^language-/];
 
@@ -151,7 +152,8 @@ function firstTextNode(el: HastElement): HastText | null {
   return found;
 }
 
-function rehypeCallouts() {
+function rehypeCallouts(options?: { revealed?: string[] }) {
+  const revealed = new Set(options?.revealed ?? []);
   return (tree: HastRoot) => {
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "blockquote") return;
@@ -169,9 +171,11 @@ function rehypeCallouts() {
         // GM-only block: an outline plus hatch so it reads as "concealed"
         // rather than "warning" under greyscale — secrets are not errors.
         // No label is injected; the border pattern carries the meaning.
+        // Already-revealed blocks get the shared-colour outline instead.
         const all = hastText(el);
         const idm = all.match(/\^([\w-]+)\s*$/);
-        props.className = ["secret-block"];
+        const isRevealed = !!idm && revealed.has(idm[1]);
+        props.className = ["secret-block", ...(isRevealed ? ["secret--revealed"] : [])];
         if (idm) {
           (props as any).dataBlockId = idm[1];
           const last = [...el.children].reverse().find((c) => c.type === "element") as HastElement | undefined;
@@ -240,6 +244,8 @@ function rehypeStatblocks() {
 
 export interface RenderOptions {
   resolveWiki?: (name: string) => string | null;
+  /** Block ids already revealed to the table: green outline, not violet. */
+  revealed?: string[];
 }
 
 export function renderMarkdown(src: string, opts: RenderOptions = {}): string {
@@ -250,7 +256,7 @@ export function renderMarkdown(src: string, opts: RenderOptions = {}): string {
       .use(remarkGfm)
       .use(remarkWikilinks as any, opts.resolveWiki)
       .use(remarkRehype)
-      .use(rehypeCallouts as any)
+      .use(rehypeCallouts as any, { revealed: opts.revealed })
       .use(rehypeBlockRefs as any)
       .use(rehypeStatblocks as any)
       .use(rehypeSanitize, schema as any)

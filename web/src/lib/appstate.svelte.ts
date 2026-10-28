@@ -5,7 +5,7 @@
 import type { Snippet } from "svelte";
 
 export type Group = "wiki" | "vtt" | "creator";
-export type WikiView = "home" | "explorer" | "editor" | "player" | "chat";
+export type WikiView = "home" | "explorer" | "viewer" | "editor" | "player" | "chat";
 export type Surface = "dashboard" | "editor" | "characters" | "player" | "tabletop" | "chat";
 export type Proof = "none" | "greyscale" | "flat-hue" | "protanopia" | "deuteranopia" | "tritanopia";
 
@@ -72,7 +72,7 @@ class AppState {
   get surface(): Surface {
     if (this.group === "vtt") return "tabletop";
     if (this.group === "creator") return "characters";
-    if (this.wikiView === "explorer" || this.wikiView === "home") return "dashboard";
+    if (this.wikiView === "explorer" || this.wikiView === "home" || this.wikiView === "viewer") return "dashboard";
     if (this.wikiView === "editor") return "editor";
     if (this.wikiView === "player") return "player";
     return "chat";
@@ -128,4 +128,11 @@ export function findSecrets(src: string): SecretRef[] {
     if (id) n++;
   }
   return out;
+}
+
+// Revealed block ids from a note's `revealed` field, which is either a
+// list of ids or a list of {id, …} objects depending on the writer.
+export function revealedIds(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v.map((r) => (typeof r === "string" ? r : String((r as any)?.id ?? ""))).filter(Boolean);
 }

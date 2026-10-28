@@ -14,7 +14,7 @@
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
-    appState.go("wiki", "explorer");
+    appState.go("wiki", "viewer");
   }
 
   function onBestiaryDrag(uid: string, ev: DragEvent) {

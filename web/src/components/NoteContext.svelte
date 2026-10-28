@@ -12,12 +12,16 @@
   let {
     note = null,
     secrets = [],
+    revealed = [],
     onReveal,
   }: {
     note: NoteSummary | null;
     secrets: SecretRef[];
+    revealed?: string[];
     onReveal: (blockId: string) => void;
   } = $props();
+
+  const revealedSet = $derived(new Set(revealed));
 
   function vis(n: NoteSummary): string {
     return String((n as any).effective_visibility ?? (n as any).effectiveVisibility ?? "gm");
@@ -43,10 +47,14 @@
     {:else}
       <ul class="secrets">
         {#each secrets as s (s.id)}
-          <li class="secret">
+          <li class="secret" class:is-revealed={revealedSet.has(s.id)}>
             <span class="secret__label">{s.label}</span>
             <span class="secret__id mono">^{s.id}</span>
-            <button class="btn btn--sm" onclick={() => onReveal(s.id)}>Reveal to the table</button>
+            {#if revealedSet.has(s.id)}
+              <span class="tag tag--revealed">Revealed</span>
+            {:else}
+              <button class="btn btn--sm" onclick={() => onReveal(s.id)}>Reveal to the table</button>
+            {/if}
           </li>
         {/each}
       </ul>
@@ -68,6 +76,8 @@
   .rail-empty { font-size: var(--text-xs); color: var(--fg-subtle); }
   .secrets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
   .secret { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2); border: 1px dashed var(--secret-border); border-radius: var(--radius-md); background: var(--bg-surface); }
+  .secret.is-revealed { border-style: solid; border-color: var(--success-border, var(--success)); }
+  .tag--revealed { color: var(--success); border-color: var(--success-border, var(--success)); background: var(--success-subtle); }
   .secret__label { font-size: var(--text-xs); font-weight: var(--weight-semibold); }
   .secret__id { font-size: var(--text-2xs); color: var(--fg-subtle); }
 </style>

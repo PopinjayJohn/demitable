@@ -11,6 +11,7 @@
     noteUid = "",
     canReveal = false,
     onReveal = undefined,
+    revealed = [],
     resolveWiki = undefined,
     onOpenNote = undefined,
   }: {
@@ -18,11 +19,12 @@
     noteUid?: string;
     canReveal?: boolean;
     onReveal?: (blockId: string) => void;
+    revealed?: string[];
     resolveWiki?: (name: string) => string | null;
     onOpenNote?: (uid: string) => void;
   } = $props();
 
-  const html = $derived(renderMarkdown(source ?? "", { resolveWiki }));
+  const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed }));
 
   function handleClick(ev: MouseEvent) {
     const t = ev.target as HTMLElement;

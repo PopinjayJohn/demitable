@@ -40,6 +40,13 @@ describe("renderMarkdown", () => {
     expect(html).toContain('data-uid="u1"');
     expect(html).toContain("dangling");
   });
+  it("marks already-revealed secrets with the shared outline", () => {
+    const html = renderMarkdown("> [!secret] hidden words ^blk1\n", { revealed: ["blk1"] });
+    expect(html).toContain("secret--revealed");
+    expect(html).toContain('data-block-id="blk1"');
+    const html2 = renderMarkdown("> [!secret] hidden words ^blk1\n");
+    expect(html2).not.toContain("secret--revealed");
+  });
   it("marks bare block ids", () => {
     expect(renderMarkdown("^abc123\n")).toContain("block-ref");
   });

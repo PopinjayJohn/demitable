@@ -35,7 +35,7 @@
   }
   function open(uid: string) {
     appState.selectedUid = uid;
-    appState.go("wiki", "explorer");
+    appState.go("wiki", "viewer");
     appState.showSessionJournal = false;
   }
   $effect(() => { if (appState.showSessionJournal) void load(); });
