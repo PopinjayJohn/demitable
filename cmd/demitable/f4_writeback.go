@@ -49,9 +49,14 @@ type wbResolution struct {
 	Digest    string         `json:"digest"`
 	Skipped   bool           `json:"skipped,omitempty"`
 	Reason    string         `json:"reason,omitempty"`
-	Conflicts int            `json:"conflicts,omitempty"`
-	Applied   int            `json:"applied,omitempty"`
-	Touched   int            `json:"touched,omitempty"`
+	Conflicts      int            `json:"conflicts,omitempty"`
+	ConflictCount  int            `json:"conflict_count,omitempty"`
+	Applied        int            `json:"applied,omitempty"`
+	AppliedCount   int            `json:"applied_count,omitempty"`
+	Touched        int            `json:"touched,omitempty"`
+	TouchedCount   int            `json:"touched_count,omitempty"`
+	N              int            `json:"n,omitempty"`
+	M              int            `json:"m,omitempty"`
 }
 
 type wbEntryParsed struct {
@@ -327,8 +332,13 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			}
 
 			res.Touched = totalTouched
+			res.TouchedCount = totalTouched
 			res.Applied = totalApplied
+			res.AppliedCount = totalApplied
 			res.Conflicts = totalConflicts
+			res.ConflictCount = totalConflicts
+			res.N = totalTouched
+			res.M = totalConflicts
 
 			digest := computeDigest(res)
 			res.Digest = digest
@@ -393,6 +403,46 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 	} {
 		m.HandleFunc(p, handler(false))
 	}
+
+	// batch revert endpoints
+	batchRevert := func(w http.ResponseWriter, r *http.Request) {
+		batchID := r.PathValue("id")
+		if batchID == "" {
+			batchID = r.PathValue("batchId")
+		}
+		if batchID == "" {
+			// try body
+			bb, _ := io.ReadAll(r.Body)
+			var b map[string]any
+			_ = json.Unmarshal(bb, &b)
+			batchID = strAny(b, "batch_id", "batchId", "batchID", "id")
+		}
+		if batchID == "" {
+			writeErr(w, "invalid", "batch id required", http.StatusBadRequest)
+			return
+		}
+		principal := principalFromRequest(r, tk)
+		if !principal.IsGM() {
+			writeErr(w, "forbidden", "forbidden", http.StatusForbidden)
+			return
+		}
+		if err := vault.NewJournal(vlt.Root).RevertBatch(batchID); err != nil {
+			writeErr(w, "invalid", "revert failed", http.StatusBadRequest)
+			return
+		}
+		_ = vlt.Load()
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"batch_id": batchID, "reverted": true})
+	}
+	for _, p := range []string{
+		"POST /api/v1/journal/batch/{id}/revert",
+		"POST /api/v1/batches/{id}/revert",
+		"POST /api/v1/batch/{id}/revert",
+		"POST /api/v1/journal/{id}/revert-batch",
+	} {
+		m.HandleFunc(p, batchRevert)
+	}
+	// also allow revert by batch id via query/body on standard revert? no.
 
 	_ = audit
 }
@@ -587,6 +637,11 @@ func intAny(m map[string]any, keys ...string) int {
 		case json.Number:
 			i, _ := v.Int64()
 			return int(i)
+		case string:
+			// parse
+			var f float64
+			fmt.Sscanf(v, "%f", &f)
+			return int(f)
 		}
 	}
 	return 0

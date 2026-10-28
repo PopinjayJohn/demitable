@@ -597,6 +597,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+		if principal.IsSeat() && !principal.IsGM() {
+			if n.Type != "character" || (n.Player != principal.Bound && n.Player != principal.ID) {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+		}
 		if n.Workflow == "submitted" && !principal.IsGM() {
 			http.Error(w, "submitted note is read-only", http.StatusForbidden)
 			return
@@ -656,6 +662,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if !vault.Visible(principal, *n) {
 			http.NotFound(w, r)
 			return
+		}
+		if principal.IsSeat() && !principal.IsGM() {
+			if n.Type != "character" || (n.Player != principal.Bound && n.Player != principal.ID) {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
 		}
 		if n.Workflow == "submitted" && !principal.IsGM() {
 			http.Error(w, "submitted note is read-only", http.StatusForbidden)
