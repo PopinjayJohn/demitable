@@ -740,6 +740,29 @@ func (v *Vault) WriteNoteJournaled(actor, source, uid string, data []byte) error
 	return nil
 }
 
+// WriteNoteJournaledBatch is WriteNoteJournaled with an explicit batch id and
+// revision for session write-back (ADR-0039). It records the revision in the
+// journal entry so idempotency and tombstones can distinguish re-applies.
+func (v *Vault) WriteNoteJournaledBatch(actor, source, uid, batchID string, revision int, data []byte) error {
+	v.mu.RLock()
+	n := v.Notes[uid]
+	v.mu.RUnlock()
+	if n == nil {
+		return fmt.Errorf("vault: unknown note %s", uid)
+	}
+	before := append([]byte(nil), n.Raw...)
+	if err := v.UpdateNote(uid, data); err != nil {
+		return err
+	}
+	if _, err := NewJournal(v.Root).AppendWriteWithRevision(actor, source, "update", uid, n.Path, batchID, revision, before, data, nil); err != nil {
+		if rbErr := v.UpdateNote(uid, before); rbErr != nil {
+			return fmt.Errorf("vault: journal write failed and rollback failed: %w (rollback: %v)", err, rbErr)
+		}
+		return fmt.Errorf("vault: journal write: %w", err)
+	}
+	return nil
+}
+
 // DeleteNoteJournaled removes a note and records the deletion in the journal,
 // so it is revertible like every other app-initiated write. The before bytes
 // are stored; reverting restores the file. The in-memory index is rebuilt
