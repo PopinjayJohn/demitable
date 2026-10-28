@@ -16,6 +16,7 @@
     try {
       const data = await loadTabletop(sid, eid);
       encounter = data.encounter;
+      for (const n of data.notes ?? []) surfaceVisibility(n);
       status = "loaded";
     } catch (e: any) {
       status = e?.message ?? "load failed";
@@ -90,11 +91,13 @@
 <section class="tabletop" aria-label="Tabletop">
   <p role="status">Status: {status}</p>
   {#if displayMode}<p class="display-badge">Display mode (party-only)</p>{/if}
-  <div class="board" ondragover={(e) => e.preventDefault()} ondrop={onDrop}>
+  <div class="board" role="region" aria-label="board" ondragover={(e) => e.preventDefault()} ondrop={onDrop}>
     {#if encounter?.tokens}
       {#each encounter.tokens as tok}
         <div
           class="token"
+          role="button"
+          tabindex="0"
           draggable="true"
           ondragstart={(e) => onDragStart(tok, e)}
           ondragend={() => (dragging = null)}
