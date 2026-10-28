@@ -54,6 +54,11 @@ describe("renderMarkdown", () => {
     const html2 = renderMarkdown("> [!secret] hidden words ^blk1\n", { revealButtons: true, revealed: ["blk1"] });
     expect(html2).not.toContain("secret-reveal");
   });
+  it("strips the title line from admonition and statblock heads", () => {
+    const html = renderMarkdown("```ad-tip\ntitle: Running it\nBody text\n```\n");
+    expect(html).toContain("Running it");
+    expect(html.match(/title: Running it/g)?.length ?? 0).toBeLessThan(2);
+  });
   it("marks bare block ids", () => {
     expect(renderMarkdown("^abc123\n")).toContain("block-ref");
   });

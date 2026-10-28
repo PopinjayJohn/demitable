@@ -243,17 +243,3 @@ body {
   box-shadow: var(--shadow-1);
 }
 .prose { max-width: var(--measure); line-height: var(--leading-normal); }
-.prose :global(.secret-block) {
-  border: var(--border-width-strong) dashed var(--secret-border);
-  outline: 2px solid var(--secret-border);
-  outline-offset: 2px;
-  border-radius: var(--radius-md); background: var(--secret-subtle);
-  background-image: repeating-linear-gradient(45deg, transparent 0 8px, rgb(0 0 0 / 0.03) 8px 9px);
-  padding: var(--space-3); margin-block: var(--space-4);
-}
-/* Already revealed to the table: the shared-colour outline, not violet. */
-.prose :global(.secret-block.secret--revealed) {
-  border-color: var(--success-border, var(--success));
-  outline-color: var(--success-border, var(--success));
-  background-color: var(--success-subtle);
-}

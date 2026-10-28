@@ -4,8 +4,10 @@
   // prose; the floating button jumps to the editor. Reached by opening
   // any note — there is deliberately no sidebar link.
   import { fetchNote } from "../lib/api";
+  import { fetchCharacter } from "../lib/api";
   import { vaultStore } from "../lib/vaultstore.svelte";
   import MarkdownView from "../components/MarkdownView.svelte";
+  import CharacterCard from "../components/CharacterCard.svelte";
   import NoteContext from "../components/NoteContext.svelte";
   import Icon from "../components/Icon.svelte";
   import { appState, findSecrets, revealedIds } from "../lib/appstate.svelte";
@@ -15,10 +17,12 @@
   let previewError = $state("");
   let twoCol = $state(false);
   let revealed: string[] = $state([]);
+  let charDetail = $state<any>(null);
 
   const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
   const selected = $derived(vaultStore.notes.find((n) => String(n.uid) === appState.selectedUid) ?? null);
   const secrets = $derived(findSecrets(source));
+  const isCharacter = $derived(selected !== null && String((selected as any).type ?? "") === "character");
   const wikiIndex = $derived(() => {
     const m = new Map<string, string>();
     for (const n of vaultStore.notes) if ((n as any).name) m.set(String((n as any).name), String(n.uid));
@@ -27,15 +31,22 @@
 
   async function loadPreview() {
     const uid = appState.selectedUid;
-    if (!uid) { source = ""; previewError = ""; revealed = []; return; }
+    if (!uid) { source = ""; previewError = ""; revealed = []; charDetail = null; return; }
     try {
       const doc = await fetchNote(uid, eyeAs ? { as: eyeAs } : {});
       source = doc.content;
       revealed = revealedIds((doc as any).revealed);
       previewError = "";
+      // Character stat box: GM-context only (the eye must never leak
+      // fields the projection withholds — players see sheets, not notes).
+      charDetail = null;
+      if (!eyeAs && String((doc as any).type ?? "") === "character") {
+        try { charDetail = await fetchCharacter(uid); } catch { charDetail = null; }
+      }
     } catch (e: any) {
       source = "";
       revealed = [];
+      charDetail = null;
       previewError = e?.status === 404 && eyeAs
         ? `No account '${eyeAs}' holds this note — or the account does not exist yet.`
         : (e?.message ?? "preview failed");
@@ -62,6 +73,17 @@
     return () => { if (appState.rail === railContent) appState.rail = null; };
   });
 </script>
+
+{#snippet cardHeader()}
+  {#if isCharacter && charDetail}
+    <CharacterCard
+      name={String(charDetail.name ?? selected?.name ?? selected?.uid ?? "")}
+      computed={(charDetail.computed ?? {}) as Record<string, unknown>}
+      data={(charDetail.data ?? charDetail.fields ?? {}) as Record<string, unknown>}
+      onOpenSheet={() => { if (selected) { appState.selectedCharacterUid = String(selected.uid); appState.go("creator"); } }}
+    />
+  {/if}
+{/snippet}
 
 {#snippet railContent()}
   <NoteContext note={selected} {secrets} {revealed} onReveal={reveal} />
@@ -93,6 +115,7 @@
           canReveal={!eyeAs}
           onReveal={reveal}
           {revealed}
+          header={cardHeader}
           resolveWiki={(name) => wikiIndex().get(name) ?? null}
           onOpenNote={(uid) => (appState.selectedUid = uid)}
         />
@@ -120,6 +143,14 @@
   .eye-banner { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--accent-subtle); border-block-end: 1px solid var(--accent-border); font-size: var(--text-xs); }
   .note-body { flex: 1; overflow-y: auto; padding: var(--space-4); }
   .note-body.cols :global(.prose) { columns: 2; column-gap: var(--space-6); max-width: none; }
+  /* In two-column mode the stat box spans both columns so the right
+     column's text starts below it instead of beside it. */
+  .note-body.cols :global(.statbox) {
+    float: none;
+    width: auto;
+    column-span: all;
+    margin: 0 0 var(--space-4);
+  }
   .absent { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-4); text-align: center; color: var(--fg-muted); margin: auto; }
   .absent h3 { font-size: var(--text-base); color: var(--fg-default); }
   .absent p { font-size: var(--text-sm); max-width: 30rem; }

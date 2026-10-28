@@ -5,6 +5,7 @@
   // principals entitled to them and render with the hatch affordance.
 
   import { renderMarkdown } from "../lib/markdown";
+  import type { Snippet } from "svelte";
 
   let {
     source,
@@ -14,6 +15,7 @@
     revealed = [],
     resolveWiki = undefined,
     onOpenNote = undefined,
+    header = undefined,
   }: {
     source: string;
     noteUid?: string;
@@ -22,6 +24,8 @@
     revealed?: string[];
     resolveWiki?: (name: string) => string | null;
     onOpenNote?: (uid: string) => void;
+    /** Optional lead content rendered inside the prose flow (stat boxes). */
+    header?: Snippet;
   } = $props();
 
   const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed, revealButtons: canReveal }));
@@ -42,6 +46,7 @@
 </script>
 
 <div class="prose markdown" onclick={handleClick}>
+  {#if header}{@render header()}{/if}
   {@html html}
 </div>
 
@@ -58,6 +63,19 @@
   .markdown :global(.callout), .markdown :global(.statblock),
   .markdown :global(.admonition), .markdown :global(.secret-block) {
     break-inside: avoid;
+  }
+  .markdown :global(.secret-block) {
+    border: var(--border-width-strong) dashed var(--secret-border);
+    outline: 2px solid var(--secret-border);
+    outline-offset: 2px;
+    border-radius: var(--radius-md); background: var(--secret-subtle);
+    background-image: repeating-linear-gradient(45deg, transparent 0 8px, rgb(0 0 0 / 0.03) 8px 9px);
+    padding: var(--space-3); margin-block: var(--space-4);
+  }
+  .markdown :global(.secret-block.secret--revealed) {
+    border-color: var(--success-border, var(--success));
+    outline-color: var(--success-border, var(--success));
+    background-color: var(--success-subtle);
   }
   .markdown :global(.secret-block) { position: relative; }
   .markdown :global(.secret-reveal) {
