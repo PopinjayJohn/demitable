@@ -1,5 +1,20 @@
 /* Token layer. One file, unregistered custom properties (ADR-0029). */
 
+/* Page reset: the app owns the viewport. The default 8px body margin
+   is the white border; scroll lives in panes, never on the document. */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: var(--bg-canvas);
+  color: var(--fg-default);
+  overscroll-behavior: none;
+}
+#app {
+  height: 100dvh;
+}
+
 :root {
   /* Colour — semantic names, never literal names. */
   --bg-canvas: #f4f2ed;

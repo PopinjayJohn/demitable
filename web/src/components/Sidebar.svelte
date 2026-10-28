@@ -135,6 +135,7 @@
 <style>
   .sidebar {
     width: var(--sidebar-width);
+    min-height: 0;
     border-inline-end: 1px solid var(--border-subtle);
     background: var(--bg-surface-2);
     padding: var(--space-3) var(--space-4) var(--space-4);
@@ -145,6 +146,9 @@
   .sidebar.collapsed { width: 3rem; padding: var(--space-3) var(--space-2); align-items: center; }
   .collapse { align-self: flex-end; background: none; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; color: var(--fg-muted); padding: var(--space-1); }
   .collapse:hover { background: var(--bg-surface-3); }
+  @media (max-width: 900px) {
+    .collapse { display: none; }
+  }
   .collapsed .collapse { align-self: center; }
   .side-block + .side-block { margin-block-start: var(--space-6); }
   .side-title { font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-subtle); margin-block-end: var(--space-2); display: flex; align-items: center; gap: var(--space-1); }

@@ -20,6 +20,7 @@
 <style>
   .rail {
     width: var(--inspector-width);
+    min-height: 0;
     border-inline-start: 1px solid var(--border-subtle);
     background: var(--bg-surface-2);
     overflow-y: auto;

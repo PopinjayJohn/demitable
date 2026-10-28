@@ -177,7 +177,7 @@
 <div id="shell">
   <header class="topbar">
     <div class="topbar__left">
-      <button class="iconbtn" onclick={() => appState.toggleSidebar()} title="Toggle sidebar" aria-label="Toggle sidebar">
+      <button class="iconbtn header-toggle" onclick={() => appState.toggleSidebar()} title="Toggle sidebar" aria-label="Toggle sidebar">
         <Icon name={appState.sidebarCollapsed ? "chevron-right" : "chevron-down"} size={16} />
       </button>
       <span class="brand"><span class="brand__mark" aria-hidden="true">❖</span><h1 class="brand__name">Demitable</h1></span>
@@ -300,13 +300,18 @@
 </div>
 
 <style>
-  #shell { min-height: 100vh; max-height: 100vh; background: var(--bg-canvas); color: var(--fg-default); font-family: var(--font-sans, system-ui); display: flex; flex-direction: column; }
+  #shell { height: 100dvh; background: var(--bg-canvas); color: var(--fg-default); font-family: var(--font-sans, system-ui); display: flex; flex-direction: column; overflow: hidden; }
   .topbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-4); min-height: var(--topbar-height); padding: var(--space-2) var(--space-4); background: var(--bg-surface); border-block-end: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: var(--z-sticky); }
   .topbar__left { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
   .topbar__center { display: flex; align-items: center; gap: var(--space-2); justify-content: center; position: relative; min-width: 0; }
   .topbar__right { display: flex; align-items: center; gap: var(--space-2); margin-inline-start: auto; flex-wrap: wrap; justify-content: flex-end; }
   .iconbtn { background: none; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; color: var(--fg-muted); padding: var(--space-1); display: inline-flex; }
   .iconbtn:hover { background: var(--bg-surface-3); }
+  /* One toggle per viewport: sidebar owns it on desktop, header on mobile. */
+  .header-toggle { display: none; }
+  @media (max-width: 900px) {
+    .header-toggle { display: inline-flex; }
+  }
   .brand { display: flex; align-items: center; gap: var(--space-2); }
   .brand__mark { color: var(--accent); font-size: var(--text-md); }
   .brand__name { font-size: var(--text-md); font-weight: var(--weight-bold); white-space: nowrap; }
@@ -321,12 +326,12 @@
   .playerbar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--bg-surface-2); border-block-end: 1px solid var(--border-subtle); }
   .playerbar input, .playerbar select { padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: var(--text-sm); }
   .playerbar__status { font-size: var(--text-2xs); color: var(--fg-subtle); }
-  .auth { max-width: 28rem; margin: var(--space-8) auto; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+  .auth { max-width: 28rem; margin: var(--space-8) auto; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); overflow-y: auto; }
   .login-modes { display: flex; gap: var(--space-1); }
   .auth input { padding: var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--fg-default); }
   .error { color: var(--danger, #c00); font-size: var(--text-sm); }
-  .workbench { display: flex; flex: 1; min-height: 0; }
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .workbench { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+  .main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
   .journal-overlay { position: fixed; inset-block: var(--topbar-height) 0; inset-inline-end: 0; z-index: var(--z-modal); display: flex; box-shadow: var(--shadow-3); }
   @media (max-width: 1100px) {
     .topbar { grid-template-columns: auto 1fr; }

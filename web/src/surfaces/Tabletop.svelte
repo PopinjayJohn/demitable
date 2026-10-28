@@ -158,7 +158,7 @@
 </section>
 
 <style>
-  .tabletop { background: var(--bg-canvas); min-height: 100%; padding: var(--space-4); }
+  .tabletop { background: var(--bg-canvas); height: 100%; overflow-y: auto; padding: var(--space-4); }
   .board-wrap { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; height: 100%; }
   .board-bar { display: flex; gap: var(--space-2); align-items: center; font-size: var(--text-xs); color: var(--fg-muted); flex-wrap: wrap; }
   .display-badge { color: var(--success); font-weight: var(--weight-semibold); }
