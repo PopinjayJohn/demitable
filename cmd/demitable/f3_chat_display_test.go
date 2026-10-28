@@ -290,22 +290,6 @@ func TestF3ChatAudienceSeparation(t *testing.T) {
 	}
 }
 
-func TestF3GuestBounds(t *testing.T) {
-	v, srv, gmTok, dir := f3env(t)
-	_ = dir
-	_ = v
-	sid, code := f3createSession(t, srv, gmTok)
-	f3addSeat(t, srv, gmTok, sid, "guest", "", "")
-	f3addSeat(t, srv, gmTok, sid, "guest", "", "")
-	tokG1, _ := f3joinByCode(t, srv, sid, code)
-	tokG2, _ := f3joinByCode(t, srv, sid, code)
-	if tokG1 == "" || tokG2 == "" {
-		t.Fatal("empty guest token")
-	}
-	_ = tokG1
-	_ = tokG2
-}
-
 func TestF3GuestBoundsProper(t *testing.T) {
 	v, srv, gmTok, dir := f3env(t)
 	if err := os.WriteFile(filepath.Join(dir, "c1.md"), []byte("---\ntype: character\nuid: c1\nname: C1\ncampaign: \"[[demo]]\"\nvisibility: party\n---\nbody\n"), 0o644); err != nil {
@@ -765,10 +749,40 @@ func TestF3CreateNoteVocabularyParity(t *testing.T) {
 	resp, _ := http.DefaultClient.Do(req)
 	bodyr, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
-		t.Fatalf("invalid visibility should be rejected: %d %s", resp.StatusCode, string(bodyr))
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("invalid visibility should be rejected with 400: %d %s", resp.StatusCode, string(bodyr))
 	}
 	if !strings.Contains(string(bodyr), "error") {
 		t.Fatalf("rejected response must have named error: %s", string(bodyr))
+	}
+}
+
+func TestF3DisplayGatePinned(t *testing.T) {
+	disp := vault.Principal{Kind: "display", ID: "p1", Bound: "bound1", Discovered: []string{"dn1"}}
+	acct := vault.Account("p1", "demo")
+	acct.Discovered = []string{"dn1"}
+
+	granted := vault.Note{UID: "gn1", Name: "GN", Campaign: "demo", Visibility: "discovered", Grants: []string{"p1"}}
+	if !vault.Visible(acct, granted) {
+		t.Fatalf("account should see granted note")
+	}
+	if vault.Visible(disp, granted) {
+		t.Fatalf("display must not see granted note")
+	}
+
+	owner := vault.Note{UID: "on1", Name: "ON", Campaign: "demo", Visibility: "owner", Player: "p1"}
+	if !vault.Visible(acct, owner) {
+		t.Fatalf("account should see owner note")
+	}
+	if vault.Visible(disp, owner) {
+		t.Fatalf("display must not see owner note")
+	}
+
+	discovered := vault.Note{UID: "dn1", Name: "DN", Campaign: "demo", Visibility: "discovered"}
+	if !vault.Visible(acct, discovered) {
+		t.Fatalf("account should see discovered note")
+	}
+	if vault.Visible(disp, discovered) {
+		t.Fatalf("display must not see discovered note")
 	}
 }
