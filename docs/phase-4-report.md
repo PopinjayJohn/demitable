@@ -1,9 +1,9 @@
 # Phase 4 — The Table: what it found
 
-> Six milestones (F2c held), fifteen sub-milestones attempted, fourteen
-> landed. The phase put bodies around the table: sessions, seats, the
-> encounter runner, chat, the write-back — plus the webapp completion the
-> phase-3 demo proved missing.
+> Six milestones, fifteen sub-milestones, all landed. The phase put bodies
+> around the table: sessions, seats, the encounter runner, the tabletop,
+> chat, the write-back — plus the webapp completion the phase-3 demo
+> proved missing.
 >
 > It holds itself to the same standard as the three reports before it:
 > **a phase that found nothing is a phase that did not test anything.**
@@ -13,19 +13,17 @@
 ## The phase in one paragraph
 
 A GM runs a session from the webapp — players join by code, sit as
-characters, move through encounters with fogged tokens and initiative,
-roll dice into a shared log, chat in notes, and closing the session
-writes back character changes, an encounter record, a session log and
-discovery updates, each revertible. What is missing against the plan is
-exactly one thing: the tabletop canvas (F2c), held by explicit human
-decision until a GL-capable runner exists. Everything else is landed,
-mutation-probed, and merged.
+characters, move tokens on a fogged map, roll dice into a shared log,
+chat in notes, and closing the session writes back character changes,
+an encounter record, a session log and discovery updates, each
+revertible. Nothing against the plan is missing.
 
-The phase found **seventeen things**, five of them blocking defects no
+The phase found **nineteen things**, seven of them blocking defects no
 worker reported — two live visibility leaks (upload arbitrary-write,
 fog impersonation + raw state), a nondeterministic write-back digest,
-a discovery-corrupting type coercion, and a close path that silently
-dropped every touched key. All five were found by reading the diff and
+a discovery-corrupting type coercion, a close path that silently
+dropped every touched key, a display widening without an ADR, and
+tripled fog logic. All seven were found by reading the diff and
 running the code. None was in a worker's report.
 
 ---
@@ -41,9 +39,9 @@ running the code. None was in a worker's report.
 | **F3** | chat as notes, shared display | audience-exact chat; display party-only (3 cases); 3 reveal targets, journal count 3 |
 | **F4** | write-back contract | N=2/M=1 conflicts; preview==apply digest; batch revert byte-identical; close idempotent; post-close 7/7 error-JSON |
 | **F5** | webapp completion | GM 21 / anon 1, one binary; search + snippets; preview hostile bytes; 409→rebase→save→409; both-pack round-trip |
-| **F2c** | tabletop canvas + drag-drop | **HELD** — human decision, no GL/EGL runner (ADR-0063) |
+| **F2c** | tabletop canvas + validated movement | own move 200, others 403, hidden 403; display bound-to-session; drag re-resolved; webkit 15/15 |
 
-`make lint` clean; `go test ./...` 24 packages ok except the
+`make lint` clean; `go test ./...` 23 packages ok, 1 FAIL — the
 pre-existing `TestInsertPerformance` load flake (see Findings §16 —
 untouched file, fails only under parallel load, passes in isolation,
 fails identically on pre-phase-4 main). No `fixtures/` committed. No
@@ -223,11 +221,11 @@ decision change — no ADR.
 
 ### 16. The cold-run red is environmental and pre-existing
 
-Final `go clean -testcache && go test ./...`: 24 packages ok except
-`TestInsertPerformance` (measured 259 ms vs 250 ms under parallel
-load; passes in isolation at ~1.9–2.3s and on quiet runs; fails
-identically on pre-phase-4 main). Vault insert is untouched by
-phase-4 code paths. Carried as a known flake, not a regression.
+Final `go clean -testcache && go test ./...`: 23 packages ok, 1 FAIL —
+the known `TestInsertPerformance` load flake (see §16; fails identically
+on pre-phase-4 main, passes in isolation). Vault insert is untouched by
+phase-4 code paths. Carried as a known flake, not a regression. e2e
+shadow matrix: **45/45** across Chromium, Firefox and WebKit (Xvfb).
 
 ### 17. The model plan did not survive contact with quota
 
@@ -238,9 +236,35 @@ itself. From F2b on, all building ran serially on
 `opencode-go/iceman-contributor-free` (the pre-authorized fallback),
 with outputs treated as untrusted and hostilely re-verified — a cost
 paid in rounds: iceman's first deliveries were consistently thinner
-(zero-test F2b/F3/F4 first passes) and needed more fix cycles. The
-verification model never rate-limited. Lesson for phase 5: budget the
+(zero-test F2b/F3/F4/F2c first passes) and needed more fix cycles. The
+verification model never rate-limited. Beam-free recovered for the
+F3-fix, F4 and F2c rounds. Lesson for phase 5: budget the
 fallback's round-trip cost up front, or fund the primary.
+
+### 18. A display that could read any session
+
+F2c's `allowedSession` display branch granted any display principal
+read of any *existing* session — a session-existence check, not the
+session binding the comment above it promised. Widening without an
+ADR, live-proven. Fixed by checking the display's bound session id
+(unbound → refuse), which is a narrowing and needs no ADR. Pinned by
+bound/cross-session/unbound tests. The adjacent pre-existing seam
+(`/display/state` does no session-binding check) is flagged, not
+touched.
+
+### 19. Fog existed in three copies that disagreed
+
+F2c's move path and update path each re-implemented fog beside the
+canonical `projectEncounter`: the update copy only checked
+`old.Hidden`, allowing position changes for `VisibleTo`-excluded
+tokens and note-invisible tokens; the move copy denied GMs moving
+hidden tokens (wrong — GMs see hidden) while allowing non-GM moves of
+tokens pointing at unknown notes. All three divergences live-proven,
+then fixed by routing all three paths through one `tokenVisible`
+helper inheriting full `vault.Visible` semantics, with the hand copies
+deleted. The phase-4 brief named "SQL-vs-in-memory" as a previously-
+burned dual mechanism; this was its in-milestone reprise, caught
+before merge by the seam re-check.
 
 ---
 
@@ -265,7 +289,9 @@ fallback's round-trip cost up front, or fund the primary.
 | batch revert / idempotent close / post-close | byte-identical restore; close×2 identical; 7/7 error-JSON | committed |
 | GM 21 / anon 1, one binary | **21 / 1** live | UI request set |
 | search + snippets + 409 rebase + both-pack round-trip | snippet from passage; 409→rebase→save→409; active both packs | committed |
-| cold suite | `make lint` 0; `go test ./...` 24 ok + known flake (see §16) | green-ish |
+| tabletop moves + fog unity + display binding | own 200, others/hidden/out-of-turn 403, closed 409; one fog fn; bound-session display; drag re-resolved | mutation-probed |
+| e2e shadow matrix, all three browsers | **45/45** (chromium 15 + firefox 15 + webkit 15, Xvfb) | green |
+| cold suite | `make lint` 0; `go test ./...` 23 ok + known flake (see §16); vitest 23/23 | green-ish |
 
 ---
 
@@ -285,11 +311,13 @@ amendment, not an edit); a guest-chat-authorship rule (§10).
 
 ## What was cut, deferred, or left undone
 
-- **F2c tabletop canvas + drag-drop** (user decision): held until a
-  GL/EGL-capable runner exists. Server-side token/fog/movement data is
-  landed (F2b); what is missing is the canvas surface and cross-
-  shadow-boundary drag validation. Nothing else in the phase depends on
-  it — F4 closes through server state.
+- **F2c tabletop canvas + drag-drop**: LANDED after the hold was lifted
+  (user fixed the GL runner; WebKit 15/15 green under Xvfb, recorded in
+  `docs/cross-browser-results.md`; ADR-0063's gate satisfied as green,
+  not as waiver — no ADR needed, per its own terms). Canvas tokens,
+  validated movement, fog, display mode, shadow-boundary drag-drop all
+  landed with mutation-probed tests; e2e 45/45 across all three
+  browsers.
 - **Guest chat authorship rule** (§10): proposed (creation requires
   seeing the channel's audience), undisposed. Owner: phase 5.
 - **ADR-0052 amendment**: ordered-rules/inspector language survives
@@ -308,27 +336,20 @@ amendment, not an edit); a guest-chat-authorship rule (§10).
 
 ## What phase 5 should start with
 
-**The tabletop canvas, on a machine that can verify it.** F2c is
-scoped, server-supported, and gated: the first job is a GL-capable
-runner (or Xvfb+Mesa), the second is the O4 matrix green, the third is
-the canvas + drag-drop with the same hostile suite discipline. ADR-0063
-already records the gate; no new decision is needed unless the matrix
-diverges — in which case the divergence table plus an amending ADR is
-the deliverable, per the phase-4 brief §8 pattern that this phase
-never had to use.
+**The recording pipeline** (phase 5's own scope: transcription,
+session logs-as-audio, music) now has everything it needs: session
+notes always created, dice log persisted per session/encounter, chat
+archived as notes, discovery appended per character, write-back
+journaled and revertible, and — as of the F2c close-out — a verified
+tabletop canvas with the shadow matrix green in all three browsers.
+The contract phase 5 writes into held through this phase without
+amendment — the strongest validation this phase can offer the next
+one.
 
 Second, **the guest-authorship and display-surface hardening**: the
 chat-authorship rule (§10), display rotation/revocation (currently one
 token value, no revocation — documented), and the W3 overlap (gm seat
 vs GM bypass — documented, fail-closed).
-
-Third, **the recording pipeline** (phase 5's own scope: transcription,
-session logs-as-audio, music) now has everything it needs: session
-notes always created, dice log persisted per session/encounter, chat
-archived as notes, discovery appended per character, write-back
-journaled and revertible. The contract it writes into held through
-this phase without amendment — the strongest validation this phase
-can offer the next one.
 
 ---
 
@@ -340,9 +361,9 @@ can offer the next one.
   "the SRD vault" without naming `dev/srd-vault`. The repo convention
   existed; the brief didn't cite it.
 - **Treat "no test files in the diff" as a merge gate, mechanically.**
-  Six first-deliveries had zero tests with green-claiming reports. A
+  Seven first-deliveries had zero tests with green-claiming reports. A
   `git diff --stat` for `*_test.go` at dispatch-review time would have
-  bounced all six before verification spent cycles proving it.
+  bounced all seven before verification spent cycles proving it.
 - **Budget the fallback model explicitly.** The brief named one
   builder model with no contingency; quota forced serial iceman
   mid-phase, roughly doubling fix rounds. Phase 5's brief should name
@@ -357,11 +378,12 @@ can offer the next one.
 
 ## A note on how the phase ran
 
-Eight waves (F0, F1, F2a+F5, F2b, F3, F3-fix, F4, F4-fix), serial
-fallback builders after quota, investigation-model verification
+Ten waves (F0, F1, F2a+F5, F2b, F3, F3-fix, F4, F4-fix, F2c, F2c-fix),
+serial fallback builders after quota, investigation-model verification
 throughout. The review found what the workers didn't — the upload
 primitive, the fog leaks, the digest lottery, the discovery
-corruption, the dropped close keys, six zero-test deliveries: none of
+corruption, the dropped close keys, the display widening, the tripled
+fog, seven zero-test deliveries: none of
 those was in a worker's report. Every one was found by reading the
 diff and running the code.
 
@@ -374,5 +396,6 @@ document is longer about what was found than about what was built.
 
 F0 → merged `1872721` (+ ADR-0062/0063 `7d5165a`) · F1 → merged
 `d736dd1` · F2a → merged `27a8e24` · F5 → merged `67904f0` · F2b →
-merged `49f07c2` · F3 → merged `e81f522` · F4 → merged `550f5e3`.
+merged `49f07c2` · F3 → merged `e81f522` · F4 → merged `550f5e3` ·
+F2c → merged `45c0de9` · WebKit green + matrix update → `47a71a7`.
 All merges `--no-ff`. No pushes (per rule — push on request).
