@@ -1,368 +1,245 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchNotes, fetchNote, saveNote, patchNote, fetchNoteRender, type NoteSummary, type NoteDoc } from "./lib/api";
-  import { getToken, setToken, clearToken, getPrincipal, gmLogin, loginPlayer, joinCampaign, logout, type PrincipalClaims } from "./lib/auth";
-  import { connectWS, type WSClient } from "./lib/ws";
-  import Editor from "./lib/Editor.svelte";
+  import { fetchNotes, rollDice, type NoteSummary } from "./lib/api";
+  import { getToken, getPrincipal, gmLogin, loginPlayer, joinCampaign, logout } from "./lib/auth";
+  import { WSClient, type WSClient as WSClientType } from "./lib/ws";
+  import { appState, applyThemeProof, type Surface, type Proof } from "./lib/appstate.svelte";
+  import Icon from "./components/Icon.svelte";
   import VisibilityBadge from "./components/VisibilityBadge.svelte";
+  import JournalDrawer from "./components/JournalDrawer.svelte";
   import GmDashboard from "./surfaces/GmDashboard.svelte";
-  import PlayerView from "./surfaces/PlayerView.svelte";
+  import NoteEditor from "./surfaces/NoteEditor.svelte";
   import CharacterPanel from "./surfaces/CharacterPanel.svelte";
+  import PlayerView from "./surfaces/PlayerView.svelte";
   import Tabletop from "./surfaces/Tabletop.svelte";
+  import Chat from "./surfaces/Chat.svelte";
+  import { surfaceVisibility } from "./lib/dashboard";
 
-  let notes = $state<NoteSummary[]>([]);
-  let searchQuery = $state<string>("");
-  let searchType = $state<string>("");
-  let searchFilter = $state<string>("");
-  let view = $state<"notes" | "dashboard" | "player" | "characters" | "tabletop">("notes");
-  let selectedUid = $state<string | null>(null);
-  let doc = $state<NoteDoc | null>(null);
-  let buffer = $state<string>("");
-  let status = $state<string>("");
-  let preview = $state<string>("");
-
-  // frontmatter panel
-  let fmType = $state<string>("");
-  let fmName = $state<string>("");
-  let fmVisibility = $state<string>("");
-  let fmWorkflow = $state<string>("");
-  let fmGrants = $state<string>("");
-  let fmCampaign = $state<string>("");
-  let fmKind = $state<string>("");
-  let fmPlayer = $state<string>("");
-
-  // auth
-  let principal = $state<PrincipalClaims | null>(null);
+  let principal = $state(getPrincipal());
   let loginMode = $state<"gm" | "player" | "join">("gm");
-  let gmSecret = $state<string>("");
-  let player = $state<string>("");
-  let passphrase = $state<string>("");
-  let joinCode = $state<string>("");
-  let authError = $state<string>("");
+  let gmSecret = $state("");
+  let player = $state("");
+  let passphrase = $state("");
+  let joinCode = $state("");
+  let authError = $state("");
 
-  // conflict
-  let conflictServer = $state<NoteDoc | null>(null);
-  let conflictDiff = $state<string>("");
+  let searchQuery = $state("");
+  let searchType = $state("");
+  let searchVis = $state("");
+  let results = $state<NoteSummary[]>([]);
+  let searchStatus = $state("");
+  let rollStatus = $state("");
+  let diceLog = $state<any[]>([]);
 
-  let ws: WSClient | null = null;
+  let ws: WSClientType | null = null;
 
-  async function loadNotes() {
-    try {
-      notes = await fetchNotes();
-      status = "loaded";
-    } catch (e: any) {
-      if (e?.status === 401) {
-        notes = [];
-        doc = null;
-        buffer = "";
-        selectedUid = null;
-        status = "login required";
-      } else {
-        status = "load failed";
-      }
-    }
-  }
+  const surfaces: { id: Surface; label: string }[] = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "editor", label: "Editor" },
+    { id: "characters", label: "Characters" },
+    { id: "player", label: "Player view" },
+    { id: "tabletop", label: "Tabletop" },
+    { id: "chat", label: "Chat" },
+  ];
+  const proofs: Proof[] = ["none", "greyscale", "flat-hue", "protanopia", "deuteranopia", "tritanopia"];
 
-  function syncPrincipal() {
-    principal = getPrincipal();
-  }
+  function syncPrincipal() { principal = getPrincipal(); }
 
   async function doGmLogin() {
     authError = "";
-    try {
-      await gmLogin(gmSecret);
-      gmSecret = "";
-      syncPrincipal();
-      await loadNotes();
-      connectRealtime();
-    } catch (e: any) {
-      authError = e?.message ?? "login failed";
-    }
+    try { await gmLogin(gmSecret); gmSecret = ""; syncPrincipal(); connectRealtime(); await doSearch(); }
+    catch (e: any) { authError = e?.message ?? "login failed"; }
   }
-
   async function doPlayerLogin() {
     authError = "";
-    try {
-      await loginPlayer(player, passphrase);
-      syncPrincipal();
-      await loadNotes();
-      connectRealtime();
-    } catch (e: any) {
-      authError = e?.message ?? "login failed";
-    }
+    try { await loginPlayer(player, passphrase); syncPrincipal(); connectRealtime(); await doSearch(); }
+    catch (e: any) { authError = e?.message ?? "login failed"; }
   }
-
   async function doJoin() {
     authError = "";
-    try {
-      await joinCampaign(joinCode);
-      syncPrincipal();
-      await loadNotes();
-      connectRealtime();
-    } catch (e: any) {
-      authError = e?.message ?? "join failed";
-    }
+    try { await joinCampaign(joinCode); syncPrincipal(); connectRealtime(); await doSearch(); }
+    catch (e: any) { authError = e?.message ?? "join failed"; }
   }
-
   function doLogout() {
-    logout();
-    ws?.close();
-    ws = null;
-    principal = null;
-    notes = [];
-    doc = null;
-    status = "login required";
+    logout(); ws?.close(); ws = null; principal = null; results = [];
   }
-
   function connectRealtime() {
     ws?.close();
-    ws = connectWS({
-      onVaultChanged: () => { void loadNotes(); if (selectedUid) void openNote(selectedUid); },
-      onSecretRevealed: () => { if (selectedUid) void openNote(selectedUid); },
-      onNoteSaved: (d) => { if (d?.uid === selectedUid) void openNote(selectedUid!); },
+    ws = new WSClient({
+      onVaultChanged: () => void doSearch(),
+      onNoteSaved: (d) => { if (d?.uid === appState.selectedUid) void doSearch(); },
+      onSecretRevealed: () => void doSearch(),
+      onRollResult: (d) => { diceLog = [...diceLog, d].slice(-20); },
     });
+    ws.connect();
   }
-
-  onMount(async () => {
-    syncPrincipal();
-    if (getToken()) connectRealtime();
-    await loadNotes();
-  });
-
   async function doSearch() {
+    searchStatus = "searching";
     try {
-      notes = await fetchNotes({ q: searchQuery, filter: searchFilter, type: searchType });
-    } catch (e) { status = "search failed"; }
+      results = await fetchNotes({ q: searchQuery, type: searchType } as any);
+      if (searchVis) results = results.filter((n) => { try { return surfaceVisibility(n) === searchVis; } catch { return false; } });
+      searchStatus = `${results.length} notes`;
+    } catch (e: any) { searchStatus = e?.message ?? "search failed"; }
   }
-
-  async function openNote(uid: string) {
-    selectedUid = uid;
-    status = "loading";
-    conflictServer = null;
-    conflictDiff = "";
+  function openNote(uid: string) {
+    appState.selectedUid = uid;
+    appState.surface = "editor";
+  }
+  async function doRoll() {
+    rollStatus = "rolling";
     try {
-      doc = await fetchNote(uid);
-      buffer = doc.content;
-      fmType = String((doc as any).type ?? "");
-      fmName = doc.name ?? "";
-      fmVisibility = String((doc as any).visibility ?? "");
-      fmWorkflow = String((doc as any).workflow ?? "");
-      fmGrants = Array.isArray((doc as any).grants) ? (doc as any).grants.join(", ") : String((doc as any).grants ?? "");
-      fmCampaign = String((doc as any).campaign ?? "");
-      fmKind = String((doc as any).kind ?? "");
-      fmPlayer = String((doc as any).player ?? "");
-      status = "loaded";
-      await renderPreview();
-    } catch (e: any) {
-      status = "open failed";
-    }
+      const r = await rollDice({ workflow: "attack", shared: true });
+      diceLog = [...diceLog, r?.roll ?? r].slice(-20);
+      rollStatus = "logged to shared log";
+    } catch (e: any) { rollStatus = e?.message ?? "roll failed"; }
   }
 
-  async function renderPreview() {
-    if (!selectedUid) { preview = ""; return; }
-    try {
-      preview = await fetchNoteRender(selectedUid);
-    } catch {
-      preview = "";
-    }
-  }
-
-  async function save() {
-    if (!selectedUid || !doc) return;
-    status = "saving";
-    conflictServer = null;
-    conflictDiff = "";
-    try {
-      const updated = await saveNote(selectedUid, buffer, doc.hash);
-      doc = updated;
-      buffer = updated.content;
-      status = "saved";
-      await renderPreview();
-    } catch (e: any) {
-      if (e?.status === 409) {
-        status = "conflict";
-        try {
-          const serverDoc = await fetchNote(selectedUid);
-          conflictServer = serverDoc;
-          conflictDiff = `--- server ---\n${serverDoc.content}\n--- yours ---\n${buffer}`;
-        } catch {
-          conflictDiff = "conflict";
-        }
-      } else {
-        status = e?.message ?? "save failed";
-      }
-    }
-  }
-
-  async function rebase() {
-    if (!conflictServer) return;
-    doc = conflictServer;
-    buffer = conflictServer.content;
-    conflictServer = null;
-    conflictDiff = "";
-    status = "rebased";
-    await renderPreview();
-  }
-
-  async function applyFrontmatter() {
-    if (!selectedUid) return;
-    const fields: Record<string, unknown> = {};
-    if (fmType) fields.type = fmType;
-    if (fmName) fields.name = fmName;
-    if (fmVisibility) fields.visibility = fmVisibility;
-    if (fmWorkflow) fields.workflow = fmWorkflow;
-    if (fmGrants) fields.grants = fmGrants.split(",").map((s) => s.trim()).filter(Boolean);
-    if (fmCampaign) fields.campaign = fmCampaign;
-    if (fmKind) fields.kind = fmKind;
-    if (fmPlayer) fields.player = fmPlayer;
-    try {
-      const updated = await patchNote(selectedUid, fields);
-      doc = updated;
-      buffer = updated.content;
-      status = "frontmatter applied";
-      await renderPreview();
-    } catch (e: any) {
-      status = e?.message ?? "frontmatter failed";
-    }
-  }
-
-  function onBufferChange(v: string) {
-    buffer = v;
-    void renderPreview();
-  }
+  onMount(() => {
+    applyThemeProof();
+    syncPrincipal();
+    if (getToken()) { connectRealtime(); void doSearch(); }
+  });
+  $effect(() => { applyThemeProof(); void appState.theme; void appState.proof; });
 </script>
 
-<main>
-  <h1>Demitable</h1>
-  <p role="status">Status: {status}</p>
+<div id="shell">
+  <header class="topbar">
+    <div class="brand"><span class="brand__mark" aria-hidden="true">❖</span><h1 class="brand__name">Demitable</h1></div>
+    <nav class="surfaces" aria-label="Surfaces">
+      {#each surfaces as s}
+        <button class="btn btn--sm" class:is-active={appState.surface === s.id} aria-pressed={appState.surface === s.id} onclick={() => (appState.surface = s.id)}>{s.label}</button>
+      {/each}
+    </nav>
+    <div class="topbar__tools">
+      <label class="tool">Theme
+        <select bind:value={appState.theme} aria-label="Theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <label class="tool">Proof
+        <select bind:value={appState.proof} aria-label="Colour proof">
+          {#each proofs as p}<option value={p}>{p}</option>{/each}
+        </select>
+      </label>
+      {#if principal}
+        <span class="tag principal-chip"><Icon name={principal.kind === "gm" ? "shield" : "user"} size={11} /> {principal.kind} {principal.id}</span>
+        <button class="btn btn--sm" onclick={doLogout}>Logout</button>
+      {/if}
+    </div>
+  </header>
 
-  <!-- principal switcher / auth -->
-  <section class="auth">
-    {#if principal}
-      <span>Principal: {principal.kind} {principal.id}</span>
-      <button type="button" onclick={doLogout}>Logout</button>
-    {:else}
-      <div class="login-modes">
-        <button type="button" onclick={() => (loginMode = "gm")}>GM</button>
-        <button type="button" onclick={() => (loginMode = "player")}>Account</button>
-        <button type="button" onclick={() => (loginMode = "join")}>Join</button>
+  {#if !principal}
+    <section class="auth card" aria-label="Login">
+      <div class="login-modes" role="tablist" aria-label="Login mode">
+        <button class="btn btn--sm" class:is-active={loginMode === "gm"} onclick={() => (loginMode = "gm")}>GM</button>
+        <button class="btn btn--sm" class:is-active={loginMode === "player"} onclick={() => (loginMode = "player")}>Account</button>
+        <button class="btn btn--sm" class:is-active={loginMode === "join"} onclick={() => (loginMode = "join")}>Join</button>
       </div>
       {#if loginMode === "gm"}
-        <input placeholder="GM secret" bind:value={gmSecret} />
-        <button type="button" onclick={doGmLogin}>Login as GM</button>
+        <input placeholder="GM secret" type="password" bind:value={gmSecret} aria-label="GM secret" />
+        <button class="btn btn--sm" onclick={doGmLogin}>Login as GM</button>
       {:else if loginMode === "player"}
-        <input placeholder="player" bind:value={player} />
-        <input placeholder="passphrase" type="password" bind:value={passphrase} />
-        <button type="button" onclick={doPlayerLogin}>Login</button>
+        <input placeholder="player" bind:value={player} aria-label="Player id" />
+        <input placeholder="passphrase" type="password" bind:value={passphrase} aria-label="Passphrase" />
+        <button class="btn btn--sm" onclick={doPlayerLogin}>Login</button>
       {:else}
-        <input placeholder="join code" bind:value={joinCode} />
-        <button type="button" onclick={doJoin}>Join campaign</button>
+        <input placeholder="join code" bind:value={joinCode} aria-label="Join code" />
+        <button class="btn btn--sm" onclick={doJoin}>Join campaign</button>
       {/if}
       {#if authError}<p class="error">{authError}</p>{/if}
-    {/if}
-  </section>
-
-  <nav class="views">
-    <button onclick={() => (view = "notes")}>Notes</button>
-    <button onclick={() => (view = "dashboard")}>Dashboard</button>
-    <button onclick={() => (view = "player")}>Player view</button>
-    <button onclick={() => (view = "characters")}>Characters</button>
-    <button onclick={() => (view = "tabletop")}>Tabletop</button>
-  </nav>
-
-  {#if view === "dashboard"}
-    <GmDashboard />
-  {:else if view === "player"}
-    <PlayerView />
-  {:else if view === "characters"}
-    <CharacterPanel />
-  {:else if view === "tabletop"}
-    <Tabletop />
-  {:else}
-  <div class="layout">
-    <aside>
-      <h2>Notes</h2>
-      <div class="search">
-        <input placeholder="q" bind:value={searchQuery} />
-        <input placeholder="filter" bind:value={searchFilter} />
-        <input placeholder="type" bind:value={searchType} />
-        <button type="button" onclick={doSearch}>Search</button>
-      </div>
-      <ul>
-        {#each notes as n}
-          <li>
-            <button type="button" onclick={() => openNote(String(n.uid))}>
-              {n.name ?? n.uid}
-            </button>
-            {#if n.snippet}<small class="snippet">{n.snippet}</small>{/if}
-          </li>
-        {:else}
-          <li class="empty">No notes match your search.</li>
-        {/each}
-      </ul>
-    </aside>
-
-    <section>
-      {#if doc}
-        <h2>{doc.name} {#if doc.effectiveVisibility}<VisibilityBadge visibility={doc.effectiveVisibility} defaulted={doc.defaulted ?? false} />{/if}</h2>
-        <Editor value={buffer} onchange={onBufferChange} />
-        <div class="actions">
-          <button type="button" onclick={save}>Save</button>
-        </div>
-
-        {#if conflictServer}
-          <details open>
-            <summary>Conflict (409) — rebase offered</summary>
-            <pre>{conflictDiff}</pre>
-            <button type="button" onclick={rebase}>Rebase to server version</button>
-          </details>
-        {/if}
-
-        <details>
-          <summary>Frontmatter panel</summary>
-          <label>Type <input bind:value={fmType} /></label>
-          <label>Name <input bind:value={fmName} /></label>
-          <label>Visibility <input bind:value={fmVisibility} /></label>
-          <label>Workflow <input bind:value={fmWorkflow} /></label>
-          <label>Grants <input bind:value={fmGrants} /></label>
-          <label>Campaign <input bind:value={fmCampaign} /></label>
-          <label>Kind <input bind:value={fmKind} /></label>
-          <label>Player <input bind:value={fmPlayer} /></label>
-          <button type="button" onclick={applyFrontmatter}>Apply</button>
-        </details>
-
-        <details>
-          <summary>Live preview (server-projected)</summary>
-          <div class="preview">{@html preview}</div>
-        </details>
-      {:else}
-        <p>Select a note.</p>
-      {/if}
     </section>
-  </div>
+  {:else}
+    <div class="workbench">
+      <section class="searchbar" aria-label="Search">
+        <input placeholder="Search names and prose…" bind:value={searchQuery} onkeydown={(e) => e.key === "Enter" && doSearch()} aria-label="Search" />
+        <input placeholder="type" bind:value={searchType} aria-label="Type filter" />
+        <select bind:value={searchVis} aria-label="Visibility filter">
+          <option value="">all vis</option>
+          <option value="party">party</option>
+          <option value="gm">gm</option>
+          <option value="owner">owner</option>
+          <option value="private">private</option>
+        </select>
+        <button class="btn btn--sm" onclick={doSearch}>Search</button>
+        <span class="mono search-status" role="status">{searchStatus}</span>
+        <label class="tool"><input type="checkbox" bind:checked={appState.playerEye} /> player eye</label>
+        <label class="tool"><input type="checkbox" bind:checked={appState.showInspector} /> inspector</label>
+        <button class="btn btn--sm" onclick={() => (appState.showJournal = !appState.showJournal)}>{appState.showJournal ? "Hide journal" : "Journal"}</button>
+        <button class="btn btn--sm" onclick={doRoll} title="POST /roll into the shared log"><Icon name="dice" size={13} /> Roll</button>
+        <span class="mono search-status">{rollStatus}</span>
+      </section>
+
+      {#if appState.surface !== "dashboard" && appState.surface !== "tabletop" && results.length > 0}
+        <ul class="quick-results">
+          {#each results.slice(0, 8) as n (n.uid)}
+            <li>
+              <button class="qr" onclick={() => openNote(String(n.uid))}>
+                <span>{String(n.name ?? n.uid)}</span>
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+
+      <div class="mainrow">
+        <main class="main">
+          {#if appState.surface === "dashboard"}
+            <GmDashboard />
+          {:else if appState.surface === "editor"}
+            <NoteEditor />
+          {:else if appState.surface === "characters"}
+            <CharacterPanel />
+          {:else if appState.surface === "player"}
+            <PlayerView />
+          {:else if appState.surface === "tabletop"}
+            <Tabletop />
+          {:else if appState.surface === "chat"}
+            <Chat />
+          {/if}
+          {#if diceLog.length > 0}
+            <section class="dicelog card" aria-label="Shared dice log">
+              <h3><Icon name="dice" size={14} /> Shared dice log</h3>
+              <ol>
+                {#each diceLog.slice().reverse() as r, i (i)}
+                  <li class="mono">{JSON.stringify(r).slice(0, 160)}</li>
+                {/each}
+              </ol>
+            </section>
+          {/if}
+        </main>
+        {#if appState.showJournal}
+          <JournalDrawer open={true} onclose={() => (appState.showJournal = false)} />
+        {/if}
+      </div>
+    </div>
   {/if}
-</main>
+</div>
 
 <style>
-  main {
-    font-family: var(--font-sans, system-ui);
-    color: var(--fg-default);
-    background: var(--bg-canvas);
-    padding: var(--space-4);
-    min-height: 100vh;
-  }
-  .layout {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: var(--space-4);
-  }
-  aside ul { list-style: none; padding: 0; }
-  aside button { width: 100%; text-align: left; }
-  .actions { margin: var(--space-2) 0; }
-  input { margin-left: var(--space-2); }
-  pre { white-space: pre-wrap; }
-  .error { color: var(--danger, #c00); }
-  .auth { margin-bottom: var(--space-3); display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+  #shell { min-height: 100vh; background: var(--bg-canvas); color: var(--fg-default); font-family: var(--font-sans, system-ui); display: flex; flex-direction: column; }
+  .topbar { display: flex; align-items: center; gap: var(--space-4); min-height: var(--topbar-height); padding: var(--space-2) var(--space-4); background: var(--bg-surface); border-block-end: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: var(--z-sticky); flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: var(--space-2); }
+  .brand__mark { color: var(--accent); font-size: var(--text-md); }
+  .brand__name { font-size: var(--text-md); font-weight: var(--weight-bold); }
+  .surfaces { display: flex; gap: var(--space-1); flex-wrap: wrap; }
+  .topbar__tools { margin-inline-start: auto; display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+  .tool { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-xs); color: var(--fg-muted); }
+  .tool select, .tool input[type="text"] { font-size: var(--text-xs); }
+  .principal-chip { font-size: var(--text-xs); }
+  .auth { max-width: 28rem; margin: var(--space-8) auto; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
   .login-modes { display: flex; gap: var(--space-1); }
-  .preview { padding: var(--space-2); border: 1px solid var(--border-subtle, #ccc); }
+  .auth input { padding: var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--fg-default); }
+  .error { color: var(--danger, #c00); font-size: var(--text-sm); }
+  .workbench { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .searchbar { display: flex; gap: var(--space-2); align-items: center; padding: var(--space-2) var(--space-4); background: var(--bg-surface-2); border-block-end: 1px solid var(--border-subtle); flex-wrap: wrap; }
+  .searchbar input, .searchbar select { padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: var(--text-sm); }
+  .search-status { font-size: var(--text-2xs); color: var(--fg-subtle); }
+  .quick-results { list-style: none; display: flex; gap: var(--space-1); margin: 0; padding: var(--space-2) var(--space-4); overflow-x: auto; background: var(--bg-surface); border-block-end: 1px solid var(--border-subtle); }
+  .qr { border: 1px solid var(--border-default); background: var(--bg-surface-2); border-radius: var(--radius-pill); padding: 0 var(--space-2); font-size: var(--text-xs); cursor: pointer; white-space: nowrap; }
+  .mainrow { display: flex; flex: 1; min-height: 0; }
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .dicelog { margin: var(--space-4); padding: var(--space-3); }
+  .dicelog h3 { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); margin-block-end: var(--space-2); }
+  .dicelog ol { margin: 0; padding-inline-start: var(--space-4); font-size: var(--text-xs); }
 </style>

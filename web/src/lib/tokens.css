@@ -11,6 +11,10 @@
   --fg-subtle: #7a746b;
   --border-default: #d6d2c8;
   --border-strong: #b8b3a7;
+  --border-subtle: #e0dbd0;
+  --border-focus: #2f5d9e;
+  --border-width: 1px;
+  --border-width-strong: 2px;
 
   --accent: #2f5d9e;
   --accent-hover: #264a80;
@@ -19,14 +23,21 @@
 
   --danger: #a63a2f;
   --danger-subtle: #f5e3e1;
+  --danger-border: #c07a75;
   --success: #2f7a4a;
   --success-subtle: #e2efe6;
+  --success-border: #7ba585;
   --warning: #8a6a1f;
   --warning-subtle: #f3ecd9;
+  --warn: #8a6a1f;
+  --warn-subtle: #f3ecd9;
+  --warn-border: #c19a4e;
+  --success-border-alias: #7ba585;
 
   /* Secrets — violet, dashed rule + hatch (not "warning"). */
   --secret: #6b4fa0;
   --secret-subtle: #ece6f5;
+  --secret-border: #9b86c4;
 
   /* Visibility vocabulary — four channels each. Hue is last. */
   --vis-gm: #7c5cbf;
@@ -39,6 +50,18 @@
   --vis-owner-subtle: #f3ead9;
   --vis-private: #a63a2f;
   --vis-private-subtle: #f5e3e1;
+
+  /* Spike-compat aliases: spike CSS uses -bg/-border names. */
+  --vis-gm-bg: var(--vis-gm-subtle);
+  --vis-gm-border: #8a7fb8;
+  --vis-party-bg: var(--vis-party-subtle);
+  --vis-party-border: #7ba585;
+  --vis-public-bg: var(--vis-public-subtle);
+  --vis-public-border: #6da2a8;
+  --vis-owner-bg: var(--vis-owner-subtle);
+  --vis-owner-border: #c19a4e;
+  --vis-private-bg: var(--vis-private-subtle);
+  --vis-private-border: #c07a75;
 
   /* Typography. */
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -80,13 +103,24 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+  --radius-pill: 999px;
   --shadow-1: 0 1px 2px rgba(33, 31, 27, 0.06);
   --shadow-2: 0 2px 6px rgba(33, 31, 27, 0.08);
   --shadow-3: 0 8px 24px rgba(33, 31, 27, 0.12);
 
   /* Layout. */
   --sidebar-width: 16rem;
+  --inspector-width: 19rem;
   --topbar-height: 3rem;
+  --z-sticky: 10;
+  --z-dropdown: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
 
   /* Motion. */
   --duration-fast: 120ms;
@@ -143,3 +177,60 @@
     --duration-slow: 0ms;
   }
 }
+
+/* Proof modes (ADR-0034): colour-independence check built in. */
+#app[data-proof="greyscale"] { filter: grayscale(1); }
+#app[data-proof="flat-hue"] { filter: grayscale(1) contrast(1.06); }
+#app[data-proof="protanopia"] { filter: url("#proof-protanopia"); }
+#app[data-proof="deuteranopia"] { filter: url("#proof-deuteranopia"); }
+#app[data-proof="tritanopia"] { filter: url("#proof-tritanopia"); }
+:root[data-proof="flat-hue"] {
+  --accent: #8a8378; --accent-hover: #8a8378; --accent-subtle: #e6e2d9; --accent-border: #b5aea1;
+  --danger: #8a8378; --danger-subtle: #e6e2d9; --danger-border: #b5aea1;
+  --warn: #8a8378; --warn-subtle: #e6e2d9; --warn-border: #b5aea1;
+  --success: #8a8378; --success-subtle: #e6e2d9;
+  --secret: #8a8378; --secret-subtle: #e6e2d9; --secret-border: #b5aea1;
+  --vis-gm: #8a8378; --vis-gm-bg: #e6e2d9; --vis-gm-border: #b5aea1;
+  --vis-party: #8a8378; --vis-party-bg: #e6e2d9; --vis-party-border: #b5aea1;
+  --vis-public: #8a8378; --vis-public-bg: #e6e2d9; --vis-public-border: #b5aea1;
+  --vis-owner: #8a8378; --vis-owner-bg: #e6e2d9; --vis-owner-border: #b5aea1;
+  --vis-private: #8a8378; --vis-private-bg: #e6e2d9; --vis-private-border: #b5aea1;
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: 0 var(--space-2); min-height: 2rem;
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-md); background: var(--bg-surface);
+  color: var(--fg-default); font-size: var(--text-sm); cursor: pointer;
+}
+.btn:hover { border-color: var(--border-strong); background: var(--bg-surface-2); }
+.btn--sm { min-height: 1.75rem; font-size: var(--text-xs); }
+.btn.is-active {
+  background: var(--accent-subtle); border-color: var(--accent-border);
+  box-shadow: inset 3px 0 0 var(--accent); font-weight: var(--weight-medium);
+}
+.tag {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 0 var(--space-1); border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-sm); font-size: var(--text-2xs); color: var(--fg-muted);
+  background: var(--bg-surface-3);
+}
+.mono { font-family: var(--font-mono); }
+.card {
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-md); background: var(--bg-surface);
+  box-shadow: var(--shadow-1);
+}
+.prose { max-width: var(--measure); line-height: var(--leading-normal); }
+.prose :global(.secret-block) {
+  border: var(--border-width-strong) dashed var(--secret-border);
+  border-radius: var(--radius-md); background: var(--secret-subtle);
+  background-image: repeating-linear-gradient(45deg, transparent 0 8px, rgb(0 0 0 / 0.03) 8px 9px);
+  padding: var(--space-3); margin-block: var(--space-4);
+}
+.prose :global(.secret-block__head) { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); }

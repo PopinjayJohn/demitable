@@ -186,3 +186,86 @@ export async function sendChatMessage(input: { campaign?: string; name?: string;
   }
   return createNote(body);
 }
+
+export async function deleteNote(uid: string): Promise<void> {
+  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}`, { method: "DELETE" });
+  if (!res.ok) throw await parseError(res);
+}
+
+export async function fetchLinks(uid: string): Promise<any> {
+  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}/links`);
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
+}
+
+export async function fetchJournal(): Promise<any[]> {
+  const res = await apiFetch(`/api/v1/journal`);
+  if (!res.ok) throw await parseError(res);
+  const j = await res.json();
+  return Array.isArray(j) ? j : (j.items ?? j.entries ?? []);
+}
+
+export async function revertJournal(id: string): Promise<void> {
+  const res = await apiFetch(`/api/v1/journal/${encodeURIComponent(id)}/revert`, { method: "POST" });
+  if (!res.ok) throw await parseError(res);
+}
+
+export async function fetchCharacter(uid: string, expand = true): Promise<any> {
+  const res = await apiFetch(`/api/v1/characters/${encodeURIComponent(uid)}${expand ? "?expand=1" : ""}`);
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
+}
+
+export async function createCharacter(input: Record<string, unknown>): Promise<any> {
+  const res = await apiFetch(`/api/v1/characters`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  });
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
+}
+
+export async function submitCharacter(uid: string): Promise<void> {
+  const res = await apiFetch(`/api/v1/characters/${encodeURIComponent(uid)}/submit`, { method: "POST" });
+  if (!res.ok) throw await parseError(res);
+}
+
+export async function reviewCharacter(uid: string, approve: boolean, rid?: string): Promise<void> {
+  const path = rid
+    ? `/api/v1/characters/${encodeURIComponent(uid)}/requests/${encodeURIComponent(rid)}/${approve ? "approve" : "reject"}`
+    : `/api/v1/characters/${encodeURIComponent(uid)}/${approve ? "approve" : "reject"}`;
+  const res = await apiFetch(path, { method: "POST" });
+  if (!res.ok) throw await parseError(res);
+}
+
+export async function computeValues(formulas: string[], context: Record<string, unknown>): Promise<Record<string, unknown>> {
+  const res = await apiFetch(`/api/v1/compute`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ formulas, context }),
+  });
+  if (!res.ok) throw await parseError(res);
+  const j = await res.json();
+  return (j.values ?? j) as Record<string, unknown>;
+}
+
+export async function rollDice(input: { workflow?: string; actor?: string; target?: string; shared?: boolean; expression?: string } & Record<string, unknown>): Promise<any> {
+  const res = await apiFetch(`/api/v1/roll`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  });
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
+}
+
+export async function createSession(input: Record<string, unknown>): Promise<any> {
+  const res = await apiFetch(`/api/v1/sessions`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  });
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
+}
+
+export async function fetchSessionLog(sid: string): Promise<any[]> {
+  const res = await apiFetch(`/api/v1/sessions/${encodeURIComponent(sid)}/log`);
+  if (!res.ok) throw await parseError(res);
+  const j = await res.json();
+  return Array.isArray(j) ? j : (j.items ?? j.log ?? j.entries ?? []);
+}
