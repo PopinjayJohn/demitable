@@ -35,6 +35,8 @@ class AppState {
   selectedCharacterUid: string | null = $state(null);
   /** Campaign filter for the wiki browser. Null = all campaigns. */
   campaignFilter: string | null = $state(null);
+  /** Vault path-prefix filter, set from breadcrumbs. Null = whole vault. */
+  pathFilter: string | null = $state(null);
   playerEye = $state(false);
   /** The account id the GM is borrowing eyes from. Empty = no target. */
   eyeTarget = $state("");

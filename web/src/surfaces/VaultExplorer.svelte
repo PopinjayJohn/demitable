@@ -20,7 +20,6 @@
   let sortKey = $state<"name" | "type" | "path">("name");
   let sortDir = $state<"asc" | "desc">("asc");
   let filter = $state<"all" | "party" | "gm" | "owner" | "private">("all");
-  let twoCol = $state(false);
   let source = $state("");
   let previewError = $state("");
   let revealed: string[] = $state([]);
@@ -46,6 +45,11 @@
         if (workflowFilter && String((n as any).workflow ?? "") !== workflowFilter) return false;
         const cf = appState.campaignFilter;
         if (cf && String((n as any).campaign || "No campaign") !== cf) return false;
+        const pf = appState.pathFilter;
+        if (pf) {
+          const p = String((n as any).path ?? "");
+          if (p !== pf && !p.startsWith(pf.endsWith("/") ? pf : pf + "/")) return false;
+        }
         if (textFilter) {
           const hay = `${String(n.name ?? "")} ${String((n as any).path ?? "")} ${String((n as any).type ?? "")}`.toLowerCase();
           if (!hay.includes(textFilter.toLowerCase())) return false;
@@ -115,7 +119,7 @@
   <NoteContext note={selected} {secrets} {revealed} onReveal={reveal} />
 {/snippet}
 
-<section class="explorer" class:two-col={twoCol} aria-label="Vault explorer">
+<section class="explorer" aria-label="Vault explorer">
   <div class="explorer__list">
     <header class="list-head">
       <div class="list-head__row">
@@ -150,6 +154,12 @@
           <button class="btn btn--sm" onclick={() => (appState.campaignFilter = null)}>Clear</button>
         </div>
       {/if}
+      {#if appState.pathFilter}
+        <div class="campaign-chip">
+          <span class="tag mono">/{appState.pathFilter}</span>
+          <button class="btn btn--sm" onclick={() => (appState.pathFilter = null)}>Clear</button>
+        </div>
+      {/if}
       <div class="list-head__filters" role="group" aria-label="Filter by visibility">
         {#each [["all", "All"], ["party", "Party"], ["gm", "GM only"], ["owner", "Owner"], ["private", "Private"]] as f}
           <button class="btn btn--sm" class:is-active={filter === f[0]} aria-pressed={filter === f[0]} onclick={() => (filter = f[0] as any)}>{f[1]}</button>
@@ -179,16 +189,11 @@
           <h2 class="note-head__title">{String(selected.name ?? selected.uid)}</h2>
           <span class="note-head__path mono">{String((selected as any).path ?? "")}</span>
         </div>
-        <div class="note-head__actions">
-          <button class="btn btn--sm" class:is-active={twoCol} aria-pressed={twoCol} onclick={() => (twoCol = !twoCol)} title="Two-column layout uses the full area">
-            <Icon name="list" size={13} /> {twoCol ? "One column" : "Two columns"}
-          </button>
-        </div>
       </header>
       {#if appState.playerEye}
         <div class="eye-banner" role="status"><Icon name="eye" size={14} /><span>Rendered as <strong>{eyeAs || "…"}</strong> — what the server sends them.</span></div>
       {/if}
-      <div class="note-body" class:cols={twoCol}>
+      <div class="note-body">
         {#if previewError}
           <div class="absent" role="status"><Icon name="eye-off" size={22} /><h3>Not in this view</h3><p>{previewError}</p></div>
         {:else}
@@ -216,8 +221,6 @@
 
 <style>
   .explorer { position: relative; display: grid; grid-template-columns: minmax(20rem, 1fr) minmax(24rem, 1.4fr); height: 100%; overflow: hidden; }
-  .explorer.two-col { grid-template-columns: minmax(0, 1fr); }
-  .explorer.two-col .explorer__list { display: none; }
   .explorer__list { border-inline-end: 1px solid var(--border-subtle); overflow-y: auto; background: var(--bg-canvas); display: flex; flex-direction: column; }
   .list-head { padding: var(--space-3) var(--space-4); background: var(--bg-canvas); border-block-end: 1px solid var(--border-subtle); }
   .list-head__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
@@ -243,7 +246,6 @@
   .note-head__actions { display: flex; gap: var(--space-2); flex: none; }
   .eye-banner { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--accent-subtle); border-block-end: 1px solid var(--accent-border); font-size: var(--text-xs); }
   .note-body { flex: 1; overflow-y: auto; padding: var(--space-4); }
-  .note-body.cols :global(.prose) { columns: 2; column-gap: var(--space-6); }
   .absent { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-4); text-align: center; color: var(--fg-muted); }
   .absent h3 { font-size: var(--text-base); color: var(--fg-default); }
   .absent p { font-size: var(--text-sm); max-width: 30rem; }

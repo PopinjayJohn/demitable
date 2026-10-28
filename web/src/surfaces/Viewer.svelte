@@ -7,6 +7,7 @@
   import { fetchCharacter } from "../lib/api";
   import { vaultStore } from "../lib/vaultstore.svelte";
   import MarkdownView from "../components/MarkdownView.svelte";
+  import NoteCrumbs from "../components/NoteCrumbs.svelte";
   import CharacterCard from "../components/CharacterCard.svelte";
   import NoteContext from "../components/NoteContext.svelte";
   import Icon from "../components/Icon.svelte";
@@ -92,10 +93,7 @@
 <section class="viewer" aria-label="Note viewer">
   {#if selected}
     <header class="note-head">
-      <div class="stack">
-        <h2 class="note-head__title">{String(selected.name ?? selected.uid)}</h2>
-        <span class="note-head__path mono">{String((selected as any).path ?? "")}</span>
-      </div>
+      <NoteCrumbs path={String((selected as any).path ?? "")} current={String(selected.name ?? selected.uid)} />
       <div class="note-head__actions">
         <button class="btn btn--sm" class:is-active={twoCol} aria-pressed={twoCol} onclick={() => (twoCol = !twoCol)} title="Two-column layout uses the full area">
           <Icon name="list" size={13} /> {twoCol ? "One column" : "Two columns"}
@@ -105,7 +103,7 @@
     {#if appState.playerEye}
       <div class="eye-banner" role="status"><Icon name="eye" size={14} /><span>Rendered as <strong>{eyeAs || "…"}</strong> — what the server sends them.</span></div>
     {/if}
-    <div class="note-body" class:cols={twoCol}>
+    <div class="note-body">
       {#if previewError}
         <div class="absent" role="status"><Icon name="eye-off" size={22} /><h3>Not in this view</h3><p>{previewError}</p></div>
       {:else}
@@ -116,6 +114,7 @@
           onReveal={reveal}
           {revealed}
           header={cardHeader}
+          {twoCol}
           resolveWiki={(name) => wikiIndex().get(name) ?? null}
           onOpenNote={(uid) => (appState.selectedUid = uid)}
         />
@@ -136,21 +135,10 @@
 
 <style>
   .viewer { position: relative; display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-surface); }
-  .note-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-4); border-block-end: 1px solid var(--border-subtle); }
-  .note-head__title { font-size: var(--text-md); }
-  .note-head__path { font-size: var(--text-2xs); color: var(--fg-subtle); }
+  .note-head { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-4); border-block-end: 1px solid var(--border-subtle); min-height: 3rem; }
   .note-head__actions { display: flex; gap: var(--space-2); flex: none; }
   .eye-banner { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--accent-subtle); border-block-end: 1px solid var(--accent-border); font-size: var(--text-xs); }
   .note-body { flex: 1; overflow-y: auto; padding: var(--space-4); }
-  .note-body.cols :global(.prose) { columns: 2; column-gap: var(--space-6); max-width: none; }
-  /* In two-column mode the stat box spans both columns so the right
-     column's text starts below it instead of beside it. */
-  .note-body.cols :global(.statbox) {
-    float: none;
-    width: auto;
-    column-span: all;
-    margin: 0 0 var(--space-4);
-  }
   .absent { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-4); text-align: center; color: var(--fg-muted); margin: auto; }
   .absent h3 { font-size: var(--text-base); color: var(--fg-default); }
   .absent p { font-size: var(--text-sm); max-width: 30rem; }

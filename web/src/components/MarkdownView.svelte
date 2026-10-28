@@ -16,6 +16,7 @@
     resolveWiki = undefined,
     onOpenNote = undefined,
     header = undefined,
+    twoCol = false,
   }: {
     source: string;
     noteUid?: string;
@@ -26,9 +27,63 @@
     onOpenNote?: (uid: string) => void;
     /** Optional lead content rendered inside the prose flow (stat boxes). */
     header?: Snippet;
+    /** Two explicit grid columns with the header pinned top-right.
+     * Unlike CSS multicol this paints reliably and keeps DOM order. */
+    twoCol?: boolean;
   } = $props();
 
   const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed, revealButtons: canReveal }));
+
+  let colsEl: HTMLDivElement | null = $state(null);
+  let colA: HTMLDivElement | null = $state(null);
+  let colB: HTMLDivElement | null = $state(null);
+  let movedEl: HTMLDivElement | null = $state(null);
+  let balanceQueued = false;
+
+  // Distribute colA's top-level nodes across the two explicit columns so
+  // the columns end up roughly balanced. The header (stat box) stays
+  // pinned at the top of the right column; moved nodes keep document
+  // order. Plain grid, no multicol fragmentainer.
+  function balance() {
+    balanceQueued = false;
+    if (!twoCol || !colA || !colB || !movedEl) return;
+    const kids = (el: HTMLElement) => [...el.children].filter((n) => n.nodeType === 1) as HTMLElement[];
+    // Restore: everything back into A, in original order.
+    const frag = document.createDocumentFragment();
+    for (const n of kids(movedEl)) frag.appendChild(n);
+    colA.appendChild(frag);
+    // Shift trailing nodes into B until the columns balance
+    // (keep at least one node in A).
+    const TOL = 4;
+    let guard = kids(colA).length + 8;
+    while (guard-- > 0) {
+      const rest = kids(colA);
+      if (rest.length <= 1) break;
+      if (colA.scrollHeight <= colB.scrollHeight + TOL) break;
+      movedEl.prepend(rest[rest.length - 1]);
+    }
+  }
+
+  function queueBalance() {
+    if (balanceQueued) return;
+    balanceQueued = true;
+    requestAnimationFrame(balance);
+  }
+
+  $effect(() => {
+    void html;
+    void twoCol;
+    if (twoCol) queueBalance();
+  });
+
+  $effect(() => {
+    if (!colsEl) return;
+    const ro = new ResizeObserver(() => { if (twoCol) queueBalance(); });
+    ro.observe(colsEl);
+    const onFonts = () => { if (twoCol) queueBalance(); };
+    try { (document as any).fonts?.ready.then(onFonts); } catch { /* ignore */ }
+    return () => ro.disconnect();
+  });
 
   function handleClick(ev: MouseEvent) {
     const t = ev.target as HTMLElement;
@@ -45,9 +100,21 @@
   }
 </script>
 
-<div class="prose markdown" onclick={handleClick}>
-  {#if header}{@render header()}{/if}
-  {@html html}
+<div class="markdown" onclick={handleClick}>
+  {#if twoCol}
+    <div class="cols" bind:this={colsEl}>
+      <div class="col prose" bind:this={colA}>{@html html}</div>
+      <div class="col prose" bind:this={colB}>
+        {#if header}{@render header()}{/if}
+        <div class="moved" bind:this={movedEl}></div>
+      </div>
+    </div>
+  {:else}
+    <div class="prose">
+      {#if header}{@render header()}{/if}
+      {@html html}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -90,6 +157,12 @@
   .markdown :global(table) { border-collapse: collapse; width: 100%; }
   .markdown :global(th), .markdown :global(td) { border: 1px solid var(--border-default); padding: var(--space-1) var(--space-2); font-size: var(--text-sm); }
   .markdown :global(.block-ref) { font-family: var(--font-mono); font-size: 0.75em; color: var(--fg-subtle); user-select: none; }
+  /* Explicit two-column grid with JS-balanced content. Plain grid, not
+     CSS multicol: no fragmentainer, so painting is reliable and the
+     right column can start with its own pinned header. */
+  .markdown :global(.cols) { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); align-items: start; }
+  .markdown :global(.col) { min-width: 0; }
+  .markdown :global(.col .statbox) { float: none; width: auto; margin: 0 0 var(--space-4); }
   .markdown :global(.wikilink) { color: var(--accent); text-decoration: underline dotted; }
   .markdown :global(.wikilink.dangling) { color: var(--fg-subtle); text-decoration: underline dotted; cursor: default; }
 </style>
