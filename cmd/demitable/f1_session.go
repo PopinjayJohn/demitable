@@ -650,10 +650,13 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			full := filepath.Join(vlt.Root, filepath.FromSlash(sessionNotePath))
 			os.MkdirAll(filepath.Dir(full), 0o755)
 			os.WriteFile(full, []byte(content), 0o644)
-			_, _ = vault.NewJournal(vlt.Root).AppendWriteWithRevision(principalActor(principalFromRequest(r, tk)), "writeback", "create", "", sessionNotePath, batchID, 1, nil, []byte(content), nil)
+			_, _ = vault.NewJournal(vlt.Root).AppendWriteWithRevision(principalActor(principalFromRequest(r, tk)), "writeback", "create", "", sessionNotePath, batchID, 0, nil, []byte(content), nil)
 			_ = vlt.Load()
 
 			// apply touched keys if present
+			// Inject the close batch id so the whole close (note + touches)
+			// shares ONE batch id.
+			bodyMap["batch_id"] = batchID
 			if hasWB(bodyMap) {
 				// preview first to obtain a digest, then apply
 				if globalWBPreview != nil {
