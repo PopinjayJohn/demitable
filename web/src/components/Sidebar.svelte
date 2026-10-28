@@ -1,19 +1,20 @@
 <script lang="ts">
-  // Left sidebar: navigation plus the campaign context that used to live
-  // in the dashboard. Collapses to an icon rail; the collapsed state
-  // persists across sessions.
+  // Left sidebar: navigation plus the campaign context, in collapsible
+  // sections. Collapses to an icon rail; each section remembers its own
+  // collapsed state.
   import { appState } from "../lib/appstate.svelte";
   import { vaultStore } from "../lib/vaultstore.svelte";
   import VisibilityBadge from "./VisibilityBadge.svelte";
   import VaultTree from "./VaultTree.svelte";
-  import { displayName } from "../lib/display";
+  import SideSection from "./SideSection.svelte";
   import Icon from "./Icon.svelte";
+  import { displayName } from "../lib/display";
 
   const collapsed = $derived(appState.sidebarCollapsed);
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
-    appState.go("wiki", "viewer");
+    appState.go("wiki", "explorer");
   }
 
   function onBestiaryDrag(uid: string, ev: DragEvent) {
@@ -29,10 +30,9 @@
 
   {#if !collapsed}
   {#if appState.group === "wiki"}
-    <div class="side-block">
-      <h3 class="side-title">Wiki</h3>
+    <SideSection id="wiki-views" title="Wiki">
       <ul class="side-list">
-        {#each [["home", "Home", "scroll"], ["explorer", "Vault explorer", "list"], ["viewer", "Viewer", "eye"], ["editor", "Editor", "pencil"], ["player", "Player view", "user"], ["chat", "Chat", "note"]] as [id, label, icon]}
+        {#each [["home", "Home", "scroll"], ["explorer", "Vault explorer", "list"], ["editor", "Editor", "pencil"], ["player", "Player view", "user"], ["chat", "Chat", "note"]] as [id, label, icon]}
           <li>
             <button class="side-item" class:is-active={appState.wikiView === id} onclick={() => (appState.wikiView = id as any)}>
               <Icon name={icon as any} size={14} /><span>{label}</span>
@@ -40,10 +40,9 @@
           </li>
         {/each}
       </ul>
-    </div>
+    </SideSection>
 
-    <div class="side-block">
-      <h3 class="side-title">Campaigns</h3>
+    <SideSection id="wiki-campaigns" title="Campaigns">
       <ul class="side-list">
         <li>
           <button class="side-item" class:is-active={appState.campaignFilter === null} onclick={() => (appState.campaignFilter = null)}>
@@ -58,15 +57,13 @@
           </li>
         {/each}
       </ul>
-    </div>
+    </SideSection>
 
-    <div class="side-block">
-      <h3 class="side-title">Vault</h3>
+    <SideSection id="wiki-vault" title="Vault">
       <VaultTree notes={vaultStore.notes} />
-    </div>
+    </SideSection>
 
-    <div class="side-block">
-      <h3 class="side-title">Needs attention</h3>
+    <SideSection id="wiki-attention" title="Needs attention" count={vaultStore.attention.length}>
       {#if vaultStore.attention.length === 0}
         <p class="side-note">Nothing needs attention.</p>
       {:else}
@@ -80,27 +77,24 @@
           {/each}
         </ul>
       {/if}
-    </div>
+    </SideSection>
 
-    <div class="side-block">
-      <h3 class="side-title">What the table can see</h3>
+    <SideSection id="wiki-coverage" title="What the table can see">
       <dl class="counts">
         <div class="counts__row"><dt><VisibilityBadge visibility="party" size="sm" /></dt><dd>{vaultStore.counts.party} of {vaultStore.counts.total} notes</dd></div>
         <div class="counts__row"><dt><VisibilityBadge visibility="gm" size="sm" /></dt><dd>{vaultStore.counts.total - vaultStore.counts.party} hidden</dd></div>
       </dl>
       <p class="side-note">Names of hidden notes stay here — a player never sees this panel.</p>
-    </div>
+    </SideSection>
   {:else if appState.group === "vtt"}
-    <div class="side-block">
-      <h3 class="side-title">Session</h3>
+    <SideSection id="vtt-session" title="Session">
       <label class="field">Session <input bind:value={appState.sessionId} placeholder="sid" aria-label="Session id" /></label>
       <label class="field">Encounter <input bind:value={appState.encounterId} placeholder="eid" aria-label="Encounter id" /></label>
       <label class="check"><input type="checkbox" bind:checked={appState.displayMode} /> display mode</label>
       <p class="side-note">Party-only shared screen. Tokens are intents; the server is authoritative.</p>
-    </div>
+    </SideSection>
 
-    <div class="side-block">
-      <h3 class="side-title">Bestiary <span class="tag">{vaultStore.characters.length}</span></h3>
+    <SideSection id="vtt-bestiary" title="Bestiary" count={vaultStore.characters.length}>
       <p class="side-note">Drag a character onto the board to seat it.</p>
       <ul class="side-list">
         {#each vaultStore.characters as c (c.uid)}
@@ -113,10 +107,9 @@
           </li>
         {/each}
       </ul>
-    </div>
+    </SideSection>
   {:else}
-    <div class="side-block">
-      <h3 class="side-title">Characters <span class="tag">{vaultStore.characters.length}</span></h3>
+    <SideSection id="creator-chars" title="Characters" count={vaultStore.characters.length}>
       <ul class="side-list">
         {#each vaultStore.characters as c (c.uid)}
           <li>
@@ -127,11 +120,10 @@
         {/each}
       </ul>
       <p class="side-note">Sheets render from the pack; the projection removes what a principal may not see.</p>
-    </div>
+    </SideSection>
 
     {#if vaultStore.reviewQueue.length > 0}
-      <div class="side-block">
-        <h3 class="side-title">Review queue</h3>
+      <SideSection id="creator-review" title="Review queue" count={vaultStore.reviewQueue.length}>
         <ul class="side-list">
           {#each vaultStore.reviewQueue as c (c.uid)}
             <li>
@@ -142,7 +134,7 @@
             </li>
           {/each}
         </ul>
-      </div>
+      </SideSection>
     {/if}
   {/if}
   {/if}
@@ -163,12 +155,10 @@
   .sidebar.collapsed { width: 3rem; padding: var(--space-3) var(--space-2); align-items: center; }
   .collapse { align-self: flex-end; background: none; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; color: var(--fg-muted); padding: var(--space-1); }
   .collapse:hover { background: var(--bg-surface-3); }
+  .collapsed .collapse { align-self: center; }
   @media (max-width: 900px) {
     .collapse { display: none; }
   }
-  .collapsed .collapse { align-self: center; }
-  .side-block + .side-block { margin-block-start: var(--space-6); }
-  .side-title { font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-subtle); margin-block-end: var(--space-2); display: flex; align-items: center; gap: var(--space-1); }
   .side-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
   .side-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2); border: 1px solid transparent; border-radius: var(--radius-md); background: none; font-size: var(--text-sm); text-align: start; color: var(--fg-default); }
   button.side-item { cursor: pointer; }

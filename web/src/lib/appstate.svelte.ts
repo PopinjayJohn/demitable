@@ -5,7 +5,7 @@
 import type { Snippet } from "svelte";
 
 export type Group = "wiki" | "vtt" | "creator";
-export type WikiView = "home" | "explorer" | "viewer" | "editor" | "player" | "chat";
+export type WikiView = "home" | "explorer" | "editor" | "player" | "chat";
 export type Surface = "dashboard" | "editor" | "characters" | "player" | "tabletop" | "chat";
 export type Proof = "none" | "greyscale" | "flat-hue" | "protanopia" | "deuteranopia" | "tritanopia";
 
@@ -16,6 +16,14 @@ function storedBool(key: string, fallback: boolean): boolean {
   } catch {
     return fallback;
   }
+}
+
+function loadSections(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem("demitable:sections");
+    if (raw) return JSON.parse(raw) as Record<string, boolean>;
+  } catch { /* ignore */ }
+  return {};
 }
 
 class AppState {
@@ -40,6 +48,8 @@ class AppState {
   // Frame chrome state.
   sidebarCollapsed = $state(storedBool("demitable:sidebar", false));
   railPinned = $state(storedBool("demitable:rail", true));
+  /** Collapsed sidebar sections by id. Persisted on toggle. */
+  sidebarSections: Record<string, boolean> = $state(loadSections());
 
   // Right-rail content published by the active center surface.
   // Null means the view has no context: the rail collapses.

@@ -49,7 +49,14 @@
   .markdown :global(.statblock) { margin-block: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface-2); padding: var(--space-3); }
   .markdown :global(.statblock__head) { font-weight: var(--weight-bold); font-size: var(--text-sm); margin-block-end: var(--space-2); }
   .markdown :global(.statblock pre) { margin: 0; white-space: pre-wrap; font-size: var(--text-xs); }
+  .markdown :global(.admonition) { margin-block: var(--space-4); border: 1px solid var(--border-default); border-inline-start-width: 4px; border-radius: var(--radius-md); background: var(--bg-surface-2); padding: var(--space-3); }
+  .markdown :global(.admonition__head) { font-weight: var(--weight-bold); font-size: var(--text-sm); margin-block-end: var(--space-2); }
+  .markdown :global(.admonition pre) { margin: 0; white-space: pre-wrap; font-size: var(--text-xs); }
   .markdown :global(.md-table) { margin-block: var(--space-4); }
+  .markdown :global(.callout), .markdown :global(.statblock),
+  .markdown :global(.admonition), .markdown :global(.secret-block) {
+    break-inside: avoid;
+  }
   .markdown :global(table) { border-collapse: collapse; width: 100%; }
   .markdown :global(th), .markdown :global(td) { border: 1px solid var(--border-default); padding: var(--space-1) var(--space-2); font-size: var(--text-sm); }
   .markdown :global(.block-ref) { font-family: var(--font-mono); font-size: 0.75em; color: var(--fg-subtle); user-select: none; }

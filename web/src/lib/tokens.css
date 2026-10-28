@@ -246,8 +246,9 @@ body {
 .prose { max-width: var(--measure); line-height: var(--leading-normal); }
 .prose :global(.secret-block) {
   border: var(--border-width-strong) dashed var(--secret-border);
+  outline: 2px solid var(--secret-border);
+  outline-offset: 2px;
   border-radius: var(--radius-md); background: var(--secret-subtle);
   background-image: repeating-linear-gradient(45deg, transparent 0 8px, rgb(0 0 0 / 0.03) 8px 9px);
   padding: var(--space-3); margin-block: var(--space-4);
 }
-.prose :global(.secret-block__head) { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); }

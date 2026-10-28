@@ -43,4 +43,9 @@ describe("renderMarkdown", () => {
   it("marks bare block ids", () => {
     expect(renderMarkdown("^abc123\n")).toContain("block-ref");
   });
+  it("renders admonition fences with a title", () => {
+    const html = renderMarkdown("```ad-tip\ntitle: Running it\nBody text\n```\n");
+    expect(html).toContain("admonition");
+    expect(html).toContain("Running it");
+  });
 });

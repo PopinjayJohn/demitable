@@ -31,9 +31,11 @@ const CLASS_ALLOW = [
   "block-ref",
   "statblock",
   "statblock__head",
+  "admonition",
+  "admonition__head",
   "callout__label",
 ];
-const CLASS_RE = [/^callout-/, /^language-/];
+const CLASS_RE = [/^callout-/, /^admonition-/, /^language-/];
 
 // A per-tag `className` allow-list (e.g. footnotes on `a`) shadows the
 // `*` entry — findDefinition returns the first match — so the classes
@@ -164,23 +166,18 @@ function rehypeCallouts() {
       if (tn) tn.value = tn.value.replace(/^\s*\[![\w-]+\]\s*[+-]?\s*/, "");
       const props = (el.properties ??= {}) as Record<string, unknown>;
       if (kind === "secret") {
-        // GM-only block: hatch styling, block id for reveal controls.
+        // GM-only block: an outline plus hatch so it reads as "concealed"
+        // rather than "warning" under greyscale — secrets are not errors.
+        // No label is injected; the border pattern carries the meaning.
         const all = hastText(el);
         const idm = all.match(/\^([\w-]+)\s*$/);
-        const classes = ["secret-block"];
-        props.className = classes;
+        props.className = ["secret-block"];
         if (idm) {
           (props as any).dataBlockId = idm[1];
           const last = [...el.children].reverse().find((c) => c.type === "element") as HastElement | undefined;
           const ltn = last ? firstTextNode(last) : null;
           if (ltn) ltn.value = ltn.value.replace(/\s*\^[\w-]+\s*$/, "");
         }
-        el.children.unshift({
-          type: "element",
-          tagName: "div",
-          properties: { className: ["secret-block__head"] },
-          children: [{ type: "text", value: "GM only — not sent to players" }],
-        } as any);
       } else {
         props.className = ["callout", `callout-${kind}`];
         el.children.unshift({
@@ -214,14 +211,27 @@ function rehypeStatblocks() {
       const code = el.children.find((c) => c.type === "element") as HastElement | undefined;
       if (!code || code.tagName !== "code") return;
       const cls = ((code.properties?.className as string[] | undefined) ?? []).join(" ");
-      if (!/language-(ad-)?statblock/.test(cls)) return;
+      const stat = cls.match(/language-(ad-)?statblock/);
+      const admon = !stat && cls.match(/language-ad-([\w-]+)/);
+      if (!stat && !admon) return;
       const text = hastText(code);
-      const title = text.match(/^title:\s*(.+)$/m)?.[1]?.trim() ?? "Stat block";
-      (el.properties ??= {} as any).className = ["statblock"];
+      const title = text.match(/^title:\s*(.+)$/m)?.[1]?.trim() ?? (admon ? admon[1] : "Stat block");
+      // The title is chrome, not content: lift it to the head and drop
+      // the raw line so it does not render twice.
+      for (const child of code.children) {
+        if (child.type === "text") {
+          const v = (child as HastText).value.replace(/^title:\s*.+$/m, "").replace(/^\n/, "");
+          if (v !== (child as HastText).value) {
+            (child as HastText).value = v;
+            break;
+          }
+        }
+      }
+      (el.properties ??= {} as any).className = [stat ? "statblock" : "admonition", ...(admon ? [`admonition-${admon[1]}`] : [])];
       el.children.unshift({
         type: "element",
         tagName: "div",
-        properties: { className: ["statblock__head"] },
+        properties: { className: [stat ? "statblock__head" : "admonition__head"] },
         children: [{ type: "text", value: title }],
       } as any);
     });

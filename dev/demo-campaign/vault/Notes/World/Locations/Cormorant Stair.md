@@ -22,6 +22,17 @@ are wet the whole day. Below the landing the cut widens into a basin, and
 there is a stone sill at the basin mouth that the *Gannet* could cross
 and nothing wider could.
 
+> [!warning] The second hour
+> After the second hour of the flood the cut runs too fast to row. Time
+> the descent for slack water, or do not come back up.
+
+```ad-tip
+title: Running the Stair
+The cut is a set piece, not a corridor: read the water first, the walls
+second, and the basin last. If the party rushes it, the tide does the
+describing.
+```
+
 > [!secret] The room at the bottom
 > Under the basin there is a room, and the room is dry, and the room is
 > where the Brinebacks keep the ledger — the real one, in ink, with the
