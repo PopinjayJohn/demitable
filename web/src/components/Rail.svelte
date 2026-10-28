@@ -19,7 +19,7 @@
 
 <style>
   .rail {
-    width: var(--inspector-width);
+    width: var(--rail-width, 16rem);
     min-height: 0;
     border-inline-start: 1px solid var(--border-subtle);
     background: var(--bg-surface-2);

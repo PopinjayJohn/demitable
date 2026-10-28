@@ -119,7 +119,7 @@
   .note-head__actions { display: flex; gap: var(--space-2); flex: none; }
   .eye-banner { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--accent-subtle); border-block-end: 1px solid var(--accent-border); font-size: var(--text-xs); }
   .note-body { flex: 1; overflow-y: auto; padding: var(--space-4); }
-  .note-body.cols :global(.prose) { columns: 2; column-gap: var(--space-6); }
+  .note-body.cols :global(.prose) { columns: 2; column-gap: var(--space-6); max-width: none; }
   .absent { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-4); text-align: center; color: var(--fg-muted); margin: auto; }
   .absent h3 { font-size: var(--text-base); color: var(--fg-default); }
   .absent p { font-size: var(--text-sm); max-width: 30rem; }

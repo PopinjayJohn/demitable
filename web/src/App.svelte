@@ -134,9 +134,49 @@
     try {
       results = await fetchNotes({ q: searchQuery } as any);
       searchStatus = `${results.length} notes`;
-      showResults = searchQuery.trim() !== "" && results.length > 0;
+      const show = searchQuery.trim() !== "" && results.length > 0;
+      showResults = show;
+      if (show) placeResults();
     } catch (e: any) { searchStatus = e?.message ?? "search failed"; }
   }
+
+  // Live search while typing, debounced. Clearing the box dismisses.
+  let searchTimer: any = null;
+  let searchBox = $state<HTMLDivElement | null>(null);
+  let searchPanel = $state<HTMLUListElement | null>(null);
+  let searchPos = $state({ left: 0, top: 0, width: 320 });
+  function onSearchInput() {
+    clearTimeout(searchTimer);
+    if (searchQuery.trim() === "") { showResults = false; return; }
+    searchTimer = setTimeout(() => void doSearch(), 300);
+  }
+  function placeResults() {
+    const r = searchBox?.getBoundingClientRect();
+    if (!r) return;
+    searchPos = { left: Math.max(8, r.left), top: r.bottom + 6, width: Math.max(r.width, 260) };
+  }
+  function dismissResults() { showResults = false; }
+  function onSearchKey(e: KeyboardEvent) {
+    if (e.key === "Enter") { clearTimeout(searchTimer); void doSearch(); }
+    if (e.key === "Escape") { dismissResults(); (e.target as HTMLElement)?.blur?.(); }
+  }
+  $effect(() => {
+    if (!showResults) return;
+    placeResults();
+    const onResize = () => placeResults();
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node | null;
+      if (t && searchPanel?.contains(t)) return;
+      if (t && searchBox?.contains(t)) return;
+      dismissResults();
+    };
+    window.addEventListener("resize", onResize);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  });
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
@@ -197,8 +237,10 @@
 
     {#if principal}
       <div class="topbar__center">
-        <input placeholder="Search names and prose…" bind:value={searchQuery} onkeydown={(e) => e.key === "Enter" && doSearch()} aria-label="Search" />
-        <button class="btn btn--sm" onclick={doSearch}>Search</button>
+        <div class="search-wrap" bind:this={searchBox}>
+          <input placeholder="Search names and prose…" bind:value={searchQuery} oninput={onSearchInput} onkeydown={onSearchKey} aria-label="Search" aria-expanded={showResults} role="combobox" aria-controls="search-results" />
+          <button class="btn btn--sm" onclick={doSearch}>Search</button>
+        </div>
         <label class="tool">eye <input type="checkbox" checked={appState.playerEye} onchange={(e) => toggleEye(e.currentTarget.checked)} aria-label="Player eye" /></label>
         <select bind:value={appState.eyeTarget} aria-label="Player-eye target" title="Account to borrow eyes from (GM preview-as)">
           <option value="">eye: —</option>
@@ -247,7 +289,12 @@
   {/if}
 
   {#if showResults && results.length > 0}
-    <ul class="results" role="listbox" aria-label="Search results">
+    <ul class="results" role="listbox" id="search-results" aria-label="Search results" bind:this={searchPanel}
+        style={`left:${searchPos.left}px; top:${searchPos.top}px; width:min(${searchPos.width}px, 92vw);`}>
+      <li class="results__head">
+        <span class="mono">{results.length} found</span>
+        <button class="iconbtn" onclick={dismissResults} aria-label="Close search results" title="Close (Esc)">×</button>
+      </li>
       {#each results.slice(0, 8) as n (n.uid)}
         <li><button class="result" onclick={() => openNote(String(n.uid))}>{String(n.name ?? n.uid)}</button></li>
       {/each}
@@ -318,7 +365,8 @@
   #shell { height: 100dvh; background: var(--bg-canvas); color: var(--fg-default); font-family: var(--font-sans, system-ui); display: flex; flex-direction: column; overflow: hidden; }
   .topbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-4); min-height: var(--topbar-height); padding: var(--space-2) var(--space-4); background: var(--bg-surface); border-block-end: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: var(--z-sticky); }
   .topbar__left { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
-  .topbar__center { display: flex; align-items: center; gap: var(--space-2); justify-content: center; position: relative; min-width: 0; }
+  .topbar__center { display: flex; align-items: center; gap: var(--space-2); justify-content: center; min-width: 0; }
+  .search-wrap { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
   .topbar__right { display: flex; align-items: center; gap: var(--space-2); margin-inline-start: auto; flex-wrap: wrap; justify-content: flex-end; }
   .iconbtn { background: none; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; color: var(--fg-muted); padding: var(--space-1); display: inline-flex; }
   .iconbtn:hover { background: var(--bg-surface-3); }
@@ -337,14 +385,14 @@
   .tool select { font-size: var(--text-xs); }
   .principal-chip { font-size: var(--text-xs); }
   .results {
-    position: fixed; inset-block-start: calc(var(--topbar-height) + 4px);
-    inset-inline-start: 50%; transform: translateX(-50%);
-    width: min(30rem, 90vw); max-height: 50vh; overflow-y: auto;
+    position: fixed;
+    z-index: var(--z-dropdown);
+    max-height: min(50vh, 24rem); overflow-y: auto;
     list-style: none; padding: var(--space-1); margin: 0;
     background: var(--bg-surface); border: 1px solid var(--border-default);
     border-radius: var(--radius-md); box-shadow: var(--shadow-3);
-    z-index: var(--z-dropdown);
   }
+  .results__head { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-1) var(--space-1); font-size: var(--text-2xs); color: var(--fg-subtle); }
   .result { width: 100%; text-align: start; background: none; border: none; cursor: pointer; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-sm); color: var(--fg-default); }
   .result:hover { background: var(--bg-surface-2); }
   .playerbar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--bg-surface-2); border-block-end: 1px solid var(--border-subtle); }
