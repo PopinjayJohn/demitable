@@ -543,3 +543,39 @@ func TestF2C_UnboundDisplayRefused(t *testing.T) {
 		t.Fatalf("unbound display expected refused, got %d", status)
 	}
 }
+
+func TestF2C_VisibleToExclusionDenied(t *testing.T) {
+	dir, v, srv, gmToken := f2bEnv(t)
+	sid, code := f2bCreateSession(t, srv, gmToken)
+	f2bAddNote(t, dir, v, "pc1", "PC One", "seat1", "party")
+	f2bAddSeat(t, srv, gmToken, sid, "pc", "pc1", "")
+	seatToken := mustSeatToken(t, srv, sid, code)
+	eid := f2cCreateEncounter(t, srv, gmToken, sid, map[string]any{
+		"name": "e1", "system": "dnd5e",
+		"tokens": []map[string]any{
+			{"id": "t1", "note_uid": "pc1", "side": "party", "hidden": false, "x": 0, "y": 0, "visible_to": []string{"__nobody__"}},
+		},
+		"initiative": []string{"pc1"},
+	})
+	// move -> 403 (token not visible via visible_to)
+	status, body := f2cMoveToken(t, srv, seatToken, sid, eid, "t1", 1, 1)
+	if status != http.StatusForbidden {
+		t.Fatalf("visible_to excluded move expected 403, got %d: %s", status, body)
+	}
+	// PATCH update -> 403
+	bb, _ := json.Marshal(map[string]any{"tokens": []map[string]any{
+		{"id": "t1", "note_uid": "pc1", "side": "party", "hidden": false, "x": 5, "y": 5},
+	}})
+	req, _ := http.NewRequest("PATCH", srv.URL+"/api/v1/sessions/"+sid+"/encounters/"+eid, bytes.NewReader(bb))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+seatToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	rb, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("visible_to excluded patch expected 403, got %d: %s", resp.StatusCode, string(rb))
+	}
+}

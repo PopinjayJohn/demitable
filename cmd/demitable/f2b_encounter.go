@@ -871,7 +871,11 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 						writeErr(w, "forbidden", "structural change not allowed", http.StatusForbidden)
 						return
 					}
-					// ownership + turn check for position changes
+					// ownership + turn check for position changes.
+					// Defense-in-depth only (see the move handler): this branch
+					// is unreachable through the current API because seats mint
+					// with an empty Bound and fog denies first. Kept as the
+					// last line of defence if visibility is ever widened.
 					if nt.X != old.X || nt.Y != old.Y {
 						seatChar := principal.Bound
 						if seatChar == "" && sid != "" {
@@ -1299,7 +1303,16 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				writeErr(w, "forbidden", "token not visible", http.StatusForbidden)
 				return
 			}
-			// ownership: token must belong to the seat
+			// ownership: token must belong to the seat.
+			// Defense-in-depth only: this branch is unreachable through the
+			// current API. Seats minted via the join flow carry an empty
+			// Bound (and empty Campaigns), and tokenVisible (the fog) denies
+			// the move above for any token whose note is not visible to that
+			// seat before ownership is ever evaluated. Reaching this check
+			// would require seat minting to bind a character note (Bound != "")
+			// AND a visibility carve-out that lets a seat see a token it does
+			// not own — neither exists today. Keep the check: it is the last
+			// line of defence if a future change widens visibility.
 			seatChar := principal.Bound
 			if seatChar == "" && sid != "" && seatID != "" {
 				if ss, ok, _ := sess.FindSeat(sid, seatID); ok {
