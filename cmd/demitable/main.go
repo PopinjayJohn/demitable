@@ -597,6 +597,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+		if principal.IsSeat() && !principal.IsGM() {
+			if n.Type != "character" || (n.Player != principal.Bound && n.Player != principal.ID) {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+		}
 		if n.Workflow == "submitted" && !principal.IsGM() {
 			http.Error(w, "submitted note is read-only", http.StatusForbidden)
 			return
@@ -656,6 +662,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if !vault.Visible(principal, *n) {
 			http.NotFound(w, r)
 			return
+		}
+		if principal.IsSeat() && !principal.IsGM() {
+			if n.Type != "character" || (n.Player != principal.Bound && n.Player != principal.ID) {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
 		}
 		if n.Workflow == "submitted" && !principal.IsGM() {
 			http.Error(w, "submitted note is read-only", http.StatusForbidden)
@@ -1359,6 +1371,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		sessionLimiter := newSessionCodeLimiter()
 		sessionHandlers(m, vlt, sessStore, audit, sessionLimiter, tokenKeyFor(vlt))
 		encounterHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
+		writebackHandlers(m, vlt, sessStore, audit, tokenKeyFor(vlt))
 	}
 
 	// Import (N8).
@@ -1473,6 +1486,12 @@ func jsonValueToFrontmatter(v any) frontmatter.Value {
 		out := frontmatter.Value{Kind: frontmatter.KindList}
 		for _, e := range t {
 			out.List = append(out.List, jsonValueToFrontmatter(e))
+		}
+		return out
+	case []string:
+		out := frontmatter.Value{Kind: frontmatter.KindList}
+		for _, e := range t {
+			out.List = append(out.List, frontmatter.String(e))
 		}
 		return out
 	case map[string]any:

@@ -26,17 +26,18 @@ type Change struct {
 
 // Entry is one journal record.
 type Entry struct {
-	ID      string    `json:"id"`
-	TS      time.Time `json:"ts"`
-	Actor   string    `json:"actor"`
-	Source  string    `json:"source"`
-	Op      string    `json:"op"`
-	UID     string    `json:"uid"`
-	Path    string    `json:"path"`
-	BatchID string    `json:"batchId,omitempty"`
-	Before  string    `json:"before"` // sha256:...
-	After   string    `json:"after"`
-	Changes []Change  `json:"changes,omitempty"`
+	ID       string    `json:"id"`
+	TS       time.Time `json:"ts"`
+	Actor    string    `json:"actor"`
+	Source   string    `json:"source"`
+	Op       string    `json:"op"`
+	UID      string    `json:"uid"`
+	Path     string    `json:"path"`
+	BatchID  string    `json:"batchId,omitempty"`
+	Revision int       `json:"revision,omitempty"`
+	Before   string    `json:"before"` // sha256:...
+	After    string    `json:"after"`
+	Changes  []Change  `json:"changes,omitempty"`
 }
 
 func NewJournal(root string) *Journal { return &Journal{Root: root} }
@@ -78,6 +79,12 @@ func (j *Journal) Append(e Entry) error {
 
 // AppendWrite records an app-initiated write: stores before/after blobs.
 func (j *Journal) AppendWrite(actor, source, op, uid, relPath, batchID string, beforeContent, afterContent []byte, changes []Change) (Entry, error) {
+	return j.AppendWriteWithRevision(actor, source, op, uid, relPath, batchID, 0, beforeContent, afterContent, changes)
+}
+
+// AppendWriteWithRevision is AppendWrite with an explicit revision number for
+// session write-back idempotency (ADR-0039).
+func (j *Journal) AppendWriteWithRevision(actor, source, op, uid, relPath, batchID string, revision int, beforeContent, afterContent []byte, changes []Change) (Entry, error) {
 	if err := j.ensureDirs(); err != nil {
 		return Entry{}, err
 	}
@@ -90,22 +97,22 @@ func (j *Journal) AppendWrite(actor, source, op, uid, relPath, batchID string, b
 		return Entry{}, err
 	}
 	e := Entry{
-		ID:      newEntryID(),
-		TS:      time.Now().UTC(),
-		Actor:   actor,
-		Source:  source,
-		Op:      op,
-		UID:     uid,
-		Path:    relPath,
-		BatchID: batchID,
-		Before:  "sha256:" + beforeHash,
-		After:   "sha256:" + afterHash,
-		Changes: changes,
+		ID:       newEntryID(),
+		TS:       time.Now().UTC(),
+		Actor:    actor,
+		Source:   source,
+		Op:       op,
+		UID:      uid,
+		Path:     relPath,
+		BatchID:  batchID,
+		Revision: revision,
+		Before:   "sha256:" + beforeHash,
+		After:    "sha256:" + afterHash,
+		Changes:  changes,
 	}
 	if err := j.Append(e); err != nil {
 		return Entry{}, err
 	}
-	// re-read to get ID? Append sets ID before encode but Entry passed by value not updated. Fix: set ID before.
 	return e, nil
 }
 
@@ -180,9 +187,13 @@ func (j *Journal) RevertBatch(batchID string) error {
 	}
 	var batch []Entry
 	for _, e := range entries {
-		if e.BatchID == batchID {
-			batch = append(batch, e)
+		if e.BatchID != batchID {
+			continue
 		}
+		if e.Op == "tombstone" {
+			continue
+		}
+		batch = append(batch, e)
 	}
 	// reverse order
 	for i := len(batch) - 1; i >= 0; i-- {
