@@ -68,8 +68,10 @@ func Visible(p Principal, n Note) bool {
 	}
 
 	// Widening rules, applied after the constraints. None of them may reopen
-	// an absolute deny or the workflow gate (ADR-0057).
-	if !absoluteDeny {
+	// an absolute deny or the workflow gate (ADR-0057). The display
+	// principal is never widened: it is party-only (ADR-0048). Grants,
+	// discovery and seat binding must not promote a note to the screen.
+	if !absoluteDeny && !p.IsDisplay() {
 		// W3: a seat's binding is part of its identity.
 		if seatBound {
 			return true
@@ -101,6 +103,7 @@ func Visible(p Principal, n Note) bool {
 	switch vis {
 	case "public":
 		// The display resolves to party-visible content only (ADR-0048).
+		// Display must not see owner/granted/discovered content.
 		if p.IsDisplay() {
 			return false
 		}
@@ -270,7 +273,13 @@ func projectBody(p Principal, n Note) string {
 	last := 0
 	for _, blk := range findSecretBlocks(body, pack) {
 		if blk.ID != "" && contains(n.Revealed, blk.ID) {
-			continue // revealed: keep the block
+			if revealVisibleTo(p, n, blk.ID) {
+				continue // revealed: keep the block
+			}
+			// revealed to someone else: strip
+			b.WriteString(body[last:blk.Start])
+			last = blk.End
+			continue
 		}
 		b.WriteString(body[last:blk.Start])
 		last = blk.End
