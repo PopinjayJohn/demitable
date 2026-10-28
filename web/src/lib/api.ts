@@ -23,6 +23,16 @@ export interface NoteDoc {
   hash: string;
   effectiveVisibility?: string;
   defaulted?: boolean;
+  // Projected view fields (owner-scoped ones present only when allowed).
+  type?: string;
+  visibility?: string;
+  workflow?: string;
+  campaign?: string;
+  kind?: string;
+  player?: string;
+  grants?: string[];
+  revealed?: unknown;
+  discovered?: string[];
 }
 
 export interface SearchParams {
@@ -106,6 +116,8 @@ export async function fetchNote(uid: string, opts: { as?: string } = {}): Promis
   const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}${q}`);
   if (!res.ok) throw await parseError(res);
   const json = (await res.json()) as any;
+  const view = (json.view ?? {}) as Record<string, unknown>;
+  const pick = (k: string) => (json[k] !== undefined ? json[k] : view[k]);
   return {
     uid: json.uid,
     path: json.path,
@@ -114,6 +126,15 @@ export async function fetchNote(uid: string, opts: { as?: string } = {}): Promis
     hash: json.hash ?? "",
     effectiveVisibility: json.effective_visibility,
     defaulted: json.defaulted,
+    type: pick("type") as string | undefined,
+    visibility: pick("visibility") as string | undefined,
+    workflow: pick("workflow") as string | undefined,
+    campaign: pick("campaign") as string | undefined,
+    kind: pick("kind") as string | undefined,
+    player: pick("player") as string | undefined,
+    grants: (pick("grants") ?? undefined) as string[] | undefined,
+    revealed: pick("revealed"),
+    discovered: (pick("discovered") ?? undefined) as string[] | undefined,
   };
 }
 

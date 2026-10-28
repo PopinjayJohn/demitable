@@ -13,7 +13,7 @@
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
-    appState.go("wiki", "browser");
+    appState.go("wiki", "viewer");
   }
 
   function onBestiaryDrag(uid: string, ev: DragEvent) {
@@ -32,7 +32,7 @@
     <div class="side-block">
       <h3 class="side-title">Wiki</h3>
       <ul class="side-list">
-        {#each [["home", "Home", "scroll"], ["browser", "Browser", "list"], ["editor", "Editor", "pencil"], ["player", "Player view", "eye"], ["chat", "Chat", "note"]] as [id, label, icon]}
+        {#each [["home", "Home", "scroll"], ["explorer", "Vault explorer", "list"], ["viewer", "Viewer", "eye"], ["editor", "Editor", "pencil"], ["player", "Player view", "user"], ["chat", "Chat", "note"]] as [id, label, icon]}
           <li>
             <button class="side-item" class:is-active={appState.wikiView === id} onclick={() => (appState.wikiView = id as any)}>
               <Icon name={icon as any} size={14} /><span>{label}</span>

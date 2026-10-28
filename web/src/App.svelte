@@ -16,7 +16,8 @@
   import SessionButton from "./components/SessionButton.svelte";
   import SessionJournal from "./components/SessionJournal.svelte";
   import JournalDrawer from "./components/JournalDrawer.svelte";
-  import Browser from "./surfaces/Browser.svelte";
+  import VaultExplorer from "./surfaces/VaultExplorer.svelte";
+  import Viewer from "./surfaces/Viewer.svelte";
   import Home from "./surfaces/Home.svelte";
   import NoteEditor from "./surfaces/NoteEditor.svelte";
   import CharacterPanel from "./surfaces/CharacterPanel.svelte";
@@ -139,7 +140,7 @@
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
-    appState.go("wiki", "browser");
+    appState.go("wiki", "viewer");
     showResults = false;
   }
 
@@ -280,8 +281,10 @@
         {#if appState.group === "wiki"}
           {#if appState.wikiView === "home"}
             <Home />
-          {:else if appState.wikiView === "browser"}
-            <Browser />
+          {:else if appState.wikiView === "explorer"}
+            <VaultExplorer />
+          {:else if appState.wikiView === "viewer"}
+            <Viewer />
           {:else if appState.wikiView === "editor"}
             <NoteEditor />
           {:else if appState.wikiView === "player"}

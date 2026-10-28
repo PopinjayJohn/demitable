@@ -5,7 +5,7 @@
 import type { Snippet } from "svelte";
 
 export type Group = "wiki" | "vtt" | "creator";
-export type WikiView = "home" | "browser" | "editor" | "player" | "chat";
+export type WikiView = "home" | "explorer" | "viewer" | "editor" | "player" | "chat";
 export type Surface = "dashboard" | "editor" | "characters" | "player" | "tabletop" | "chat";
 export type Proof = "none" | "greyscale" | "flat-hue" | "protanopia" | "deuteranopia" | "tritanopia";
 
@@ -62,7 +62,7 @@ class AppState {
   get surface(): Surface {
     if (this.group === "vtt") return "tabletop";
     if (this.group === "creator") return "characters";
-    if (this.wikiView === "browser" || this.wikiView === "home") return "dashboard";
+    if (this.wikiView === "explorer" || this.wikiView === "home") return "dashboard";
     if (this.wikiView === "editor") return "editor";
     if (this.wikiView === "player") return "player";
     return "chat";
@@ -90,23 +90,32 @@ export function applyThemeProof() {
 }
 
 // GM-only blocks in a markdown source: [!secret] callouts, ad-secret fences,
-// gm:true statblocks. Block id is ^id on the fence/callout or generated.
+// gm:true statblocks. The block id is the ^id on any line of the block
+// (conventionally the last); without one an s1, s2… fallback is used.
 export interface SecretRef { id: string; label: string; }
 export function findSecrets(src: string): SecretRef[] {
   const out: SecretRef[] = [];
   const lines = src.split("\n");
   let n = 0;
-  for (const ln of lines) {
-    const t = ln.trim();
-    const m = t.match(/^\s*(?:>\s*)?\[!(secret[^\]]*)\]/i) || t.match(/```ad-secret/i);
-    const gm = t.match(/```statblock/i) && /gm\s*:\s*true/i.test(src);
-    if (m || (t.startsWith("```") && /secret/i.test(t))) {
-      const idm = ln.match(/\^([\w-]+)/);
-      out.push({ id: idm ? idm[1] : `s${++n}`, label: typeof m?.[1] === "string" ? m[1] : "secret" });
-    } else if (gm) {
-      const idm = ln.match(/\^([\w-]+)/);
-      out.push({ id: idm ? idm[1] : `s${++n}`, label: "statblock" });
+  const isQuote = (t: string) => /^\s*>/.test(t);
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    const m = t.match(/^\s*(?:>\s*)?\[!(secret[^\]]*)\]/i) || t.match(/```ad-secret/i) || (t.match(/```statblock/i) && /gm\s*:\s*true/i.test(src)) || (t.startsWith("```") && /secret/i.test(t));
+    if (!m) continue;
+    // Scan the whole block for a ^blockid: the rest of a callout, or
+    // the rest of the fence.
+    let id = "";
+    const fenced = t.startsWith("```");
+    for (let j = i; j < lines.length; j++) {
+      if (j > i) {
+        if (fenced && /^\s*```/.test(lines[j])) break;
+        if (!fenced && !isQuote(lines[j].trim()) && lines[j].trim() !== "") break;
+      }
+      const idm = lines[j].match(/\^([\w-]+)/);
+      if (idm) { id = idm[1]; break; }
     }
+    out.push({ id: id || `s${++n}`, label: typeof (m as any)?.[1] === "string" ? (m as any)[1] : "secret" });
+    if (id) n++;
   }
   return out;
 }
