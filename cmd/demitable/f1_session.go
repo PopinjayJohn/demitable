@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -834,6 +835,100 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		m.HandleFunc("POST "+base, scratchPost)
 	}
 
+	// F3b: display binding. A session binds at most one display token.
+	// at most one = one token value per session; no rotation/revocation
+	bindDisplay := func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		principal := principalFromRequest(r, tk)
+		if !principal.IsGM() {
+			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
+			return
+		}
+		sessObj, err := sess.GetSession(id)
+		if err != nil || sessObj == nil {
+			writeErr(w, "not_found", "no such session", http.StatusNotFound)
+			return
+		}
+		if tok, ok := displayTokens.Load(id); ok {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"token": tok, "display_token": tok})
+			return
+		}
+		tok, err := issueToken(tk, tokenClaims{
+			Kind:      "display",
+			ID:        "",
+			Bound:     "",
+			Session:   id,
+			Campaigns: displayCampaigns(sessObj),
+		})
+		if err != nil {
+			writeErr(w, "internal", "token issue failed", http.StatusInternalServerError)
+			return
+		}
+		displayTokens.Store(id, tok)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"token": tok, "display_token": tok, "display": tok})
+	}
+	for _, pth := range []string{
+		"POST /api/v1/sessions/{id}/display",
+		"POST /api/v1/sessions/{id}/display/bind",
+		"POST /api/v1/sessions/{id}/display/token",
+	} {
+		m.HandleFunc(pth, bindDisplay)
+	}
+
+	// F3b: display state. Resolves party-only content for the display principal.
+	displayState := func(w http.ResponseWriter, r *http.Request) {
+		sid := r.PathValue("id")
+		principal := principalFromRequest(r, tk)
+		if sid != "" {
+			// allow GM to impersonate display for that session
+			if principal.IsGM() {
+				if ss, _ := sess.GetSession(sid); ss != nil {
+					principal = vault.Display(displayCampaigns(ss)...)
+				}
+			}
+		}
+		if !principal.IsDisplay() && !principal.IsGM() {
+			writeErr(w, "unauthorized", "display token required", http.StatusUnauthorized)
+			return
+		}
+		// If a session id is present but principal has no campaigns, try session campaigns.
+		if len(principal.Campaigns) == 0 && sid != "" {
+			if ss, _ := sess.GetSession(sid); ss != nil {
+				principal = vault.Display(displayCampaigns(ss)...)
+			}
+		} else if principal.IsGM() && sid != "" && len(principal.Campaigns) == 0 {
+			if ss, _ := sess.GetSession(sid); ss != nil {
+				principal = vault.Display(displayCampaigns(ss)...)
+			}
+		}
+		if principal.IsDisplay() && len(principal.Campaigns) == 0 && sid != "" {
+			if ss, _ := sess.GetSession(sid); ss != nil {
+				principal = vault.Display(displayCampaigns(ss)...)
+			}
+		}
+		notes := vlt.List(principal, vault.Query{})
+		out := make([]vault.NoteView, 0, len(notes))
+		for _, n := range notes {
+			out = append(out, vault.Project(principal, n))
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"items": out,
+			"notes": out,
+			"count": len(out),
+		})
+	}
+	for _, pth := range []string{
+		"GET /api/v1/display",
+		"GET /api/v1/display/state",
+		"GET /api/v1/sessions/{id}/display",
+		"GET /api/v1/sessions/{id}/display/state",
+	} {
+		m.HandleFunc(pth, displayState)
+	}
+
 }
 
 func seatToMap(st session.Seat) map[string]any {
@@ -887,4 +982,24 @@ func playableCharacter(vlt *vault.Vault, sess *session.Store, sessionID, account
 	}
 	// unassigned NPC or other player's character rejected
 	return false
+}
+
+// displayTokens binds a session id to at most one display token (F3b).
+var displayTokens sync.Map
+
+func displayCampaigns(s *session.Session) []string {
+	out := []string{}
+	if s == nil {
+		return out
+	}
+	if s.Campaign != "" {
+		out = append(out, s.Campaign)
+		c := s.Campaign
+		if !strings.HasPrefix(c, "[[") {
+			out = append(out, "[["+c+"]]")
+		} else {
+			out = append(out, strings.TrimPrefix(strings.TrimSuffix(c, "]]"), "[["))
+		}
+	}
+	return out
 }

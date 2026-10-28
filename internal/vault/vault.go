@@ -33,19 +33,20 @@ const (
 
 // Note is one parsed note in the vault.
 type Note struct {
-	Path       string // vault-relative, slash-separated
-	UID        string
-	Name       string
-	Type       string
-	System     string
-	Campaign   string
-	Kind       string
-	Player     string
-	Workflow   string
-	Visibility string
-	Grants     []string
-	Revealed   []string
-	Discovered []string
+	Path             string // vault-relative, slash-separated
+	UID              string
+	Name             string
+	Type             string
+	System           string
+	Campaign         string
+	Kind             string
+	Player           string
+	Workflow         string
+	Visibility       string
+	Grants           []string
+	Revealed         []string
+	RevealedAudience map[string]RevealAudience
+	Discovered       []string
 
 	// Raw is the original file bytes.
 	Raw []byte
@@ -301,7 +302,9 @@ func (v *Vault) parseFile(rel string) (*Note, error) {
 			case "grants":
 				note.Grants = stringSlice(val)
 			case "revealed":
-				note.Revealed = stringSlice(val)
+				ids, aud := parseRevealed(val)
+				note.Revealed = ids
+				note.RevealedAudience = aud
 			case "discovered":
 				note.Discovered = stringSlice(val)
 			default:

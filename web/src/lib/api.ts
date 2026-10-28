@@ -165,3 +165,24 @@ export async function patchNote(uid: string, fields: Record<string, unknown>): P
     defaulted: json.defaulted,
   };
 }
+
+export async function createNote(input: Record<string, unknown>): Promise<any> {
+  const res = await apiFetch(`/api/v1/notes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
+}
+
+export async function sendChatMessage(input: { campaign?: string; name?: string; content?: string; visibility?: string; player?: string; channel?: string } & Record<string, unknown>): Promise<any> {
+  const body: Record<string, unknown> = {
+    type: "message",
+    ...input,
+  };
+  if (body.content === undefined && (input as any).body !== undefined) {
+    body.content = (input as any).body;
+  }
+  return createNote(body);
+}
