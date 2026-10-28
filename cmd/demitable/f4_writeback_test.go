@@ -261,6 +261,20 @@ func TestF4D3HigherRevision(t *testing.T) {
 	if sc != 200 {
 		t.Fatalf("apply2 %d %+v", sc, a2)
 	}
+	// M8: tombstone entry for superseded revision with non-empty path
+	{
+		ents, _ := vault.NewJournal(dir).List()
+		found := false
+		for _, e := range ents {
+			if e.Op == "tombstone" && e.Revision == 1 && e.Path != "" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatal("no tombstone entry for superseded revision")
+		}
+	}
 	// verify xp=10
 	v.Load()
 	n := v.GetNote("char1")
@@ -318,6 +332,14 @@ func TestF4D3HigherRevision(t *testing.T) {
 	n2 := v.GetNote("char1")
 	if !strings.Contains(string(n2.Raw), "xp: 5") {
 		t.Fatalf("not restored: %s", n2.Raw)
+	}
+	// M3: tombstone-revert creates no stray file named after batch id at vault root
+	if _, err := os.Stat(filepath.Join(dir, "b1")); err == nil {
+		t.Fatal("stray file named after batch id exists at vault root")
+	}
+	// no empty-path artifacts: root must remain a directory
+	if fi, err := os.Stat(dir); err != nil || !fi.IsDir() {
+		t.Fatal("vault root damaged")
 	}
 }
 
@@ -404,6 +426,10 @@ func TestF4ConflictSet(t *testing.T) {
 	n2 := v.GetNote("char1")
 	if !strings.Contains(string(n2.Raw), "motto: hi") {
 		t.Fatalf("motto changed: %s", n2.Raw)
+	}
+	// M5: conflicted key (hp) file value byte-identical to pre-apply value
+	if !strings.Contains(string(n2.Raw), "hp: 99") {
+		t.Fatalf("hp changed on conflict: %s", n2.Raw)
 	}
 	// xp applied
 	if !strings.Contains(string(n2.Raw), "xp: 6") {
@@ -732,3 +758,50 @@ func TestF4ExistenceOracle404(t *testing.T) {
 
 // ensure imports used
 var _ = vault.NewJournal
+
+// ---------- close revert all (note + touches) ----------
+func TestF4CloseRevertAll(t *testing.T) {
+	dir, v, srv, gmToken := f1Env(t)
+	f1AddNote(t, dir, v, "char1", "", "gm")
+	content := "---\ntype: character\nuid: char1\nname: char1\ncampaign: \"[[C]]\"\nxp: 5\nvisibility: gm\n---\nbody\n"
+	os.WriteFile(filepath.Join(dir, "char1.md"), []byte(content), 0o644)
+	v.Load()
+	sid, _ := f1CreateSession(t, srv, gmToken)
+	closeBody := map[string]any{
+		"touches": []any{map[string]any{
+			"uid": "char1",
+			"keys": map[string]any{
+				"xp": map[string]any{"base": 5, "value": 7},
+			},
+		}},
+	}
+	resp, out := f4Do(t, "POST", srv.URL+"/api/v1/sessions/"+sid+"/close", gmToken, closeBody)
+	if resp.StatusCode != 200 {
+		t.Fatalf("close %d %+v", resp.StatusCode, out)
+	}
+	batchID, _ := out["batch_id"].(string)
+	if batchID == "" {
+		t.Fatal("empty batch_id")
+	}
+	// revert
+	r2, out2 := f4Do(t, "POST", srv.URL+"/api/v1/journal/batch/"+batchID+"/revert", gmToken, nil)
+	if r2.StatusCode != 200 {
+		r2, out2 = f4Do(t, "POST", srv.URL+"/api/v1/batches/"+batchID+"/revert", gmToken, nil)
+	}
+	if r2.StatusCode != 200 {
+		t.Fatalf("revert %d %+v", r2.StatusCode, out2)
+	}
+	v.Load()
+	n := v.GetNote("char1")
+	if !strings.Contains(string(n.Raw), "xp: 5") {
+		t.Fatalf("touched not restored: %s", n.Raw)
+	}
+	// session note reverted/gone: no Sessions file with original content
+	entries, _ := os.ReadDir(filepath.Join(dir, "Sessions"))
+	for _, e := range entries {
+		b, _ := os.ReadFile(filepath.Join(dir, "Sessions", e.Name()))
+		if strings.Contains(string(b), "# Session") {
+			t.Fatalf("session note survived revert: %s", b)
+		}
+	}
+}
