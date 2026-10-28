@@ -9,6 +9,7 @@
   import { vaultStore } from "./lib/vaultstore.svelte";
   import { appState, applyThemeProof, type Group, type Proof } from "./lib/appstate.svelte";
   import Icon from "./components/Icon.svelte";
+  import { displayName } from "./lib/display";
   import Sidebar from "./components/Sidebar.svelte";
   import Rail from "./components/Rail.svelte";
   import Footer from "./components/Footer.svelte";
@@ -16,6 +17,7 @@
   import SessionJournal from "./components/SessionJournal.svelte";
   import JournalDrawer from "./components/JournalDrawer.svelte";
   import Browser from "./surfaces/Browser.svelte";
+  import Home from "./surfaces/Home.svelte";
   import NoteEditor from "./surfaces/NoteEditor.svelte";
   import CharacterPanel from "./surfaces/CharacterPanel.svelte";
   import PlayerView from "./surfaces/PlayerView.svelte";
@@ -235,7 +237,7 @@
       <select bind:value={newPlayerCampaign} aria-label="New player campaign">
         <option value="">campaign: auto</option>
         {#each campaigns as c}
-          <option value={c}>{c}</option>
+          <option value={c}>{displayName(c)}</option>
         {/each}
       </select>
       <button class="btn btn--sm" onclick={doCreatePlayer}>Mint join code</button>
@@ -276,7 +278,9 @@
       <Sidebar />
       <main class="main">
         {#if appState.group === "wiki"}
-          {#if appState.wikiView === "browser"}
+          {#if appState.wikiView === "home"}
+            <Home />
+          {:else if appState.wikiView === "browser"}
             <Browser />
           {:else if appState.wikiView === "editor"}
             <NoteEditor />

@@ -1,0 +1,57 @@
+---
+type: location
+uid: 01KKPVGEW0BGJQFM3R5HYXYX1Z
+name: The Drowned Quarter
+campaign: "[[The Salt Debt]]"
+visibility: party
+workflow: active
+revealed:
+- id: saltgate
+  all: true
+- id: s1
+  all: true
+- id: s2
+  all: true
+map: "Assets/Maps/Drowned Quarter.svg"
+grants:
+- "*"
+---
+
+# The Drowned Quarter
+
+The oldest quarter in Saltmere and the one the sea takes first. It was
+built on pilings and lime-brick in the years when the marsh was dry
+enough to be worth building on, and then the sea came back, and the
+quarter learned to live with the tide instead of arguing with it.
+
+Everything here stands a little lower than everywhere else. Doorsteps are
+broad and shallow. Roofs pitch the wrong way, to shed rain into the
+street rather than the lane. In a spring tide the gutters run backwards,
+and the fish-market boys tie their crates to the door rings and go
+indoors, and the market reopens when the water goes down.
+
+The tall salt-pans are at the northern edge, on the flats the marsh keeps
+dry by holding its breath. Below them the quarter falls away into the
+drowned part proper: streets that are canals at half-tide, houses with a
+ground floor and a boat door and not much in between.
+
+The fish-market is at the low end. The tide-house is at the high end.
+Between them runs a lane called **Sallow Lane**, which smells of nothing
+at all, which in Saltmere means it is the most expensive street in the
+city.
+
+The street ends at a wall of salt-block with a door in it that the tide
+does not reach.
+
+> [!secret] The north door
+> The drowned door in the north wall is not a collapsed cellar. It is a
+> customs door: the Crown has taxed the marsh itself for forty years, and
+> every unwatched tide has run salt through it. Hessa Cray told the party
+> this in the fish-market, and they did not believe her until the tide came
+> up over the sill and a lighter went through without stopping. ^saltgate
+
+> [!secret] The salt-line
+> The bloom on the Causeway water ran a mile before it went, and it left a
+> white line on the tide wall that is still there, because nobody has
+> scrubbed it and nobody will. It is the only piece of evidence of what
+> was in the crate, and it will still be there at the spring tide. ^saltline

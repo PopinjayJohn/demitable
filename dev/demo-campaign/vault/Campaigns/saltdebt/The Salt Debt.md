@@ -7,6 +7,7 @@ visibility: party
 workflow: active
 members: [p_ilva, p_orson, p_wren]
 packs: [example]
+home: "[[Saltmere]]"
 ---
 
 # The Salt Debt

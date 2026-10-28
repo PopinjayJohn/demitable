@@ -5,7 +5,7 @@
 import type { Snippet } from "svelte";
 
 export type Group = "wiki" | "vtt" | "creator";
-export type WikiView = "browser" | "editor" | "player" | "chat";
+export type WikiView = "home" | "browser" | "editor" | "player" | "chat";
 export type Surface = "dashboard" | "editor" | "characters" | "player" | "tabletop" | "chat";
 export type Proof = "none" | "greyscale" | "flat-hue" | "protanopia" | "deuteranopia" | "tritanopia";
 
@@ -20,7 +20,7 @@ function storedBool(key: string, fallback: boolean): boolean {
 
 class AppState {
   group: Group = $state<Group>("wiki");
-  wikiView: WikiView = $state<WikiView>("browser");
+  wikiView: WikiView = $state<WikiView>("home");
   theme: "light" | "dark" = $state("light");
   proof: Proof = $state("none");
   selectedUid: string | null = $state(null);
@@ -62,7 +62,7 @@ class AppState {
   get surface(): Surface {
     if (this.group === "vtt") return "tabletop";
     if (this.group === "creator") return "characters";
-    if (this.wikiView === "browser") return "dashboard";
+    if (this.wikiView === "browser" || this.wikiView === "home") return "dashboard";
     if (this.wikiView === "editor") return "editor";
     if (this.wikiView === "player") return "player";
     return "chat";

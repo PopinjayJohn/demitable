@@ -6,6 +6,7 @@
   import { vaultStore } from "../lib/vaultstore.svelte";
   import { appState } from "../lib/appstate.svelte";
   import Icon from "./Icon.svelte";
+  import { displayName } from "../lib/display";
 
   let open = $state(false);
   let name = $state("");
@@ -51,7 +52,7 @@
           <select bind:value={campaign} aria-label="Session campaign">
             <option value="">auto</option>
             {#each vaultStore.campaigns as [c]}
-              <option value={c}>{c}</option>
+              <option value={c}>{displayName(c)}</option>
             {/each}
           </select>
         </label>

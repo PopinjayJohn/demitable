@@ -10,6 +10,7 @@
   import MarkdownView from "../components/MarkdownView.svelte";
   import Icon from "../components/Icon.svelte";
   import { appState, findSecrets } from "../lib/appstate.svelte";
+  import { displayName } from "../lib/display";
   import { getToken } from "../lib/auth";
   import type { NoteSummary } from "../lib/api";
 
@@ -128,7 +129,7 @@
       <h2 class="list-head__title">Notes{#if eyeAs} <span class="tag">as {eyeAs}</span>{/if}</h2>
       {#if appState.campaignFilter}
         <div class="campaign-chip">
-          <span class="tag"><Icon name="scroll" size={11} /> {appState.campaignFilter}</span>
+          <span class="tag"><Icon name="scroll" size={11} /> {displayName(appState.campaignFilter)}</span>
           <button class="btn btn--sm" onclick={() => (appState.campaignFilter = null)}>Clear</button>
         </div>
       {/if}

@@ -6,6 +6,7 @@
   import { vaultStore } from "../lib/vaultstore.svelte";
   import VisibilityBadge from "./VisibilityBadge.svelte";
   import VaultTree from "./VaultTree.svelte";
+  import { displayName } from "../lib/display";
   import Icon from "./Icon.svelte";
 
   const collapsed = $derived(appState.sidebarCollapsed);
@@ -31,7 +32,7 @@
     <div class="side-block">
       <h3 class="side-title">Wiki</h3>
       <ul class="side-list">
-        {#each [["browser", "Browser", "scroll"], ["editor", "Editor", "pencil"], ["player", "Player view", "eye"], ["chat", "Chat", "note"]] as [id, label, icon]}
+        {#each [["home", "Home", "scroll"], ["browser", "Browser", "list"], ["editor", "Editor", "pencil"], ["player", "Player view", "eye"], ["chat", "Chat", "note"]] as [id, label, icon]}
           <li>
             <button class="side-item" class:is-active={appState.wikiView === id} onclick={() => (appState.wikiView = id as any)}>
               <Icon name={icon as any} size={14} /><span>{label}</span>
@@ -52,7 +53,7 @@
         {#each vaultStore.campaigns as [name, count]}
           <li>
             <button class="side-item" class:is-active={appState.campaignFilter === name} onclick={() => (appState.campaignFilter = appState.campaignFilter === name ? null : name)} title="Filter the browser to this campaign">
-              <Icon name="scroll" size={14} /><span class="side-item__name">{name}</span><span class="side-count">{count}</span>
+              <Icon name="scroll" size={14} /><span class="side-item__name">{displayName(name)}</span><span class="side-count">{count}</span>
             </button>
           </li>
         {/each}

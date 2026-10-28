@@ -4,6 +4,7 @@
   import { appState } from "../lib/appstate.svelte";
   import { vaultStore } from "../lib/vaultstore.svelte";
   import { DASHBOARD_BUDGET_MS } from "../lib/dashboard";
+  import { displayName } from "../lib/display";
 
   const eye = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
   const topCampaign = $derived(vaultStore.campaigns[0]?.[0] ?? "");
@@ -24,7 +25,7 @@
     <span class="cell mono">{appState.rollStatus}</span>
   {/if}
   <button class="footbtn" onclick={() => (appState.showJournal = !appState.showJournal)} title="App write journal with revert">ops log</button>
-  <span class="cell">{vaultStore.counts.total} notes{#if topCampaign} · {topCampaign}{/if}</span>
+  <span class="cell">{vaultStore.counts.total} notes{#if topCampaign} · {displayName(topCampaign)}{/if}</span>
 </footer>
 
 <style>
