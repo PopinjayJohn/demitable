@@ -182,7 +182,12 @@
 <div class="editor">
   <section class="pane pane--source">
     <header class="pane__head">
-      <h2 class="pane__title"><Icon name="file" size={14} /> Source</h2>
+      <div class="pane__title-group">
+        <button class="btn btn--sm" onclick={() => appState.go("wiki", "viewer")} title="Back to viewer" aria-label="Back to viewer">
+          <Icon name="chevron-left" size={13} /> Back
+        </button>
+        <h2 class="pane__title"><Icon name="file" size={14} /> Source</h2>
+      </div>
       <span class="pane__hint mono">{buffer.length} bytes · {status}</span>
     </header>
     <div class="source-wrap">
@@ -216,6 +221,7 @@
   .pane { display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
   .pane--source { border-inline-end: 1px solid var(--border-subtle); background: var(--bg-surface-2); }
   .pane__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--border-subtle); background: var(--bg-surface); }
+  .pane__title-group { display: flex; align-items: center; gap: var(--space-2); }
   .pane__title { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-muted); }
   .pane__hint { font-size: var(--text-2xs); color: var(--fg-subtle); }
   .pane__foot { padding: var(--space-2) var(--space-3); border-block-start: 1px solid var(--border-subtle); }

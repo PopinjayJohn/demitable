@@ -217,9 +217,11 @@
     }
   });
   $effect(() => { applyThemeProof(); void appState.theme; void appState.proof; });
+  const displayCampaign = $derived(
+    appState.campaignFilter && appState.campaignFilter !== "No campaign" ? appState.campaignFilter : "",
+  );
   $effect(() => {
-    const camp = appState.campaignFilter;
-    document.title = camp ? `Demitable - ${displayName(camp)}` : "Demitable";
+    document.title = displayCampaign ? `Demitable - ${displayName(displayCampaign)}` : "Demitable";
   });
 </script>
 
@@ -229,7 +231,7 @@
       <button class="iconbtn header-toggle" onclick={() => appState.toggleSidebar()} title="Toggle sidebar" aria-label="Toggle sidebar">
         <Icon name={appState.sidebarCollapsed ? "chevron-right" : "chevron-down"} size={16} />
       </button>
-      <span class="brand"><span class="brand__mark" aria-hidden="true">❖</span><h1 class="brand__name">{appState.campaignFilter ? displayName(appState.campaignFilter) : "Demitable"}</h1></span>
+      <span class="brand"><span class="brand__mark" aria-hidden="true">❖</span><h1 class="brand__name">{displayCampaign ? displayName(displayCampaign) : "Demitable"}</h1></span>
       {#if principal}
         <nav class="groups" aria-label="Groups">
           {#each groups as g}

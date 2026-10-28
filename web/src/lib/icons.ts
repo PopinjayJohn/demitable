@@ -7,6 +7,7 @@ export type IconName =
   | "eye"
   | "chevron-down"
   | "chevron-right"
+  | "chevron-left"
   | "quote"
   | "list"
   | "note"
@@ -31,6 +32,7 @@ export const ICON_PATHS: Record<IconName, string> = {
   eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
   "chevron-down": "M6 9l6 6 6-6",
   "chevron-right": "M9 6l6 6-6 6",
+  "chevron-left": "M15 6l-6 6 6 6",
   quote: "M9 7c-2.2 0-4 1.8-4 4v6h6v-6H7c0-1.1.9-2 2-2V7zM19 7c-2.2 0-4 1.8-4 4v6h6v-6h-4c0-1.1.9-2 2-2V7z",
   list: "M9 6h12M9 12h12M9 18h12M4 6h1M4 12h1M4 18h1",
   note: "M4 20h4L20 8l-4-4L4 16v4zM14 6l4 4",

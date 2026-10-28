@@ -118,6 +118,18 @@
 </div>
 
 <style>
+  .markdown { position: relative; container-type: inline-size; }
+  /* Wide single column: dock a stat box out of the text flow so it
+     never impedes prose when there is room — the text keeps its full
+     measure and the box sits in what would otherwise be dead space.
+     (Only matches the single-column layout, where .prose is direct.) */
+  @container (min-width: 60rem) {
+    .markdown:has(> .prose > .statbox) > .prose { padding-inline-end: 19rem; }
+    .markdown:has(> .prose > .statbox) .statbox {
+      position: absolute; inset-block-start: 0; inset-inline-end: 0;
+      width: 16rem; margin: 0; float: none;
+    }
+  }
   .markdown :global(.callout) { margin-block: var(--space-4); padding: var(--space-3); border: 1px solid var(--border-default); border-inline-start-width: 4px; border-radius: var(--radius-md); background: var(--bg-surface-2); }
   .markdown :global(.callout__label) { display: block; font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-subtle); margin-block-end: var(--space-1); }
   .markdown :global(.statblock) { margin-block: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface-2); padding: var(--space-3); }
