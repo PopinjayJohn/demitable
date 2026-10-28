@@ -5,6 +5,7 @@
   import { appState } from "../lib/appstate.svelte";
   import { vaultStore } from "../lib/vaultstore.svelte";
   import VisibilityBadge from "./VisibilityBadge.svelte";
+  import VaultTree from "./VaultTree.svelte";
   import Icon from "./Icon.svelte";
 
   const collapsed = $derived(appState.sidebarCollapsed);
@@ -43,10 +44,24 @@
     <div class="side-block">
       <h3 class="side-title">Campaigns</h3>
       <ul class="side-list">
+        <li>
+          <button class="side-item" class:is-active={appState.campaignFilter === null} onclick={() => (appState.campaignFilter = null)}>
+            <Icon name="globe" size={14} /><span class="side-item__name">All campaigns</span>
+          </button>
+        </li>
         {#each vaultStore.campaigns as [name, count]}
-          <li><span class="side-item"><Icon name="scroll" size={14} /><span class="side-item__name">{name}</span><span class="side-count">{count}</span></span></li>
+          <li>
+            <button class="side-item" class:is-active={appState.campaignFilter === name} onclick={() => (appState.campaignFilter = appState.campaignFilter === name ? null : name)} title="Filter the browser to this campaign">
+              <Icon name="scroll" size={14} /><span class="side-item__name">{name}</span><span class="side-count">{count}</span>
+            </button>
+          </li>
         {/each}
       </ul>
+    </div>
+
+    <div class="side-block">
+      <h3 class="side-title">Vault</h3>
+      <VaultTree notes={vaultStore.notes} />
     </div>
 
     <div class="side-block">
@@ -140,6 +155,7 @@
     background: var(--bg-surface-2);
     padding: var(--space-3) var(--space-4) var(--space-4);
     overflow-y: auto;
+    overflow-x: clip;
     display: flex; flex-direction: column; gap: var(--space-1);
     transition: width var(--duration-base);
   }

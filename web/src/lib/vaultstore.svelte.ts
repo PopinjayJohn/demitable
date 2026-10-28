@@ -17,7 +17,7 @@ class VaultStore {
   get campaigns(): Array<[string, number]> {
     const m = new Map<string, number>();
     for (const n of this.notes) {
-      const name = String((n as any).campaign ?? "No campaign");
+      const name = String((n as any).campaign || "No campaign");
       m.set(name, (m.get(name) ?? 0) + 1);
     }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);

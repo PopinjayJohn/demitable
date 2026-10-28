@@ -12,6 +12,8 @@
   import Sidebar from "./components/Sidebar.svelte";
   import Rail from "./components/Rail.svelte";
   import Footer from "./components/Footer.svelte";
+  import SessionButton from "./components/SessionButton.svelte";
+  import SessionJournal from "./components/SessionJournal.svelte";
   import JournalDrawer from "./components/JournalDrawer.svelte";
   import Browser from "./surfaces/Browser.svelte";
   import NoteEditor from "./surfaces/NoteEditor.svelte";
@@ -48,7 +50,7 @@
   const proofs: Proof[] = ["none", "greyscale", "flat-hue", "protanopia", "deuteranopia", "tritanopia"];
   const eyeCandidates = $derived(accounts.map((a) => a.id).sort());
   const campaigns = $derived(
-    [...new Set(results.map((n) => String((n as any).campaign ?? "")).filter(Boolean))].sort(),
+    [...new Set(results.map((n) => String((n as any).campaign || "No campaign")))].sort(),
   );
   const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
 
@@ -201,13 +203,6 @@
             <option value={id}>eye: {id}</option>
           {/each}
         </select>
-        {#if showResults}
-          <ul class="results" role="listbox" aria-label="Search results">
-            {#each results.slice(0, 8) as n (n.uid)}
-              <li><button class="result" onclick={() => openNote(String(n.uid))}>{String(n.name ?? n.uid)}</button></li>
-            {/each}
-          </ul>
-        {/if}
       </div>
 
       <div class="topbar__right">
@@ -223,9 +218,10 @@
           </select>
         </label>
         {#if principal.kind === "gm"}
+          <SessionButton />
           <button class="btn btn--sm" onclick={() => (showNewPlayer = !showNewPlayer)} title="Create a player account (join code)">+ player</button>
         {/if}
-        <button class="btn btn--sm" onclick={() => (appState.showJournal = !appState.showJournal)}>Journal</button>
+        <button class="btn btn--sm" onclick={() => (appState.showSessionJournal = true)}>Journal</button>
         <button class="btn btn--sm" onclick={doRoll} title="POST /roll into the shared log"><Icon name="dice" size={13} /> Roll</button>
         <span class="tag principal-chip"><Icon name={principal.kind === "gm" ? "shield" : "user"} size={11} /> {principal.kind} {principal.id}</span>
         <button class="btn btn--sm" onclick={doLogout}>Logout</button>
@@ -245,6 +241,14 @@
       <button class="btn btn--sm" onclick={doCreatePlayer}>Mint join code</button>
       <span class="mono playerbar__status" role="status">{searchStatus}</span>
     </div>
+  {/if}
+
+  {#if showResults && results.length > 0}
+    <ul class="results" role="listbox" aria-label="Search results">
+      {#each results.slice(0, 8) as n (n.uid)}
+        <li><button class="result" onclick={() => openNote(String(n.uid))}>{String(n.name ?? n.uid)}</button></li>
+      {/each}
+    </ul>
   {/if}
 
   {#if !principal}
@@ -292,6 +296,10 @@
     <Footer />
   {/if}
 
+  {#if appState.showSessionJournal && principal}
+    <SessionJournal />
+  {/if}
+
   {#if appState.showJournal && principal}
     <div class="journal-overlay">
       <JournalDrawer open={true} onclose={() => (appState.showJournal = false)} />
@@ -316,11 +324,20 @@
   .brand__mark { color: var(--accent); font-size: var(--text-md); }
   .brand__name { font-size: var(--text-md); font-weight: var(--weight-bold); white-space: nowrap; }
   .groups { display: flex; gap: var(--space-1); margin-inline-start: var(--space-2); }
-  .topbar__center input { width: min(22rem, 30vw); padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: var(--text-sm); }
+  .topbar__center input:not([type="checkbox"]) { width: min(22rem, 30vw); padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: var(--text-sm); }
+  .topbar__center input[type="checkbox"] { width: 1rem; height: 1rem; }
   .tool { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-xs); color: var(--fg-muted); white-space: nowrap; }
   .tool select { font-size: var(--text-xs); }
   .principal-chip { font-size: var(--text-xs); }
-  .results { position: absolute; inset-block-start: 100%; inset-inline: 0; margin: var(--space-1) auto 0; max-width: 30rem; list-style: none; padding: var(--space-1); background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: var(--shadow-3); z-index: var(--z-dropdown); }
+  .results {
+    position: fixed; inset-block-start: calc(var(--topbar-height) + 4px);
+    inset-inline-start: 50%; transform: translateX(-50%);
+    width: min(30rem, 90vw); max-height: 50vh; overflow-y: auto;
+    list-style: none; padding: var(--space-1); margin: 0;
+    background: var(--bg-surface); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-3);
+    z-index: var(--z-dropdown);
+  }
   .result { width: 100%; text-align: start; background: none; border: none; cursor: pointer; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-sm); color: var(--fg-default); }
   .result:hover { background: var(--bg-surface-2); }
   .playerbar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--bg-surface-2); border-block-end: 1px solid var(--border-subtle); }

@@ -23,6 +23,7 @@
   {#if appState.rollStatus}
     <span class="cell mono">{appState.rollStatus}</span>
   {/if}
+  <button class="footbtn" onclick={() => (appState.showJournal = !appState.showJournal)} title="App write journal with revert">ops log</button>
   <span class="cell">{vaultStore.counts.total} notes{#if topCampaign} · {topCampaign}{/if}</span>
 </footer>
 
@@ -35,6 +36,8 @@
   }
   .cell { display: inline-flex; align-items: center; gap: var(--space-1); white-space: nowrap; }
   .spacer { flex: 1; }
+  .footbtn { background: none; border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; color: var(--fg-muted); font-size: var(--text-2xs); padding: 0 var(--space-1); }
+  .footbtn:hover { background: var(--bg-surface-3); color: var(--fg-default); }
   .dot { width: 0.5rem; height: 0.5rem; border-radius: var(--radius-pill); background: var(--danger); }
   .dot.on { background: var(--success); }
 </style>

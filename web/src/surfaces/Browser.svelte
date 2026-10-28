@@ -30,6 +30,8 @@
   const listed = $derived(vaultStore.notes.filter((n) => {
     if (filter !== "all" && vis(n) !== filter) return false;
     if (typeFilter && String((n as any).type ?? "") !== typeFilter) return false;
+    const cf = appState.campaignFilter;
+    if (cf && String((n as any).campaign || "No campaign") !== cf) return false;
     return true;
   }));
   const selected = $derived(vaultStore.notes.find((n) => String(n.uid) === appState.selectedUid) ?? null);
@@ -124,6 +126,12 @@
   <section class="browser__list">
     <header class="list-head">
       <h2 class="list-head__title">Notes{#if eyeAs} <span class="tag">as {eyeAs}</span>{/if}</h2>
+      {#if appState.campaignFilter}
+        <div class="campaign-chip">
+          <span class="tag"><Icon name="scroll" size={11} /> {appState.campaignFilter}</span>
+          <button class="btn btn--sm" onclick={() => (appState.campaignFilter = null)}>Clear</button>
+        </div>
+      {/if}
       <div class="list-head__filters" role="group" aria-label="Filter by visibility">
         <input class="type-filter" placeholder="type" bind:value={typeFilter} aria-label="Type filter" />
         {#each [["all", "All"], ["party", "Party"], ["gm", "GM only"], ["owner", "Owner"], ["private", "Private"]] as f}
@@ -181,6 +189,7 @@
   .browser__list { border-inline-end: 1px solid var(--border-subtle); overflow-y: auto; background: var(--bg-canvas); }
   .list-head { position: sticky; top: 0; z-index: var(--z-sticky); padding: var(--space-3) var(--space-4); background: var(--bg-canvas); border-block-end: 1px solid var(--border-subtle); }
   .list-head__title { font-size: var(--text-md); }
+  .campaign-chip { display: flex; align-items: center; gap: var(--space-1); margin-block-start: var(--space-2); }
   .list-head__filters { display: flex; gap: var(--space-1); margin-block-start: var(--space-2); flex-wrap: wrap; align-items: center; }
   .type-filter { padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: var(--text-xs); width: 7rem; }
   .notes { list-style: none; margin: 0; padding: var(--space-2); display: flex; flex-direction: column; gap: 2px; }

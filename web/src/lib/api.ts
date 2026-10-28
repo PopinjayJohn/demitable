@@ -281,3 +281,9 @@ export async function fetchSessionLog(sid: string): Promise<any[]> {
   const j = await res.json();
   return Array.isArray(j) ? j : (j.items ?? j.log ?? j.entries ?? []);
 }
+
+export async function closeSession(sid: string): Promise<any> {
+  const res = await apiFetch(`/api/v1/sessions/${encodeURIComponent(sid)}/close`, { method: "POST" });
+  if (!res.ok) throw await parseError(res);
+  try { return await res.json(); } catch { return {}; }
+}

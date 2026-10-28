@@ -25,11 +25,14 @@ class AppState {
   proof: Proof = $state("none");
   selectedUid: string | null = $state(null);
   selectedCharacterUid: string | null = $state(null);
+  /** Campaign filter for the wiki browser. Null = all campaigns. */
+  campaignFilter: string | null = $state(null);
   playerEye = $state(false);
   /** The account id the GM is borrowing eyes from. Empty = no target. */
   eyeTarget = $state("");
   showInspector = $state(true);
   showJournal = $state(false);
+  showSessionJournal = $state(false);
   sessionId = $state("");
   encounterId = $state("");
   displayMode = $state(false);
