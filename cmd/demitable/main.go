@@ -1359,6 +1359,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		sessionLimiter := newSessionCodeLimiter()
 		sessionHandlers(m, vlt, sessStore, audit, sessionLimiter, tokenKeyFor(vlt))
 		encounterHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
+		writebackHandlers(m, vlt, sessStore, audit, tokenKeyFor(vlt))
 	}
 
 	// Import (N8).

@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -15,6 +19,7 @@ import (
 	"github.com/PopinjayJohn/demitable/internal/session"
 	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault"
+	"io"
 )
 
 // sessionCodeFailureWindow is how long a failed session-code attempt keeps
@@ -604,16 +609,23 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			writeErr(w, "not_found", "no such session", http.StatusNotFound)
 			return
 		}
+		bodyBytes, _ := io.ReadAll(r.Body)
 		var body struct {
 			BatchID string `json:"batch_id"`
 			BatchId string `json:"batchId"`
 		}
-		_ = json.NewDecoder(r.Body).Decode(&body)
+		_ = json.Unmarshal(bodyBytes, &body)
+		var bodyMap map[string]any
+		_ = json.Unmarshal(bodyBytes, &bodyMap)
+		if bodyMap == nil {
+			bodyMap = map[string]any{}
+		}
 		clientBatch := body.BatchID
 		if clientBatch == "" {
 			clientBatch = body.BatchId
 		}
 		// idempotent close
+		alreadyClosed := s.Status == session.StatusClosed
 		batchID := s.CloseBatchID
 		if batchID == "" {
 			if clientBatch != "" {
@@ -622,6 +634,38 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 				batchID = fmt.Sprintf("batch-%d", time.Now().UnixNano())
 			}
 		}
+
+		// F4: trigger write-back on first close. Create session note (always
+		// new) and apply any touched keys supplied in the body.
+		if !alreadyClosed {
+			// create session note (always new file)
+			sessionNotePath := fmt.Sprintf("Sessions/Session %s.md", time.Now().UTC().Format("2006-01-02 150405"))
+			sessionNotePath = uniquePath(vlt.Root, sessionNotePath)
+			content := "# Session\n"
+			if v, ok := bodyMap["session_note"].(string); ok && v != "" {
+				content = v
+			}
+			if v, ok := bodyMap["content"].(string); ok && v != "" {
+				content = v
+			}
+			full := filepath.Join(vlt.Root, filepath.FromSlash(sessionNotePath))
+			os.MkdirAll(filepath.Dir(full), 0o755)
+			os.WriteFile(full, []byte(content), 0o644)
+			_, _ = vault.NewJournal(vlt.Root).AppendWriteWithRevision(principalActor(principalFromRequest(r, tk)), "writeback", "create", "", sessionNotePath, batchID, 1, nil, []byte(content), nil)
+			_ = vlt.Load()
+
+			// apply touched keys if present
+			if globalWBApply != nil && hasWB(bodyMap) {
+				rec := httptest.NewRecorder()
+				bb, _ := json.Marshal(body)
+				req2, _ := http.NewRequest("POST", "/api/v1/sessions/"+id+"/writeback/apply", bytes.NewReader(bb))
+				req2.Header.Set("Content-Type", "application/json")
+				req2.Header.Set("Authorization", r.Header.Get("Authorization"))
+				globalWBApply.ServeHTTP(rec, req2)
+				// merge not required; files already applied
+			}
+		}
+
 		if err := sess.CloseSession(id, batchID); err != nil {
 			if errors.Is(err, session.ErrSessionClosed) {
 				// already closed; keep stored batch id
@@ -634,8 +678,6 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		if ss, _ := sess.GetSession(id); ss != nil {
 			batchID = ss.CloseBatchID
 		}
-		// stub: record close intent + batch id ONLY. No journal write-back
-		// and no vault mutation here — that is F4's job.
 		if audit != nil {
 			audit.Record(r.Context(), "session.close", slog.String("id", id), slog.String("batch_id", batchID))
 		}
@@ -1002,4 +1044,13 @@ func displayCampaigns(s *session.Session) []string {
 		}
 	}
 	return out
+}
+
+func hasWB(body map[string]any) bool {
+	for _, k := range []string{"entries", "touches", "changes", "writes", "items", "notes", "operations", "keys"} {
+		if _, ok := body[k]; ok {
+			return true
+		}
+	}
+	return false
 }
