@@ -8,12 +8,13 @@
   import GmDashboard from "./surfaces/GmDashboard.svelte";
   import PlayerView from "./surfaces/PlayerView.svelte";
   import CharacterPanel from "./surfaces/CharacterPanel.svelte";
+  import Tabletop from "./surfaces/Tabletop.svelte";
 
   let notes = $state<NoteSummary[]>([]);
   let searchQuery = $state<string>("");
   let searchType = $state<string>("");
   let searchFilter = $state<string>("");
-  let view = $state<"notes" | "dashboard" | "player" | "characters">("notes");
+  let view = $state<"notes" | "dashboard" | "player" | "characters" | "tabletop">("notes");
   let selectedUid = $state<string | null>(null);
   let doc = $state<NoteDoc | null>(null);
   let buffer = $state<string>("");
@@ -266,6 +267,7 @@
     <button onclick={() => (view = "dashboard")}>Dashboard</button>
     <button onclick={() => (view = "player")}>Player view</button>
     <button onclick={() => (view = "characters")}>Characters</button>
+    <button onclick={() => (view = "tabletop")}>Tabletop</button>
   </nav>
 
   {#if view === "dashboard"}
@@ -274,6 +276,8 @@
     <PlayerView />
   {:else if view === "characters"}
     <CharacterPanel />
+  {:else if view === "tabletop"}
+    <Tabletop />
   {:else}
   <div class="layout">
     <aside>
