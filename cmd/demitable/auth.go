@@ -128,7 +128,9 @@ func principalFromToken(c tokenClaims) vault.Principal {
 	case "account":
 		return vault.Account(c.ID, c.Campaigns...)
 	case "display":
-		return vault.Display(c.Campaigns...)
+		p := vault.Display(c.Campaigns...)
+		p.Session = c.Session
+		return p
 	case "seat":
 		p := vault.Seat(c.ID, c.Bound, c.Campaigns...)
 		p.Session = c.Session

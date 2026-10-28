@@ -93,6 +93,16 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				return true
 			}
 		}
+		// Display principal is bound to one session (F3) and reads party-only
+		// projected state through the same fog function (no second path).
+		if principal.IsDisplay() {
+			// Display is bound to exactly one session at mint time (F3b).
+			// It may read only that session; an unbound display refuses.
+			if principal.Session != "" && principal.Session == sid {
+				return true
+			}
+			return false
+		}
 		return false
 	}
 
@@ -171,45 +181,44 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		return out
 	}
 
+	tokenVisible := func(principal vault.Principal, tok encounterToken, seatID string) bool {
+		if tok.Hidden {
+			return principal.IsGM()
+		}
+		if len(tok.VisibleTo) > 0 {
+			allowed := false
+			for _, ss := range tok.VisibleTo {
+				if ss == seatID || ss == principal.ID || ss == "*" {
+					allowed = true
+				}
+			}
+			if !allowed && !principal.IsGM() {
+				return false
+			}
+		}
+		if tok.NoteUID != "" && vlt != nil {
+			n := vlt.GetNote(tok.NoteUID)
+			if n != nil {
+				if !vault.Visible(principal, *n) {
+					return false
+				}
+			} else {
+				if !principal.IsGM() {
+					return false
+				}
+			}
+		}
+		return true
+	}
+
 	projectEncounter := func(sid string, st *encounterState, principal vault.Principal, seatID string) map[string]any {
 		visibleTokens := []string{}
 		visibleTokenObjs := []encounterToken{}
 		hiddenTokens := []string{}
 		for _, tok := range st.Tokens {
-			if tok.Hidden {
-				if principal.IsGM() {
-					visibleTokens = append(visibleTokens, tok.ID)
-					visibleTokenObjs = append(visibleTokenObjs, tok)
-					continue
-				}
+			if !tokenVisible(principal, tok, seatID) {
 				hiddenTokens = append(hiddenTokens, tok.ID)
 				continue
-			}
-			if len(tok.VisibleTo) > 0 {
-				allowed := false
-				for _, s := range tok.VisibleTo {
-					if s == seatID || s == principal.ID || s == "*" {
-						allowed = true
-					}
-				}
-				if !allowed && !principal.IsGM() {
-					hiddenTokens = append(hiddenTokens, tok.ID)
-					continue
-				}
-			}
-			if tok.NoteUID != "" && vlt != nil {
-				n := vlt.GetNote(tok.NoteUID)
-				if n != nil {
-					if !vault.Visible(principal, *n) {
-						hiddenTokens = append(hiddenTokens, tok.ID)
-						continue
-					}
-				} else {
-					if !principal.IsGM() {
-						hiddenTokens = append(hiddenTokens, tok.ID)
-						continue
-					}
-				}
 			}
 			visibleTokens = append(visibleTokens, tok.ID)
 			visibleTokenObjs = append(visibleTokenObjs, tok)
@@ -613,6 +622,17 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		parts := parseParticipants(body)
 		tokens := parseTokens(body)
+		initiative := []string{}
+		if v, ok := body["initiative"]; ok {
+			if arr, ok := v.([]any); ok {
+				initiative = toStringSlice(arr)
+			}
+		}
+		if v, ok := body["initiative_order"]; ok {
+			if arr, ok := v.([]any); ok {
+				initiative = toStringSlice(arr)
+			}
+		}
 		st := &encounterState{
 			ID:           uidVal,
 			UID:          uidVal,
@@ -623,7 +643,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			Pack:         system,
 			Campaign:     campaign,
 			Participants: parts,
-			Initiative:   []string{},
+			Initiative:   initiative,
 			CurrentTurn:  0,
 			Round:        1,
 			Tokens:       tokens,
@@ -757,8 +777,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			eid = r.PathValue("id")
 		}
 		principal := principalFromRequest(r, tk)
-		if !principal.IsGM() {
-			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
+		isGM := principal.IsGM()
+		isSeat := principal.IsSeat()
+		if !isGM && !isSeat {
+			writeErr(w, "forbidden", "gm or seat required", http.StatusForbidden)
 			return
 		}
 		if sid == "" {
@@ -803,8 +825,85 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		if p := parseParticipants(body); len(p) > 0 {
 			st.Participants = p
 		}
-		if t := parseTokens(body); len(t) > 0 {
-			st.Tokens = t
+		newTokens := parseTokens(body)
+		if len(newTokens) > 0 {
+			// validate every note_uid resolves and is visible to the principal
+			seatID := ""
+			if principal.IsSeat() {
+				seatID = principal.ID
+			}
+			for _, t := range newTokens {
+				if t.NoteUID != "" {
+					n := vlt.GetNote(t.NoteUID)
+					if n == nil {
+						writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
+						return
+					}
+					if !isGM && !tokenVisible(principal, t, seatID) {
+						writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
+						return
+					}
+				}
+			}
+			if !isGM {
+				// non-GM may only move positions of tokens they own; reject
+				// any structural change (add/remove, hidden, note_uid, side).
+				if len(newTokens) != len(st.Tokens) {
+					writeErr(w, "forbidden", "structural change not allowed", http.StatusForbidden)
+					return
+				}
+				// map by id
+				byID := map[string]encounterToken{}
+				for _, t := range st.Tokens {
+					byID[t.ID] = t
+				}
+				for _, nt := range newTokens {
+					old, ok := byID[nt.ID]
+					if !ok {
+						writeErr(w, "forbidden", "cannot add token", http.StatusForbidden)
+						return
+					}
+					if nt.NoteUID != old.NoteUID || nt.Hidden != old.Hidden || nt.Side != old.Side {
+						writeErr(w, "forbidden", "structural change not allowed", http.StatusForbidden)
+						return
+					}
+					if nt.UID != old.UID {
+						writeErr(w, "forbidden", "structural change not allowed", http.StatusForbidden)
+						return
+					}
+					// ownership + turn check for position changes.
+					// Defense-in-depth only (see the move handler): this branch
+					// is unreachable through the current API because seats mint
+					// with an empty Bound and fog denies first. Kept as the
+					// last line of defence if visibility is ever widened.
+					if nt.X != old.X || nt.Y != old.Y {
+						seatChar := principal.Bound
+						if seatChar == "" && sid != "" {
+							if ss, ok, _ := sess.FindSeat(sid, principal.ID); ok {
+								seatChar = ss.Character
+							}
+						}
+						if old.NoteUID != "" && seatChar != "" && old.NoteUID != seatChar {
+							writeErr(w, "forbidden", "not your token", http.StatusForbidden)
+							return
+						}
+						if len(st.Initiative) > 0 && st.CurrentTurn >= 0 && st.CurrentTurn < len(st.Initiative) {
+							holder := st.Initiative[st.CurrentTurn]
+							okTurn := holder == principal.ID || (seatChar != "" && holder == seatChar) || holder == old.NoteUID
+							if !okTurn {
+								writeErr(w, "forbidden", "not your turn", http.StatusForbidden)
+								return
+							}
+						}
+						// visibility
+						if !tokenVisible(principal, old, seatID) {
+							writeErr(w, "forbidden", "token not visible", http.StatusForbidden)
+							return
+						}
+					}
+				}
+			}
+			st.Tokens = newTokens
 		}
 		if v, ok := body["initiative"].([]any); ok {
 			st.Initiative = toStringSlice(v)
@@ -1038,6 +1137,362 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			return
 		}
 		advanceTurnHandler(w, r)
+	}
+
+	// F2c move validation: a token move is authorised only for a seat whose
+	// principal may see the token, whose character owns it, and whose turn it
+	// is (or the GM, who may move anything). Illegal moves -> error JSON,
+	// state unchanged.
+	moveTokenHandler := func(w http.ResponseWriter, r *http.Request) {
+		sid, eid := pathSE(r)
+		principal := principalFromRequest(r, tk)
+		// allow sid from query/body for the no-session-scoped routes
+		if sid == "" {
+			sid = r.URL.Query().Get("session")
+			if sid == "" {
+				sid = r.URL.Query().Get("session_id")
+			}
+		}
+		body := map[string]any{}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		if sid == "" {
+			if v, ok := body["session"].(string); ok {
+				sid = v
+			}
+			if sid == "" {
+				if v, ok := body["session_id"].(string); ok {
+					sid = v
+				}
+			}
+		}
+		// forged seat check: a body/query seat id must agree with the
+		// authenticated principal (GM may impersonate via ?seat= only).
+		seatID := ""
+		if v, ok := body["seat"].(string); ok {
+			seatID = v
+		}
+		if seatID == "" {
+			if v, ok := body["seat_id"].(string); ok {
+				seatID = v
+			}
+		}
+		if q := r.URL.Query().Get("seat"); q != "" {
+			seatID = q
+		}
+		if q := r.URL.Query().Get("seat_id"); q != "" {
+			seatID = q
+		}
+		tokenID := ""
+		if tid := r.PathValue("tid"); tid != "" {
+			tokenID = tid
+		}
+		if tid := r.PathValue("token"); tid != "" {
+			tokenID = tid
+		}
+		if tid := r.PathValue("token_id"); tid != "" {
+			tokenID = tid
+		}
+		if v, ok := body["token"].(string); ok && tokenID == "" {
+			tokenID = v
+		}
+		if v, ok := body["token_id"].(string); ok && tokenID == "" {
+			tokenID = v
+		}
+		if v, ok := body["tokenId"].(string); ok && tokenID == "" {
+			tokenID = v
+		}
+		if v, ok := body["id"].(string); ok && tokenID == "" {
+			tokenID = v
+		}
+		// if a seat is named in the body by a non-GM, it must match.
+		if seatID != "" && !principal.IsGM() {
+			// authenticated seat id is principal.ID
+			if principal.IsSeat() && seatID != principal.ID {
+				writeErr(w, "forbidden", "forged seat", http.StatusForbidden)
+				return
+			}
+			if !principal.IsSeat() {
+				writeErr(w, "forbidden", "seat required", http.StatusForbidden)
+				return
+			}
+		}
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
+			return
+		}
+		if sid != "" {
+			if ss, _ := sess.GetSession(sid); ss != nil && ss.Status == session.StatusClosed {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
+		}
+		// forged seat id as GM preview: validate seat exists
+		if seatID != "" && principal.IsGM() {
+			if _, ok, _ := sess.FindSeat(sid, seatID); !ok {
+				// allow principal id fallback? require existence
+				writeErr(w, "not_found", "no such seat", http.StatusNotFound)
+				return
+			}
+		}
+		st, ok := loadState(sid, eid)
+		if !ok {
+			writeErr(w, "not_found", "no such encounter", http.StatusNotFound)
+			return
+		}
+		// resolve x/y
+		var newX, newY any
+		hasX := false
+		hasY := false
+		if v, ok := body["x"]; ok {
+			newX = v
+			hasX = true
+		}
+		if v, ok := body["y"]; ok {
+			newY = v
+			hasY = true
+		}
+		if v, ok := body["position"].(map[string]any); ok {
+			if x, ok := v["x"]; ok {
+				newX = x
+				hasX = true
+			}
+			if y, ok := v["y"]; ok {
+				newY = y
+				hasY = true
+			}
+		}
+		if v, ok := body["pos"].(map[string]any); ok {
+			if x, ok := v["x"]; ok {
+				newX = x
+				hasX = true
+			}
+			if y, ok := v["y"]; ok {
+				newY = y
+				hasY = true
+			}
+		}
+		// find token
+		idx := -1
+		for i, tok := range st.Tokens {
+			if tok.ID == tokenID {
+				idx = i
+				break
+			}
+		}
+		if idx < 0 {
+			writeErr(w, "not_found", "no such token", http.StatusNotFound)
+			return
+		}
+		tok := st.Tokens[idx]
+		// GM seat-impersonation via ?seat= (preview) already handled above for fog;
+		// for moves, if principal is GM and seatID provided, switch principal to that seat.
+		if principal.IsGM() && seatID != "" {
+			if ss, ok, _ := sess.FindSeat(sid, seatID); ok {
+				p := vault.Seat(ss.ID, ss.Character, principal.Campaigns...)
+				p.Session = sid
+				principal = p
+				seatID = ss.ID
+			}
+		}
+		if seatID == "" && principal.IsSeat() {
+			seatID = principal.ID
+		}
+		// visibility: seat must be able to see token. Single fog implementation.
+		if !principal.IsGM() {
+			if !tokenVisible(principal, tok, seatID) {
+				writeErr(w, "forbidden", "token not visible", http.StatusForbidden)
+				return
+			}
+			// ownership: token must belong to the seat.
+			// Defense-in-depth only: this branch is unreachable through the
+			// current API. Seats minted via the join flow carry an empty
+			// Bound (and empty Campaigns), and tokenVisible (the fog) denies
+			// the move above for any token whose note is not visible to that
+			// seat before ownership is ever evaluated. Reaching this check
+			// would require seat minting to bind a character note (Bound != "")
+			// AND a visibility carve-out that lets a seat see a token it does
+			// not own — neither exists today. Keep the check: it is the last
+			// line of defence if a future change widens visibility.
+			seatChar := principal.Bound
+			if seatChar == "" && sid != "" && seatID != "" {
+				if ss, ok, _ := sess.FindSeat(sid, seatID); ok {
+					seatChar = ss.Character
+				}
+			}
+			if tok.NoteUID != "" && seatChar != "" && tok.NoteUID != seatChar {
+				writeErr(w, "forbidden", "not your token", http.StatusForbidden)
+				return
+			}
+			// turn legality: if initiative present, current turn holder must be this seat/owner
+			if len(st.Initiative) > 0 && st.CurrentTurn >= 0 && st.CurrentTurn < len(st.Initiative) {
+				holder := st.Initiative[st.CurrentTurn]
+				okTurn := holder == seatID || holder == principal.ID || (seatChar != "" && holder == seatChar) || holder == tok.NoteUID || holder == tok.ID
+				if !okTurn {
+					writeErr(w, "forbidden", "not your turn", http.StatusForbidden)
+					return
+				}
+			}
+		}
+		// apply move
+		if hasX {
+			st.Tokens[idx].X = newX
+		}
+		if hasY {
+			st.Tokens[idx].Y = newY
+		}
+		// forged note uid validation on moved token's note
+		if st.Tokens[idx].NoteUID != "" && vlt != nil {
+			n := vlt.GetNote(st.Tokens[idx].NoteUID)
+			if n == nil {
+				writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
+				return
+			}
+			if !principal.IsGM() && !tokenVisible(principal, st.Tokens[idx], seatID) {
+				writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
+				return
+			}
+		}
+		if err := saveState(sid, st); err != nil {
+			if err == session.ErrSessionClosed {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
+			writeErr(w, "internal", "move failed", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok": true, "token": st.Tokens[idx], "encounter": st, "id": st.Tokens[idx].ID,
+		})
+	}
+
+	// F2c token drop / create from a note (re-resolve through projection)
+	addTokenHandler := func(w http.ResponseWriter, r *http.Request) {
+		sid, eid := pathSE(r)
+		principal := principalFromRequest(r, tk)
+		seatID := ""
+		if principal.IsSeat() {
+			seatID = principal.ID
+		}
+		if sid == "" {
+			sid = r.URL.Query().Get("session")
+			if sid == "" {
+				sid = r.URL.Query().Get("session_id")
+			}
+		}
+		body := map[string]any{}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		if sid == "" {
+			if v, ok := body["session"].(string); ok {
+				sid = v
+			}
+			if sid == "" {
+				if v, ok := body["session_id"].(string); ok {
+					sid = v
+				}
+			}
+		}
+		if sid == "" {
+			writeErr(w, "bad_request", "session required", http.StatusBadRequest)
+			return
+		}
+		if ss, _ := sess.GetSession(sid); ss != nil && ss.Status == session.StatusClosed {
+			writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+			return
+		}
+		// non-GM cannot add tokens unless... keep GM-only for safety, but validate note uid for all
+		noteUID := ""
+		if v, ok := body["note_uid"].(string); ok {
+			noteUID = v
+		}
+		if noteUID == "" {
+			if v, ok := body["note"].(string); ok {
+				noteUID = v
+			}
+		}
+		if noteUID == "" {
+			if v, ok := body["uid"].(string); ok {
+				noteUID = v
+			}
+		}
+		if noteUID != "" {
+			n := vlt.GetNote(noteUID)
+			if n == nil {
+				writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
+				return
+			}
+			if !principal.IsGM() && !tokenVisible(principal, encounterToken{NoteUID: noteUID}, seatID) {
+				writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
+				return
+			}
+		}
+		st, ok := loadState(sid, eid)
+		if !ok {
+			writeErr(w, "not_found", "no such encounter", http.StatusNotFound)
+			return
+		}
+		// build token from body
+		toks := parseTokens(body)
+		if len(toks) == 0 {
+			tok := encounterToken{ID: ""}
+			if v, ok := body["id"].(string); ok {
+				tok.ID = v
+			}
+			if tok.ID == "" {
+				id, _ := uid.New()
+				tok.ID = id
+			}
+			tok.NoteUID = noteUID
+			if v, ok := body["side"].(string); ok {
+				tok.Side = v
+			}
+			if v, ok := body["hidden"].(bool); ok {
+				tok.Hidden = v
+			}
+			if v, ok := body["x"].(float64); ok {
+				tok.X = v
+			}
+			if v, ok := body["y"].(float64); ok {
+				tok.Y = v
+			}
+			if v, ok := body["visible_to"].([]any); ok {
+				for _, x := range v {
+					if s, ok := x.(string); ok {
+						tok.VisibleTo = append(tok.VisibleTo, s)
+					}
+				}
+			}
+			toks = append(toks, tok)
+		}
+		// validate note uids
+		for _, t := range toks {
+			if t.NoteUID != "" {
+				n := vlt.GetNote(t.NoteUID)
+				if n == nil {
+					writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
+					return
+				}
+				if !principal.IsGM() && !tokenVisible(principal, t, seatID) {
+					writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
+					return
+				}
+			}
+		}
+		if !principal.IsGM() {
+			writeErr(w, "forbidden", "gm required", http.StatusForbidden)
+			return
+		}
+		st.Tokens = append(st.Tokens, toks...)
+		if err := saveState(sid, st); err != nil {
+			if err == session.ErrSessionClosed {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
+			writeErr(w, "internal", "add token failed", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"encounter": st, "tokens": toks})
 	}
 
 	// fog handler
@@ -1281,6 +1736,51 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		"GET /api/v1/encounters/{eid}/rolls",
 	} {
 		m.HandleFunc(pth, rollsHandler)
+	}
+
+	// F2c move validation routes.
+	movePaths := []string{
+		"POST /api/v1/encounters/{eid}/move",
+		"POST /api/v1/encounters/{eid}/move-token",
+		"POST /api/v1/encounters/{eid}/token/move",
+		"POST /api/v1/encounters/{eid}/tokens/move",
+		"PATCH /api/v1/encounters/{eid}/move",
+	}
+	for _, pth := range movePaths {
+		m.HandleFunc(pth, moveTokenHandler)
+	}
+	movePathsS := []string{
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/move",
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/move-token",
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/token/move",
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/tokens/move",
+		"PATCH /api/v1/sessions/{sid}/encounters/{eid}/move",
+		"PATCH /api/v1/sessions/{sid}/encounters/{eid}/tokens/{tid}",
+		"PATCH /api/v1/sessions/{sid}/encounters/{eid}/tokens/{tid}/move",
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/tokens/{tid}/move",
+	}
+	for _, pth := range movePathsS {
+		m.HandleFunc(pth, moveTokenHandler)
+	}
+	// allow token id in path for move handler via {id} too
+	m.HandleFunc("PATCH /api/v1/encounters/{eid}/tokens/{tid}", moveTokenHandler)
+	m.HandleFunc("POST /api/v1/encounters/{eid}/tokens/{tid}/move", moveTokenHandler)
+	m.HandleFunc("PATCH /api/v1/encounters/{eid}/tokens/{tid}/move", moveTokenHandler)
+
+	// F2c token drop / add (GM) routes.
+	for _, pth := range []string{
+		"POST /api/v1/encounters/{eid}/tokens",
+		"POST /api/v1/encounters/{eid}/token",
+		"POST /api/v1/encounters/{eid}/drop",
+	} {
+		m.HandleFunc(pth, addTokenHandler)
+	}
+	for _, pth := range []string{
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/tokens",
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/token",
+		"POST /api/v1/sessions/{sid}/encounters/{eid}/drop",
+	} {
+		m.HandleFunc(pth, addTokenHandler)
 	}
 
 	_ = slog.Default
