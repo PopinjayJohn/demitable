@@ -187,9 +187,13 @@ func (j *Journal) RevertBatch(batchID string) error {
 	}
 	var batch []Entry
 	for _, e := range entries {
-		if e.BatchID == batchID {
-			batch = append(batch, e)
+		if e.BatchID != batchID {
+			continue
 		}
+		if e.Op == "tombstone" {
+			continue
+		}
+		batch = append(batch, e)
 	}
 	// reverse order
 	for i := len(batch) - 1; i >= 0; i-- {

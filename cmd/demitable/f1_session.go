@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -655,14 +654,45 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			_ = vlt.Load()
 
 			// apply touched keys if present
-			if globalWBApply != nil && hasWB(bodyMap) {
-				rec := httptest.NewRecorder()
-				bb, _ := json.Marshal(body)
-				req2, _ := http.NewRequest("POST", "/api/v1/sessions/"+id+"/writeback/apply", bytes.NewReader(bb))
-				req2.Header.Set("Content-Type", "application/json")
-				req2.Header.Set("Authorization", r.Header.Get("Authorization"))
-				globalWBApply.ServeHTTP(rec, req2)
-				// merge not required; files already applied
+			if hasWB(bodyMap) {
+				// preview first to obtain a digest, then apply
+				if globalWBPreview != nil {
+					pb, _ := json.Marshal(bodyMap)
+					preq, _ := http.NewRequest("POST", "/api/v1/sessions/"+id+"/writeback/preview", bytes.NewReader(pb))
+					preq.SetPathValue("id", id)
+					preq.Header.Set("Content-Type", "application/json")
+					preq.Header.Set("Authorization", r.Header.Get("Authorization"))
+					prec := &closeRecorder{}
+					globalWBPreview.ServeHTTP(prec, preq)
+					pcode := prec.status
+					if pcode == 0 {
+						pcode = http.StatusOK
+					}
+					if pcode < 400 {
+						var pout map[string]any
+						_ = json.Unmarshal(prec.body.Bytes(), &pout)
+						if d, ok := pout["digest"].(string); ok && d != "" {
+							bodyMap["digest"] = d
+						}
+					}
+				}
+				if globalWBApply != nil {
+					bb, _ := json.Marshal(bodyMap)
+					req2, _ := http.NewRequest("POST", "/api/v1/sessions/"+id+"/writeback/apply", bytes.NewReader(bb))
+					req2.SetPathValue("id", id)
+					req2.Header.Set("Content-Type", "application/json")
+					req2.Header.Set("Authorization", r.Header.Get("Authorization"))
+					rec := &closeRecorder{}
+					globalWBApply.ServeHTTP(rec, req2)
+					code := rec.status
+					if code == 0 {
+						code = http.StatusOK
+					}
+					if code >= 400 {
+						writeErr(w, "internal", "write-back apply failed", http.StatusInternalServerError)
+						return
+					}
+				}
 			}
 		}
 
@@ -1045,6 +1075,24 @@ func displayCampaigns(s *session.Session) []string {
 	}
 	return out
 }
+
+// closeRecorder is a minimal http.ResponseWriter used when f1_session drives
+// the write-back apply handler in-process during close. It avoids pulling
+// net/http/httptest into production code.
+type closeRecorder struct {
+	status int
+	body   bytes.Buffer
+	header http.Header
+}
+
+func (c *closeRecorder) Header() http.Header {
+	if c.header == nil {
+		c.header = http.Header{}
+	}
+	return c.header
+}
+func (c *closeRecorder) Write(b []byte) (int, error) { return c.body.Write(b) }
+func (c *closeRecorder) WriteHeader(code int)        { c.status = code }
 
 func hasWB(body map[string]any) bool {
 	for _, k := range []string{"entries", "touches", "changes", "writes", "items", "notes", "operations", "keys"} {

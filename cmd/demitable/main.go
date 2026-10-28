@@ -1488,6 +1488,12 @@ func jsonValueToFrontmatter(v any) frontmatter.Value {
 			out.List = append(out.List, jsonValueToFrontmatter(e))
 		}
 		return out
+	case []string:
+		out := frontmatter.Value{Kind: frontmatter.KindList}
+		for _, e := range t {
+			out.List = append(out.List, frontmatter.String(e))
+		}
+		return out
 	case map[string]any:
 		out := frontmatter.Value{Kind: frontmatter.KindMap}
 		for k, val := range t {

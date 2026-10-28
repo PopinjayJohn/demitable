@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -39,24 +40,32 @@ type wbFileResult struct {
 	Keys      []wbKeyChange `json:"keys"`
 	Conflicts []string      `json:"conflicts,omitempty"`
 	Applied   []string      `json:"applied,omitempty"`
+	Dropped   []wbKeyChange `json:"dropped,omitempty"`
+	Removes   []wbKeyChange `json:"removes,omitempty"`
+	Removed   []wbKeyChange `json:"removed,omitempty"`
+	Reverts   []wbKeyChange `json:"reverts,omitempty"`
 	Status    string        `json:"status"`
 }
 
 type wbResolution struct {
-	BatchID   string         `json:"batch_id"`
-	Revision  int            `json:"revision"`
-	Files     []wbFileResult `json:"files"`
-	Digest    string         `json:"digest"`
-	Skipped   bool           `json:"skipped,omitempty"`
-	Reason    string         `json:"reason,omitempty"`
-	Conflicts      int            `json:"conflicts,omitempty"`
-	ConflictCount  int            `json:"conflict_count,omitempty"`
-	Applied        int            `json:"applied,omitempty"`
-	AppliedCount   int            `json:"applied_count,omitempty"`
-	Touched        int            `json:"touched,omitempty"`
-	TouchedCount   int            `json:"touched_count,omitempty"`
-	N              int            `json:"n,omitempty"`
-	M              int            `json:"m,omitempty"`
+	BatchID       string         `json:"batch_id"`
+	Revision      int            `json:"revision"`
+	Files         []wbFileResult `json:"files"`
+	Digest        string         `json:"digest"`
+	Skipped       bool           `json:"skipped,omitempty"`
+	Reason        string         `json:"reason,omitempty"`
+	Conflicts     int            `json:"conflicts,omitempty"`
+	ConflictCount int            `json:"conflict_count,omitempty"`
+	Applied       int            `json:"applied,omitempty"`
+	AppliedCount  int            `json:"applied_count,omitempty"`
+	Touched       int            `json:"touched,omitempty"`
+	TouchedCount  int            `json:"touched_count,omitempty"`
+	N             int            `json:"n,omitempty"`
+	M             int            `json:"m,omitempty"`
+	Dropped       []wbKeyChange  `json:"dropped,omitempty"`
+	Removes       []wbKeyChange  `json:"removes,omitempty"`
+	Removed       []wbKeyChange  `json:"removed,omitempty"`
+	Reverts       []wbKeyChange  `json:"reverts,omitempty"`
 }
 
 type wbEntryParsed struct {
@@ -80,9 +89,12 @@ type wbPlan struct {
 var (
 	wbPreviewMu      sync.Mutex
 	wbPreviewDigests = map[string]string{}
+	wbBatchTouchedMu sync.Mutex
+	wbBatchTouched   = map[string]map[string][]string{} // batchID -> (uid|path) -> keys
 )
 
 var globalWBApply http.HandlerFunc
+var globalWBPreview http.HandlerFunc
 
 func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, audit *logging.Audit, tk string) {
 	if sess == nil {
@@ -167,12 +179,7 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			totalApplied := 0
 			totalConflicts := 0
 
-			// higher revision revert (only on apply)
-			if !preview && revision > prevRev && prevRev > 0 {
-				_ = journal.RevertBatch(batchID)
-				_, _ = journal.AppendWriteWithRevision(principalActor(principal), "writeback", "tombstone", "", "", batchID, prevRev, nil, nil, nil)
-				_ = vlt.Load()
-			}
+			higher := revision > prevRev && prevRev > 0
 
 			var plans []wbPlan
 
@@ -181,13 +188,21 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				if !isGM {
 					if e.UID != "" {
 						n := vlt.GetNote(e.UID)
-						if n == nil || n.Type != "character" || (n.Player != principal.Bound && n.Player != principal.ID) {
+						if n == nil || !vault.Visible(principal, *n) {
+							writeErr(w, "not_found", "no such note", http.StatusNotFound)
+							return
+						}
+						if n.Type != "character" || (n.Player != principal.Bound && n.Player != principal.ID) {
 							writeErr(w, "forbidden", "not allowed", http.StatusForbidden)
 							return
 						}
 					} else if !strings.HasPrefix(e.Path, "Sessions/") {
 						// world note or unknown -> forbidden
 						if e.Path != "" {
+							if n := vlt.NoteByPath(e.Path); n == nil || !vault.Visible(principal, *n) {
+								writeErr(w, "not_found", "no such note", http.StatusNotFound)
+								return
+							}
 							writeErr(w, "forbidden", "not allowed", http.StatusForbidden)
 							return
 						}
@@ -328,6 +343,39 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 					}
 				}
 
+				if higher && n != nil {
+					bkey := e.UID
+					if bkey == "" {
+						bkey = e.Path
+					}
+					wbBatchTouchedMu.Lock()
+					prevKeys := []string{}
+					if wbBatchTouched[batchID] != nil {
+						prevKeys = append([]string(nil), wbBatchTouched[batchID][bkey]...)
+					}
+					wbBatchTouchedMu.Unlock()
+					curKeys := map[string]bool{}
+					for k := range e.Keys {
+						curKeys[k] = true
+					}
+					var dropped []wbKeyChange
+					for _, pk := range prevKeys {
+						if curKeys[pk] {
+							continue
+						}
+						val := getNestedValue(n, pk)
+						dropped = append(dropped, wbKeyChange{Key: pk, Before: val, After: nil, Action: "drop"})
+					}
+					fr.Dropped = dropped
+					fr.Removes = dropped
+					fr.Removed = dropped
+					fr.Reverts = dropped
+					res.Dropped = append(res.Dropped, dropped...)
+					res.Removes = append(res.Removes, dropped...)
+					res.Removed = append(res.Removed, dropped...)
+					res.Reverts = append(res.Reverts, dropped...)
+				}
+
 				res.Files = append(res.Files, fr)
 			}
 
@@ -352,9 +400,19 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				if rd := strAny(body, "digest", "preview_digest", "resolution_digest", "previewDigest"); rd != "" {
 					stored = rd
 				}
-				if stored != "" && stored != digest {
+				if stored == "" {
+					writeErr(w, "preview-required", "preview required before apply", http.StatusConflict)
+					return
+				}
+				if stored != digest {
 					writeErr(w, "conflict", "preview/apply mismatch", http.StatusConflict)
 					return
+				}
+				// higher revision revert (only on apply, after validation)
+				if revision > prevRev && prevRev > 0 {
+					_ = journal.RevertBatch(batchID)
+					_, _ = journal.AppendWriteWithRevision(principalActor(principal), "writeback", "tombstone", "", batchID, batchID, prevRev, nil, nil, nil)
+					_ = vlt.Load()
 				}
 				// apply plans
 				for _, pl := range plans {
@@ -371,6 +429,23 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 						_ = vlt.WriteNoteJournaledBatch(principalActor(principal), "writeback", pl.UID, batchID, revision, pl.Data)
 					}
 				}
+				// record touched keys for future revision drop disclosure
+				wbBatchTouchedMu.Lock()
+				if wbBatchTouched[batchID] == nil {
+					wbBatchTouched[batchID] = map[string][]string{}
+				}
+				for _, e := range wbEntries {
+					bkey := e.UID
+					if bkey == "" {
+						bkey = e.Path
+					}
+					keys := []string{}
+					for k := range e.Keys {
+						keys = append(keys, k)
+					}
+					wbBatchTouched[batchID][bkey] = keys
+				}
+				wbBatchTouchedMu.Unlock()
 				_ = vlt.Load()
 			} else {
 				// store digest
@@ -385,6 +460,7 @@ func writebackHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 	}
 
 	globalWBApply = handler(false)
+	globalWBPreview = handler(true)
 
 	for _, p := range []string{
 		"POST /api/v1/sessions/{id}/writeback/preview",
@@ -690,7 +766,29 @@ func equalVals(a, b any) bool {
 }
 
 func computeDigest(res wbResolution) string {
-	b, _ := json.Marshal(res.Files)
+	// Canonicalise: file order and key order must not affect the digest,
+	// because Go map iteration (which builds res.Files) is randomized.
+	files := make([]wbFileResult, len(res.Files))
+	copy(files, res.Files)
+	sort.Slice(files, func(i, j int) bool {
+		if files[i].UID != files[j].UID {
+			return files[i].UID < files[j].UID
+		}
+		return files[i].Path < files[j].Path
+	})
+	for i := range files {
+		keys := make([]wbKeyChange, len(files[i].Keys))
+		copy(keys, files[i].Keys)
+		sort.Slice(keys, func(a, b int) bool { return keys[a].Key < keys[b].Key })
+		files[i].Keys = keys
+		confl := append([]string(nil), files[i].Conflicts...)
+		sort.Strings(confl)
+		files[i].Conflicts = confl
+		appl := append([]string(nil), files[i].Applied...)
+		sort.Strings(appl)
+		files[i].Applied = appl
+	}
+	b, _ := json.Marshal(files)
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])
 }
