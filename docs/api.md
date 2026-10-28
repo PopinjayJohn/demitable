@@ -147,6 +147,15 @@ GET    /api/v1/notes/:uid/links           outgoing links and backlinks
 GET    /api/v1/notes/:uid/render          rendered markdown, for preview
 ```
 
+`GET /notes`, `GET /notes/:uid` and `GET /notes/:uid/render` accept
+`?as=<account>`: a GM-gated preview-as. The GM names an account (by id
+or player name) and receives exactly what that account would receive —
+the principal is built from the stored account record, so parity with
+the account's own request holds by construction. Unknown targets are a
+bare 404 (indistinguishable from a hidden note); a non-GM naming anyone
+but themselves is a 403. The read is audited as the GM caller, never as
+the target. This is what the webapp's player-eye renders through.
+
 Listing is cursor-paged and filterable:
 
 ```
@@ -257,10 +266,14 @@ POST /api/v1/journal/:id/revert       revert one change, or a batch
 ### Accounts (GM only)
 
 ```
-GET  /api/v1/players                  accounts  (not yet implemented)
+GET  /api/v1/players                  accounts (id, player, campaigns — never passphrase hashes)
 POST /api/v1/players                  create a player, returns a join code
 POST /api/v1/players/:id/join-code    mint a fresh one  (not yet implemented)
 ```
+
+`POST /api/v1/players` accepts an optional `campaign` (the campaign
+link as written in notes, e.g. `[[The Salt Debt]]`); it defaults to
+`[[Campaign]]`. The joined account inherits the code's campaign.
 
 ### Import
 
@@ -553,8 +566,7 @@ SDKs are a separate product decision, and a large one.
 
 **Scoped / not yet implemented.**
 
-- `GET /api/v1/players` and `POST /api/v1/players/:id/join-code` — not
-  implemented (only `POST /api/v1/players` exists).
+- `POST /api/v1/players/:id/join-code` — not implemented.
 - All `/api/v1/sessions/*` — F1 scope, none implemented.
 - OpenAPI document generated from handlers — not yet; the endpoint list
   remains a sketch.

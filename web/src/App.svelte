@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchNotes, rollDice, type NoteSummary } from "./lib/api";
+  import { fetchNotes, fetchPlayers, createPlayer, rollDice, type NoteSummary, type PlayerAccount } from "./lib/api";
   import { getToken, getPrincipal, gmLogin, loginPlayer, joinCampaign, logout } from "./lib/auth";
   import { WSClient, type WSClient as WSClientType } from "./lib/ws";
   import { appState, applyThemeProof, type Surface, type Proof } from "./lib/appstate.svelte";
@@ -45,23 +45,44 @@
 
   function syncPrincipal() { principal = getPrincipal(); }
 
+  async function afterAuth() {
+    syncPrincipal();
+    connectRealtime();
+    await loadAccounts();
+    await doSearch();
+  }
+
   async function doGmLogin() {
     authError = "";
-    try { await gmLogin(gmSecret); gmSecret = ""; syncPrincipal(); connectRealtime(); await doSearch(); }
+    try { await gmLogin(gmSecret); gmSecret = ""; await afterAuth(); }
     catch (e: any) { authError = e?.message ?? "login failed"; }
   }
   async function doPlayerLogin() {
     authError = "";
-    try { await loginPlayer(player, passphrase); syncPrincipal(); connectRealtime(); await doSearch(); }
+    try { await loginPlayer(player, passphrase); await afterAuth(); }
     catch (e: any) { authError = e?.message ?? "login failed"; }
   }
   async function doJoin() {
     authError = "";
-    try { await joinCampaign(joinCode); syncPrincipal(); connectRealtime(); await doSearch(); }
+    try { await joinCampaign(joinCode); await afterAuth(); }
     catch (e: any) { authError = e?.message ?? "join failed"; }
   }
   function doLogout() {
-    logout(); ws?.close(); ws = null; principal = null; results = [];
+    logout(); ws?.close(); ws = null; principal = null; results = []; accounts = [];
+  }
+  const campaigns = $derived(
+    [...new Set(results.map((n) => String((n as any).campaign ?? "")).filter(Boolean))].sort(),
+  );
+  async function doCreatePlayer() {
+    if (!newPlayerName.trim()) return;
+    try {
+      const campaign = newPlayerCampaign || campaigns[0] || "";
+      const r = await createPlayer(newPlayerName.trim(), campaign);
+      searchStatus = `join code for ${r.name} (${r.campaign}): ${r.join_code} (expires ${r.expires_at})`;
+      newPlayerName = "";
+      showNewPlayer = false;
+      await loadAccounts();
+    } catch (e: any) { searchStatus = e?.message ?? "create player failed"; }
   }
   function connectRealtime() {
     ws?.close();
@@ -81,6 +102,29 @@
       searchStatus = `${results.length} notes`;
     } catch (e: any) { searchStatus = e?.message ?? "search failed"; }
   }
+  let accounts = $state<PlayerAccount[]>([]);
+  let newPlayerName = $state("");
+  let newPlayerCampaign = $state("");
+  let showNewPlayer = $state(false);
+  const eyeCandidates = $derived(accounts.map((a) => a.id).sort());
+
+  async function loadAccounts() {
+    accounts = [];
+    if (principal?.kind !== "gm") return;
+    try { accounts = await fetchPlayers(); }
+    catch { accounts = []; }
+  }
+  function toggleEye(on: boolean) {
+    appState.playerEye = on;
+    if (on && !appState.eyeTarget && eyeCandidates.length > 0) {
+      appState.eyeTarget = eyeCandidates[0];
+    }
+  }
+  $effect(() => {
+    if (appState.playerEye && !appState.eyeTarget && eyeCandidates.length > 0) {
+      appState.eyeTarget = eyeCandidates[0];
+    }
+  });
   function openNote(uid: string) {
     appState.selectedUid = uid;
     appState.surface = "editor";
@@ -97,7 +141,7 @@
   onMount(() => {
     applyThemeProof();
     syncPrincipal();
-    if (getToken()) { connectRealtime(); void doSearch(); }
+    if (getToken()) { connectRealtime(); void loadAccounts(); void doSearch(); }
   });
   $effect(() => { applyThemeProof(); void appState.theme; void appState.proof; });
 </script>
@@ -163,7 +207,26 @@
         </select>
         <button class="btn btn--sm" onclick={doSearch}>Search</button>
         <span class="mono search-status" role="status">{searchStatus}</span>
-        <label class="tool"><input type="checkbox" bind:checked={appState.playerEye} /> player eye</label>
+        <label class="tool">eye <input type="checkbox" checked={appState.playerEye} onchange={(e) => toggleEye(e.currentTarget.checked)} /></label>
+        <select bind:value={appState.eyeTarget} aria-label="Player-eye target" title="Account to borrow eyes from (GM preview-as)">
+          <option value="">eye: —</option>
+          {#each eyeCandidates as id}
+            <option value={id}>eye: {id}</option>
+          {/each}
+        </select>
+        {#if principal?.kind === "gm"}
+          <button class="btn btn--sm" onclick={() => (showNewPlayer = !showNewPlayer)} title="Create a player account (join code)">+ player</button>
+        {/if}
+        {#if showNewPlayer}
+          <input placeholder="player name" bind:value={newPlayerName} aria-label="New player name" />
+          <select bind:value={newPlayerCampaign} aria-label="New player campaign">
+            <option value="">campaign: auto</option>
+            {#each campaigns as c}
+              <option value={c}>{c}</option>
+            {/each}
+          </select>
+          <button class="btn btn--sm" onclick={doCreatePlayer}>Mint join code</button>
+        {/if}
         <label class="tool"><input type="checkbox" bind:checked={appState.showInspector} /> inspector</label>
         <button class="btn btn--sm" onclick={() => (appState.showJournal = !appState.showJournal)}>{appState.showJournal ? "Hide journal" : "Journal"}</button>
         <button class="btn btn--sm" onclick={doRoll} title="POST /roll into the shared log"><Icon name="dice" size={13} /> Roll</button>

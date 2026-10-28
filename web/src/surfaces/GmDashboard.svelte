@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { loadDashboard, DASHBOARD_BUDGET_MS, surfaceVisibility } from "../lib/dashboard";
-  import { fetchNote, fetchNoteRender } from "../lib/api";
-  import { WSClient } from "../lib/ws";
+  import { fetchNote } from "../lib/api";
   import VisibilityBadge from "../components/VisibilityBadge.svelte";
   import VisibilityInspector from "../components/VisibilityInspector.svelte";
   import MarkdownView from "../components/MarkdownView.svelte";
@@ -19,9 +18,13 @@
   let error = $state("");
   let filter = $state<"all" | "party" | "gm" | "owner" | "private">("all");
   let selectedUid = $state<string | null>(null);
-  let previewHtml = $state("");
+  let source = $state("");
+  let previewError = $state("");
   let decisions = $state<any[]>([]);
   let strippedCount = $state(0);
+
+  // The eye borrows another account's projection; empty means self.
+  const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
 
   function vis(n: NoteSummary): string {
     try { return surfaceVisibility(n); } catch { return "gm"; }
@@ -29,7 +32,6 @@
   function defaulted(n: NoteSummary): boolean {
     return (n as any).defaulted ?? (n as any).visibility === undefined;
   }
-  function effectiveOf(n: NoteSummary): string { return vis(n); }
 
   const listed = $derived(notes.filter((n) => filter === "all" ? true : vis(n) === filter));
   const selected = $derived(notes.find((n) => String(n.uid) === selectedUid) ?? null);
@@ -38,13 +40,22 @@
     for (const n of notes) m.set(String((n as any).campaign ?? "No campaign"), (m.get(String((n as any).campaign ?? "No campaign")) ?? 0) + 1);
     return [...m.entries()];
   });
+  // Wikilink resolution from the loaded list. Unresolvable names stay
+  // present-but-not-followable.
+  const wikiIndex = $derived(() => {
+    const m = new Map<string, string>();
+    for (const n of notes) if ((n as any).name) m.set(String((n as any).name), String(n.uid));
+    return m;
+  });
 
   async function load() {
     status = "loading"; error = "";
     try {
-      const data = await loadDashboard();
+      const data = await loadDashboard(fetch, DASHBOARD_BUDGET_MS, eyeAs);
       notes = data.notes; counts = data.counts; attention = data.attention; elapsedMs = data.elapsedMs;
-      if (!selectedUid && notes.length) selectedUid = String(notes[0].uid);
+      if (!selectedUid || !notes.some((n) => String(n.uid) === selectedUid)) {
+        selectedUid = notes.length ? String(notes[0].uid) : null;
+      }
       status = "loaded";
       await loadPreview();
     } catch (e) {
@@ -54,12 +65,19 @@
   }
 
   async function loadPreview() {
-    if (!selectedUid) { previewHtml = ""; return; }
+    if (!selectedUid) { source = ""; previewError = ""; return; }
     try {
-      previewHtml = await fetchNoteRender(selectedUid);
+      const doc = await fetchNote(selectedUid, eyeAs ? { as: eyeAs } : {});
+      source = doc.content;
+      previewError = "";
       decisions = [];
       strippedCount = 0;
-    } catch { previewHtml = ""; }
+    } catch (e: any) {
+      source = "";
+      previewError = e?.status === 404 && eyeAs
+        ? `No account '${eyeAs}' holds this note — or the account does not exist yet. Create the player account first, then borrow their eyes.`
+        : (e?.message ?? "preview failed");
+    }
   }
 
   function reveal(blockId: string) {
@@ -78,7 +96,17 @@
     if (selectedUid) { appState.selectedUid = selectedUid; appState.surface = "editor"; }
   }
 
-  onMount(() => { void load(); });
+  // Reload through the eye whenever it moves.
+  let lastEye = $state("");
+  $effect(() => {
+    const cur = `${appState.playerEye}|${appState.eyeTarget}`;
+    if (cur !== lastEye) {
+      lastEye = cur;
+      void load();
+    }
+  });
+
+  onMount(() => { lastEye = `${appState.playerEye}|${appState.eyeTarget}`; void load(); });
 </script>
 
 <section class="dash" aria-label="GM dashboard">
@@ -116,7 +144,7 @@
 
   <section class="dash__list">
     <header class="list-head">
-      <h2 class="list-head__title">Notes</h2>
+      <h2 class="list-head__title">Notes{#if eyeAs} <span class="tag">as {eyeAs}</span>{/if}</h2>
       <div class="list-head__filters" role="group" aria-label="Filter by visibility">
         {#each [["all", "All"], ["party", "Party"], ["gm", "GM only"], ["owner", "Owner"], ["private", "Private"]] as f}
           <button class="btn btn--sm" class:is-active={filter === f[0]} aria-pressed={filter === f[0]} onclick={() => (filter = f[0] as any)}>{f[1]}</button>
@@ -145,20 +173,31 @@
         <span class="note-head__path mono">{String((selected as any).path ?? "")}</span>
       </div>
       <div class="note-head__actions">
-        <button class="btn btn--sm" class:is-active={appState.playerEye} aria-pressed={appState.playerEye} onclick={() => (appState.playerEye = !appState.playerEye)} title="Render through the projection, for a player">
-          <Icon name="eye" size={13} /> {appState.playerEye ? "Player eye on" : "Player eye"}
+        <button class="btn btn--sm" class:is-active={appState.playerEye} aria-pressed={appState.playerEye} onclick={() => (appState.playerEye = !appState.playerEye)} title="Render through another account's projection">
+          <Icon name="eye" size={13} /> {appState.playerEye ? `Eye as ${eyeAs || "…"}` : "Player eye"}
         </button>
         <button class="btn btn--sm" onclick={openInEditor}><Icon name="pencil" size={13} /> Edit</button>
       </div>
     </header>
     {#if appState.playerEye}
-      <div class="eye-banner" role="status"><Icon name="eye" size={14} /><span>Player-eye preview — the body the server sends. GM-only parts are gone, not hidden.</span></div>
+      <div class="eye-banner" role="status"><Icon name="eye" size={14} /><span>Rendered as <strong>{eyeAs || "no target — pick an account in the search bar"}</strong>. What the server sends them — GM-only parts are gone, not hidden.</span></div>
     {/if}
     <div class="note-body">
+      {#if previewError}
+        <div class="absent" role="status"><Icon name="eye-off" size={22} /><h3>Not in this view</h3><p>{previewError}</p></div>
+      {:else}
       {#if strippedCount > 0}
         <div class="stripped-note" role="note"><Icon name="lock" size={14} /><span>{strippedCount} GM-only block(s). Text stripped from the projection.</span></div>
       {/if}
-      <MarkdownView html={previewHtml} noteUid={String(selected.uid)} canReveal={true} onReveal={reveal} />
+      <MarkdownView
+        {source}
+        noteUid={String(selected.uid)}
+        canReveal={!eyeAs}
+        onReveal={reveal}
+        resolveWiki={(name) => wikiIndex().get(name) ?? null}
+        onOpenNote={(uid) => (selectedUid = uid, void loadPreview())}
+      />
+      {/if}
     </div>
     {#if appState.showInspector}
       <footer class="note-foot"><VisibilityInspector {decisions} /></footer>
@@ -178,8 +217,6 @@
   .side-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2); border: 1px solid transparent; border-radius: var(--radius-md); background: none; font-size: var(--text-sm); text-align: start; color: var(--fg-default); }
   button.side-item { cursor: pointer; }
   button.side-item:hover { background: var(--bg-surface-3); }
-  .side-item.is-active { background: var(--bg-surface); border-color: var(--border-default); box-shadow: inset 3px 0 0 var(--accent); font-weight: var(--weight-medium); }
-  .side-item--warn { color: var(--fg-muted); }
   .side-item__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .side-count { margin-inline-start: auto; font-size: var(--text-xs); color: var(--fg-subtle); }
   .side-note { font-size: var(--text-xs); color: var(--fg-muted); margin-block-start: var(--space-2); }
@@ -206,6 +243,9 @@
   .note-head__actions { display: flex; gap: var(--space-2); flex: none; }
   .eye-banner { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--accent-subtle); border-block-end: 1px solid var(--accent-border); font-size: var(--text-xs); }
   .note-body { flex: 1; overflow-y: auto; padding: var(--space-4); }
+  .absent { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-4); text-align: center; color: var(--fg-muted); }
+  .absent h3 { font-size: var(--text-base); color: var(--fg-default); }
+  .absent p { font-size: var(--text-sm); max-width: 30rem; }
   .stripped-note { display: flex; align-items: center; gap: var(--space-2); margin-block-end: var(--space-4); padding: var(--space-2) var(--space-3); border: 2px dashed var(--secret-border); border-radius: var(--radius-md); background: var(--secret-subtle); font-size: var(--text-xs); }
   .note-foot { border-block-start: 1px solid var(--border-subtle); padding: var(--space-3) var(--space-4); }
 </style>

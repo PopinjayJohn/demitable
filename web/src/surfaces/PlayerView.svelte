@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchNotes, fetchNoteRender } from "../lib/api";
+  import { fetchNotes, fetchNote } from "../lib/api";
   import { surfaceVisibility } from "../lib/dashboard";
   import { getPrincipal } from "../lib/auth";
+  import { appState } from "../lib/appstate.svelte";
   import VisibilityBadge from "../components/VisibilityBadge.svelte";
   import MarkdownView from "../components/MarkdownView.svelte";
   import Icon from "../components/Icon.svelte";
@@ -11,23 +12,42 @@
   let notes = $state<NoteSummary[]>([]);
   let status = $state("loading");
   let openUid = $state<string | null>(null);
-  let openHtml = $state("");
+  let openSource = $state("");
   const principal = $derived(getPrincipal());
+  const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
+
   const visible = $derived(notes.filter((n) => { try { surfaceVisibility(n); return true; } catch { return false; } }));
   const mine = $derived(visible.filter((n) => String((n as any).player ?? "") !== "" && principal && String((n as any).player) === String((principal as any).id)));
   const rest = $derived(visible.filter((n) => !mine.includes(n)));
+  const wikiIndex = $derived(() => {
+    const m = new Map<string, string>();
+    for (const n of visible) if ((n as any).name) m.set(String((n as any).name), String(n.uid));
+    return m;
+  });
 
   function vis(n: NoteSummary): string {
     try { return surfaceVisibility(n); } catch { return "gm"; }
   }
+  async function load() {
+    status = "loading";
+    try {
+      notes = await fetchNotes({ ...(eyeAs ? { as: eyeAs } : {}), } as any);
+      status = "loaded";
+    } catch (e: any) { status = e?.message ?? "failed"; }
+  }
   async function open(n: NoteSummary) {
     openUid = String(n.uid);
-    try { openHtml = await fetchNoteRender(openUid); } catch { openHtml = ""; }
+    try {
+      const doc = await fetchNote(openUid, eyeAs ? { as: eyeAs } : {});
+      openSource = doc.content;
+    } catch { openSource = ""; }
   }
-  onMount(async () => {
-    try { notes = await fetchNotes(); status = "loaded"; }
-    catch { status = "failed"; }
+  let lastEye = $state("");
+  $effect(() => {
+    const cur = `${appState.playerEye}|${appState.eyeTarget}`;
+    if (cur !== lastEye) { lastEye = cur; openUid = null; void load(); }
   });
+  onMount(() => { lastEye = `${appState.playerEye}|${appState.eyeTarget}`; void load(); });
   function typeIcon(t: string) {
     return (({ character: "user", location: "globe", handout: "file", quest: "list", session: "scroll" } as Record<string, any>)[t] ?? "file") as any;
   }
@@ -38,7 +58,7 @@
     <div class="player__identity">
       <span class="player__avatar" aria-hidden="true">{String((principal as any)?.id ?? "?").slice(0, 1).toUpperCase()}</span>
       <div class="stack">
-        <h1 class="player__name">{String((principal as any)?.id ?? "Player")}</h1>
+        <h1 class="player__name">{String((principal as any)?.id ?? "Player")}{#if eyeAs} <span class="tag">as {eyeAs}</span>{/if}</h1>
         <span class="player__campaign">{String((principal as any)?.kind ?? "")}</span>
       </div>
     </div>
@@ -69,7 +89,18 @@
   {#if openUid}
     <div class="reader" role="dialog" aria-label="Note">
       <header class="reader__head"><h2 class="reader__title">{openUid}</h2><button class="btn btn--sm" onclick={() => (openUid = null)}>Close</button></header>
-      <div class="reader__body"><MarkdownView html={openHtml} /></div>
+      <div class="reader__body">
+        <MarkdownView
+          source={openSource}
+          resolveWiki={(name) => wikiIndex().get(name) ?? null}
+          onOpenNote={async (uid) => {
+            try {
+              const doc = await fetchNote(uid, eyeAs ? { as: eyeAs } : {});
+              openUid = uid; openSource = doc.content;
+            } catch { /* dangling in this projection */ }
+          }}
+        />
+      </div>
     </div>
   {/if}
 </div>

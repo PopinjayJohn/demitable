@@ -344,7 +344,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		fields := map[string]string{}
 		for k, vals := range r.URL.Query() {
-			if k == "type" || k == "campaign" || k == "limit" || k == "cursor" || k == "q" || k == "query" || k == "filter" || k == "sort" {
+			if k == "type" || k == "campaign" || k == "limit" || k == "cursor" || k == "q" || k == "query" || k == "filter" || k == "sort" || k == "as" {
 				continue
 			}
 			if len(vals) > 0 {
@@ -365,17 +365,30 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		} else if s := r.URL.Query().Get("filter"); s != "" {
 			q.Filter = s
 		}
-		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		caller := principalFromRequest(r, tokenKeyFor(vlt))
+		principal, ok, failStatus := previewPrincipal(r, caller, vlt.Root)
+		if !ok {
+			if failStatus == http.StatusNotFound {
+				// Bare 404 with no body, exactly like a hidden note:
+				// a body here would be an existence oracle.
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			writeErr(w, "forbidden", "cannot preview as another principal", http.StatusForbidden)
+			return
+		}
 		notes, nextCursor, err := vlt.ListPage(principal, q)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		// Under --expose, each GM-only note serialized into a list
-		// response is an audit event (one entry per note).
+		// response is an audit event (one entry per note). A preview-as
+		// read is audited as the caller (the GM doing the previewing),
+		// never as the preview target.
 		for i := range notes {
 			nn := notes[i]
-			auditNoteRead(cfg, audit, r, &nn, principal)
+			auditNoteRead(cfg, audit, r, &nn, caller)
 		}
 		out := make([]vault.NoteView, 0, len(notes))
 		for _, n := range notes {
@@ -412,11 +425,23 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
-		prin := principalFromRequest(r, tokenKeyFor(vlt))
+		caller := principalFromRequest(r, tokenKeyFor(vlt))
+		prin, ok, failStatus := previewPrincipal(r, caller, vlt.Root)
+		if !ok {
+			if failStatus == http.StatusNotFound {
+				// Bare 404 with no body, exactly like a hidden note:
+				// a body here would be an existence oracle.
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			writeErr(w, "forbidden", "cannot preview as another principal", http.StatusForbidden)
+			return
+		}
 		// Under --expose, a read of a GM-only note is an audit event
 		// (ADR-0058): every note-serving read surface, including denied
-		// reads, records one entry per GM-only note touched.
-		auditNoteRead(cfg, audit, r, n, prin)
+		// reads, records one entry per GM-only note touched. A preview-as
+		// read is audited as the caller.
+		auditNoteRead(cfg, audit, r, n, caller)
 		// Trust boundary: a principal that may not see the note gets 404
 		// with no body, never the raw note. (ADR-0002, ADR-0057.)
 		if !vault.Visible(prin, *n) {
@@ -798,8 +823,19 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
-		prin := principalFromRequest(r, tokenKeyFor(vlt))
-		auditNoteRead(cfg, audit, r, n, prin)
+		caller := principalFromRequest(r, tokenKeyFor(vlt))
+		prin, ok, failStatus := previewPrincipal(r, caller, vlt.Root)
+		if !ok {
+			if failStatus == http.StatusNotFound {
+				// Bare 404 with no body, exactly like a hidden note:
+				// a body here would be an existence oracle.
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			writeErr(w, "forbidden", "cannot preview as another principal", http.StatusForbidden)
+			return
+		}
+		auditNoteRead(cfg, audit, r, n, caller)
 		if !vault.Visible(prin, *n) {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -1335,6 +1371,24 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	// (Handled in handlers below via principal check.)
 
 	// Players (N6, extends accounts).
+	// GET /api/v1/players: GM-only account list (api.md §3). Accounts
+	// exist only after a join code is redeemed, so this is also what
+	// tells the GM's player-eye which targets exist. Passphrase hashes
+	// are never serialised — a hash is a credential half, not a field.
+	m.HandleFunc("GET /api/v1/players", func(w http.ResponseWriter, r *http.Request) {
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if !principal.IsGM() {
+			writeErr(w, "forbidden", "gm only", http.StatusForbidden)
+			return
+		}
+		accts := loadAccounts(vlt.Root)
+		out := make([]map[string]any, 0, len(accts))
+		for _, a := range accts {
+			out = append(out, map[string]any{"id": a.ID, "player": a.Player, "campaigns": a.Campaigns})
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": out, "count": len(out)})
+	})
 	m.HandleFunc("POST /api/v1/players", func(w http.ResponseWriter, r *http.Request) {
 		principal := principalFromRequest(r, tokenKeyFor(vlt))
 		if !principal.IsGM() {
@@ -1342,18 +1396,22 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			return
 		}
 		var body struct {
-			Name string `json:"name"`
+			Name     string `json:"name"`
+			Campaign string `json:"campaign"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
 		if body.Name == "" {
 			body.Name = "Player"
 		}
+		if body.Campaign == "" {
+			body.Campaign = "[[Campaign]]"
+		}
 		code := randomJoinCode()
 		codes := loadJoinCodes(vlt.Root)
-		codes = append(codes, storedJoinCode{Code: code, Campaign: "[[Campaign]]", ExpiresAt: time.Now().Add(24 * time.Hour)})
+		codes = append(codes, storedJoinCode{Code: code, Campaign: body.Campaign, ExpiresAt: time.Now().Add(24 * time.Hour)})
 		saveJoinCodes(vlt.Root, codes)
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{"name": body.Name, "join_code": code, "expires_at": time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339)})
+		_ = json.NewEncoder(w).Encode(map[string]any{"name": body.Name, "campaign": body.Campaign, "join_code": code, "expires_at": time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339)})
 	})
 	// WebSocket surface (N7b).
 	tokenKey := tokenKeyFor(vlt)

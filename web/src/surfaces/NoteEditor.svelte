@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchNote, fetchNotes, fetchNoteRender, saveNote, patchNote, type NoteDoc } from "../lib/api";
+  import { fetchNote, fetchNotes, saveNote, patchNote, type NoteDoc } from "../lib/api";
   import { WSClient } from "../lib/ws";
   import { getToken } from "../lib/auth";
   import Editor from "../lib/Editor.svelte";
@@ -13,7 +13,10 @@
   let uid = $derived(appState.selectedUid);
   let doc = $state<NoteDoc | null>(null);
   let buffer = $state("");
-  let preview = $state("");
+  // The source pane is always the GM's raw file — editing a projected
+  // (secret-stripped) body and saving it back would destroy secrets.
+  // The eye affects the preview only.
+  let previewSource = $state("");
   let status = $state("");
   let conflict = $state<NoteDoc | null>(null);
   let fmVisibility = $state(""), fmWorkflow = $state(""), fmGrants = $state(""),
@@ -25,6 +28,7 @@
   const secrets = $derived(findSecrets(buffer));
   const effVis = $derived(doc?.effectiveVisibility ?? "");
   const isDefaulted = $derived(doc?.defaulted ?? false);
+  const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
 
   async function open(id: string) {
     status = "loading"; conflict = null;
@@ -37,18 +41,28 @@
       fmGrants = Array.isArray(rec.grants) ? rec.grants.join(", ") : String(rec.grants ?? "");
       fmCampaign = rec.campaign ?? ""; fmKind = rec.kind ?? ""; fmPlayer = rec.player ?? "";
       status = "loaded";
-      await renderPreview();
+      if (eyeAs) await renderPreview();
+      else previewSource = buffer;
     } catch (e: any) { status = e?.message ?? "open failed"; }
   }
 
   async function renderPreview() {
-    if (!uid) { preview = ""; return; }
-    try { preview = await fetchNoteRender(uid); } catch { preview = ""; }
+    if (!uid) { previewSource = ""; return; }
+    try {
+      // Preview through the eye when it is on; the server projects.
+      const prev = await fetchNote(uid, eyeAs ? { as: eyeAs } : {});
+      previewSource = prev.content;
+    } catch { previewSource = ""; }
   }
   function onEdit(v: string) {
     buffer = v;
     clearTimeout(debounce);
-    debounce = setTimeout(() => void renderPreview(), 400);
+    // Live keystrokes preview from the buffer in GM view. Under the eye
+    // the preview is the saved file's projection (see the banner), so
+    // typing does not refetch — saving refreshes it.
+    if (!eyeAs) {
+      debounce = setTimeout(() => { previewSource = buffer; }, 150);
+    }
   }
   async function save() {
     if (!uid || !doc) return;
@@ -85,6 +99,16 @@
   }
 
   $effect(() => { if (uid) void open(uid); });
+  // The eye moves the preview, never the source.
+  let lastEye = $state("");
+  $effect(() => {
+    const cur = `${appState.playerEye}|${appState.eyeTarget}`;
+    if (cur !== lastEye) {
+      lastEye = cur;
+      if (eyeAs) void renderPreview();
+      else if (buffer) previewSource = buffer;
+    }
+  });
   onMount(() => {
     if (!appState.selectedUid) {
       fetchNotes({} as any).then((items: any[]) => {
@@ -122,9 +146,14 @@
   <section class="pane pane--preview">
     <header class="pane__head">
       <h2 class="pane__title"><Icon name="eye" size={14} /> Preview</h2>
-      <span class="pane__hint">server-projected</span>
+      <span class="pane__hint">{eyeAs ? `as ${eyeAs} · saved file` : "GM source"}</span>
     </header>
-    <div class="preview"><MarkdownView html={preview} noteUid={uid ?? ""} canReveal={false} /></div>
+    {#if eyeAs}
+      <div class="eye-note" role="status">Preview of the last <strong>save</strong> as {eyeAs} — save to refresh.</div>
+    {/if}
+    <div class="preview">
+      <MarkdownView source={previewSource} noteUid={uid ?? ""} canReveal={false} />
+    </div>
   </section>
 
   <section class="pane pane--meta">
@@ -194,6 +223,7 @@
   .pane__foot { padding: var(--space-2) var(--space-3); border-block-start: 1px solid var(--border-subtle); }
   .source-wrap { flex: 1; overflow-y: auto; }
   .preview { flex: 1; overflow-y: auto; padding: var(--space-4); }
+  .eye-note { padding: var(--space-2) var(--space-4); background: var(--accent-subtle); border-block-end: 1px solid var(--accent-border); font-size: var(--text-xs); }
   .meta { padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-4); }
   .meta__title { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-subtle); }
   .meta__vis { display: flex; align-items: center; gap: var(--space-2); }

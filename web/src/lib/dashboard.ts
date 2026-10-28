@@ -86,12 +86,15 @@ function declaredVis(n: NoteSummary): string {
 export async function loadDashboard(
   fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> = fetch,
   budgetMs: number = DASHBOARD_BUDGET_MS,
+  // GM player-eye: preview the vault as another account. Empty means self.
+  // The default path (no `as`) is byte-identical to before.
+  asPrincipal: string = "",
 ): Promise<DashboardData> {
   const requests: string[] = [];
   const start =
     typeof performance !== "undefined" ? performance.now() : Date.now();
 
-  const url = "/api/v1/notes";
+  const url = asPrincipal ? `/api/v1/notes?as=${encodeURIComponent(asPrincipal)}` : "/api/v1/notes";
   requests.push(url);
   const res = await fetchImpl(url, { headers: authHeaders(), credentials: "same-origin" });
   if (!res.ok) {

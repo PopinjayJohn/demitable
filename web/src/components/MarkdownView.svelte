@@ -1,42 +1,58 @@
 <script lang="ts">
-  // Server-projected HTML view. The server is the renderer of record:
-  // secrets are stripped before they reach us, so {@html} is safe here
-  // (server sanitises). Secret slots are rendered by the server as
-  // .secret-block hosts; we add reveal controls around them.
+  // Projected markdown rendered locally. The server is the authority on
+  // *what* may be seen (non-GM callers only receive the projected body);
+  // this component decides *how* it looks. Secrets arrive only for
+  // principals entitled to them and render with the hatch affordance.
+
+  import { renderMarkdown } from "../lib/markdown";
 
   let {
-    html,
+    source,
     noteUid = "",
     canReveal = false,
     onReveal = undefined,
+    resolveWiki = undefined,
+    onOpenNote = undefined,
   }: {
-    html: string;
+    source: string;
     noteUid?: string;
     canReveal?: boolean;
     onReveal?: (blockId: string) => void;
+    resolveWiki?: (name: string) => string | null;
+    onOpenNote?: (uid: string) => void;
   } = $props();
+
+  const html = $derived(renderMarkdown(source ?? "", { resolveWiki }));
 
   function handleClick(ev: MouseEvent) {
     const t = ev.target as HTMLElement;
-    const btn = t.closest?.("[data-reveal-block]") as HTMLElement | null;
-    if (btn && onReveal) {
-      onReveal(btn.getAttribute("data-reveal-block") ?? "");
+    const revealBtn = t.closest?.("[data-reveal-block]") as HTMLElement | null;
+    if (revealBtn && onReveal) {
+      onReveal(revealBtn.getAttribute("data-reveal-block") ?? "");
+      return;
+    }
+    const link = t.closest?.("a.wikilink[data-uid]") as HTMLAnchorElement | null;
+    if (link && onOpenNote) {
+      ev.preventDefault();
+      onOpenNote(link.getAttribute("data-uid") ?? "");
     }
   }
 </script>
 
 <div class="prose markdown" onclick={handleClick}>
   {@html html}
-  {#if canReveal && noteUid}
-    <p class="reveal-hint">GM view: secret blocks render with their block id. Use the frontmatter panel or the button on the block to reveal.</p>
-  {/if}
 </div>
 
 <style>
-  .markdown :global(.callout) { margin-block: var(--space-4); }
-  .markdown :global(.statblock) { margin-block: var(--space-4); }
+  .markdown :global(.callout) { margin-block: var(--space-4); padding: var(--space-3); border: 1px solid var(--border-default); border-inline-start-width: 4px; border-radius: var(--radius-md); background: var(--bg-surface-2); }
+  .markdown :global(.callout__label) { display: block; font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-subtle); margin-block-end: var(--space-1); }
+  .markdown :global(.statblock) { margin-block: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface-2); padding: var(--space-3); }
+  .markdown :global(.statblock__head) { font-weight: var(--weight-bold); font-size: var(--text-sm); margin-block-end: var(--space-2); }
+  .markdown :global(.statblock pre) { margin: 0; white-space: pre-wrap; font-size: var(--text-xs); }
   .markdown :global(.md-table) { margin-block: var(--space-4); }
   .markdown :global(table) { border-collapse: collapse; width: 100%; }
   .markdown :global(th), .markdown :global(td) { border: 1px solid var(--border-default); padding: var(--space-1) var(--space-2); font-size: var(--text-sm); }
-  .reveal-hint { font-size: var(--text-xs); color: var(--fg-subtle); }
+  .markdown :global(.block-ref) { font-family: var(--font-mono); font-size: 0.75em; color: var(--fg-subtle); user-select: none; }
+  .markdown :global(.wikilink) { color: var(--accent); text-decoration: underline dotted; }
+  .markdown :global(.wikilink.dangling) { color: var(--fg-subtle); text-decoration: underline dotted; cursor: default; }
 </style>

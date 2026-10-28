@@ -8,6 +8,8 @@ class AppState {
   proof: Proof = $state("none");
   selectedUid: string | null = $state(null);
   playerEye = $state(false);
+  /** The account id the GM is borrowing eyes from. Empty = no target. */
+  eyeTarget = $state("");
   showInspector = $state(true);
   showJournal = $state(false);
   sessionId = $state("");

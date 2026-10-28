@@ -300,6 +300,38 @@ func findAccountIndex(accts []storedAccount, player string) int {
 	return -1
 }
 
+// previewPrincipal resolves a GM-gated `?as=` preview principal.
+//
+// A GM names an account (by id or player name) and sees exactly what that
+// account would see: the principal is built from the stored record — the
+// same record a login mints a token from — so the projection is identical
+// by construction to the account's own request. Anything else fails
+// closed: an unknown target is a 404 with no body (indistinguishable from
+// a hidden note); a non-GM naming anyone but themselves is a 403.
+//
+// The display principal is never a preview target: it is party-only and
+// grants, discovery and seat bindings must not promote a note to it
+// (ADR-0048). Seats are session-scoped and keep their own `?seat=`
+// preview path on the encounter endpoints.
+func previewPrincipal(r *http.Request, caller vault.Principal, vaultRoot string) (vault.Principal, bool, int) {
+	target := r.URL.Query().Get("as")
+	if target == "" {
+		return caller, true, 0
+	}
+	if caller.IsGM() {
+		accts := loadAccounts(vaultRoot)
+		idx := findAccountIndex(accts, target)
+		if idx < 0 {
+			return caller, false, http.StatusNotFound
+		}
+		return vault.Account(accts[idx].ID, accts[idx].Campaigns...), true, 0
+	}
+	if target == caller.ID && caller.ID != "" {
+		return caller, true, 0
+	}
+	return caller, false, http.StatusForbidden
+}
+
 // --- auth state (rotatable) ---
 
 type authState struct {

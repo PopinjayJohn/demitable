@@ -101,8 +101,9 @@ export async function searchNotes(params: SearchParams = {}): Promise<{ items: N
 // alias used by some callers
 export const loadSearch = searchNotes;
 
-export async function fetchNote(uid: string): Promise<NoteDoc> {
-  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}`);
+export async function fetchNote(uid: string, opts: { as?: string } = {}): Promise<NoteDoc> {
+  const q = opts.as ? `?as=${encodeURIComponent(opts.as)}` : "";
+  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}${q}`);
   if (!res.ok) throw await parseError(res);
   const json = (await res.json()) as any;
   return {
@@ -116,8 +117,9 @@ export async function fetchNote(uid: string): Promise<NoteDoc> {
   };
 }
 
-export async function fetchNoteRender(uid: string): Promise<string> {
-  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}/render`);
+export async function fetchNoteRender(uid: string, opts: { as?: string } = {}): Promise<string> {
+  const q = opts.as ? `?as=${encodeURIComponent(opts.as)}` : "";
+  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}/render${q}`);
   if (!res.ok) throw await parseError(res);
   const json = (await res.json()) as any;
   return (json.html ?? json.content ?? "") as string;
@@ -187,9 +189,31 @@ export async function sendChatMessage(input: { campaign?: string; name?: string;
   return createNote(body);
 }
 
+export interface PlayerAccount {
+  id: string;
+  player: string;
+  campaigns: string[];
+}
+
 export async function deleteNote(uid: string): Promise<void> {
   const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}`, { method: "DELETE" });
   if (!res.ok) throw await parseError(res);
+}
+
+export async function fetchPlayers(): Promise<PlayerAccount[]> {
+  const res = await apiFetch(`/api/v1/players`);
+  if (!res.ok) throw await parseError(res);
+  const j = await res.json();
+  const items = (j.items ?? []) as any[];
+  return items.map((a) => ({ id: String(a.id), player: String(a.player ?? a.id), campaigns: (a.campaigns ?? []) as string[] }));
+}
+
+export async function createPlayer(name: string, campaign = ""): Promise<{ name: string; campaign: string; join_code: string; expires_at: string }> {
+  const res = await apiFetch(`/api/v1/players`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, campaign }),
+  });
+  if (!res.ok) throw await parseError(res);
+  return await res.json();
 }
 
 export async function fetchLinks(uid: string): Promise<any> {
