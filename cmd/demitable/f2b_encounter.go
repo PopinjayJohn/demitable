@@ -96,14 +96,12 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		// Display principal is bound to one session (F3) and reads party-only
 		// projected state through the same fog function (no second path).
 		if principal.IsDisplay() {
+			// Display is bound to exactly one session at mint time (F3b).
+			// It may read only that session; an unbound display refuses.
 			if principal.Session != "" && principal.Session == sid {
 				return true
 			}
-			if sid != "" {
-				if ss, _ := sess.GetSession(sid); ss != nil {
-					return true
-				}
-			}
+			return false
 		}
 		return false
 	}
@@ -183,45 +181,44 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		return out
 	}
 
+	tokenVisible := func(principal vault.Principal, tok encounterToken, seatID string) bool {
+		if tok.Hidden {
+			return principal.IsGM()
+		}
+		if len(tok.VisibleTo) > 0 {
+			allowed := false
+			for _, ss := range tok.VisibleTo {
+				if ss == seatID || ss == principal.ID || ss == "*" {
+					allowed = true
+				}
+			}
+			if !allowed && !principal.IsGM() {
+				return false
+			}
+		}
+		if tok.NoteUID != "" && vlt != nil {
+			n := vlt.GetNote(tok.NoteUID)
+			if n != nil {
+				if !vault.Visible(principal, *n) {
+					return false
+				}
+			} else {
+				if !principal.IsGM() {
+					return false
+				}
+			}
+		}
+		return true
+	}
+
 	projectEncounter := func(sid string, st *encounterState, principal vault.Principal, seatID string) map[string]any {
 		visibleTokens := []string{}
 		visibleTokenObjs := []encounterToken{}
 		hiddenTokens := []string{}
 		for _, tok := range st.Tokens {
-			if tok.Hidden {
-				if principal.IsGM() {
-					visibleTokens = append(visibleTokens, tok.ID)
-					visibleTokenObjs = append(visibleTokenObjs, tok)
-					continue
-				}
+			if !tokenVisible(principal, tok, seatID) {
 				hiddenTokens = append(hiddenTokens, tok.ID)
 				continue
-			}
-			if len(tok.VisibleTo) > 0 {
-				allowed := false
-				for _, s := range tok.VisibleTo {
-					if s == seatID || s == principal.ID || s == "*" {
-						allowed = true
-					}
-				}
-				if !allowed && !principal.IsGM() {
-					hiddenTokens = append(hiddenTokens, tok.ID)
-					continue
-				}
-			}
-			if tok.NoteUID != "" && vlt != nil {
-				n := vlt.GetNote(tok.NoteUID)
-				if n != nil {
-					if !vault.Visible(principal, *n) {
-						hiddenTokens = append(hiddenTokens, tok.ID)
-						continue
-					}
-				} else {
-					if !principal.IsGM() {
-						hiddenTokens = append(hiddenTokens, tok.ID)
-						continue
-					}
-				}
 			}
 			visibleTokens = append(visibleTokens, tok.ID)
 			visibleTokenObjs = append(visibleTokenObjs, tok)
@@ -625,6 +622,17 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		}
 		parts := parseParticipants(body)
 		tokens := parseTokens(body)
+		initiative := []string{}
+		if v, ok := body["initiative"]; ok {
+			if arr, ok := v.([]any); ok {
+				initiative = toStringSlice(arr)
+			}
+		}
+		if v, ok := body["initiative_order"]; ok {
+			if arr, ok := v.([]any); ok {
+				initiative = toStringSlice(arr)
+			}
+		}
 		st := &encounterState{
 			ID:           uidVal,
 			UID:          uidVal,
@@ -635,7 +643,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 			Pack:         system,
 			Campaign:     campaign,
 			Participants: parts,
-			Initiative:   []string{},
+			Initiative:   initiative,
 			CurrentTurn:  0,
 			Round:        1,
 			Tokens:       tokens,
@@ -820,6 +828,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		newTokens := parseTokens(body)
 		if len(newTokens) > 0 {
 			// validate every note_uid resolves and is visible to the principal
+			seatID := ""
+			if principal.IsSeat() {
+				seatID = principal.ID
+			}
 			for _, t := range newTokens {
 				if t.NoteUID != "" {
 					n := vlt.GetNote(t.NoteUID)
@@ -827,7 +839,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 						writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
 						return
 					}
-					if !isGM && !vault.Visible(principal, *n) {
+					if !isGM && !tokenVisible(principal, t, seatID) {
 						writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
 						return
 					}
@@ -880,7 +892,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 							}
 						}
 						// visibility
-						if old.Hidden {
+						if !tokenVisible(principal, old, seatID) {
 							writeErr(w, "forbidden", "token not visible", http.StatusForbidden)
 							return
 						}
@@ -1281,32 +1293,9 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		if seatID == "" && principal.IsSeat() {
 			seatID = principal.ID
 		}
-		// visibility: seat must be able to see token
+		// visibility: seat must be able to see token. Single fog implementation.
 		if !principal.IsGM() {
-			visible := false
-			// reuse projectEncounter fog: token visible if in visible set
-			// compute via same logic: hidden/visible_to/note
-			if tok.Hidden {
-				visible = false
-			} else {
-				allowed := true
-				if len(tok.VisibleTo) > 0 {
-					allowed = false
-					for _, s := range tok.VisibleTo {
-						if s == seatID || s == principal.ID || s == "*" {
-							allowed = true
-						}
-					}
-				}
-				if allowed && tok.NoteUID != "" && vlt != nil {
-					n := vlt.GetNote(tok.NoteUID)
-					if n != nil && !vault.Visible(principal, *n) {
-						allowed = false
-					}
-				}
-				visible = allowed
-			}
-			if !visible {
+			if !tokenVisible(principal, tok, seatID) {
 				writeErr(w, "forbidden", "token not visible", http.StatusForbidden)
 				return
 			}
@@ -1338,14 +1327,14 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 		if hasY {
 			st.Tokens[idx].Y = newY
 		}
-		// forged note uid validation on any token note_uid (already present) - validate moved token's note
+		// forged note uid validation on moved token's note
 		if st.Tokens[idx].NoteUID != "" && vlt != nil {
 			n := vlt.GetNote(st.Tokens[idx].NoteUID)
 			if n == nil {
 				writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
 				return
 			}
-			if !principal.IsGM() && !vault.Visible(principal, *n) {
+			if !principal.IsGM() && !tokenVisible(principal, st.Tokens[idx], seatID) {
 				writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
 				return
 			}
@@ -1368,6 +1357,10 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 	addTokenHandler := func(w http.ResponseWriter, r *http.Request) {
 		sid, eid := pathSE(r)
 		principal := principalFromRequest(r, tk)
+		seatID := ""
+		if principal.IsSeat() {
+			seatID = principal.ID
+		}
 		if sid == "" {
 			sid = r.URL.Query().Get("session")
 			if sid == "" {
@@ -1415,7 +1408,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 				writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
 				return
 			}
-			if !principal.IsGM() && !vault.Visible(principal, *n) {
+			if !principal.IsGM() && !tokenVisible(principal, encounterToken{NoteUID: noteUID}, seatID) {
 				writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
 				return
 			}
@@ -1466,7 +1459,7 @@ func encounterHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, 
 					writeErr(w, "bad_request", "unknown note", http.StatusBadRequest)
 					return
 				}
-				if !principal.IsGM() && !vault.Visible(principal, *n) {
+				if !principal.IsGM() && !tokenVisible(principal, t, seatID) {
 					writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
 					return
 				}
