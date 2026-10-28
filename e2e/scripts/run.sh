@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Run the cross-browser harness with the no-root browser-libs on LD_LIBRARY_PATH.
-# Chromium and Firefox are runnable in this environment; WebKit is not (see
-# docs/cross-browser-results.md) because the headless MiniBrowser cannot create
-# an EGL display here.
+# Chromium and Firefox are runnable in this environment; WebKit runs under
+# Xvfb (see docs/cross-browser-results.md, "WebKit green (2026-10-28)"):
+#   xvfb-run -a ./scripts/run.sh --project=webkit
+# Bare MiniBrowser without a display server aborts with "Could not create EGL
+# display" — that is the environment, not the harness.
 #
 # The vendored library tree is a build input, not a dependency (the same rule
 # as fixtures/): it is not committed. Override SYS to point at your own tree;

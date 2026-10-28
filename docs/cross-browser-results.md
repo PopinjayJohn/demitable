@@ -28,10 +28,10 @@ A machine with the normal system dependencies needs neither the wrapper nor
 cd e2e && npm ci && npx playwright install --with-deps chromium firefox
 ```
 
-The **aspirational full command** is `cd e2e && npx playwright test`: it runs
-all three configured projects, including WebKit. It is not a reproducible
-green command here — WebKit fails to launch for the EGL reason named below, so
-use the `--project` form above when you want the two green columns.
+The **full command** is `cd e2e && npx playwright test`: it runs all three
+configured projects, including WebKit. Under Xvfb it is green in all three
+columns (see WebKit green, 2026-10-28, below); without a display server, use
+the `--project` form below when you want the two display-independent columns.
 
 ## Environment
 
@@ -40,9 +40,9 @@ use the `--project` form above when you want the two green columns.
 | Playwright | 1.64.0 |
 | Chromium | 156.0.8078.4 (headless shell + full build) |
 | Firefox | 157.0 |
-| WebKit | 2.55.0 (minibrowser-wpe) — **not runnable in this environment** |
+| WebKit | 2.55.0 (minibrowser-wpe) — **green since 2026-10-28** (Xvfb + system libs) |
 | Node | v22.23.3 |
-| Date | 2026-10-26 |
+| Date | 2026-10-26 (matrix); WebKit column closed 2026-10-28 |
 
 Libraries: on a rootless machine the browsers' shared libraries come from a
 vendored tree (`SYS`), built by `apt-get download` + `dpkg-deb -x` from the
@@ -55,22 +55,22 @@ rewritten (or dropped) to match where it now lives.
 
 | Test | Chromium | Firefox | WebKit |
 |---|---|---|---|
-| R1 composedPath()[0] vs event.target | PASS | PASS | not run |
-| R1b keyboard crosses boundary; target retargeted | PASS | PASS | not run |
-| R2 selection path (per-browser) | PASS | PASS | not run |
-| R4 custom property on :root resolves in shadow | PASS | PASS | not run |
-| R5 outer CSS beats shadow :host | PASS | PASS | not run |
-| R6 `all:initial` on :host sets display:inline | PASS | PASS | not run |
-| inheritance: font-family crosses into shadow | PASS | PASS | not run |
-| R8 form controls keep UA font-family | PASS | PASS | not run |
-| R9 adoptedStyleSheets applies in shadow | PASS | PASS | not run |
-| R9b adopted stylesheet does not leak | PASS | PASS | not run |
-| keyboard: trusted keydown at document | PASS | PASS | not run |
-| dialog: showModal/close restores focus | PASS | PASS | not run |
-| drag: light → shadow native (isTrusted asserted) | PASS | PASS | not run |
-| drag: shadow → light native (isTrusted asserted) | PASS | PASS | not run |
-| drag: custom MIME survives boundary | PASS | PASS | not run |
-| **Total** | **15 / 15** | **15 / 15** | **0 (env gap)** |
+| R1 composedPath()[0] vs event.target | PASS | PASS | PASS |
+| R1b keyboard crosses boundary; target retargeted | PASS | PASS | PASS |
+| R2 selection path (per-browser) | PASS | PASS | PASS |
+| R4 custom property on :root resolves in shadow | PASS | PASS | PASS |
+| R5 outer CSS beats shadow :host | PASS | PASS | PASS |
+| R6 `all:initial` on :host sets display:inline | PASS | PASS | PASS |
+| inheritance: font-family crosses into shadow | PASS | PASS | PASS |
+| R8 form controls keep UA font-family | PASS | PASS | PASS |
+| R9 adoptedStyleSheets applies in shadow | PASS | PASS | PASS |
+| R9b adopted stylesheet does not leak | PASS | PASS | PASS |
+| keyboard: trusted keydown at document | PASS | PASS | PASS |
+| dialog: showModal/close restores focus | PASS | PASS | PASS |
+| drag: light → shadow native (isTrusted asserted) | PASS | PASS | PASS |
+| drag: shadow → light native (isTrusted asserted) | PASS | PASS | PASS |
+| drag: custom MIME survives boundary | PASS | PASS | PASS |
+| **Total** | **15 / 15** | **15 / 15** | **15 / 15** |
 
 ## Divergences found
 
@@ -102,10 +102,11 @@ binaries and system libraries were installed (see `e2e/scripts/run.sh` and
 the no-root syslibs), but the display dependency is environmental and cannot
 be satisfied by extracting further packages.
 
-Consequence: the matrix is green in **two of three** browsers here. The WebKit
-column is recorded as `not run` with the gap named, not as green. CI on a
-runner with a working GL/EGL stack (or a headed display) must close this
-column; the harness itself is unchanged and WebKit is a configured project in
+Consequence: the matrix was green in **two of three** browsers here until
+2026-10-28, when the WebKit column closed green (section below). The WebKit
+gap history is kept for the record; CI on a runner without Xvfb or an
+EGL-capable stack regresses to the red-with-reason described below, and the
+harness itself is unchanged — WebKit stays a configured project in
 `e2e/playwright.config.ts`.
 
 ## F0 probe (2026-10-27)
@@ -140,6 +141,31 @@ decision (waiver vs. blocker before F2) is the orchestrator's, not this
 document's. No ADR is filed for this infra gap: there is zero behavioral
 evidence to record (phase-3 precedent).
 
+## WebKit green (2026-10-28)
+
+The environment gained Xvfb (plus `npx playwright install --with-deps
+webkit` for the system libraries and `npm ci` for `e2e/node_modules`,
+which had been absent). The exact unblock recipe from the section above
+worked first try. Command and result:
+
+```
+cd e2e && xvfb-run -a ./scripts/run.sh --project=webkit
+# 15 passed (10.3s)
+```
+
+All 15 shadow-host rules pass in WebKit 2.55.0, including the three
+native drag-and-drop cases (light→shadow, shadow→light, custom MIME —
+the interaction class F2c builds on) and the R2 selection path with
+no per-browser fallback needed. **Zero behavioral divergences** across
+Chromium, Firefox and WebKit: the R2/Firefox item in Divergences found
+remains the only named divergence in the matrix.
+
+Consequence for the phase-4 gates: ADR-0063's condition ("runs green
+… before any F2 surface work starts") is satisfied as green, not as a
+waiver. F2c may proceed; the divergences table stays empty unless a
+later run diverges, in which case the brief §8 pattern (divergence
+table + amending ADR) applies.
+
 ## Deferred with reason
 
 The harness covers the rules that can be asserted against the fixture today.
@@ -158,7 +184,7 @@ the owner that closes them.
 | CodeMirror 6 in a shadow root | Phase-0 verified zero changes needed in Chromium; `e2e/` has no CodeMirror dependency, and the app mounts its editor in light DOM (ADR-0021). | **O5c**, only if a shadow-hosted source view is proposed. |
 | OS-level drag gesture (dragging out of the browser window) | `page.dragAndDrop` is the browser's input path (`isTrusted: true` is asserted), but it bypasses the OS drag loop. | **Phase 4** (tabletop), and only if tokens may be dragged outside the window; see `shadow-dom-verification.md` §7. |
 | Plugin → plugin drag across two different shadow roots | The mechanism matches the tested cases; the app has no two plugin surfaces yet. | **Phase 4** (bestiary → tabletop), where the interaction first exists. |
-| Safari / WebKit column | Named in the section above: the environment cannot create an EGL display. | **O4b follow-up** on a runner with GL/EGL or a headed display. The harness needs no change. |
+| Safari / WebKit column | Gap named above; closed green 2026-10-28 under Xvfb. | Done (matrix 15/15/15). Harness unchanged. |
 
 ## Mutation evidence (no vacuous tests)
 
