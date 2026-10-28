@@ -131,6 +131,21 @@ func run(args []string) error {
 	defer stop()
 
 	if wtr != nil {
+		// Bridge external edits into live clients: an Obsidian-side
+		// write reconciles the index in the watcher and lands here as
+		// a vault.changed broadcast — the same event API writes emit.
+		// Delivery stays visibility-filtered in the hub, so a player
+		// never learns about a note they may not see.
+		wtr.OnChange = func(uid, kind string) {
+			if globalHub == nil {
+				return
+			}
+			data := map[string]any{"kind": kind}
+			if uid != "" {
+				data["uid"] = uid
+			}
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": data})
+		}
 		go func() {
 			if err := wtr.Start(ctx); err != nil {
 				logger.Warn("watcher stopped", "err", err)

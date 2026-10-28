@@ -117,18 +117,6 @@ export async function fetchNote(uid: string, opts: { as?: string } = {}): Promis
   };
 }
 
-export async function fetchNoteRender(uid: string, opts: { as?: string } = {}): Promise<string> {
-  const q = opts.as ? `?as=${encodeURIComponent(opts.as)}` : "";
-  const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(uid)}/render${q}`);
-  if (!res.ok) throw await parseError(res);
-  const json = (await res.json()) as any;
-  return (json.html ?? json.content ?? "") as string;
-}
-
-// alias
-export const fetchRender = fetchNoteRender;
-export const renderNote = fetchNoteRender;
-
 export async function saveNote(uid: string, content: string, hash?: string): Promise<NoteDoc> {
   const body: Record<string, unknown> = { content };
   if (hash) body.hash = hash;

@@ -19,6 +19,13 @@ type Watcher struct {
 	Interval time.Duration // rescan backstop interval
 	Polling  bool          // if true, no fsnotify, pure polling
 
+	// OnChange, when non-nil, is called after the watcher reconciles an
+	// external filesystem change. uid is empty when the note is gone or
+	// unresolvable; kind is created|updated|deleted. The server bridges
+	// this to a vault.changed broadcast, so an edit in Obsidian reaches
+	// browsers without polling; API writes broadcast on their own path.
+	OnChange func(uid, kind string)
+
 	mu       sync.Mutex
 	watcher  *fsnotify.Watcher
 	cancel   context.CancelFunc
@@ -163,7 +170,14 @@ func (w *Watcher) processPath(rel, full string) {
 	// stat (reconcile CHMOD-as-removal)
 	fi, err := os.Stat(full)
 	if err != nil {
+		uid := ""
+		w.Vault.mu.RLock()
+		if n := w.Vault.ByPath[rel]; n != nil {
+			uid = n.UID
+		}
+		w.Vault.mu.RUnlock()
 		w.Vault.Load()
+		w.notify(uid, "deleted")
 		return
 	}
 	if fi.IsDir() {
@@ -193,14 +207,86 @@ func (w *Watcher) processPath(rel, full string) {
 		return
 	}
 
+	kind := "updated"
+	if existing == nil {
+		kind = "created"
+	}
+
 	// Re-parse the whole vault so the SQLite query cache stays in sync.
 	// (Cheaper to be correct than to mirror incremental edits in two
 	// indexes.)
 	w.Vault.Load()
+
+	uid := ""
+	w.Vault.mu.RLock()
+	if n := w.Vault.ByPath[rel]; n != nil {
+		uid = n.UID
+	}
+	w.Vault.mu.RUnlock()
+	w.notify(uid, kind)
+}
+
+// notify invokes the change hook, if one is set. It runs on the watcher's
+// goroutine (or the debounce timer's), so the hook must be cheap and
+// thread-safe; the server's broadcast is mutex-guarded.
+func (w *Watcher) notify(uid, kind string) {
+	if w.OnChange == nil {
+		return
+	}
+	w.OnChange(uid, kind)
+}
+
+// fingerprint snapshots note identity per path for rescan diffing.
+func (w *Watcher) fingerprint() map[string]string {
+	out := map[string]string{}
+	w.Vault.mu.RLock()
+	defer w.Vault.mu.RUnlock()
+	for path, n := range w.Vault.ByPath {
+		if n != nil {
+			out[path] = n.UID + "\x00" + n.Hash
+		}
+	}
+	return out
 }
 
 func (w *Watcher) rescan() {
+	before := w.fingerprint()
 	w.Vault.Load()
+	after := w.fingerprint()
+	if w.OnChange == nil {
+		return
+	}
+	// Broadcast only what actually changed; the 30 s backstop must not
+	// refetch every client on a quiet vault. Cap per-path events so a
+	// bulk import degrades to one generic broadcast.
+	changed := 0
+	for path, a := range after {
+		if b, ok := before[path]; !ok || b != a {
+			uid := strings.SplitN(a, "\x00", 2)[0]
+			kind := "updated"
+			if !ok {
+				kind = "created"
+			}
+			w.notify(uid, kind)
+			if changed++; changed >= 25 {
+				break
+			}
+		}
+	}
+	if changed >= 25 {
+		w.notify("", "rescan")
+		return
+	}
+	for path, b := range before {
+		if _, ok := after[path]; !ok {
+			uid := strings.SplitN(b, "\x00", 2)[0]
+			w.notify(uid, "deleted")
+			if changed++; changed >= 25 {
+				w.notify("", "rescan")
+				return
+			}
+		}
+	}
 }
 
 // Trigger forces an immediate rescan (used by tests).

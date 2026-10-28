@@ -22,6 +22,8 @@ export interface WSClientOptions {
   onSessionPatch?: (data: any) => void;
   onError?: (data: any) => void;
   onHello?: (data: any) => void;
+  onOpen?: () => void;
+  onClose?: (e: CloseEvent) => void;
   onMessage?: WSEventHandler;
   reconnect?: boolean;
 }
@@ -46,6 +48,7 @@ export class WSClient {
     if (this.ws) return;
     const ws = new WebSocket(this.url);
     this.ws = ws;
+    ws.onopen = () => this.opts.onOpen?.();
     ws.onmessage = (ev) => {
       let env: WSEnvelope;
       try {
@@ -81,8 +84,9 @@ export class WSClient {
           break;
       }
     };
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       this.ws = null;
+      this.opts.onClose?.(ev);
       if (this.shouldReconnect) {
         this.reconnectTimer = setTimeout(() => this.connect(), 1000);
       }
