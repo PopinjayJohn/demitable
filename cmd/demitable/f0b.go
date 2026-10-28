@@ -14,10 +14,12 @@ import (
 	"sync"
 	"time"
 
+	"fmt"
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/formula"
 	"github.com/PopinjayJohn/demitable/internal/logging"
 	"github.com/PopinjayJohn/demitable/internal/pack"
+	"github.com/PopinjayJohn/demitable/internal/uid"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
 )
@@ -759,6 +761,232 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 		m.HandleFunc(p, uploadHandler)
 	}
 
+	// F3a: generic note creation through the journaled write path. Used by
+	// chat sending and any other caller that creates a note. Creates a file
+	// under the vault root and journals the write (before bytes nil) so it
+	// is revertible like every other mutation.
+	createNote := func(w http.ResponseWriter, r *http.Request) {
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if principal.Kind == "anonymous" {
+			writeErr(w, "unauthenticated", "no token", http.StatusUnauthorized)
+			return
+		}
+		body, _ := io.ReadAll(r.Body)
+		var req map[string]any
+		if len(bytes.TrimSpace(body)) > 0 {
+			if err := json.Unmarshal(body, &req); err != nil {
+				writeErr(w, "invalid", "bad json", http.StatusBadRequest)
+				return
+			}
+		} else {
+			req = map[string]any{}
+		}
+		rel := ""
+		if v, ok := req["path"].(string); ok && v != "" {
+			rel = v
+		}
+		if rel == "" {
+			// default location for messages
+			name := "Note"
+			if v, ok := req["name"].(string); ok && v != "" {
+				name = v
+			}
+			typ := ""
+			if v, ok := req["type"].(string); ok {
+				typ = v
+			}
+			if typ == "message" {
+				rel = "Campaigns/demo/Chat/" + name + ".md"
+			} else {
+				rel = "Notes/" + name + ".md"
+			}
+		}
+		rel = filepath.ToSlash(filepath.Clean(rel))
+		if rel == "." || strings.HasPrefix(rel, "..") || strings.HasPrefix(rel, "/") {
+			writeErr(w, "invalid", "bad path", http.StatusBadRequest)
+			return
+		}
+		// Build frontmatter.
+		fields := map[string]any{}
+		if v, ok := req["fields"].(map[string]any); ok {
+			for k, val := range v {
+				fields[k] = val
+			}
+		}
+		if v, ok := req["frontmatter"].(map[string]any); ok {
+			for k, val := range v {
+				fields[k] = val
+			}
+		}
+		// promote top-level known keys
+		for _, k := range []string{"type", "uid", "name", "system", "campaign", "kind", "player", "workflow", "visibility", "grants", "revealed", "discovered", "channel"} {
+			if v, ok := req[k]; ok {
+				fields[k] = v
+			}
+		}
+		// Apply reserved-field discipline (same as PATCH): Coerce + CheckVocabulary
+		for k, v := range fields {
+			if rr, ok := frontmatter.ReservedByName[strings.ToLower(k)]; ok {
+				val := jsonValueToFrontmatter(v)
+				coerced, err := rr.Coerce(val)
+				if err != nil {
+					writeErr(w, "invalid", err.Error(), http.StatusBadRequest)
+					return
+				}
+				if err := rr.CheckVocabulary(coerced); err != nil {
+					writeErr(w, "invalid", err.Error(), http.StatusBadRequest)
+					return
+				}
+				fields[k] = fmValueToAny(coerced)
+				canon := rr.Name
+				if k != canon {
+					fields[canon] = fields[k]
+					delete(fields, k)
+				}
+			}
+		}
+		// F3a: chat messages must live under Campaigns/<id>/Chat/
+		if v, ok := fields["type"].(string); ok && v == "message" {
+			if !strings.Contains(rel, "/Chat/") && !strings.Contains(rel, "Chat/") {
+				camp := ""
+				if v, ok := fields["campaign"].(string); ok {
+					camp = fmt.Sprint(v)
+					camp = strings.TrimPrefix(camp, "[[")
+					camp = strings.TrimSuffix(camp, "]]")
+				}
+				if camp == "" {
+					camp = "demo"
+				}
+				name := filepath.Base(rel)
+				if name == "" || name == "." || name == "Note.md" {
+					if v, ok := fields["name"].(string); ok && v != "" {
+						name = fmt.Sprint(v)
+					} else if v, ok := req["name"].(string); ok && v != "" {
+						name = fmt.Sprint(v)
+					} else {
+						name = "message"
+					}
+					if !strings.HasSuffix(name, ".md") {
+						name += ".md"
+					}
+				} else if !strings.HasSuffix(name, ".md") {
+					name += ".md"
+				}
+				rel = filepath.ToSlash(filepath.Join("Campaigns", camp, "Chat", name))
+			}
+		}
+		if _, ok := fields["uid"]; !ok {
+			u, _ := uid.New()
+			if u != "" {
+				fields["uid"] = u
+			}
+		}
+		if _, ok := fields["name"]; !ok {
+			if v, ok := req["name"].(string); ok && v != "" {
+				fields["name"] = v
+			}
+		}
+		// body
+		bodyStr := ""
+		if v, ok := req["content"].(string); ok {
+			bodyStr = v
+		} else if v, ok := req["body"].(string); ok {
+			bodyStr = v
+		}
+		// render frontmatter
+		var b strings.Builder
+		b.WriteString("---\n")
+		for k, v := range fields {
+			switch t := v.(type) {
+			case string:
+				b.WriteString(fmt.Sprintf("%s: %s\n", k, formatYAMLValue(t)))
+			case bool:
+				b.WriteString(fmt.Sprintf("%s: %v\n", k, t))
+			case float64:
+				if t == float64(int64(t)) {
+					b.WriteString(fmt.Sprintf("%s: %d\n", k, int64(t)))
+				} else {
+					b.WriteString(fmt.Sprintf("%s: %v\n", k, t))
+				}
+			case []string:
+				if len(t) == 0 {
+					b.WriteString(fmt.Sprintf("%s: []\n", k))
+				} else {
+					b.WriteString(fmt.Sprintf("%s:\n", k))
+					for _, it := range t {
+						b.WriteString(fmt.Sprintf("  - %s\n", formatYAMLValue(it)))
+					}
+				}
+			case []any:
+				if len(t) == 0 {
+					b.WriteString(fmt.Sprintf("%s: []\n", k))
+				} else {
+					b.WriteString(fmt.Sprintf("%s:\n", k))
+					for _, it := range t {
+						switch itv := it.(type) {
+						case string:
+							b.WriteString(fmt.Sprintf("  - %s\n", formatYAMLValue(itv)))
+						default:
+							jb, _ := json.Marshal(itv)
+							b.WriteString(fmt.Sprintf("  - %s\n", string(jb)))
+						}
+					}
+				}
+			default:
+				jb, _ := json.Marshal(t)
+				b.WriteString(fmt.Sprintf("%s: %s\n", k, string(jb)))
+			}
+		}
+		b.WriteString("---\n\n")
+		b.WriteString(bodyStr)
+		if !strings.HasSuffix(bodyStr, "\n") && bodyStr != "" {
+			b.WriteString("\n")
+		}
+		full := filepath.Join(vlt.Root, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+			writeErr(w, "internal", "mkdir failed", http.StatusInternalServerError)
+			return
+		}
+		if _, err := os.Stat(full); err == nil {
+			writeErr(w, "conflict", "file exists", http.StatusConflict)
+			return
+		}
+		actor := principal.ID
+		if actor == "" || principal.IsGM() {
+			actor = "gm"
+		}
+		if err := os.WriteFile(full, []byte(b.String()), 0o644); err != nil {
+			writeErr(w, "internal", "write failed", http.StatusInternalServerError)
+			return
+		}
+		// journal
+		uidVal := ""
+		if v, ok := fields["uid"].(string); ok {
+			uidVal = v
+		}
+		_, _ = vault.NewJournal(vlt.Root).AppendWrite(actor, "app", "create", uidVal, rel, "", nil, []byte(b.String()), nil)
+		_ = vlt.Load()
+		if globalHub != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "vault.changed", "data": map[string]any{"uid": uidVal, "kind": "created"}})
+			if uidVal != "" {
+				if n := vlt.GetNote(uidVal); n != nil {
+					globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": uidVal, "hash": n.Hash}})
+				}
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		resp := map[string]any{"uid": uidVal, "path": rel, "created": true}
+		if uidVal != "" {
+			if n := vlt.GetNote(uidVal); n != nil {
+				resp["hash"] = n.Hash
+			}
+		}
+		_ = json.NewEncoder(w).Encode(resp)
+	}
+	for _, pth := range []string{"POST /api/v1/notes", "POST /api/v1/notes/create"} {
+		m.HandleFunc(pth, createNote)
+	}
+
 	// audit log (best-effort) for new endpoints not required.
 	_ = audit
 	_ = cfg
@@ -818,6 +1046,18 @@ func randomHex(n int) string {
 		panic("crypto/rand failed: " + err.Error())
 	}
 	return hex.EncodeToString(b)
+}
+
+func formatYAMLValue(s string) string {
+	// Quote if contains special chars.
+	if strings.ContainsAny(s, ":#{}[]&*?|>'\"\n") || strings.TrimSpace(s) != s {
+		b, _ := json.Marshal(s)
+		return string(b)
+	}
+	if s == "" {
+		return `""`
+	}
+	return s
 }
 
 func init() {}

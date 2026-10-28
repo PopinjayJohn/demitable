@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/PopinjayJohn/demitable/internal/vault"
@@ -172,11 +173,22 @@ func handleWS(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, tokenKey
 			ra := vault.RevealAudience{}
 			switch v := audience.(type) {
 			case string:
-				if v == "all" || v == "everyone" {
+				vs := strings.ToLower(v)
+				if vs == "all" || vs == "everyone" {
 					ra.All = true
+				} else if vs == "display" || vs == "shared" {
+					ra.Display = true
 				}
 			case map[string]any:
 				if ps, ok := v["players"].([]any); ok {
+					for _, p := range ps {
+						ra.Players = append(ra.Players, fmt.Sprint(p))
+					}
+				} else if ps, ok := v["player"].([]any); ok {
+					for _, p := range ps {
+						ra.Players = append(ra.Players, fmt.Sprint(p))
+					}
+				} else if ps, ok := v["player_ids"].([]any); ok {
 					for _, p := range ps {
 						ra.Players = append(ra.Players, fmt.Sprint(p))
 					}
@@ -184,8 +196,35 @@ func handleWS(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, tokenKey
 				if all, _ := v["all"].(bool); all {
 					ra.All = true
 				}
+				if all, _ := v["everyone"].(bool); all {
+					ra.All = true
+				}
+				if d, _ := v["display"].(bool); d {
+					ra.Display = true
+				}
+				if d, _ := v["to_display"].(bool); d {
+					ra.Display = true
+				}
+				if d, _ := v["shared"].(bool); d {
+					ra.Display = true
+				}
+				if t, _ := v["target"].(string); t != "" {
+					ts := strings.ToLower(t)
+					if ts == "all" || ts == "everyone" {
+						ra.All = true
+					}
+					if ts == "display" || ts == "shared" || ts == "table" {
+						ra.Display = true
+					}
+				}
+				if t, _ := v["type"].(string); t != "" {
+					ts := strings.ToLower(t)
+					if ts == "display" {
+						ra.Display = true
+					}
+				}
 			}
-			if len(ra.Players) == 0 && !ra.All {
+			if len(ra.Players) == 0 && !ra.All && !ra.Display {
 				ra.All = true
 			}
 			if err := vlt.RevealSecret(noteUID, blockID, ra); err != nil {
