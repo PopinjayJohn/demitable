@@ -71,6 +71,23 @@ note has nobody else to hide from).
 with its own `members` and `packs`; a document is a thing that is simply
 there — a notice, a letter, a wanted poster, a ledger page.
 
+#### Campaign notes
+
+A campaign note may carry three GM-owned fields:
+
+| Field | Shape | Status |
+|---|---|---|
+| `members` | list of account ids | declared, carried — membership itself resolves through account records, not this list |
+| `packs` | list of pack ids | declared, carried |
+| `home` | wikilink to a note | **read** — the campaign's landing page in the wiki dashboard |
+
+The Home view resolves a campaign's landing page in this order:
+the `home:` link, then the `type: home` note in that campaign, then the
+campaign note itself. (Until the API exposes these fields in the note
+response, the `home:` link is resolved where the raw file is readable —
+the GM view — and every other audience uses the `type: home`
+convention. See the API open items.)
+
 ### Visibility vocabulary
 
 `public`, `party`, `owner`, `private`, `discovered`, `gm`. An unknown value

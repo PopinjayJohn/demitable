@@ -365,7 +365,7 @@ commands. Both directions use one envelope:
 | Type | Data |
 |---|---|
 | `hello` | session id, role, the vault's clock, the client's capabilities |
-| `vault.changed` | `{ uid, kind: "created\|updated\|deleted" }` |
+| `vault.changed` | `{ uid, kind: "created\|updated\|deleted" }` — also emitted for external (Obsidian-side) edits via the vault watcher, so a client that only listens here still converges |
 | `session.state` | CUT (F5): no live session-state engine; clients read session state via REST |
 | `session.patch` | CUT (F5): no live session-state engine; clients read session state via REST |
 | `roll.result` | a roll that happened, with full provenance |
@@ -567,12 +567,39 @@ SDKs are a separate product decision, and a large one.
 **Scoped / not yet implemented.**
 
 - `POST /api/v1/players/:id/join-code` — not implemented.
-- All `/api/v1/sessions/*` — F1 scope, none implemented.
+- All `/api/v1/sessions/*` — shipped in phase 4; see "Sessions and seats"
+  above (create, join, seats, close with write-back, log, encounters,
+  fog, tabletop).
 - OpenAPI document generated from handlers — not yet; the endpoint list
   remains a sketch.
 - Native-client SDK (Swift/Kotlin) — separate product decision, not
   implied by this contract.
 - Offline behaviour for a native client — undecided.
+- **Un-reveal (conceal a revealed block again)** — no endpoint, and not
+  just a missing inverse: reveals are monotonic and journalled,
+  an audience grant may already have propagated, and clients that
+  received the broadcast hold the text. Revocation needs its own
+  semantic (per-audience? per-block? what does the journal record?),
+  so this stays a backlog item with a design pass, not a quick
+  endpoint. The webapp's reveal affordances are one-way on purpose.
+- **Per-player reveal UI** — the `secret.reveal` audience already takes
+  `{ players: [...] }` and the display target, and reveals persist
+  per-audience server-side; the webapp only exposes "reveal to the
+  table". A targeted-reveal picker is UI work on an existing contract.
+- **Inspector decision chain** — the webapp's "why can this role see
+  this note" panel has no server source yet; the projection returns a
+  verdict, not the rule chain that produced it. Exposing a
+  stable, non-leaking chain (no GM-only rule text to non-GM callers)
+  is a separate endpoint design.
+- **Campaign-declared fields in note responses** — the wiki Home view
+  needs `members`, `packs` and `home` from the campaign note in
+  machine-readable form. Non-reserved fields are never serialised
+  today; serving any of them is a visibility-model change (what
+  audience may see `members`, a list of account ids?), so this needs
+  its own ADR before any implementation. Until then the webapp
+  resolves `home:` where the raw file is readable (GM view) and uses
+  the `type: home` convention otherwise, and does not display
+  members or packs.
 
 **Cut.**
 

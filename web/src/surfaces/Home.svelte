@@ -6,7 +6,7 @@
   import { fetchNote, createNote } from "../lib/api";
   import { vaultStore } from "../lib/vaultstore.svelte";
   import { appState } from "../lib/appstate.svelte";
-  import { displayName } from "../lib/display";
+  import { displayName, parseHomeLink } from "../lib/display";
   import MarkdownView from "../components/MarkdownView.svelte";
   import VisibilityBadge from "../components/VisibilityBadge.svelte";
   import VisibilityInspector from "../components/VisibilityInspector.svelte";
@@ -49,8 +49,11 @@
     try {
       campaignDoc = await fetchNote(String(campaignNote.uid));
     } catch { /* fall back to list data */ }
-    const declared = (campaignDoc as any)?.home ?? (campaignNote as any)?.home;
-    homeUid = (declared && resolveLinkTarget(String(declared))) || null;
+    // The `home:` field is only readable where the raw file is: the GM
+    // view. Everyone else resolves through the type=home convention
+    // below, which is also the fallback when the field is absent.
+    const declared = campaignDoc ? parseHomeLink(campaignDoc.content ?? "") : null;
+    homeUid = (declared && resolveLinkTarget(declared)) || null;
     if (!homeUid) {
       const home = vaultStore.notes.find(
         (n) =>
@@ -86,12 +89,6 @@
       return false;
     }),
   );
-  const members: string[] = $derived(
-    Array.isArray((campaignDoc as any)?.members) ? (campaignDoc as any).members.map(String) : [],
-  );
-  const packs: string[] = $derived(
-    Array.isArray((campaignDoc as any)?.packs) ? (campaignDoc as any).packs.map(String) : [],
-  );
   const wikiIndex = $derived(() => {
     const m = new Map<string, string>();
     for (const n of vaultStore.notes) if ((n as any).name) m.set(String((n as any).name), String(n.uid));
@@ -124,12 +121,6 @@
         defaulted={Boolean((campaignNote as any).defaulted)}
       />
       <div class="rail-gap"></div>
-      {#if members.length > 0}
-        <p class="rail-item"><strong>{members.length}</strong> members</p>
-      {/if}
-      {#if packs.length > 0}
-        <p class="rail-item">Packs: {packs.join(", ")}</p>
-      {/if}
       {#if appState.showInspector}
         <div class="rail-gap"></div>
         <VisibilityInspector decisions={[]} />
