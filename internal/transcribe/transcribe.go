@@ -32,6 +32,7 @@ type Segment struct {
 	End      float64  `json:"end"`
 	Speaker  string   `json:"speaker,omitempty"`
 	Speakers []string `json:"speakers,omitempty"`
+	Reviewed bool     `json:"reviewed,omitempty"`
 }
 
 // Options carries per-transcription options. Lexicon terms are campaign names

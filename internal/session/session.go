@@ -951,12 +951,46 @@ func (s *Store) ListTranscriptSegments(sessionID string) ([]transcribe.Segment, 
 		if err := rows.Scan(&seg.ID, &seg.Text, &seg.Start, &seg.End, &seg.Speaker, &reviewed); err != nil {
 			return nil, err
 		}
+		seg.Reviewed = reviewed != 0
 		out = append(out, seg)
 	}
 	if out == nil {
 		out = []transcribe.Segment{}
 	}
 	return out, rows.Err()
+}
+
+// UpdateTranscriptSegment edits a segment's speaker/text and marks it reviewed.
+func (s *Store) UpdateTranscriptSegment(sessionID, segID, speaker, text string, reviewed bool) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var sid string
+	if err := s.db.QueryRow(`SELECT session_id FROM transcript_segments WHERE id = ?`, segID).Scan(&sid); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return sql.ErrNoRows
+		}
+		return err
+	}
+	if sid != sessionID && sessionID != "" {
+		return sql.ErrNoRows
+	}
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sid).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("session: not found: %w", err)
+		}
+		return err
+	}
+	if status == StatusClosed {
+		return ErrSessionClosed
+	}
+	rv := 0
+	if reviewed {
+		rv = 1
+	}
+	_, err := s.db.Exec(`UPDATE transcript_segments SET speaker=?, text=?, reviewed=? WHERE id=? AND session_id=?`,
+		speaker, text, rv, segID, sessionID)
+	return err
 }
 
 // DeleteTranscriptSegments removes all segments for a session.

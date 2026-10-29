@@ -1451,6 +1451,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		if as, err := audio.New(); err == nil {
 			transcribeHandlers(m, vlt, sessStore, as, tokenKeyFor(vlt))
+			p3Register(m, vlt, sessStore, tokenKeyFor(vlt))
 		}
 		moodHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
 		cueHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
