@@ -52,9 +52,8 @@ is accepted and echoed back as `expand: bool`, but does not gate
 computation — computed values are present either way); `POST /compute`
 exists (F0b) for wizard preview and rejects an `expression` field rather
 than evaluating it; `POST /roll` rolls into the shared log. `GET /notes/:uid`
-does not carry computed values and ignores `?expand=1`. `session.state` /
-`session.patch` are not emitted (cut in F5); live session state is read via
-REST.
+does not carry computed values and ignores `?expand=1`. `session.state` / `session.patch` are emitted on session change; live session
+state is also readable via REST.
 
 **Gap 2 and 3 are small and fixable. Gap 1 is the real work.**
 
@@ -419,7 +418,7 @@ POST /api/v1/journal/:id/revert       revert one change, or a batch
 ```
 GET  /api/v1/players                  accounts (id, player, campaigns — never passphrase hashes)
 POST /api/v1/players                  create a player, returns a join code
-POST /api/v1/players/:id/join-code    mint a fresh one  (not yet implemented)
+POST /api/v1/players/:id/join-code    mint a fresh one  (implemented, R4)
 ```
 
 `POST /api/v1/players` accepts an optional `campaign` (the campaign
@@ -522,8 +521,8 @@ commands. Both directions use one envelope:
 |---|---|
 | `hello` | session id, role, the vault's clock, the client's capabilities |
 | `vault.changed` | `{ uid, kind: "created\|updated\|deleted" }` — also emitted for external (Obsidian-side) edits via the vault watcher, so a client that only listens here still converges |
-| `session.state` | CUT (F5): no live session-state engine; clients read session state via REST |
-| `session.patch` | CUT (F5): no live session-state engine; clients read session state via REST |
+| `session.state` | full session state for one session — `{ id, code?, status, name, campaign, created_at, seats, … }` (GM-only fields filtered per principal) |
+| `session.patch` | same payload as `session.state`; emitted alongside it on every session change |
 | `roll.result` | a roll that happened, with full provenance |
 | `note.saved` | a note was written, by anyone |
 | `secret.revealed` | a secret was revealed — `{ note_uid, block_id, audience, by }` |
@@ -556,9 +555,8 @@ and it avoids a second serialisation path that could drift from the first.
 ### Reconnection
 
 The client reconnects with the same token. The server answers with `hello`
-only: there is no full `session.state` push (cut in F5). Clients refetch
-session state via `GET /api/v1/sessions/:id` and reconcile on the
-`vault.changed` / `note.saved` events. State is recoverable from the
+and (on the next session change) `session.state`/`session.patch`. Clients may
+also refetch session state via `GET /api/v1/sessions/:id`. State is recoverable from the
 server's session store (ADR-0030), so a dropped connection — or a crashed
 player app — costs nothing.
 
@@ -726,12 +724,11 @@ SDKs are a separate product decision, and a large one.
 
 **Scoped / not yet implemented.**
 
-- `POST /api/v1/players/:id/join-code` — not implemented.
+- `POST /api/v1/players/:id/join-code` — implemented (R4): mints a fresh single-use 24 h code.
 - All `/api/v1/sessions/*` — shipped in phase 4; see "Sessions and seats"
   above (create, join, seats, close with write-back, log, encounters,
   fog, tabletop).
-- OpenAPI document generated from handlers — not yet; the endpoint list
-  remains a sketch.
+- OpenAPI document generated from handlers — implemented (R4): `GET /api/v1/openapi.json`.
 - Native-client SDK (Swift/Kotlin) — separate product decision, not
   implied by this contract.
 - Offline behaviour for a native client — undecided.

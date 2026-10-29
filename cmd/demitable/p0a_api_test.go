@@ -142,30 +142,6 @@ func TestP0aWSIntentsIgnoredInCode(t *testing.T) {
 	}
 }
 
-// --- WS: session.state / session.patch are never emitted (cut in F5) -------
-
-func TestP0aNoSessionStateEmission(t *testing.T) {
-	entries, err := filepath.Glob("*.go")
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, e := range entries {
-		if strings.HasSuffix(e, "_test.go") {
-			continue
-		}
-		b, err := os.ReadFile(e)
-		if err != nil {
-			t.Fatal(err)
-		}
-		s := string(b)
-		for _, typ := range []string{`"session.state"`, `"session.patch"`} {
-			if strings.Contains(s, typ) {
-				t.Fatalf("%s emits/cites %s; doc says cut", e, typ)
-			}
-		}
-	}
-}
-
 // --- WS reconnect: no full session.state push ------------------------------
 
 func TestP0aWSReconnectNoFullState(t *testing.T) {
