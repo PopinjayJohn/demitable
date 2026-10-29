@@ -284,10 +284,14 @@ POST /api/v1/sessions/:id/cues/select   select a cue for playback (GM)
   is supplied. The client's `deriveMood` is a dead stub.
 - Cue config is persisted in `.demitable/cues.json` (mode 0600). Cue `src`
   values must be local paths (`isLocalCueSrc`); remote URLs are rejected.
-- Auth scope: mood and cue GETs require an existing session; a seat token
-  bound to another session is `401 unauthorized`. Cue mutations and cue
-  select require a GM principal (`403 forbidden` otherwise). Unknown session
-  → `404 not_found`.
+- Auth scope: mood and cue GETs require an existing session. A mood GET
+  with a seat token bound to another session is `401 unauthorized`; a cue GET
+  has no cross-session seat check, so a seat token bound to another session
+  receives `200` with the title-stripped (non-GM) projection. Cue mutations
+  and cue select require a GM principal (`403 forbidden` otherwise). Unknown
+  session → `404 not_found` for GETs (and for GM-authenticated select);
+  select checks auth before existence, so an anonymous cue-select against an
+  unknown session is `403 forbidden`.
 - Error codes used: `not_found`, `unauthorized`, `forbidden`, `invalid`
   (bad cue src), `method_not_allowed`.
 
