@@ -263,6 +263,34 @@ GM can assign a character to a seat in advance, which is how a guest gets one.
 The GM can add seats in advance, so a player who arrives late can be seated
 without the GM re-sharing the code.
 
+### Mood and music cues (P4)
+
+Server-canonical mood derivation and persisted cue configuration for a
+session's tabletop audio.
+
+```
+GET  /api/v1/sessions/:id/mood          derived mood tag + vocabulary
+POST /api/v1/sessions/:id/mood          derive from supplied encounter state / keywords
+GET  /api/v1/sessions/:id/cues          list cues (GM: full; others: title-stripped)
+POST /api/v1/sessions/:id/cues          set cue list (GM)
+PUT  /api/v1/sessions/:id/cues          set cue list (GM)
+PATCH /api/v1/sessions/:id/cues         set cue list (GM)
+DELETE /api/v1/sessions/:id/cues        clear cue list (GM)
+POST /api/v1/sessions/:id/cues/select   select a cue for playback (GM)
+```
+
+- Mood is computed server-side from encounter state plus `keywords` using the
+  single `internal/mood.Derive`; the default mood is returned when no state
+  is supplied. The client's `deriveMood` is a dead stub.
+- Cue config is persisted in `.demitable/cues.json` (mode 0600). Cue `src`
+  values must be local paths (`isLocalCueSrc`); remote URLs are rejected.
+- Auth scope: mood and cue GETs require an existing session; a seat token
+  bound to another session is `401 unauthorized`. Cue mutations and cue
+  select require a GM principal (`403 forbidden` otherwise). Unknown session
+  → `404 not_found`.
+- Error codes used: `not_found`, `unauthorized`, `forbidden`, `invalid`
+  (bad cue src), `method_not_allowed`.
+
 ### The journal
 
 ```

@@ -37,6 +37,13 @@ func p4IsGM(principal vault.Principal, sessionID string, sessStore *session.Stor
 
 // isLocalCueSrc mirrors the client-side locality check: only local paths,
 // never remote URLs.
+//
+// NOTE: absolute paths (e.g. /etc/passwd) and traversal segments
+// (e.g. ../../etc/passwd) are deliberately accepted. The src string is
+// never opened or read server-side; it is persisted verbatim and handed
+// to the client's <audio src>, whose playback is governed by the existing
+// /asset/ path scoping. Rejecting them here would add no security and
+// would diverge from the client-side check in web/src/lib/cues.ts.
 func isLocalCueSrc(src string) bool {
 	s := strings.TrimSpace(src)
 	if s == "" {
@@ -418,6 +425,11 @@ func cueHandlers(m *http.ServeMux, vlt *vault.Vault, sessStore *session.Store, t
 			if ss, err := sessStore.GetSession(sid); err == nil && ss != nil {
 				isSession = true
 			}
+		}
+		sessionScoped := strings.Contains(r.URL.Path, "/sessions/")
+		if sessionScoped && !isSession {
+			writeErr(w, "not_found", "no such session", http.StatusNotFound)
+			return
 		}
 
 		// read body
