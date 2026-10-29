@@ -40,15 +40,21 @@ leak secrets. One implementation, on the server, is the right shape.
 versioning rule has been discussed and never specified. A native client
 developer would be guessing.
 
-**Gap 2 — Auth was browser-shaped. Closed in implementation.** Every route
-accepts a bearer token, the session cookie, or `?token=` alike, and every
-auth endpoint returns the token as JSON. No refresh endpoint (re-authenticate
-on expiry). What remains is UI: the webapp spends no credential yet (F5).
+**Gap 2 — Auth was browser-shaped. Closed.** Every route accepts a bearer
+token, the session cookie, or `?token=` alike, and every auth endpoint
+returns the token as JSON. The webapp (F5) stores the issued token in
+localStorage and injects `Authorization: Bearer …` on every fetch. No
+refresh endpoint — clients re-authenticate on expiry.
 
-**Gap 3 — The compute boundary is half-specified.** The sheet computes
-server-side (`GET /characters/:uid` returns `computed` plus `?expand=1`;
-`POST /roll` rolls into the shared log). The generic escape hatch
-(`POST /compute` for wizard preview) does not exist yet — it is F0 scope.
+**Gap 3 — The compute boundary.** The sheet computes server-side:
+`GET /characters/:uid` always returns `computed` (the optional `?expand=1`
+is accepted and echoed back as `expand: bool`, but does not gate
+computation — computed values are present either way); `POST /compute`
+exists (F0b) for wizard preview and rejects an `expression` field rather
+than evaluating it; `POST /roll` rolls into the shared log. `GET /notes/:uid`
+does not carry computed values and ignores `?expand=1`. `session.state` /
+`session.patch` are not emitted (cut in F5); live session state is read via
+REST.
 
 **Gap 2 and 3 are small and fixable. Gap 1 is the real work.**
 
@@ -183,7 +189,8 @@ GET  /api/v1/packs/:id/content        content notes of a given content_type
 
 ### Sessions and seats
 
-Status: F1 scope; none of these endpoints are implemented in F0.
+Status: shipped in phase 4 (F1 sessions and seats, F2b encounters, F2c
+tabletop, F3 chat and display, F4 write-back).
 
 A **session** is one sitting of a table. A **seat** is one person at that
 table, playing one character, or watching.
@@ -300,7 +307,11 @@ from the server, and it can ask the server to compute more.
 ### Endpoints
 
 ```
-GET  /api/v1/notes/:uid?expand=1      the note, plus its computed values
+GET  /api/v1/characters/:uid          sheet: data, computed values, equipment
+                                      (`?expand=1` accepted and echoed as
+                                      `expand: bool`; does not gate
+                                      computation — computed values are
+                                      returned regardless)
 
 POST /api/v1/compute                  evaluate formulas in a context
 {
@@ -310,9 +321,10 @@ POST /api/v1/compute                  evaluate formulas in a context
 → { "values": { "max_hp": 38, "spell_dc": 15 } }
 ```
 
-`?expand=1` returns the pack's *sheet-visible* formulas pre-computed, which is
-what a sheet view actually needs. `/compute` is the explicit escape hatch, for
-a wizard previewing a value as the user changes an ability score.
+Computed values are always present on the character sheet response; `?expand=1`
+is a client hint the server echoes (the webapp always sends it). `/compute`
+is the explicit escape hatch, for a wizard previewing a value as the user
+changes an ability score. `GET /notes/:uid` never carries computed values.
 
 ### Dice
 
@@ -377,9 +389,9 @@ commands. Both directions use one envelope:
 
 | Type | Data |
 |---|---|
-| `session.command` | move a token, change HP, add a condition, reorder initiative |
-| `roll.request` | ask the server to roll |
-| `note.command` | a structured edit to a note |
+| `session.command` | **ignored.** No live session-state engine (cut in F5); token/HP/condition/initiative changes go through the encounter and notes REST endpoints |
+| `roll.request` | **ignored.** Rolls go through `POST /api/v1/roll` (the server rolls) |
+| `note.command` | **ignored.** Structured edits go through `PUT`/`PATCH /api/v1/notes/:uid` |
 | `secret.reveal` | reveal a secret — `{ note_uid, block_id, audience }` |
 | `ping` | keepalive |
 
@@ -399,9 +411,12 @@ and it avoids a second serialisation path that could drift from the first.
 
 ### Reconnection
 
-The client reconnects with the same token and receives a full `session.state`.
-State is recoverable from the server's session store (ADR-0030), so a dropped
-connection — or a crashed player app — costs nothing.
+The client reconnects with the same token. The server answers with `hello`
+only: there is no full `session.state` push (cut in F5). Clients refetch
+session state via `GET /api/v1/sessions/:id` and reconcile on the
+`vault.changed` / `note.saved` events. State is recoverable from the
+server's session store (ADR-0030), so a dropped connection — or a crashed
+player app — costs nothing.
 
 ---
 
@@ -559,8 +574,9 @@ SDKs are a separate product decision, and a large one.
   unimplemented); sets `workflow: submitted`.
 - Auth (F0a): `POST /api/v1/auth/set-passphrase` and
   `POST /api/v1/auth/gm/rotate`, with seven route aliases (three and four).
-- Character computed values: `GET /api/v1/characters/:uid?expand=1` and
-  generic evaluation via `POST /api/v1/compute` (F0b).
+- Character computed values: `GET /api/v1/characters/:uid` (always
+  computed; `?expand=1` accepted and echoed) and generic evaluation via
+  `POST /api/v1/compute` (F0b).
 - Filter/query language (`list_by`) and opaque signed cursors — closed in
   O2 (ADR-0047).
 
