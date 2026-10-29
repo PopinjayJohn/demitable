@@ -72,7 +72,7 @@
     {/if}
     {#if appState.showInspector}
       <div class="rail-gap"></div>
-      <VisibilityInspector decisions={[]} />
+      <VisibilityInspector uid={uid ?? ""} />
     {/if}
   </div>
   {#if vaultStore.reviewQueue.length > 0}

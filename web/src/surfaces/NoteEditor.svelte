@@ -144,7 +144,7 @@
       </div>
       {#if appState.showInspector}
         <div class="rail-gap"></div>
-        <VisibilityInspector decisions={[]} />
+        <VisibilityInspector uid={uid ?? ""} as={eyeAs} />
       {/if}
       <div class="rail-gap"></div>
       <h3 class="rail-title">GM-only blocks <span class="tag">{secrets.length}</span></h3>
