@@ -446,11 +446,14 @@ func (b *Block) renderReplacement(reg *valueRegion, v Value) ([]byte, error) {
 // not a valid YAML value, and `key: {a: 1}` is a flow mapping, which is a
 // different style from the one the corpus uses.
 func isBlockCollection(v Value) bool {
+	// An empty collection is written inline (`[]` / `{}`) on the key's
+	// own line: a block collection with no items does not parse when it is
+	// emitted on the following line at column zero.
 	switch v.Kind {
 	case KindList:
-		return true
+		return len(v.List) > 0
 	case KindMap:
-		return true
+		return len(v.Map) > 0
 	}
 	return false
 }

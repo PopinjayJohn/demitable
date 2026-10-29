@@ -11,7 +11,6 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"strings"
 	"sync"
 
 	"github.com/PopinjayJohn/demitable/internal/vault"
@@ -181,60 +180,62 @@ func handleWS(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, tokenKey
 			noteUID, _ := env.Data["note_uid"].(string)
 			blockID, _ := env.Data["block_id"].(string)
 			audience := env.Data["audience"]
-			ra := vault.RevealAudience{}
-			switch v := audience.(type) {
-			case string:
-				vs := strings.ToLower(v)
-				if vs == "all" || vs == "everyone" {
-					ra.All = true
-				} else if vs == "display" || vs == "shared" {
-					ra.Display = true
+			// Optional in-place revocation via the reveal message itself.
+			if rev, _ := env.Data["revoke"].(bool); rev {
+				ra := parseWSAudience(audience)
+				if err := vlt.UnrevealSecret(noteUID, blockID, ra); err != nil {
+					c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "invalid", "message": err.Error()}})
+					continue
 				}
-			case map[string]any:
-				if ps, ok := v["players"].([]any); ok {
-					for _, p := range ps {
-						ra.Players = append(ra.Players, fmt.Sprint(p))
-					}
-				} else if ps, ok := v["player"].([]any); ok {
-					for _, p := range ps {
-						ra.Players = append(ra.Players, fmt.Sprint(p))
-					}
-				} else if ps, ok := v["player_ids"].([]any); ok {
-					for _, p := range ps {
-						ra.Players = append(ra.Players, fmt.Sprint(p))
-					}
-				}
-				if all, _ := v["all"].(bool); all {
-					ra.All = true
-				}
-				if all, _ := v["everyone"].(bool); all {
-					ra.All = true
-				}
-				if d, _ := v["display"].(bool); d {
-					ra.Display = true
-				}
-				if d, _ := v["to_display"].(bool); d {
-					ra.Display = true
-				}
-				if d, _ := v["shared"].(bool); d {
-					ra.Display = true
-				}
-				if t, _ := v["target"].(string); t != "" {
-					ts := strings.ToLower(t)
-					if ts == "all" || ts == "everyone" {
-						ra.All = true
-					}
-					if ts == "display" || ts == "shared" || ts == "table" {
-						ra.Display = true
-					}
-				}
-				if t, _ := v["type"].(string); t != "" {
-					ts := strings.ToLower(t)
-					if ts == "display" {
-						ra.Display = true
-					}
-				}
+				hub.broadcast(map[string]any{
+					"v":    1,
+					"type": "secret.unrevealed",
+					"data": map[string]any{
+						"note_uid": noteUID,
+						"block_id": blockID,
+						"audience": audience,
+						"by":       "gm",
+					},
+				})
+				continue
 			}
+			if rev, _ := env.Data["conceal"].(bool); rev {
+				ra := parseWSAudience(audience)
+				if err := vlt.UnrevealSecret(noteUID, blockID, ra); err != nil {
+					c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "invalid", "message": err.Error()}})
+					continue
+				}
+				hub.broadcast(map[string]any{
+					"v":    1,
+					"type": "secret.concealed",
+					"data": map[string]any{
+						"note_uid": noteUID,
+						"block_id": blockID,
+						"audience": audience,
+						"by":       "gm",
+					},
+				})
+				continue
+			}
+			if rev, _ := env.Data["unreveal"].(bool); rev {
+				ra := parseWSAudience(audience)
+				if err := vlt.UnrevealSecret(noteUID, blockID, ra); err != nil {
+					c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "invalid", "message": err.Error()}})
+					continue
+				}
+				hub.broadcast(map[string]any{
+					"v":    1,
+					"type": "secret.unrevealed",
+					"data": map[string]any{
+						"note_uid": noteUID,
+						"block_id": blockID,
+						"audience": audience,
+						"by":       "gm",
+					},
+				})
+				continue
+			}
+			ra := parseWSAudience(audience)
 			if len(ra.Players) == 0 && !ra.All && !ra.Display {
 				ra.All = true
 			}
@@ -245,6 +246,79 @@ func handleWS(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, tokenKey
 			hub.broadcast(map[string]any{
 				"v":    1,
 				"type": "secret.revealed",
+				"data": map[string]any{
+					"note_uid": noteUID,
+					"block_id": blockID,
+					"audience": audience,
+					"by":       "gm",
+				},
+			})
+		case "secret.unreveal", "secret.un-reveal", "secret.unrevealed":
+			if !prin.IsGM() {
+				c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "forbidden", "message": "gm only"}})
+				continue
+			}
+			noteUID, _ := env.Data["note_uid"].(string)
+			blockID, _ := env.Data["block_id"].(string)
+			audience := env.Data["audience"]
+			ra := parseWSAudience(audience)
+			if err := vlt.UnrevealSecret(noteUID, blockID, ra); err != nil {
+				c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "invalid", "message": err.Error()}})
+				continue
+			}
+			hub.broadcast(map[string]any{
+				"v":    1,
+				"type": "secret.unrevealed",
+				"data": map[string]any{
+					"note_uid": noteUID,
+					"block_id": blockID,
+					"audience": audience,
+					"by":       "gm",
+				},
+			})
+		case "secret.revoke", "secret.revoked":
+			if !prin.IsGM() {
+				c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "forbidden", "message": "gm only"}})
+				continue
+			}
+			noteUID, _ := env.Data["note_uid"].(string)
+			blockID, _ := env.Data["block_id"].(string)
+			audience := env.Data["audience"]
+			ra := parseWSAudience(audience)
+			if err := vlt.UnrevealSecret(noteUID, blockID, ra); err != nil {
+				c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "invalid", "message": err.Error()}})
+				continue
+			}
+			hub.broadcast(map[string]any{
+				"v":    1,
+				"type": "secret.revoked",
+				"data": map[string]any{
+					"note_uid": noteUID,
+					"block_id": blockID,
+					"audience": audience,
+					"by":       "gm",
+				},
+			})
+		case "secret.conceal", "secret.concealed", "secret.hide", "secret.hidden":
+			if !prin.IsGM() {
+				c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "forbidden", "message": "gm only"}})
+				continue
+			}
+			noteUID, _ := env.Data["note_uid"].(string)
+			blockID, _ := env.Data["block_id"].(string)
+			audience := env.Data["audience"]
+			ra := parseWSAudience(audience)
+			if err := vlt.UnrevealSecret(noteUID, blockID, ra); err != nil {
+				c.writeJSON(map[string]any{"v": 1, "type": "error", "data": map[string]any{"code": "invalid", "message": err.Error()}})
+				continue
+			}
+			btype := "secret.concealed"
+			if env.Type == "secret.hide" || env.Type == "secret.hidden" {
+				btype = "secret.hidden"
+			}
+			hub.broadcast(map[string]any{
+				"v":    1,
+				"type": btype,
 				"data": map[string]any{
 					"note_uid": noteUID,
 					"block_id": blockID,
@@ -333,3 +407,11 @@ func writeWSFrame(conn net.Conn, opcode byte, payload []byte) error {
 
 var _ = bufio.NewReader
 var _ = slog.Default
+
+// parseWSAudience converts the loose WebSocket audience payload into the vault's
+// RevealAudience, mirroring the previous inline parsing. A missing audience
+// yields an empty audience (which the vault interprets as "all" on reveal and
+// "everything" on un-reveal).
+func parseWSAudience(audience any) vault.RevealAudience {
+	return vault.ToRevealAudience(audience)
+}

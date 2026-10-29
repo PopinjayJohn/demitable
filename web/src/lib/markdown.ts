@@ -188,7 +188,9 @@ function rehypeCallouts(options?: { revealed?: string[]; revealButtons?: boolean
         }
         // An in-body reveal affordance for the GM: hidden until the
         // block is hovered or focused, so reading prose stays clean.
-        // One-way only — the server has no un-reveal.
+        // Reveal is monotonic over the wire: a client that has already
+        // fetched the block keeps it. Un-reveal only affects future fetches,
+        // re-renders and replays; it cannot recall text already sent.
         if (revealButtons && idm && !isRevealed) {
           el.children.push({
             type: "element",

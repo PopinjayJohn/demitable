@@ -84,29 +84,7 @@ func (v *Vault) RevealSecret(uid, blockID string, audience RevealAudience) error
 	}
 
 	// Build revealed frontmatter value carrying per-id audience.
-	revealedVal := frontmatter.Value{Kind: frontmatter.KindList}
-	for _, id := range n.Revealed {
-		aud := n.RevealedAudience[id]
-		m := frontmatter.Value{Kind: frontmatter.KindMap}
-		m.Map = append(m.Map, frontmatter.MapEntry{Key: "id", Value: frontmatter.String(id)})
-		if aud.All {
-			m.Map = append(m.Map, frontmatter.MapEntry{Key: "all", Value: frontmatter.Bool(true)})
-		}
-		if aud.Display {
-			m.Map = append(m.Map, frontmatter.MapEntry{Key: "display", Value: frontmatter.Bool(true)})
-		}
-		if len(aud.Players) > 0 {
-			pl := frontmatter.Value{Kind: frontmatter.KindList}
-			for _, p := range aud.Players {
-				pl.List = append(pl.List, frontmatter.String(p))
-			}
-			m.Map = append(m.Map, frontmatter.MapEntry{Key: "players", Value: pl})
-		}
-		if !aud.All && !aud.Display && len(aud.Players) == 0 {
-			m.Map = append(m.Map, frontmatter.MapEntry{Key: "all", Value: frontmatter.Bool(true)})
-		}
-		revealedVal.List = append(revealedVal.List, m)
-	}
+	revealedVal := revealedFrontmatterValue(n)
 
 	sets := []frontmatter.Set{
 		{Key: "revealed", Value: revealedVal},
@@ -290,3 +268,290 @@ func revealVisibleTo(p Principal, n Note, id string) bool {
 	}
 	return false
 }
+
+// revealedFrontmatterValue serialises n.Revealed + n.RevealedAudience into the
+// frontmatter `revealed` value. Shared by reveal and un-reveal so the two
+// paths cannot drift.
+func revealedFrontmatterValue(n *Note) frontmatter.Value {
+	revealedVal := frontmatter.Value{Kind: frontmatter.KindList}
+	revealedVal.List = []frontmatter.Value{}
+	for _, id := range n.Revealed {
+		aud := n.RevealedAudience[id]
+		if !aud.All && !aud.Display && len(aud.Players) == 0 {
+			aud.All = true
+		}
+		m := frontmatter.Value{Kind: frontmatter.KindMap}
+		m.Map = append(m.Map, frontmatter.MapEntry{Key: "id", Value: frontmatter.String(id)})
+		if aud.All {
+			m.Map = append(m.Map, frontmatter.MapEntry{Key: "all", Value: frontmatter.Bool(true)})
+		}
+		if aud.Display {
+			m.Map = append(m.Map, frontmatter.MapEntry{Key: "display", Value: frontmatter.Bool(true)})
+		}
+		if len(aud.Players) > 0 {
+			pl := frontmatter.Value{Kind: frontmatter.KindList}
+			for _, p := range aud.Players {
+				pl.List = append(pl.List, frontmatter.String(p))
+			}
+			m.Map = append(m.Map, frontmatter.MapEntry{Key: "players", Value: pl})
+		}
+		if !aud.All && !aud.Display && len(aud.Players) == 0 {
+			m.Map = append(m.Map, frontmatter.MapEntry{Key: "all", Value: frontmatter.Bool(true)})
+		}
+		revealedVal.List = append(revealedVal.List, m)
+	}
+	return revealedVal
+}
+
+// toRevealAudience converts the loose shapes the callers (and the WebSocket
+// layer) use into a RevealAudience. An audience with no flags set means
+// "revoke everything" on the un-reveal path.
+func toRevealAudience(a any) RevealAudience {
+	ra := RevealAudience{}
+	switch v := a.(type) {
+	case nil:
+		return ra
+	case RevealAudience:
+		return v
+	case *RevealAudience:
+		if v != nil {
+			return *v
+		}
+		return ra
+	case []string:
+		ra.Players = append([]string{}, v...)
+	case []any:
+		for _, p := range v {
+			ra.Players = append(ra.Players, fmt.Sprint(p))
+		}
+	case string:
+		vs := strings.ToLower(strings.TrimSpace(v))
+		if vs == "all" || vs == "everyone" || vs == "table" {
+			ra.All = true
+		} else if vs == "display" || vs == "shared" {
+			ra.Display = true
+		} else if vs != "" {
+			ra.Players = append(ra.Players, v)
+		}
+	case map[string]any:
+		if ps, ok := v["players"].([]any); ok {
+			for _, p := range ps {
+				ra.Players = append(ra.Players, fmt.Sprint(p))
+			}
+		} else if ps, ok := v["player"].([]any); ok {
+			for _, p := range ps {
+				ra.Players = append(ra.Players, fmt.Sprint(p))
+			}
+		} else if ps, ok := v["player_ids"].([]any); ok {
+			for _, p := range ps {
+				ra.Players = append(ra.Players, fmt.Sprint(p))
+			}
+		}
+		if ps, ok := v["players"].([]string); ok {
+			ra.Players = append(ra.Players, ps...)
+		}
+		if all, _ := v["all"].(bool); all {
+			ra.All = true
+		}
+		if all, _ := v["everyone"].(bool); all {
+			ra.All = true
+		}
+		if d, _ := v["display"].(bool); d {
+			ra.Display = true
+		}
+		if d, _ := v["to_display"].(bool); d {
+			ra.Display = true
+		}
+		if d, _ := v["shared"].(bool); d {
+			ra.Display = true
+		}
+		if t, _ := v["target"].(string); t != "" {
+			ts := strings.ToLower(t)
+			if ts == "all" || ts == "everyone" || ts == "table" {
+				ra.All = true
+			}
+			if ts == "display" || ts == "shared" {
+				ra.Display = true
+			}
+		}
+		if t, _ := v["type"].(string); t != "" {
+			ts := strings.ToLower(t)
+			if ts == "display" {
+				ra.Display = true
+			}
+			if ts == "all" || ts == "everyone" || ts == "table" {
+				ra.All = true
+			}
+		}
+	}
+	// de-dupe players
+	out := []string{}
+	for _, p := range ra.Players {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		if !contains(out, p) {
+			out = append(out, p)
+		}
+	}
+	ra.Players = out
+	return ra
+}
+
+// UnrevealSecret revokes a revealed block for the given audience. A block
+// that has no audience left afterwards is removed from the revealed set and
+// concealed on every future fetch, re-render and replay. Text a client has
+// already received cannot be recalled: un-reveal guarantees future fetches
+// and re-renders only.
+func (v *Vault) UnrevealSecret(uid, blockID string, audience any) error {
+	ra := toRevealAudience(audience)
+
+	v.mu.Lock()
+	defer v.Literal.Rebuild(v)
+	defer v.mu.Unlock()
+
+	n, ok := v.Notes[uid]
+	if !ok || n == nil {
+		return fmt.Errorf("vault: note not found: %s", uid)
+	}
+	blockID = strings.TrimSpace(blockID)
+	if blockID == "" {
+		return fmt.Errorf("vault: empty block id")
+	}
+	if n.RevealedAudience == nil {
+		n.RevealedAudience = map[string]RevealAudience{}
+	}
+	cur, ok := n.RevealedAudience[blockID]
+	if !ok {
+		// Not currently revealed: nothing to revoke.
+		return nil
+	}
+	if !contains(n.Revealed, blockID) {
+		// Inconsistent state; treat as revealed anyway.
+	}
+
+	before := append([]byte(nil), n.Raw...)
+
+	revokeAll := !ra.All && !ra.Display && len(ra.Players) == 0
+	changed := false
+	if revokeAll {
+		cur.All = false
+		cur.Display = false
+		cur.Players = nil
+		changed = true
+	} else {
+		if ra.All && cur.All {
+			cur.All = false
+			changed = true
+		}
+		if ra.Display && cur.Display {
+			cur.Display = false
+			changed = true
+		}
+		for _, pid := range ra.Players {
+			pid = strings.TrimSpace(pid)
+			if pid == "" {
+				continue
+			}
+			if contains(cur.Players, pid) {
+				out := []string{}
+				for _, p := range cur.Players {
+					if p != pid {
+						out = append(out, p)
+					}
+				}
+				cur.Players = out
+				changed = true
+			}
+		}
+	}
+	if !changed {
+		return nil
+	}
+
+	if !cur.All && !cur.Display && len(cur.Players) == 0 {
+		delete(n.RevealedAudience, blockID)
+		out := []string{}
+		for _, id := range n.Revealed {
+			if id != blockID {
+				out = append(out, id)
+			}
+		}
+		n.Revealed = out
+	} else {
+		n.RevealedAudience[blockID] = cur
+	}
+
+	doc, err := frontmatter.Parse(n.Raw)
+	if err != nil || !doc.HasBlock {
+		return fmt.Errorf("vault: no frontmatter block: %w", err)
+	}
+
+	sets := []frontmatter.Set{
+		{Key: "revealed", Value: revealedFrontmatterValue(n)},
+		{Key: "grants", Value: frontmatter.Strings(n.Grants...)},
+	}
+	newInner, err := doc.Block.Apply(sets...)
+	if err != nil {
+		return fmt.Errorf("vault: apply revealed: %w", err)
+	}
+	var buf []byte
+	buf = append(buf, doc.Block.Open...)
+	buf = append(buf, newInner...)
+	buf = append(buf, doc.Block.Close...)
+	buf = append(buf, doc.Body...)
+
+	full := filepath.Join(v.Root, filepath.FromSlash(n.Path))
+	if err := os.WriteFile(full, buf, 0o644); err != nil {
+		return fmt.Errorf("vault: write revealed: %w", err)
+	}
+
+	newNote, err := v.parseFile(n.Path)
+	if err != nil {
+		return fmt.Errorf("vault: parse after reveal: %w", err)
+	}
+	newNote.UID = uid
+	v.Notes[uid] = newNote
+	v.ByPath[n.Path] = newNote
+
+	j := NewJournal(v.Root)
+	changes := []Change{
+		{Key: "revealed", To: n.Revealed},
+	}
+	_, _ = j.AppendWrite("gm", "reveal", "reveal-revoke", uid, n.Path, "", before, buf, changes)
+
+	return nil
+}
+
+// Aliases and player-slice convenience wrappers.
+func (v *Vault) Unreveal(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) Conceal(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) ConcealSecret(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) RevokeReveal(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) RevokeSecret(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) UnrevealBlock(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) ConcealBlock(uid, blockID string, audience any) error {
+	return v.UnrevealSecret(uid, blockID, audience)
+}
+func (v *Vault) UnrevealFromPlayers(uid, blockID string, players []string) error {
+	return v.UnrevealSecret(uid, blockID, RevealAudience{Players: players})
+}
+func (v *Vault) ConcealFromPlayers(uid, blockID string, players []string) error {
+	return v.UnrevealSecret(uid, blockID, RevealAudience{Players: players})
+}
+
+// ToRevealAudience is the exported form of toRevealAudience.
+func ToRevealAudience(a any) RevealAudience { return toRevealAudience(a) }

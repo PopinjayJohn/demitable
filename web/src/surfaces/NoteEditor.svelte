@@ -20,6 +20,7 @@
   let previewSource = $state("");
   let previewRevealed = $state<string[]>([]);
   let status = $state("idle");
+  let revealPlayers = $state<Record<string, string>>({});
   let conflict = $state<NoteDoc | null>(null);
   let fmVisibility = $state(""), fmWorkflow = $state(""), fmGrants = $state(""),
       fmCampaign = $state(""), fmKind = $state(""), fmPlayer = $state(""),
@@ -96,9 +97,9 @@
     try { doc = await patchNote(uid, fields); status = "frontmatter applied"; await renderPreview(); }
     catch (e: any) { status = e?.message ?? "frontmatter failed"; }
   }
-  function reveal(blockId: string) {
+  function reveal(blockId: string, audience: any = { all: true }) {
     if (!uid) return;
-    ws?.revealSecret(uid, blockId, { all: true });
+    ws?.revealSecret(uid, blockId, audience);
     setTimeout(() => void renderPreview(), 600);
   }
 
@@ -156,7 +157,12 @@
             <li class="secret">
               <span class="secret__label">{s.label}</span>
               <span class="secret__id mono">^{s.id}</span>
-              <button class="btn btn--sm" onclick={() => reveal(s.id)}>Reveal to the table</button>
+              <div class="reveal-row">
+                <button class="btn btn--sm" onclick={() => reveal(s.id, { all: true })}>Reveal to table</button>
+                <button class="btn btn--sm" onclick={() => reveal(s.id, { display: true })}>Reveal to display</button>
+                <input class="reveal-players" placeholder="player ids (comma-separated)" bind:value={revealPlayers[s.id]} />
+                <button class="btn btn--sm" onclick={() => reveal(s.id, { players: (revealPlayers[s.id] ?? "").split(",").map((x) => x.trim()).filter(Boolean) })}>Reveal to players</button>
+              </div>
             </li>
           {/each}
         </ul>
