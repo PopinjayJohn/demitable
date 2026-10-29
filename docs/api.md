@@ -263,6 +263,118 @@ GM can assign a character to a seat in advance, which is how a guest gets one.
 The GM can add seats in advance, so a player who arrives late can be seated
 without the GM re-sharing the code.
 
+### Capture and transcription (P1–P2)
+
+Server-side capture (audio blob store) and transcription for a live session.
+Audio is stored per session; transcription reads the stored audio and produces
+transcript segments. All capture/transcription routes are GM-only — a
+non-GM (or a seat bound to another session) receives `404` with no existence
+oracle.
+
+```
+POST   /api/v1/sessions/:id/audio          upload an audio chunk (GM)
+GET    /api/v1/sessions/:id/audio          download the assembled audio (GM)
+DELETE /api/v1/sessions/:id/audio          delete stored audio (GM)
+POST   /api/v1/sessions/:id/transcribe     start transcription (GM)
+GET    /api/v1/sessions/:id/transcript     list transcript segments (GM)
+DELETE /api/v1/sessions/:id/transcript     delete all transcript segments (GM)
+```
+
+`GET /api/v1/sessions/:id/transcripts` is an alias of `/transcript`.
+
+#### Audio (capture / blob store)
+
+- Upload accepts either `multipart/form-data` (file field `file`, `audio`,
+  `chunk`, `data` or `upload`) or a raw body; max 64 MiB. Chunked uploads use
+  `?chunk=` (or `?index=`) and `?total=` (or `?chunks=`); a single-shot upload
+  (no `chunk`) assembles immediately. The final chunk triggers assembly.
+  Returns `{ session_id, chunk, bytes, assembled }`.
+- Serving posture: `GET` returns `application/octet-stream` only to a GM;
+  everyone else — and a missing blob — is `404` (no existence oracle).
+- `DELETE` returns `{ session_id, deleted: true }` and journals an
+  `audio.delete`.
+- Auth scope: a GM principal, or a seat of kind `gm` bound to this session.
+  A seat from another session is not GM → `404`.
+- Error codes: `not_found` (invalid session id / non-GM / missing blob, as
+  404), `invalid` (bad multipart, missing or empty file, bad chunk/total),
+  `internal` (write / assemble / delete failure).
+
+#### Transcription
+
+- `POST /transcribe` reads the stored audio blob, resolves the engine (local
+  by default; an external engine is used only when `engine` is `custom` or
+  `external` *and* `opt_in` or `enabled` is true with a command), applies the
+  vault's lexicon terms, and returns `{ session_id, engine, segments, count }`.
+  Optional body: `{ engine, custom_command (or command), opt_in (or enabled),
+  args }`.
+- `GET /transcript` returns `{ session_id, segments, count }`.
+- `DELETE /transcript` returns `{ session_id, deleted: true }`.
+- Error codes: `not_found` (invalid session / non-GM / missing audio, as
+  404), `internal` (transcription failure), `engine_missing` (no engine
+  binary, HTTP 503, body `{ "error": "engine_missing", "message": … }`).
+
+### Transcript review and session-log proposal (P3)
+
+GM review of a session's transcript, promotion of corrected terms into the
+vault lexicon, and a marked-section proposal that writes a session log note.
+Review/segment/promote/propose endpoints require a GM principal; the
+session-log read is audience-governed.
+
+```
+GET    /api/v1/sessions/:id/transcript/review          review snapshot (GM)
+POST   /api/v1/sessions/:id/transcript/review          update segments (GM)
+PATCH  /api/v1/sessions/:id/transcript/review          update segments (GM)
+PUT    /api/v1/sessions/:id/transcript/review          update segments (GM)
+PATCH  /api/v1/sessions/:id/transcript/segments/:seg   edit one segment (GM)
+PUT    /api/v1/sessions/:id/transcript/segments/:seg   edit one segment (GM)
+POST   /api/v1/sessions/:id/transcript/segments/:seg   edit one segment (GM)
+POST   /api/v1/sessions/:id/transcript/promote         promote a term (GM)
+POST   /api/v1/sessions/:id/session-log/preview        preview proposal (GM)
+GET    /api/v1/sessions/:id/session-log/preview        preview proposal (GM)
+POST   /api/v1/sessions/:id/session-log/apply          apply proposal (GM)
+POST   /api/v1/sessions/:id/session-log/propose        propose + apply (GM)
+PUT    /api/v1/sessions/:id/session-log/propose        propose + apply (GM)
+PATCH  /api/v1/sessions/:id/session-log/propose        propose + apply (GM)
+GET    /api/v1/sessions/:id/session-log               read session log note (audience-governed)
+```
+
+Alias spellings are registered for each group (`/review`, `/transcript/review/segments`;
+`/transcript/segment/:seg`, `/transcripts/segments/:seg`; `/promote`, `/lexicon/promote`,
+`/api/v1/lexicon/promote`; `/session-log/propose/preview`, `/proposal/preview`,
+`/session_log/preview`; `/session-log/propose/apply`, `/proposal/apply`,
+`/session_log/apply`; `/session-log`, `/proposal`, `/session_log`,
+`/session_log/propose`; `/log` for the session-log read).
+
+- Review `GET` returns `{ session_id, segments, encounters, rolls, dice_log }`.
+- Review `POST`/`PATCH`/`PUT` accepts a body with a `segments` (or `items` /
+  `data`) array of `{ id, speaker?, text? }` and updates each segment; returns
+  `{ session_id, reviewed: true, updated }`. A closed session → `409 session_closed`;
+  an unknown segment → `404 not_found`.
+- Segment edit body `{ speaker?, text? }` (`text` defaults to the existing text)
+  returns `{ session_id, segment_id, updated: true }`.
+- Promote accepts the term via `term` / `canonical` / `to` / `name` /
+  `correction` / `promoted`, and the source mangled form via `from` / `mangled` /
+  `original` / `wrong`; validates the term (no newlines, no path escape); writes a
+  character note under `Characters/` and rewrites the mangled form in segments;
+  journals `transcript.promote`. Returns `{ session_id, promoted, from, path, term }`.
+- Preview returns `{ session_id, path, proposal, content, marked_section, digest,
+  preserved }` without writing. Apply checks an optional `digest` (also
+  `preview_digest`, `resolution_digest`, `previewDigest`) against the computed
+  digest; mismatch → `409 digest_mismatch`. Apply writes the note and journals a
+  revertible `session_log.propose` batch. Propose is a one-step apply.
+- Session-log read returns `{ session_id, path, content, body }` if the note is
+  visible to the caller, else `404`.
+- Auth scope: a GM principal, or a seat of kind `gm` bound to this session, for
+  review / segment / promote / preview / apply / propose. Review returns `404` to
+  non-GM (no existence oracle); the others return `403 forbidden`. The
+  session-log read is audience-governed (any visible principal).
+- Closed-session guard: review writes, segment edits, and propose/apply/preview
+  return `409 session_closed` when the session is closed.
+- Error codes: `not_found` (missing session / segment / note, or non-GM for
+  review), `forbidden` (non-GM for segment / promote / propose), `method_not_allowed`,
+  `session_closed` (409), `bad_request` (promote term validation / invalid path),
+  `digest_mismatch` (409), `internal` (write / journal failure).
+
 ### Mood and music cues (P4)
 
 Server-canonical mood derivation and persisted cue configuration for a
