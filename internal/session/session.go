@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/PopinjayJohn/demitable/internal/dice"
+	"github.com/PopinjayJohn/demitable/internal/transcribe"
 
 	_ "modernc.org/sqlite"
 )
@@ -179,6 +180,17 @@ func (s *Store) migrate() error {
 			shared INTEGER NOT NULL DEFAULT 1,
 			timestamp TEXT NOT NULL,
 			payload TEXT NOT NULL DEFAULT '{}',
+			FOREIGN KEY(session_id) REFERENCES sessions(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS transcript_segments (
+			id TEXT PRIMARY KEY,
+			session_id TEXT NOT NULL,
+			text TEXT NOT NULL DEFAULT '',
+			start REAL NOT NULL DEFAULT 0,
+			end REAL NOT NULL DEFAULT 0,
+			speaker TEXT NOT NULL DEFAULT '',
+			reviewed INTEGER NOT NULL DEFAULT 0,
+			created_at TEXT NOT NULL,
 			FOREIGN KEY(session_id) REFERENCES sessions(id)
 		);`,
 	}
@@ -887,4 +899,70 @@ func (s *Store) ListRolls(sessionID, encounterID string) ([]dice.RollRecord, err
 		out = []dice.RollRecord{}
 	}
 	return out, rows.Err()
+}
+
+// --- transcript segments (P2, session tier) --------------------------------
+
+// TranscriptSegment is an alias for transcribe.Segment (one segment path).
+type TranscriptSegment = transcribe.Segment
+
+// AppendTranscriptSegment stores one segment for a session. Closed sessions
+// reject writes.
+func (s *Store) AppendTranscriptSegment(sessionID string, seg transcribe.Segment) (transcribe.Segment, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var status string
+	if err := s.db.QueryRow(`SELECT status FROM sessions WHERE id = ?`, sessionID).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return seg, fmt.Errorf("session: not found: %w", err)
+		}
+		return seg, err
+	}
+	if status == StatusClosed {
+		return seg, ErrSessionClosed
+	}
+	if seg.ID == "" {
+		seg.ID = fmt.Sprintf("seg-%d", time.Now().UnixNano())
+	}
+	now := time.Now().UTC()
+	_, err := s.db.Exec(
+		`INSERT INTO transcript_segments (id, session_id, text, start, end, speaker, reviewed, created_at) VALUES (?,?,?,?,?,?,?,?)`,
+		seg.ID, sessionID, seg.Text, seg.Start, seg.End, seg.Speaker, 0, now.Format(time.RFC3339Nano),
+	)
+	if err != nil {
+		return seg, err
+	}
+	return seg, nil
+}
+
+// ListTranscriptSegments returns all segments for a session, oldest first.
+func (s *Store) ListTranscriptSegments(sessionID string) ([]transcribe.Segment, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	rows, err := s.db.Query(`SELECT id, text, start, end, speaker, reviewed FROM transcript_segments WHERE session_id = ? ORDER BY created_at, id`, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []transcribe.Segment
+	for rows.Next() {
+		var seg transcribe.Segment
+		var reviewed int
+		if err := rows.Scan(&seg.ID, &seg.Text, &seg.Start, &seg.End, &seg.Speaker, &reviewed); err != nil {
+			return nil, err
+		}
+		out = append(out, seg)
+	}
+	if out == nil {
+		out = []transcribe.Segment{}
+	}
+	return out, rows.Err()
+}
+
+// DeleteTranscriptSegments removes all segments for a session.
+func (s *Store) DeleteTranscriptSegments(sessionID string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, err := s.db.Exec(`DELETE FROM transcript_segments WHERE session_id = ?`, sessionID)
+	return err
 }
