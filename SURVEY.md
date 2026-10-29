@@ -24,7 +24,7 @@ Tabletop's `apiFetch` for token moves, and the WebSocket upgrade in
 server-derived caches; the server remains the authority. No surface claims
 client-side projection or client-side note authority.
 
-## Surfaces (`web/src/surfaces`) — 8
+## Surfaces (`web/src/surfaces`) — 9
 
 | Surface | Status | Discipline |
 |---|---|---|
@@ -36,11 +36,13 @@ client-side projection or client-side note authority.
 | `Home.svelte` | Conforming (caveat) | Campaign home resolves the home note via `fetchNote` (GM raw file for the `home:` link; `type: home` convention otherwise). Badge uses `effective_visibility ?? effectiveVisibility ?? "party"` — **fallback, flagged**. Attention heuristic uses declared `visibility` (presentation only). `createNote` for new notes. |
 | `Chat.svelte` | Conforming read; creation deferred | Reads `type: message` notes via `fetchNotes`; renders server-projected list. `sendChatMessage` → `createNote`. **Authorship rule (P0b) not yet enforced** — creation requires the caller to see the channel's audience; carried as a P0b item, not a client change. |
 | `CharacterPanel.svelte` | Conforming | `fetchCharacter` / `patchNote` / `submitCharacter` / `reviewCharacter`; withheld fields are absent from non-GM payloads server-side. Review queue from `vaultStore`. No visibility badge; no client-side field filtering. |
+| `SessionReview.svelte` | Conforming (caveat) | P3 transcript review: segments with editable speaker labels, promote, propose. Reads `/transcript/review` (GM-only; non-GM → 404) via direct `fetch` — **network-authority caveat (not `api.ts`)**. Server-projected data; GM-gated and audience-governed server-side (review/segment edits/promote/propose all require a GM principal). No client-side projection. |
 
-## Components (`web/src/components`) — 15
+## Components (`web/src/components`) — 16
 
 | Component | Status | Discipline |
 |---|---|---|
+| `CaptureRecorder.svelte` | Conforming | P1 consent-gated capture: consent checkbox gates recording; chunks upload through `api.ts` to the GM-only `/audio` endpoint; no visibility/projection logic. Client consent is a UI gate only — the server enforces GM. |
 | `CharacterCard.svelte` | Conforming | Docked stat box (Viewer). Renders server-provided `computed` + flattened `data` only; pack-agnostic; no visibility logic. GM-context gated by caller. |
 | `Footer.svelte` | Conforming | Status strip; counts from `vaultStore` (server-projected `effective_visibility`); `DASHBOARD_BUDGET_MS` display only. |
 | `Icon.svelte` | Conforming | Presentational SVG glyphs; no icon font (ADR-0005). |
@@ -122,7 +124,7 @@ them.
 
 ## Counts
 
-- Surfaces: 8 (8 conforming, 0 fully deferred; 4 with flagged fail-open fallbacks).
-- Components: 15 (14 conforming; 1 deferred-data: `VisibilityInspector`).
+- Surfaces: 9 (9 conforming, 0 fully deferred; 4 with flagged fail-open fallbacks; 1 with a network-authority caveat: `SessionReview`).
+- Components: 16 (15 conforming; 1 deferred-data: `VisibilityInspector`).
 - Shell: 1 conforming.
-- Total inventoried: 24.
+- Total inventoried: 25.
