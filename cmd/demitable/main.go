@@ -1449,6 +1449,9 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if as, err := audio.New(); err == nil {
 			audioHandlers(m, vlt, as, tokenKeyFor(vlt), sessStore)
 		}
+		if as, err := audio.New(); err == nil {
+			transcribeHandlers(m, vlt, sessStore, as, tokenKeyFor(vlt))
+		}
 	}
 
 	// Import (N8).
