@@ -4,7 +4,7 @@
   // intents; the server is authoritative.
   import { onMount } from "svelte";
   import { loadTabletop, moveToken, advanceTurn, type TabletopEncounter, type TabletopToken } from "../lib/tabletop";
-  import { deriveMood } from "../lib/mood";
+  import { authHeaders } from "../lib/auth";
   import { cuesForMood, selectCue, cueBasename, createPlayback, type Cue } from "../lib/cues";
   import { apiFetch } from "../lib/auth";
   import { surfaceVisibility } from "../lib/dashboard";
@@ -15,13 +15,13 @@
   let status = $state<string>("idle");
   let dragging = $state<string | null>(null);
   let cues = $state<Cue[]>([]);
+  let currentMood = $state<string>("calm");
   let nowPlaying = $state<string>("");
   const playback = createPlayback();
 
   const sid = $derived(appState.sessionId);
   const eid = $derived(appState.encounterId);
   const displayMode = $derived(appState.displayMode);
-  const currentMood = $derived(deriveMood(encounter ?? {}, []));
   const moodCues = $derived(cuesForMood(cues, currentMood));
   const displayTrack = $derived(selectCue(cues, currentMood) ? cueBasename(selectCue(cues, currentMood)!.src) : "");
 
@@ -33,10 +33,31 @@
       encounter = data.encounter;
       for (const n of data.notes ?? []) surfaceVisibility(n);
       status = "loaded";
+      void loadMoodAndCues();
     } catch (e: any) {
       status = e?.message ?? "load failed";
     }
     appState.saveStatus = `board: ${status}`;
+  }
+
+
+  async function loadMoodAndCues() {
+    if (!sid) return;
+    try {
+      const mres = await apiFetch(`/api/v1/sessions/${encodeURIComponent(sid)}/mood`, { headers: authHeaders(), credentials: "same-origin" });
+      if (mres.ok) {
+        const mj = await mres.json();
+        currentMood = String(mj.mood ?? mj.tag ?? mj.value ?? "calm");
+      }
+    } catch {}
+    try {
+      const cres = await apiFetch(`/api/v1/sessions/${encodeURIComponent(sid)}/cues`, { headers: authHeaders(), credentials: "same-origin" });
+      if (cres.ok) {
+        const cj = await cres.json();
+        const list = Array.isArray(cj) ? cj : (cj.cues ?? cj.items ?? []);
+        cues = (list ?? []).map((c: any) => ({ mood: String(c.mood ?? ""), src: String(c.src ?? c.url ?? c.path ?? ""), title: c.title, id: c.id }));
+      }
+    } catch {}
   }
 
   async function onDrop(ev: DragEvent) {

@@ -1449,6 +1449,8 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		if as, err := audio.New(); err == nil {
 			audioHandlers(m, vlt, as, tokenKeyFor(vlt), sessStore)
 		}
+		moodHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
+		cueHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
 	}
 
 	// Import (N8).
