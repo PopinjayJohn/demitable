@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/PopinjayJohn/demitable/internal/assets"
+	"github.com/PopinjayJohn/demitable/internal/audio"
 	"github.com/PopinjayJohn/demitable/internal/config"
 	"github.com/PopinjayJohn/demitable/internal/dice"
 	"github.com/PopinjayJohn/demitable/internal/formula"
@@ -1445,6 +1446,9 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		sessionHandlers(m, vlt, sessStore, audit, sessionLimiter, tokenKeyFor(vlt))
 		encounterHandlers(m, vlt, sessStore, tokenKeyFor(vlt))
 		writebackHandlers(m, vlt, sessStore, audit, tokenKeyFor(vlt))
+		if as, err := audio.New(); err == nil {
+			audioHandlers(m, vlt, as, tokenKeyFor(vlt), sessStore)
+		}
 	}
 
 	// Import (N8).
