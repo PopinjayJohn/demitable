@@ -4,6 +4,8 @@
   // intents; the server is authoritative.
   import { onMount } from "svelte";
   import { loadTabletop, moveToken, advanceTurn, type TabletopEncounter, type TabletopToken } from "../lib/tabletop";
+  import { authHeaders } from "../lib/auth";
+  import { cuesForMood, selectCue, cueBasename, createPlayback, type Cue } from "../lib/cues";
   import { apiFetch } from "../lib/auth";
   import { surfaceVisibility } from "../lib/dashboard";
   import { appState } from "../lib/appstate.svelte";
@@ -12,10 +14,16 @@
   let encounter = $state<TabletopEncounter | null>(null);
   let status = $state<string>("idle");
   let dragging = $state<string | null>(null);
+  let cues = $state<Cue[]>([]);
+  let currentMood = $state<string>("calm");
+  let nowPlaying = $state<string>("");
+  const playback = createPlayback();
 
   const sid = $derived(appState.sessionId);
   const eid = $derived(appState.encounterId);
   const displayMode = $derived(appState.displayMode);
+  const moodCues = $derived(cuesForMood(cues, currentMood));
+  const displayTrack = $derived(selectCue(cues, currentMood) ? cueBasename(selectCue(cues, currentMood)!.src) : "");
 
   async function load() {
     if (!sid && !eid) { status = "pick a session in the sidebar"; return; }
@@ -25,10 +33,31 @@
       encounter = data.encounter;
       for (const n of data.notes ?? []) surfaceVisibility(n);
       status = "loaded";
+      void loadMoodAndCues();
     } catch (e: any) {
       status = e?.message ?? "load failed";
     }
     appState.saveStatus = `board: ${status}`;
+  }
+
+
+  async function loadMoodAndCues() {
+    if (!sid) return;
+    try {
+      const mres = await apiFetch(`/api/v1/sessions/${encodeURIComponent(sid)}/mood`, { headers: authHeaders(), credentials: "same-origin" });
+      if (mres.ok) {
+        const mj = await mres.json();
+        currentMood = String(mj.mood ?? mj.tag ?? mj.value ?? "calm");
+      }
+    } catch {}
+    try {
+      const cres = await apiFetch(`/api/v1/sessions/${encodeURIComponent(sid)}/cues`, { headers: authHeaders(), credentials: "same-origin" });
+      if (cres.ok) {
+        const cj = await cres.json();
+        const list = Array.isArray(cj) ? cj : (cj.cues ?? cj.items ?? []);
+        cues = (list ?? []).map((c: any) => ({ mood: String(c.mood ?? ""), src: String(c.src ?? c.url ?? c.path ?? ""), title: c.title, id: c.id }));
+      }
+    } catch {}
   }
 
   async function onDrop(ev: DragEvent) {
@@ -125,6 +154,21 @@
       </ol>
     {/if}
   </div>
+{#if true}
+  <div class="rail-block">
+    <h3 class="rail-title">Music</h3>
+    <p class="mono">mood: {currentMood}</p>
+    {#if displayMode}
+      {#if displayTrack}<p class="mono">track: {displayTrack}</p>{/if}
+    {:else}
+      {#if nowPlaying}<p class="mono">playing: {cueBasename(nowPlaying)}</p>{/if}
+      {#each moodCues as cue}
+        <button class="btn btn--sm" type="button" onclick={() => { playback.play(cue); nowPlaying = cue.src; }}>Play {cue.title ?? cueBasename(cue.src)}</button>
+      {/each}
+      {#if moodCues.length === 0}<p class="rail-empty">No cues for this mood.</p>{/if}
+    {/if}
+  </div>
+{/if}
 {/snippet}
 
 <section class="tabletop" aria-label="Tabletop">
