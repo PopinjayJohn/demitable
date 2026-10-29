@@ -155,7 +155,7 @@ running campaign is not something an app should do to someone.
    │   formula engine   parse · resolve dependencies · evaluate   │
    │   projection svc   visibility filter · role filter · masking │
    │   session manager  live state, initiative, write-back        │
-   │   media worker     capture · transcribe (phase 4)            │
+   │   media worker     capture · transcribe (phase 5)            │
    │   static server    the embedded Svelte app                   │
    └───────────┬──────────────────────────────────────────────────┘
                │  file I/O
@@ -1149,7 +1149,7 @@ ADR-0034).
 | Journal storage growth inside the vault | Low | Blobs deduplicate by content hash; 90-day retention with reference-aware GC |
 | MCP endpoint widens the read surface | Medium | Off by default, token-gated, and the privacy trade-off is stated at the point of enabling it (ADR-0014) |
 | Two search indexes drift out of sync with the vault | Medium | Both are updated by the same watcher event; a mismatch test asserts they agree on note existence |
-| Shipping whisper.cpp is a distribution problem | Medium | It is a per-platform native build; downloaded or placed on first run, and phase 4 degrades gracefully without it |
+| Shipping whisper.cpp is a distribution problem | Medium | It is a per-platform native build; downloaded or placed on first run, and phase 5 degrades gracefully without it |
 | Local transcription quality on game audio | Medium | Assistive mode; a campaign-name lexicon for the recogniser; the baseline is post-session, not live |
 | The tabletop is visibly less capable than Foundry | Medium | Stated plainly in positioning; everything excluded is additive later (ADR-0016) |
 | The between-sessions view depends on session write-back quality | Medium | "Visited" and "met" must be real recorded concepts, not guesses (ADR-0017) |
