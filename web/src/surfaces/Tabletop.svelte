@@ -4,6 +4,8 @@
   // intents; the server is authoritative.
   import { onMount } from "svelte";
   import { loadTabletop, moveToken, advanceTurn, type TabletopEncounter, type TabletopToken } from "../lib/tabletop";
+  import { deriveMood } from "../lib/mood";
+  import { cuesForMood, selectCue, cueBasename, createPlayback, type Cue } from "../lib/cues";
   import { apiFetch } from "../lib/auth";
   import { surfaceVisibility } from "../lib/dashboard";
   import { appState } from "../lib/appstate.svelte";
@@ -12,10 +14,16 @@
   let encounter = $state<TabletopEncounter | null>(null);
   let status = $state<string>("idle");
   let dragging = $state<string | null>(null);
+  let cues = $state<Cue[]>([]);
+  let nowPlaying = $state<string>("");
+  const playback = createPlayback();
 
   const sid = $derived(appState.sessionId);
   const eid = $derived(appState.encounterId);
   const displayMode = $derived(appState.displayMode);
+  const currentMood = $derived(deriveMood(encounter ?? {}, []));
+  const moodCues = $derived(cuesForMood(cues, currentMood));
+  const displayTrack = $derived(selectCue(cues, currentMood) ? cueBasename(selectCue(cues, currentMood)!.src) : "");
 
   async function load() {
     if (!sid && !eid) { status = "pick a session in the sidebar"; return; }
@@ -125,6 +133,21 @@
       </ol>
     {/if}
   </div>
+{#if true}
+  <div class="rail-block">
+    <h3 class="rail-title">Music</h3>
+    <p class="mono">mood: {currentMood}</p>
+    {#if displayMode}
+      {#if displayTrack}<p class="mono">track: {displayTrack}</p>{/if}
+    {:else}
+      {#if nowPlaying}<p class="mono">playing: {cueBasename(nowPlaying)}</p>{/if}
+      {#each moodCues as cue}
+        <button class="btn btn--sm" type="button" onclick={() => { playback.play(cue); nowPlaying = cue.src; }}>Play {cue.title ?? cueBasename(cue.src)}</button>
+      {/each}
+      {#if moodCues.length === 0}<p class="rail-empty">No cues for this mood.</p>{/if}
+    {/if}
+  </div>
+{/if}
 {/snippet}
 
 <section class="tabletop" aria-label="Tabletop">
