@@ -367,10 +367,10 @@ func toRevealAudience(a any) RevealAudience {
 		}
 		if t, _ := v["target"].(string); t != "" {
 			ts := strings.ToLower(t)
-			if ts == "all" || ts == "everyone" || ts == "table" {
+			if ts == "all" || ts == "everyone" {
 				ra.All = true
 			}
-			if ts == "display" || ts == "shared" {
+			if ts == "display" || ts == "shared" || ts == "table" {
 				ra.Display = true
 			}
 		}
