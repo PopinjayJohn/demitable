@@ -77,7 +77,7 @@ func transcribeHandlers(m *http.ServeMux, vlt *vault.Vault, sessStore *session.S
 		// lexicon
 		var terms []string
 		if vlt != nil {
-			terms = transcribe.LexiconTerms(vlt)
+			terms = vault.LexiconTerms(vlt)
 		}
 		opts := transcribe.Options{Lexicon: terms}
 		ch, err := eng.Transcribe(r.Context(), bytes.NewReader(blob), opts)
