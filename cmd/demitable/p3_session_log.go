@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -154,6 +155,23 @@ func p3UpsertMarked(body, inner string) string {
 func p3Sha256(s string) string {
 	h := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(h[:])
+}
+
+// p3ValidVaultRelPath reports whether p is a safe vault-relative path: no
+// traversal, no absolute prefix, no empty/dot result. Reuses the
+// containment convention from vault.AssetBytes/WriteAsset.
+func p3ValidVaultRelPath(p string) bool {
+	if p == "" {
+		return false
+	}
+	clean := filepath.ToSlash(filepath.Clean(p))
+	if clean == "." || clean == "" {
+		return false
+	}
+	if strings.HasPrefix(clean, "..") || strings.HasPrefix(clean, "/") {
+		return false
+	}
+	return true
 }
 
 // ownership guard (mutating/removing this guard disables preservation)
@@ -364,6 +382,12 @@ func reviewHandler(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, ses
 		return
 
 	case http.MethodPost, http.MethodPatch, http.MethodPut:
+		if sessStore != nil {
+			if ss, _ := sessStore.GetSession(sid); ss != nil && ss.Status == session.StatusClosed {
+				writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+				return
+			}
+		}
 		rawBytes, _ := io.ReadAll(r.Body)
 		var anyBody any
 		_ = json.Unmarshal(rawBytes, &anyBody)
@@ -412,7 +436,14 @@ func reviewHandler(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, ses
 						}
 					}
 				}
-				_ = sessStore.UpdateTranscriptSegment(sid, id, speaker, text, true)
+				if err := sessStore.UpdateTranscriptSegment(sid, id, speaker, text, true); err != nil {
+					if errors.Is(err, session.ErrSessionClosed) {
+						writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+					} else {
+						writeErr(w, "not_found", "segment not found", http.StatusNotFound)
+					}
+					return
+				}
 			}
 		}
 		// discovery flat append handled by caller via writeback; store nothing here
@@ -465,7 +496,11 @@ func segmentEditHandler(w http.ResponseWriter, r *http.Request, vlt *vault.Vault
 		}
 	}
 	if err := sessStore.UpdateTranscriptSegment(sid, segID, speaker, text, true); err != nil {
-		writeErr(w, "not_found", "segment not found", http.StatusNotFound)
+		if errors.Is(err, session.ErrSessionClosed) {
+			writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+		} else {
+			writeErr(w, "not_found", "segment not found", http.StatusNotFound)
+		}
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -514,13 +549,25 @@ func promoteHandler(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, se
 		return
 	}
 
-	// create a vault note so LexiconTerms picks it up (reuse vault as lexicon)
+	if strings.ContainsAny(term, "\n\r") {
+		writeErr(w, "bad_request", "term must not contain newlines", http.StatusBadRequest)
+		return
+	}
+	// containment: term must not escape the vault when used as a path
 	noteName := term
 	notePath := fmt.Sprintf("Characters/%s.md", noteName)
+	if !p3ValidVaultRelPath(notePath) {
+		writeErr(w, "bad_request", "invalid term", http.StatusBadRequest)
+		return
+	}
 	notePath = uniquePath(vlt.Root, notePath)
+	if !p3ValidVaultRelPath(notePath) {
+		writeErr(w, "bad_request", "invalid path", http.StatusBadRequest)
+		return
+	}
 	full := filepath.Join(vlt.Root, filepath.FromSlash(notePath))
 	_ = os.MkdirAll(filepath.Dir(full), 0o755)
-	content := fmt.Sprintf("---\ntype: character\nuid: %s\nname: %s\ncampaign: \"[[C]]\"\nvisibility: gm\n---\nPromoted from session %s\n", noteName, term, sid)
+	content := fmt.Sprintf("---\ntype: character\nuid: %q\nname: %q\ncampaign: \"[[C]]\"\nvisibility: gm\n---\nPromoted from session %s\n", noteName, term, sid)
 	_ = os.WriteFile(full, []byte(content), 0o644)
 	_ = vlt.Load()
 
@@ -581,6 +628,9 @@ func p3DoProposal(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, sess
 		if s, _ := sessStore.GetSession(sid); s == nil {
 			writeErr(w, "not_found", "no such session", http.StatusNotFound)
 			return
+		} else if s.Status == session.StatusClosed {
+			writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+			return
 		}
 	}
 
@@ -599,6 +649,10 @@ func p3DoProposal(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, sess
 		}
 	}
 	path := p3ResolveNotePath(vlt, sid, body)
+	if path != "" && !p3ValidVaultRelPath(path) {
+		writeErr(w, "bad_request", "invalid path", http.StatusBadRequest)
+		return
+	}
 	if path == "" {
 		path = p3EnsureSessionNote(vlt, sid, "", campaign)
 	} else {
@@ -657,7 +711,8 @@ func p3DoProposal(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, sess
 	// apply: digest check (allow request-provided)
 	if rd := strAny(body, "digest", "preview_digest", "resolution_digest", "previewDigest"); rd != "" {
 		if rd != digest && rd != p3Sha256(currentBody) {
-			// if preserved, digest of unchanged body
+			writeErr(w, "digest_mismatch", "digest mismatch", http.StatusConflict)
+			return
 		}
 	}
 	// if preserved, do not write; return preserved
@@ -674,29 +729,50 @@ func p3DoProposal(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, sess
 		return
 	}
 
-	// write file
+	actor := principal.ID
+	if actor == "" || principal.IsGM() {
+		actor = "gm"
+	}
+
+	note := vlt.NoteByPath(path)
+	if note == nil {
+		_ = vlt.Load()
+		note = vlt.NoteByPath(path)
+	}
+	if note == nil {
+		writeErr(w, "not_found", "note not found", http.StatusNotFound)
+		return
+	}
+
+	batchID := strAny(body, "batch_id", "batchId", "batchID")
+	if batchID == "" {
+		batchID = "session-log:" + sid
+	}
+	revision := intAny(body, "revision")
+	if revision == 0 {
+		revision = 1
+	}
+
 	full := filepath.Join(vlt.Root, filepath.FromSlash(path))
 	_ = os.MkdirAll(filepath.Dir(full), 0o755)
-	_ = os.WriteFile(full, []byte(newBody), 0o644)
+
+	before := []byte(currentBody)
+	if err := vlt.UpdateNote(note.UID, []byte(newBody)); err != nil {
+		writeErr(w, "internal", "write failed", http.StatusInternalServerError)
+		return
+	}
+	if _, err := vault.NewJournal(vlt.Root).AppendWriteWithRevision(actor, "app", "session_log.propose", sid, path, batchID, revision, before, []byte(newBody), nil); err != nil {
+		_ = vlt.UpdateNote(note.UID, before)
+		writeErr(w, "internal", "journal write failed", http.StatusInternalServerError)
+		return
+	}
 	_ = vlt.Load()
 	p3SetLastProposed(vlt, path, proposal)
 
-	// journal
-	if vlt != nil {
-		actor := principal.ID
-		if actor == "" || principal.IsGM() {
-			actor = "gm"
+	if globalHub != nil {
+		if updated := vlt.GetNote(note.UID); updated != nil {
+			globalHub.broadcast(map[string]any{"v": 1, "type": "note.saved", "data": map[string]any{"uid": updated.UID, "hash": updated.Hash}})
 		}
-		op := "session_log.propose"
-		_ = vault.NewJournal(vlt.Root).Append(vault.Entry{
-			Actor:  actor,
-			Source: "app",
-			Op:     op,
-			UID:    sid,
-			Path:   path,
-			Before: "none",
-			After:  "proposal",
-		})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -707,6 +783,8 @@ func p3DoProposal(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, sess
 		"preserved":  false,
 		"digest":     digest,
 		"status":     "applied",
+		"batch_id":   batchID,
+		"revision":   revision,
 	})
 }
 
