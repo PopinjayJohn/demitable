@@ -68,6 +68,8 @@ one means writing a new ADR that supersedes it.
 | [0062](0062-samesite-lax-for-the-session-cookie.md) | The session cookie is SameSite=Lax, not Strict | Accepted |
 | [0063](0063-webkit-red-with-reason-f2-gated.md) | F0 closes with WebKit red-with-reason; F2 surfaces wait for green | Accepted |
 | [0064](0064-the-ui-reads-audiences-not-ordered-rules.md) | The UI reads audiences, not ordered rules (amends ADR-0052) | Accepted |
+| [0065](0065-un-reveal-revokes-audience.md) | Un-reveal revokes a revealed audience, it does not erase the broadcast (amends ADR-0035) | Accepted |
+| [0066](0066-campaign-fields-inherit-note-audience.md) | Campaign-declared fields inherit the note's audience (amends ADR-0033) | Accepted |
 
 ## The shape of the decisions
 
