@@ -22,6 +22,9 @@
       recorder = await startCapture({
         sessionId: sid,
         onChunk: async (blob, idx) => {
+          // total=0: the final chunk count is unknown until recording stops,
+          // and the store assembles on demand from chunks (audio.Store.Read),
+          // so we deliberately do not claim a total here.
           await uploadChunk(sid, blob, idx, 0);
         },
       });

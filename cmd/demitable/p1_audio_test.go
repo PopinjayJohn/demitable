@@ -162,10 +162,6 @@ func TestP1AudioPathTraversalChunk(t *testing.T) {
 	_ = filepath.Walk(dd, func(p string, info os.FileInfo, err error) error { return nil })
 }
 
-func TestP1AudioWSNoLeak(t *testing.T) {
-	// placeholder: ensure broadcastGM path compiles; no deep ws test here
-}
-
 func issueTokenOrFatal(t *testing.T, v *vault.Vault) string {
 	t.Helper()
 	tok, err := issueToken(tokenKeyFor(v), tokenClaims{Kind: "gm"})

@@ -151,8 +151,10 @@ func audioHandlers(m *http.ServeMux, vlt *vault.Vault, st *audio.Store, tk strin
 				"bytes":      len(data),
 				"assembled":  assembled,
 			}
+			// One broadcast only: vault.changed. A note.saved event carries
+			// no uid here (audio is not a note), so emitting it would
+			// masquerade as a note save and confuse clients (P1 fix-list #5).
 			globalHub.broadcastGM(map[string]any{"v": 1, "type": "vault.changed", "data": payload})
-			globalHub.broadcastGM(map[string]any{"v": 1, "type": "note.saved", "data": payload})
 		}
 
 		// Journal (ADR-0015).
@@ -238,8 +240,10 @@ func audioHandlers(m *http.ServeMux, vlt *vault.Vault, st *audio.Store, tk strin
 		}
 		if globalHub != nil {
 			payload := map[string]any{"kind": "audio", "session_id": sessionID, "deleted": true}
+			// One broadcast only: vault.changed. A note.saved event carries
+			// no uid here (audio is not a note), so emitting it would
+			// masquerade as a note save and confuse clients (P1 fix-list #5).
 			globalHub.broadcastGM(map[string]any{"v": 1, "type": "vault.changed", "data": payload})
-			globalHub.broadcastGM(map[string]any{"v": 1, "type": "note.saved", "data": payload})
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"session_id": sessionID, "deleted": true})
