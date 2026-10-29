@@ -942,6 +942,27 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 		if !strings.HasSuffix(bodyStr, "\n") && bodyStr != "" {
 			b.WriteString("\n")
 		}
+		// P0b: authorship rule — creation requires the caller to see the
+		// channel's audience (reuse Visible; no new mechanism). Build the
+		// note the caller is asking to create and ask the projection.
+		audienceNote := vault.Note{
+			UID:        toStringField(fields, "uid"),
+			Name:       toStringField(fields, "name"),
+			Type:       toStringField(fields, "type"),
+			System:     toStringField(fields, "system"),
+			Campaign:   toStringField(fields, "campaign"),
+			Kind:       toStringField(fields, "kind"),
+			Player:     toStringField(fields, "player"),
+			Workflow:   toStringField(fields, "workflow"),
+			Visibility: toStringField(fields, "visibility"),
+			Grants:     toStringSliceField(fields, "grants"),
+			Discovered: toStringSliceField(fields, "discovered"),
+		}
+		if !vault.Visible(principal, audienceNote) {
+			writeErr(w, "forbidden", "note not visible", http.StatusForbidden)
+			return
+		}
+
 		full := filepath.Join(vlt.Root, filepath.FromSlash(rel))
 		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 			writeErr(w, "internal", "mkdir failed", http.StatusInternalServerError)
@@ -991,6 +1012,61 @@ func registerF0b(m *http.ServeMux, vlt *vault.Vault, cfg config.Config, audit *l
 	_ = audit
 	_ = cfg
 	_ = slog.Default()
+}
+
+// toStringField extracts a string-valued reserved field from the loosely-typed
+// fields map built during note creation.
+func toStringField(fields map[string]any, key string) string {
+	v, ok := fields[key]
+	if !ok || v == nil {
+		return ""
+	}
+	switch t := v.(type) {
+	case string:
+		return t
+	case bool:
+		if t {
+			return "true"
+		}
+		return "false"
+	case float64:
+		if t == float64(int64(t)) {
+			return fmt.Sprintf("%d", int64(t))
+		}
+		return fmt.Sprintf("%v", t)
+	case int:
+		return fmt.Sprintf("%d", t)
+	case int64:
+		return fmt.Sprintf("%d", t)
+	default:
+		return fmt.Sprintf("%v", t)
+	}
+}
+
+// toStringSliceField extracts a string slice from the loosely-typed fields map.
+func toStringSliceField(fields map[string]any, key string) []string {
+	v, ok := fields[key]
+	if !ok || v == nil {
+		return nil
+	}
+	switch t := v.(type) {
+	case []string:
+		out := make([]string, len(t))
+		copy(out, t)
+		return out
+	case []any:
+		out := make([]string, 0, len(t))
+		for _, it := range t {
+			switch iv := it.(type) {
+			case string:
+				out = append(out, iv)
+			default:
+				out = append(out, fmt.Sprintf("%v", iv))
+			}
+		}
+		return out
+	}
+	return nil
 }
 
 // findNote helper (reuse mcp's findNote? it's in mcp package; replicate minimal)
