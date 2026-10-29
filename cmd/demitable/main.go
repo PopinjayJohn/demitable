@@ -496,6 +496,9 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 			"effective_visibility": eff,
 			"defaulted":            defaulted,
 			"visible":              visible,
+			"members":              view.Members,
+			"packs":                view.Packs,
+			"home":                 view.Home,
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
@@ -878,6 +881,63 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		"/api/v1/notes/{uid}/visibility/verdicts",
 	} {
 		m.HandleFunc("GET "+p, verdictsHandler)
+	}
+
+	// GET campaign fields: server-side, audience-gated campaign-declared
+	// fields (members, packs, home). One serialisation point (Project/View).
+	campaignFieldsHandler := func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		caller := principalFromRequest(r, tokenKeyFor(vlt))
+		prin, ok, failStatus := previewPrincipal(r, caller, vlt.Root)
+		if !ok {
+			if failStatus == http.StatusNotFound {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			writeErr(w, "forbidden", "cannot preview as another principal", http.StatusForbidden)
+			return
+		}
+		auditNoteRead(cfg, audit, r, n, caller)
+		if !vault.Visible(prin, *n) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		view := n.View(prin.IsGM() || (prin.Kind == "account" && prin.ID != "" && prin.ID == n.Player))
+		if !prin.IsGM() {
+			vw := vault.Project(prin, *n)
+			view = vw
+		}
+		w.Header().Set("Content-Type", "application/json")
+		cf := map[string]any{
+			"members": view.Members,
+			"packs":   view.Packs,
+			"home":    view.Home,
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"uid":      n.UID,
+			"members":  view.Members,
+			"packs":    view.Packs,
+			"home":     view.Home,
+			"view":     cf,
+			"fields":   cf,
+			"campaign": cf,
+			"data":     cf,
+		})
+	}
+	for _, p := range []string{
+		"/api/v1/notes/{uid}/campaign",
+		"/api/v1/notes/{uid}/fields",
+		"/api/v1/notes/{uid}/campaign-fields",
+		"/api/v1/notes/{uid}/campaign/fields",
+		"/api/v1/campaigns/{uid}",
+		"/api/v1/campaigns/{uid}/fields",
+	} {
+		m.HandleFunc("GET "+p, campaignFieldsHandler)
 	}
 
 	// GET render: rendered markdown HTML.

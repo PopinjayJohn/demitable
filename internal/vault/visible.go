@@ -192,6 +192,12 @@ func Project(p Principal, n Note) NoteView {
 	} else if !p.IsGM() {
 		v.Body = projectBody(p, n)
 	}
+	// Campaign-declared fields are served only to principals that may see
+	// the note (audience = Visible). For a non-visible note Project is not
+	// reached on the HTTP path (404), but keep the guard here too.
+	if Visible(p, n) {
+		applyCampaignFields(&v, n)
+	}
 	return v
 }
 

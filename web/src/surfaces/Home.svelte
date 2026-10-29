@@ -49,10 +49,12 @@
     try {
       campaignDoc = await fetchNote(String(campaignNote.uid));
     } catch { /* fall back to list data */ }
-    // The `home:` field is only readable where the raw file is: the GM
-    // view. Everyone else resolves through the type=home convention
-    // below, which is also the fallback when the field is absent.
-    const declared = campaignDoc ? parseHomeLink(campaignDoc.content ?? "") : null;
+    // The `home:` field is served machine-readably by the server under
+    // the note's audience (R3). Fall back to parsing the raw file (GM
+    // view) and then the type=home convention when it is absent.
+    const declared =
+      (campaignDoc && (campaignDoc.home ?? null)) ||
+      (campaignDoc ? parseHomeLink(campaignDoc.content ?? "") : null);
     homeUid = (declared && resolveLinkTarget(declared)) || null;
     if (!homeUid) {
       const home = vaultStore.notes.find(

@@ -1,5 +1,11 @@
 package vault
 
+import (
+	"strings"
+
+	"github.com/PopinjayJohn/demitable/internal/vault/frontmatter"
+)
+
 // NoteView is the projected, safe-to-hand-out view of a note.
 //
 // Owner-scoped fields — `player`, `grants` and `discovered` — are
@@ -38,6 +44,12 @@ type NoteView struct {
 	Headings []string `json:"headings,omitempty"`
 	Aliases  []string `json:"aliases,omitempty"`
 	Tags     []string `json:"tags,omitempty"`
+	// Campaign-declared fields (ADR-0037), served only where the note is
+	// visible (ADR-0057 audience). Non-reserved fields other than these
+	// three are never serialised (ADR-0040).
+	Members []string `json:"members,omitempty"`
+	Packs   []string `json:"packs,omitempty"`
+	Home    string   `json:"home,omitempty"`
 }
 
 // View projects a note into a NoteView for a caller whose entitlement to
@@ -46,6 +58,52 @@ type NoteView struct {
 // The bool is the seam: the vault service knows whether the caller is the
 // GM (it is the local user, and the server serves the GM), while the
 // plugin bridge knows the caller as a Principal and goes through Project.
+
+// applyCampaignFields copies the three campaign-declared fields (members,
+// packs, home) from a note into its view, when present. This is the single
+// serialisation point for campaign-declared fields: every other non-reserved
+// field stays out of the projection (ADR-0040).
+func applyCampaignFields(v *NoteView, n Note) {
+	for k, raw := range n.Fields {
+		val, ok := raw.(frontmatter.Value)
+		if !ok {
+			continue
+		}
+		switch strings.ToLower(k) {
+		case "members":
+			if v.Members == nil {
+				v.Members = campaignFieldStrings(val)
+			}
+		case "packs":
+			if v.Packs == nil {
+				v.Packs = campaignFieldStrings(val)
+			}
+		case "home":
+			if v.Home == "" {
+				v.Home = val.String()
+			}
+		}
+	}
+}
+
+func campaignFieldStrings(v frontmatter.Value) []string {
+	if v.Kind == frontmatter.KindList {
+		out := make([]string, 0, len(v.List))
+		for _, e := range v.List {
+			out = append(out, e.String())
+		}
+		return out
+	}
+	if v.Kind == frontmatter.KindNull {
+		return nil
+	}
+	s := v.String()
+	if s == "" {
+		return nil
+	}
+	return []string{s}
+}
+
 func (n *Note) View(allowOwner bool) NoteView {
 	v := NoteView{
 		Path:       n.Path,
@@ -85,5 +143,6 @@ func (n *Note) View(allowOwner bool) NoteView {
 		v.Grants = n.Grants
 		v.Discovered = n.Discovered
 	}
+	applyCampaignFields(&v, *n)
 	return v
 }
