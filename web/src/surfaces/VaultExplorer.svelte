@@ -89,7 +89,7 @@
     }
   }
 
-  function reveal(blockId: string) {
+  function reveal(blockId: string, audience: any = { all: true }) {
     const uid = appState.selectedUid;
     if (!uid) return;
     const t = getToken();
@@ -97,7 +97,7 @@
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const ws = new WebSocket(`${proto}://${location.host}/ws?token=${encodeURIComponent(t)}`);
     ws.onopen = () => {
-      ws.send(JSON.stringify({ v: 1, type: "secret.reveal", data: { note_uid: uid, block_id: blockId, audience: { all: true } } }));
+      ws.send(JSON.stringify({ v: 1, type: "secret.reveal", data: { note_uid: uid, block_id: blockId, audience } }));
       setTimeout(() => ws.close(), 500);
     };
     ws.onmessage = () => loadPreview();

@@ -18,10 +18,11 @@
     note: NoteSummary | null;
     secrets: SecretRef[];
     revealed?: string[];
-    onReveal: (blockId: string) => void;
+    onReveal: (blockId: string, audience?: any) => void;
   } = $props();
 
   const revealedSet = $derived(new Set(revealed));
+  let revealInputs = $state<Record<string, string>>({});
 
   function vis(n: NoteSummary): string {
     return String((n as any).effective_visibility ?? (n as any).effectiveVisibility ?? "gm");
@@ -53,7 +54,12 @@
             {#if revealedSet.has(s.id)}
               <span class="tag tag--revealed">Revealed</span>
             {:else}
-              <button class="btn btn--sm" onclick={() => onReveal(s.id)}>Reveal to the table</button>
+              <div class="reveal-row">
+                <button class="btn btn--sm" onclick={() => onReveal(s.id, { all: true })}>Reveal to table</button>
+                <button class="btn btn--sm" onclick={() => onReveal(s.id, { display: true })}>Reveal to display</button>
+                <input class="reveal-players" placeholder="player ids" bind:value={revealInputs[s.id]} />
+                <button class="btn btn--sm" onclick={() => onReveal(s.id, { players: (revealInputs[s.id] ?? "").split(",").map((x) => x.trim()).filter(Boolean) })}>Reveal to players</button>
+              </div>
             {/if}
           </li>
         {/each}
@@ -80,4 +86,6 @@
   .tag--revealed { color: var(--success); border-color: var(--success-border, var(--success)); background: var(--success-subtle); }
   .secret__label { font-size: var(--text-xs); font-weight: var(--weight-semibold); }
   .secret__id { font-size: var(--text-2xs); color: var(--fg-subtle); }
+  .reveal-row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block-start: var(--space-2); }
+  .reveal-players { font-size: var(--text-xs); }
 </style>
