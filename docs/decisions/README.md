@@ -67,6 +67,7 @@ one means writing a new ADR that supersedes it.
 | [0061](0061-adr-0054-measurement-amended.md) | The ADR-0054 §5 measurement, corrected — max swing 103.96%, count 3 | Accepted |
 | [0062](0062-samesite-lax-for-the-session-cookie.md) | The session cookie is SameSite=Lax, not Strict | Accepted |
 | [0063](0063-webkit-red-with-reason-f2-gated.md) | F0 closes with WebKit red-with-reason; F2 surfaces wait for green | Accepted |
+| [0064](0064-the-ui-reads-audiences-not-ordered-rules.md) | The UI reads audiences, not ordered rules (amends ADR-0052) | Accepted |
 
 ## The shape of the decisions
 
