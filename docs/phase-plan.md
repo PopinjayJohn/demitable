@@ -137,6 +137,15 @@ Live play.
 Recording, transcription, session logs and mood-driven music (ADR-0018,
 ADR-0034).
 
+### Phase 6 — The Backlog
+
+Closing the contract: un-reveal and targeted reveals, the inspector's
+server-side source, campaign-declared fields, the live session contract
+(`session.state`/`patch`, `kind:created`, join-code minting), a generated
+OpenAPI document, and the trust remainders. Plan:
+[`phase-6-plan.md`](phase-6-plan.md); orchestration brief:
+[`phase-6-brief.md`](phase-6-brief.md).
+
 ---
 
 ### Phase 0 — the prototype

@@ -324,7 +324,7 @@ ADRs 0014/0020 and api.md §9a.
 
 - **P2 download story, partial.** Constants plus a missing message only;
   per-campaign retention and auto-delete-after-review proposed, not built
-  (finding 11). Owner: phase 6.
+  (finding 11). Owner: the maintenance track (phase-6-plan.md §2, §7).
 - **ADR-0064 D3 fallbacks.** `Home.svelte`'s `?? "party"` is still live;
   the other three fail-open sites need the same fix (finding 12).
 - **`SessionReview.promote()` unwired.** Review UI exists; promotion is not
@@ -350,17 +350,16 @@ ADRs 0014/0020 and api.md §9a.
 
 ## What phase 6 should start with
 
-Phase 6 is not a numbered phase in the phase map — phase 5 is the last one
-— so it is maintenance and closure, and its floor is the deferred list
-above. Start with the items that are rules already written but not yet
-enforced: close the four ADR-0064 D3 fallbacks (finding 12) so the
-fail-closed rule is tested, not just stated. Then wire `promote()`
-(finding 13) and add the e2e specs the shadow matrix does not cover
-(finding 16), because a surface with no spec is a surface that regresses
-silently. Then take the deferred P2 items — per-campaign retention and
-auto-delete-after-review — as a small, self-contained milestone with its
-own ADR, and settle the segment-text-at-rest question (finding 14) before
-anyone widens that surface.
+Phase 6 is now numbered (phase-plan.md) with the backlog headline
+(phase-6-plan.md); the deferred P2 items — download story, per-campaign
+retention, auto-delete-after-review — ride the maintenance track
+(phase-6-plan.md §2, §7), not the phase. Start with the items that are
+rules already written but not yet enforced: close the four ADR-0064 D3
+fallbacks (finding 12) so the fail-closed rule is tested, not just
+stated. Then wire `promote()` (finding 13) and add the e2e specs the
+shadow matrix does not cover (finding 16), because a surface with no spec
+is a surface that regresses silently. Then settle the segment-text-at-rest
+question (finding 14) inside R5 before anyone widens that surface.
 
 Second, the pre-existing hardening seams (phase 4 finding 14 and this
 report's finding 12's neighbours): `verifyToken`'s non-constant-time
