@@ -123,7 +123,7 @@
       <div class="rail-gap"></div>
       {#if appState.showInspector}
         <div class="rail-gap"></div>
-        <VisibilityInspector decisions={[]} />
+        <VisibilityInspector uid={campaignNote?.uid ?? ""} />
       {/if}
     </div>
     <div class="rail-block">

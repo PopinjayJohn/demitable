@@ -832,6 +832,54 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		_ = json.NewEncoder(w).Encode(payload)
 	})
 
+	// GET verdicts: server-side constraint verdicts for the inspector (R2).
+	// Role-scoped: the asking principal (or a GM preview-as target) gets
+	// the applicable constraints and widenings with each verdict. A hidden
+	// or unknown note is a bare 404; a non-GM naming another principal is
+	// a 403 (previewPrincipal parity). No GM-only rule text or note content
+	// reaches a non-GM caller.
+	verdictsHandler := func(w http.ResponseWriter, r *http.Request) {
+		uid := r.PathValue("uid")
+		n := vlt.GetNote(uid)
+		if n == nil {
+			http.NotFound(w, r)
+			return
+		}
+		caller := principalFromRequest(r, tokenKeyFor(vlt))
+		prin, ok, failStatus := previewPrincipal(r, caller, vlt.Root)
+		if !ok {
+			if failStatus == http.StatusNotFound {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			writeErr(w, "forbidden", "cannot preview as another principal", http.StatusForbidden)
+			return
+		}
+		auditNoteRead(cfg, audit, r, n, caller)
+		if !vault.Visible(prin, *n) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		vs := vault.Verdicts(prin, *n)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"uid":       n.UID,
+			"items":     vs,
+			"count":     len(vs),
+			"decisions": vs,
+			"verdicts":  vs,
+		})
+	}
+	for _, p := range []string{
+		"/api/v1/notes/{uid}/verdicts",
+		"/api/v1/notes/{uid}/verdict",
+		"/api/v1/notes/{uid}/constraints",
+		"/api/v1/notes/{uid}/inspector",
+		"/api/v1/notes/{uid}/visibility/verdicts",
+	} {
+		m.HandleFunc("GET "+p, verdictsHandler)
+	}
+
 	// GET render: rendered markdown HTML.
 	m.HandleFunc("GET /api/v1/notes/{uid}/render", func(w http.ResponseWriter, r *http.Request) {
 		n := vlt.GetNote(r.PathValue("uid"))

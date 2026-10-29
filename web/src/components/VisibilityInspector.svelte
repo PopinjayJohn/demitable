@@ -1,15 +1,37 @@
 <script lang="ts">
+  import { apiFetch } from "../lib/auth";
   interface Decision { ref: string; detail: string; verdict: string; }
-  let { decisions = [] }: { decisions?: Decision[] } = $props();
+  let {
+    decisions = [],
+    uid = "",
+    as = "",
+  }: { decisions?: Decision[]; uid?: string; as?: string } = $props();
+
+  let fetched = $state<Decision[]>([]);
+  const list = $derived(fetched.length ? fetched : (decisions ?? []));
+
+  async function load(u: string, a: string) {
+    if (!u) { fetched = []; return; }
+    try {
+      const q = a ? `?as=${encodeURIComponent(a)}` : "";
+      const res = await apiFetch(`/api/v1/notes/${encodeURIComponent(u)}/verdicts${q}`);
+      if (!res.ok) { fetched = []; return; }
+      const j = (await res.json()) as any;
+      fetched = (j.decisions ?? j.verdicts ?? j.items ?? []) as Decision[];
+    } catch {
+      fetched = [];
+    }
+  }
+  $effect(() => { void load(uid, as); });
 </script>
 
 <div class="inspector">
   <h4 class="inspector__title">Why this role sees it</h4>
-  {#if decisions.length === 0}
+  {#if list.length === 0}
     <p class="inspector__empty">No rule chain from the server yet. The badge above is the projected value.</p>
   {:else}
   <ol class="inspector__chain">
-    {#each decisions as d, i (i)}
+    {#each list as d, i (i)}
       <li class="inspector__step" data-verdict={d.verdict}>
         <span class="inspector__mark" aria-hidden="true">
           {#if d.verdict === "allow"}✓{:else if d.verdict === "deny"}✕{:else}◐{/if}

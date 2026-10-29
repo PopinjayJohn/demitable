@@ -37,7 +37,7 @@
     <VisibilityBadge visibility={vis(note)} defaulted={defaulted(note)} />
     {#if appState.showInspector}
       <div class="rail-gap"></div>
-      <VisibilityInspector decisions={[]} />
+      <VisibilityInspector uid={note?.uid ?? ""} />
     {/if}
   </div>
   <div class="rail-block">
