@@ -33,6 +33,9 @@ export interface NoteDoc {
   grants?: string[];
   revealed?: unknown;
   discovered?: string[];
+  members?: string[];
+  packs?: string[];
+  home?: string;
 }
 
 export interface SearchParams {
@@ -135,6 +138,9 @@ export async function fetchNote(uid: string, opts: { as?: string } = {}): Promis
     grants: (pick("grants") ?? undefined) as string[] | undefined,
     revealed: pick("revealed"),
     discovered: (pick("discovered") ?? undefined) as string[] | undefined,
+    members: (pick("members") ?? undefined) as string[] | undefined,
+    packs: (pick("packs") ?? undefined) as string[] | undefined,
+    home: (pick("home") ?? undefined) as string | undefined,
   };
 }
 
