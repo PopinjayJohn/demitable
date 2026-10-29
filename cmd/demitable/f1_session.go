@@ -165,6 +165,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		if audit != nil {
 			audit.Record(r.Context(), "session.create", slog.String("id", id))
 		}
+		broadcastSessionState(sess, id)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"id":         id,
@@ -202,33 +203,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
 			return
 		}
-		// Build seats payload.
-		seats := make([]map[string]any, 0, len(s.Seats))
-		for _, st := range s.Seats {
-			seats = append(seats, seatToMap(st))
-		}
-		code := s.Code
-		if !principal.IsGM() {
-			code = ""
-		}
-		resp := map[string]any{
-			"id":            s.ID,
-			"code":          code,
-			"status":        s.Status,
-			"name":          s.Name,
-			"campaign":      s.Campaign,
-			"created_at":    s.CreatedAt.Format(time.RFC3339),
-			"seats":         seats,
-			"code_attempts": s.CodeAttempts,
-			"attempts":      s.CodeAttempts,
-		}
-		if s.ClosedAt != nil {
-			resp["closed_at"] = s.ClosedAt.Format(time.RFC3339)
-		}
-		if s.CloseBatchID != "" {
-			resp["close_batch_id"] = s.CloseBatchID
-			resp["batch_id"] = s.CloseBatchID
-		}
+		resp := sessionStateMap(s, principal)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(resp)
 	})
@@ -315,6 +290,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			writeErr(w, "internal", "add seat failed", http.StatusInternalServerError)
 			return
 		}
+		broadcastSessionState(sess, id)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"seat": seatToMap(st),
@@ -380,6 +356,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 				writeErr(w, "internal", "token issue failed", http.StatusInternalServerError)
 				return
 			}
+			broadcastSessionState(sess, id)
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"seat":  seatToMap(newSeat),
@@ -473,6 +450,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 				writeErr(w, "internal", "token issue failed", http.StatusInternalServerError)
 				return
 			}
+			broadcastSessionState(sess, id)
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"seat":  seatToMap(newSeat),
@@ -588,6 +566,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			writeErr(w, "internal", "token issue failed", http.StatusInternalServerError)
 			return
 		}
+		broadcastSessionState(sess, id)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"seat":  seatToMap(newSeat),
@@ -714,6 +693,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 		if audit != nil {
 			audit.Record(r.Context(), "session.close", slog.String("id", id), slog.String("batch_id", batchID))
 		}
+		broadcastSessionState(sess, id)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"id":       id,
@@ -753,6 +733,7 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 			writeErr(w, "internal", "rotate failed", http.StatusInternalServerError)
 			return
 		}
+		broadcastSessionState(sess, id)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"id":   id,
@@ -1104,4 +1085,37 @@ func hasWB(body map[string]any) bool {
 		}
 	}
 	return false
+}
+
+// sessionStateMap builds the REST session-state payload for a principal.
+// Shared by GET /api/v1/sessions/:id and the WS re-emission path so the
+// two cannot drift.
+func sessionStateMap(s *session.Session, principal vault.Principal) map[string]any {
+	seats := make([]map[string]any, 0, len(s.Seats))
+	for _, st := range s.Seats {
+		seats = append(seats, seatToMap(st))
+	}
+	code := s.Code
+	if !principal.IsGM() {
+		code = ""
+	}
+	resp := map[string]any{
+		"id":            s.ID,
+		"code":          code,
+		"status":        s.Status,
+		"name":          s.Name,
+		"campaign":      s.Campaign,
+		"created_at":    s.CreatedAt.Format(time.RFC3339),
+		"seats":         seats,
+		"code_attempts": s.CodeAttempts,
+		"attempts":      s.CodeAttempts,
+	}
+	if s.ClosedAt != nil {
+		resp["closed_at"] = s.ClosedAt.Format(time.RFC3339)
+	}
+	if s.CloseBatchID != "" {
+		resp["close_batch_id"] = s.CloseBatchID
+		resp["batch_id"] = s.CloseBatchID
+	}
+	return resp
 }

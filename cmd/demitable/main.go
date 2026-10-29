@@ -1537,10 +1537,55 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"name": body.Name, "campaign": body.Campaign, "join_code": code, "expires_at": time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339)})
 	})
+	m.HandleFunc("POST /api/v1/players/{id}/join-code", func(w http.ResponseWriter, r *http.Request) {
+		principal := principalFromRequest(r, tokenKeyFor(vlt))
+		if !principal.IsGM() {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		id := r.PathValue("id")
+		campaign := "[[Campaign]]"
+		// Prefer the existing account's campaign when known.
+		if accts := loadAccounts(vlt.Root); true {
+			for _, a := range accts {
+				if a.ID == id || a.Player == id {
+					if len(a.Campaigns) > 0 && a.Campaigns[0] != "" {
+						campaign = a.Campaigns[0]
+					}
+					break
+				}
+			}
+		}
+		// Fall back to a previously minted code's campaign.
+		for _, c := range loadJoinCodes(vlt.Root) {
+			if c.Code == id {
+				if c.Campaign != "" {
+					campaign = c.Campaign
+				}
+				break
+			}
+		}
+		code := randomJoinCode()
+		codes := loadJoinCodes(vlt.Root)
+		codes = append(codes, storedJoinCode{Code: code, Campaign: campaign, ExpiresAt: time.Now().Add(24 * time.Hour)})
+		saveJoinCodes(vlt.Root, codes)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"id": id, "campaign": campaign, "join_code": code, "expires_at": time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339)})
+	})
 	// WebSocket surface (N7b).
 	tokenKey := tokenKeyFor(vlt)
 	m.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
 		handleWS(w, r, vlt, tokenKey, hub)
+	})
+
+	// OpenAPI document (generated from the handler table).
+	m.HandleFunc("GET /api/v1/openapi.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(generateOpenAPI())
+	})
+	m.HandleFunc("GET /openapi.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(generateOpenAPI())
 	})
 
 	// Auth surface (M5a).

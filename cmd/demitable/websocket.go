@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/PopinjayJohn/demitable/internal/session"
 	"github.com/PopinjayJohn/demitable/internal/vault"
 )
 
@@ -110,6 +111,40 @@ func (h *wsHub) broadcast(v any) {
 			}
 		}
 		c.writeJSON(v)
+	}
+}
+
+// broadcastSessionState re-emits the current session state to every
+// connection entitled to see it (GM, bound seats, bound display). The
+// payload is the same object GET /api/v1/sessions/:id returns, so a
+// client that consumes the frame converges without a refetch.
+func broadcastSessionState(sess *session.Store, sessionID string) {
+	if globalHub == nil || sess == nil || sessionID == "" {
+		return
+	}
+	s, err := sess.GetSession(sessionID)
+	if err != nil || s == nil {
+		return
+	}
+	globalHub.mu.Lock()
+	defer globalHub.mu.Unlock()
+	for _, c := range globalHub.conns {
+		allowed := false
+		if c.prin.IsGM() {
+			allowed = true
+		} else if c.prin.IsSeat() && c.prin.Session == sessionID {
+			if _, ok, _ := sess.FindSeat(sessionID, c.prin.ID); ok {
+				allowed = true
+			}
+		} else if c.prin.IsDisplay() && c.prin.Session == sessionID {
+			allowed = true
+		}
+		if !allowed {
+			continue
+		}
+		payload := sessionStateMap(s, c.prin)
+		c.writeJSON(map[string]any{"v": 1, "type": "session.state", "id": sessionID, "data": payload})
+		c.writeJSON(map[string]any{"v": 1, "type": "session.patch", "id": sessionID, "data": payload})
 	}
 }
 
