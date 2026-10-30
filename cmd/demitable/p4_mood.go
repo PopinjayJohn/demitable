@@ -431,6 +431,12 @@ func cueHandlers(m *http.ServeMux, vlt *vault.Vault, sessStore *session.Store, t
 			writeErr(w, "not_found", "no such session", http.StatusNotFound)
 			return
 		}
+		// Harmonise cross-session posture with mood (R5 item 2): a seat
+		// token bound to another session may not read this session's cues.
+		if sessionScoped && isSession && principal.IsSeat() && principal.Session != sid {
+			writeErr(w, "unauthorized", "not allowed", http.StatusUnauthorized)
+			return
+		}
 
 		// read body
 		rawBytes, _ := io.ReadAll(r.Body)

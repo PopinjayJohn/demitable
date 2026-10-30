@@ -85,6 +85,13 @@ func p3GetLastProposed(vlt *vault.Vault, notePath string) (string, bool) {
 	return v, ok
 }
 
+// p3SetLastProposed persists the last proposed segment text in the GM-local
+// sidecar (session-log-proposals.json). Acceptance record (R5 item 4):
+// segment text is retained GM-locally because the ownership guard needs the
+// last proposed content to detect GM rewrites; the sidecar lives under
+// .demitable/, is never served to players, and is readable only by the GM
+// principal. Reason: redacting would defeat the ownership-preservation
+// contract (TestP3ReviewEndToEnd). Owner: session-log subsystem maintainer.
 func p3SetLastProposed(vlt *vault.Vault, notePath, content string) {
 	m := p3LoadMap(vlt, p3OwnershipFile)
 	m[notePath] = content

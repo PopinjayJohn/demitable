@@ -42,8 +42,6 @@ func TestP4CuesTitleProjectionHostile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	otherSid, otherCode := f1CreateSession(t, srv, gmTok)
-	otherSeatTok := p1GuestSeatToken(t, srv, otherSid, otherCode)
 	_ = code
 
 	cases := []struct {
@@ -54,7 +52,6 @@ func TestP4CuesTitleProjectionHostile(t *testing.T) {
 		{"gm", gmTok, true},
 		{"anon", "", false},
 		{"player-account", accountTok, false},
-		{"other-session-seat", otherSeatTok, false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -192,5 +189,29 @@ func TestP4CuesUnknownSession(t *testing.T) {
 				t.Fatalf("body missing not_found: %s", string(body))
 			}
 		})
+	}
+}
+
+// TestP4CuesCrossSessionSeat401 pins the harmonised posture (R5 item 2):
+// a seat token bound to another session gets 401 on cue GET, matching mood.
+func TestP4CuesCrossSessionSeat401(t *testing.T) {
+	_, v, srv, gmTok := f1Env(t)
+	sid, _ := f1CreateSession(t, srv, gmTok)
+	p4SetCues(t, srv, gmTok, sid)
+
+	otherSid, otherCode := f1CreateSession(t, srv, gmTok)
+	otherSeatTok := p1GuestSeatToken(t, srv, otherSid, otherCode)
+	_ = v
+
+	req, _ := http.NewRequest("GET", srv.URL+"/api/v1/sessions/"+sid+"/cues", nil)
+	req.Header.Set("Authorization", "Bearer "+otherSeatTok)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("status=%d want 401: %s", resp.StatusCode, string(body))
 	}
 }

@@ -937,12 +937,23 @@ func sessionHandlers(m *http.ServeMux, vlt *vault.Vault, sess *session.Store, au
 	displayState := func(w http.ResponseWriter, r *http.Request) {
 		sid := r.PathValue("id")
 		principal := principalFromRequest(r, tk)
+		wasGM := principal.IsGM()
 		if sid != "" {
 			// allow GM to impersonate display for that session
-			if principal.IsGM() {
+			if wasGM {
 				if ss, _ := sess.GetSession(sid); ss != nil {
 					principal = vault.Display(displayCampaigns(ss)...)
 				}
+			}
+		}
+		// Session binding (R5 item 1): a display token minted for one
+		// session may read only that session's display state. Unbound
+		// (session-less) display tokens and cross-session tokens are
+		// refused. GM impersonation is exempt (wasGM).
+		if !wasGM && principal.IsDisplay() && sid != "" {
+			if principal.Session == "" || principal.Session != sid {
+				writeErr(w, "unauthorized", "display not bound to this session", http.StatusUnauthorized)
+				return
 			}
 		}
 		if !principal.IsDisplay() && !principal.IsGM() {
