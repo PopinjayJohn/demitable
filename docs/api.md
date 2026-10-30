@@ -432,6 +432,13 @@ POST /api/v1/import                   download an archive, validate, apply
 GET  /api/v1/import/report            what was imported and what was rejected
 ```
 
+Manifest `requires.app` is a **floor comparison**, not a range: the archive's
+required version must be ≤ the running app's version, compared component-wise
+(`1.10.0` satisfies `1.9.0`; `1.9.9` does not satisfy `2.0.0`); range syntax
+(`>=`, `^`, `~`) is not supported and any unparseable or range-shaped value
+fails closed. Decided R6. Evidence: internal/import/importer.go:141-172
+(`appVersionOK`), TestAppVersionOK.
+
 ---
 
 ## 4. The compute boundary
@@ -497,8 +504,13 @@ the same `.wasm`. It is not needed for v1, because the server is always
 present and local: the GM's machine runs it, and players reach it over the
 LAN. A round trip per keystroke in a wizard is a local round trip.
 
-**Decision deferred**, and recorded here so it is a choice rather than an
-oversight.
+**Re-deferred (R6).** (fund when offline client ships or preview p95 exceeds
+budget.) The WASM-to-client port is funded only when an offline client ships
+or a wizard preview's p95 round-trip exceeds its budget; until then the server
+computes (§4) and a round trip per keystroke stays a local round trip. The
+forcing condition is recorded here so the deferral is a choice, not an
+oversight. Evidence: api.md:496-499 (server always present and local),
+api.md:501-502 (prior deferral).
 
 ---
 
@@ -731,7 +743,10 @@ SDKs are a separate product decision, and a large one.
 - OpenAPI document generated from handlers — implemented (R4): `GET /api/v1/openapi.json`.
 - Native-client SDK (Swift/Kotlin) — separate product decision, not
   implied by this contract.
-- Offline behaviour for a native client — undecided.
+- Offline behaviour for a native client — **server-always-required** (R6):
+  the server is the trust boundary and computes; a native client is a client of
+  the API and needs the server present (local or remote). No offline compute,
+  no cached projection. Decided R6. Evidence: api.md:496-499.
 - **Un-reveal (conceal a revealed block again)** — no endpoint, and not
   just a missing inverse: reveals are monotonic and journalled,
   an audience grant may already have propagated, and clients that

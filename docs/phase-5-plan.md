@@ -365,14 +365,17 @@ seam; the merger owns the seam collisions.
 
 - macOS watcher + session-tier numbers — still need a Mac, still
   owned by nobody; recorded, not forgotten a fifth time.
-- Discovery granularity (`visited` vs `heard of`) — needs a separate
-  note type (session-writeback §6 punts per ADR-0050 D4); P3 keeps
-  the F4 flat appends. P3 proposes the note type only if the review
-  UI proves the flat list insufficient; a human disposes.
-- `requires.app` version-range language — refusal stands, syntax
-  undecided.
-- Dashboard third entity shape — O5 left it; P0 decides only if a
-  surface needs it.
+- Discovery granularity — DEFERRED (R6): flat list stands; no new note type.
+  Owner: first request requiring the visited-vs-heard-of distinction.
+  Milestone: reopen on that request. Evidence: session-writeback.md:169-186,
+  ADR-0050 D4.
+- `requires.app` syntax — DECIDED (R6): floor comparison (required ≤ current,
+  component-wise); range syntax not supported. Evidence:
+  internal/import/importer.go:141-172, TestAppVersionOK.
+- Dashboard third entity shape — CLOSED (R6): two shapes suffice (character +
+  crew/faction declarations in the Blades pack; O5 dashboard green). First real
+  request reopens. Evidence: internal/pack/packs/blades_in_the_dark.yaml,
+  O5 green.
 - `TestInsertPerformance` 250 ms bound (7–13% headroom, tmpdir
   ordering fragility) — pre-existing environmental flake; owned by
   nobody; fix-on-touch, not a milestone.

@@ -289,11 +289,12 @@ uses.
   one; the GM edits it. Is the proposal a marked section that the GM rewrites,
   or a draft the GM accepts wholesale? *Default: a marked section, so the
   GM's rewrite and the machine's proposal never fight over the same text.*
-- **Discovery granularity.** Is a location "discovered" when the character
-  enters it, when they learn of it, or both? `how` exists to distinguish them,
-  but the UI must make the distinction matter. *Default: both, recorded
-  separately — `visited` and `heard-of` are different facts and a player
-  should be able to know of a place they have never been.*
+- **Discovery granularity — DEFERRED (R6).** (flat list stands; no new note
+  type.) `discovered` remains a flat list of note references
+  (session-writeback.md:169-186); granularity (`visited` vs `heard-of`, and
+  `at`) is not tracked. Owner: the first request requiring the distinction.
+  Milestone: reopen on that request (new note type per ADR-0050, decision D4).
+  Evidence: session-writeback.md:169-186, ADR-0050 D4.
 - **Failure recovery.** *Settled by ADR-0039: recovery is journal-based.*
   There is no staging directory — a session batch touches several
   directories and a cross-directory atomic move does not exist. The journal

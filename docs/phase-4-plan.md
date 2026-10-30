@@ -340,13 +340,17 @@ cannot fail is not a test.
 
 - macOS watcher + session-tier numbers — still need a Mac, still owned by
   nobody; recorded, not forgotten a fourth time.
-- Discovery granularity (`visited` vs `heard of`) — needs a separate note
-  type (session-writeback §6 punts per ADR-0050 D4); the write-back output
-  that feeds the between-sessions view has nowhere to live until this
-  closes. F4 proposes, human disposes.
-- `requires.app` range language — refusal stands, syntax undecided.
-- Dashboard third entity shape — O5 left it; F5 decides only if a surface
-  needs it.
+- Discovery granularity — DEFERRED (R6): flat list stands; no new note type.
+  Owner: first request requiring the visited-vs-heard-of distinction.
+  Milestone: reopen on that request. Evidence: session-writeback.md:169-186,
+  ADR-0050 D4.
+- `requires.app` syntax — DECIDED (R6): floor comparison (required ≤ current,
+  component-wise); range syntax not supported. Evidence:
+  internal/import/importer.go:141-172, TestAppVersionOK.
+- Dashboard third entity shape — CLOSED (R6): two shapes suffice (character +
+  crew/faction declarations in the Blades pack; O5 dashboard green). First real
+  request reopens. Evidence: internal/pack/packs/blades_in_the_dark.yaml,
+  O5 green.
 - Demo-campaign session wing — phase 4's session fixtures need a campaign;
   F1 decides whether the demo grows one or tests build their own.
 - Out-of-process plugin tier (ADR-0020), MCP writes (ADR-0014) — stay out;
