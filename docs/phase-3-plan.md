@@ -330,12 +330,17 @@ read the diff — workers' reports are evidence, not proof.
 - The macOS watcher numbers phase 1 could not take — still needing a Mac,
   still owned by nobody in this phase, recorded here so they are not
   forgotten twice.
-- The discovery granularity phase 0 left behind (`visited` vs `heard of`
-  as one flat fact) — still open, still not this phase's to close.
-- Whether `requires.app` needs version-range semantics or exact-match —
-  O0 enforces refusal; the range language is undecided.
-- Whether the dashboard needs a third entity shape beyond the N5 answer —
-  O5 decides, and the answer is a pack declaration, not a core change.
+- Discovery granularity — DEFERRED (R6): flat list stands; no new note type.
+  Owner: first request requiring the visited-vs-heard-of distinction.
+  Milestone: reopen on that request. Evidence: session-writeback.md:169-186,
+  ADR-0050 D4.
+- `requires.app` syntax — DECIDED (R6): floor comparison (required ≤ current,
+  component-wise); range syntax not supported. Evidence:
+  internal/import/importer.go:141-172, TestAppVersionOK.
+- Dashboard third entity shape — CLOSED (R6): two shapes suffice (character +
+  crew/faction declarations in the Blades pack; O5 dashboard green). First real
+  request reopens. Evidence: internal/pack/packs/blades_in_the_dark.yaml,
+  O5 green.
 - What the demo campaign becomes once dashboards query it — O5 decides
   whether it gains a dashboard wing or stays the projection's yardstick.
 - The out-of-process plugin tier (ADR-0020 neutral) and MCP write tools

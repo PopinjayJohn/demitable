@@ -57,7 +57,7 @@ client-side projection or client-side note authority.
 | `Sidebar.svelte` | Conforming | Navigation + `vaultStore` notes/campaigns; no projection logic. |
 | `VaultTree.svelte` | Conforming | Builds a folder tree from server note paths; selection routes through `appState`. |
 | `VisibilityBadge.svelte` | Conforming | Displays the server-projected effective visibility in glyph + word + hue + rule-bar, with a `*` marker and tooltip for defaulted values (ADR-0052). |
-| `VisibilityInspector.svelte` | Deferred (data) | UI surface present and renders a supplied decision list, but every caller passes `decisions = []`; no server source for the rule chain/verdict yet (api.md §10 backlog: "Inspector decision chain"). Surface is landed; data is not. |
+| `VisibilityInspector.svelte` | Conforming | UI surface present; fetches the server-supplied verdict list from `GET /api/v1/notes/:uid/verdicts` (internal/vault/verdicts.go `Verdicts`, ADR-0064 D1, shipped R2), falling back to a passed-in list. Landed; tests in cmd/demitable/r2_verdicts_test.go. |
 
 ## Shell
 
@@ -91,7 +91,6 @@ additionally asserts zero client vault reads for its own request set.
 
 ## Deferred items (recorded, not dropped)
 
-- `VisibilityInspector` server data — no endpoint yet (api.md §10).
 - Chat authorship rule — P0b carries it (creation must see the channel's
   audience); reads stay projection-governed.
 - Fail-open `surfaceVisibility` fallbacks in `VaultExplorer`, `NoteEditor`,
@@ -120,11 +119,11 @@ them.
 | `docs/threat-model.md` | 27 | "resolved in a fixed order (scope → absolute deny → workflow gate → base level → grants → default → property level → masking)." | The list is the complete constraint set; presentation order is not evaluation order. Audience = intersection then permitted widening. |
 | `docs/threat-model.md` | 61–67 | Numbered constraints 1–8 (already framed as "supersedes the ordered rules … complete list of constraints"). | Already the audience reading; keep, but drop any "fixed order" implication in §3 line 27. |
 | `docs/api.md` | 591 | "the projection returns a verdict, not the rule chain that produced it." | The projection returns the audience (and, eventually, the constraint verdicts); no single winning rule. |
-| `web/src/components/VisibilityInspector.svelte` | 9 | "No rule chain from the server yet." | No constraint-verdict source from the server yet; the badge remains the projected audience. |
+| `web/src/components/VisibilityInspector.svelte` | 9 | "No rule chain from the server yet." | Wording residue only: the constraint-verdict source now ships (R2, `GET /api/v1/notes/:uid/verdicts`); the empty-state string is stale wording, not a missing source. |
 
 ## Counts
 
 - Surfaces: 9 (9 conforming, 0 fully deferred; 4 with flagged fail-open fallbacks; 1 with a network-authority caveat: `SessionReview`).
-- Components: 16 (15 conforming; 1 deferred-data: `VisibilityInspector`).
+- Components: 16 (16 conforming; 0 deferred-data).
 - Shell: 1 conforming.
 - Total inventoried: 25.
