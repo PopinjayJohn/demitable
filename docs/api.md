@@ -747,31 +747,28 @@ SDKs are a separate product decision, and a large one.
   the server is the trust boundary and computes; a native client is a client of
   the API and needs the server present (local or remote). No offline compute,
   no cached projection. Decided R6. Evidence: api.md:496-499.
-- **Un-reveal (conceal a revealed block again)** — no endpoint, and not
-  just a missing inverse: reveals are monotonic and journalled,
-  an audience grant may already have propagated, and clients that
-  received the broadcast hold the text. Revocation needs its own
-  semantic (per-audience? per-block? what does the journal record?),
-  so this stays a backlog item with a design pass, not a quick
-  endpoint. The webapp's reveal affordances are one-way on purpose.
+- **Un-reveal (conceal a revealed block again)** — shipped R1
+  (ADR-0065): per-audience removal from a block's revealed audience via
+  `Vault.UnrevealSecret` (internal/vault/reveal.go); broadcasts
+  `secret.unrevealed` over the WebSocket. Already-broadcast text cannot be
+  recalled; revocation guarantees future fetches, re-renders and replays
+  are clean. Tests: cmd/demitable (R1 suite, 9/9).
 - **Per-player reveal UI** — the `secret.reveal` audience already takes
   `{ players: [...] }` and the display target, and reveals persist
   per-audience server-side; the webapp only exposes "reveal to the
   table". A targeted-reveal picker is UI work on an existing contract.
-- **Inspector decision chain** — the webapp's "why can this role see
-  this note" panel has no server source yet; the projection returns a
-  verdict, not the rule chain that produced it. Exposing a
-  stable, non-leaking chain (no GM-only rule text to non-GM callers)
-  is a separate endpoint design.
-- **Campaign-declared fields in note responses** — the wiki Home view
-  needs `members`, `packs` and `home` from the campaign note in
-  machine-readable form. Non-reserved fields are never serialised
-  today; serving any of them is a visibility-model change (what
-  audience may see `members`, a list of account ids?), so this needs
-  its own ADR before any implementation. Until then the webapp
-  resolves `home:` where the raw file is readable (GM view) and uses
-  the `type: home` convention otherwise, and does not display
-  members or packs.
+- **Inspector decision chain** — shipped R2 (ADR-0064 D1): server
+  source is `GET /api/v1/notes/:uid/verdicts` (internal/vault/verdicts.go
+  `Verdicts`), returning per-constraint verdicts (C1-C8, W1-W3) for the
+  asking principal; no GM-only rule text to non-GM callers. Tests:
+  cmd/demitable/r2_verdicts_test.go.
+- **Campaign-declared fields in note responses** — shipped R3
+  (ADR-0066): `members`, `packs` and `home` are served to exactly the
+  note's own audience via `applyCampaignFields` (single serialisation
+  point in Project/View); every HTTP path reuses the existing
+  `previewPrincipal` + `auditNoteRead` + `Visible` gate. Hostile tests:
+  cmd/demitable/r3_campaign_fields_test.go (7/7). No other non-reserved
+  field crosses the boundary.
 
 **Cut.**
 
