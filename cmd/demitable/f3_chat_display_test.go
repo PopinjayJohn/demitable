@@ -786,3 +786,61 @@ func TestF3DisplayGatePinned(t *testing.T) {
 		t.Fatalf("display must not see discovered note")
 	}
 }
+
+func TestR5DisplayStateSessionBinding(t *testing.T) {
+	v, srv, gmTok, dir := f3env(t)
+	_ = dir
+	sidA, _ := f3createSession(t, srv, gmTok)
+	sidB, _ := f3createSession(t, srv, gmTok)
+
+	// bind display to A
+	reqb, _ := http.NewRequest("POST", srv.URL+"/api/v1/sessions/"+sidA+"/display/bind", nil)
+	reqb.Header.Set("Authorization", "Bearer "+gmTok)
+	respb, _ := http.DefaultClient.Do(reqb)
+	var db map[string]any
+	json.NewDecoder(respb.Body).Decode(&db)
+	respb.Body.Close()
+	dispTok := ""
+	if s, ok := db["token"].(string); ok {
+		dispTok = s
+	} else if s, ok := db["display_token"].(string); ok {
+		dispTok = s
+	}
+	if dispTok == "" {
+		t.Fatal("no display token")
+	}
+
+	// same session allowed
+	reqSame, _ := http.NewRequest("GET", srv.URL+"/api/v1/sessions/"+sidA+"/display/state", nil)
+	reqSame.Header.Set("Authorization", "Bearer "+dispTok)
+	respSame, _ := http.DefaultClient.Do(reqSame)
+	respSame.Body.Close()
+	if respSame.StatusCode != http.StatusOK {
+		t.Fatalf("same session expected 200, got %d", respSame.StatusCode)
+	}
+
+	// cross-session refused
+	reqCross, _ := http.NewRequest("GET", srv.URL+"/api/v1/sessions/"+sidB+"/display/state", nil)
+	reqCross.Header.Set("Authorization", "Bearer "+dispTok)
+	respCross, _ := http.DefaultClient.Do(reqCross)
+	bodyCross, _ := io.ReadAll(respCross.Body)
+	respCross.Body.Close()
+	if respCross.StatusCode != http.StatusUnauthorized && respCross.StatusCode != http.StatusNotFound {
+		t.Fatalf("cross-session expected 401/404, got %d: %s", respCross.StatusCode, string(bodyCross))
+	}
+
+	// unbound refused
+	tk := tokenKeyFor(v)
+	unbound, err := issueToken(tk, tokenClaims{Kind: "display", Campaigns: []string{"demo"}})
+	if err != nil || unbound == "" {
+		t.Fatal("issue unbound display token")
+	}
+	reqUn, _ := http.NewRequest("GET", srv.URL+"/api/v1/sessions/"+sidA+"/display/state", nil)
+	reqUn.Header.Set("Authorization", "Bearer "+unbound)
+	respUn, _ := http.DefaultClient.Do(reqUn)
+	bodyUn, _ := io.ReadAll(respUn.Body)
+	respUn.Body.Close()
+	if respUn.StatusCode != http.StatusUnauthorized && respUn.StatusCode != http.StatusForbidden {
+		t.Fatalf("unbound expected 401/403, got %d: %s", respUn.StatusCode, string(bodyUn))
+	}
+}

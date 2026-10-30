@@ -223,6 +223,24 @@
         }
       }
     },
+    "/api/v1/campaigns/{uid}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{uid}/fields": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/characters": {
       "post": {
         "responses": {
@@ -764,7 +782,43 @@
         }
       }
     },
+    "/api/v1/notes/{uid}/campaign": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notes/{uid}/campaign-fields": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notes/{uid}/campaign/fields": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/notes/{uid}/constraints": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notes/{uid}/fields": {
       "get": {
         "responses": {
           "200": {

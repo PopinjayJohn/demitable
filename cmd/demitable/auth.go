@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -104,7 +105,10 @@ func verifyToken(key, token string) (tokenClaims, bool) {
 	if len(parts) != 2 {
 		return tokenClaims{}, false
 	}
-	if signToken(key, parts[0]) != parts[1] {
+	// Constant-time comparison of the signature (ADR-0058-adjacent trust
+	// remainder): a byte-wise string compare leaks timing. Compare the
+	// full signature in constant time.
+	if subtle.ConstantTimeCompare([]byte(signToken(key, parts[0])), []byte(parts[1])) != 1 {
 		return tokenClaims{}, false
 	}
 	raw, err := base64.RawURLEncoding.DecodeString(parts[0])

@@ -119,7 +119,7 @@
     <div class="rail-block">
       <h3 class="rail-title">Campaign</h3>
       <VisibilityBadge
-        visibility={String((campaignNote as any).effective_visibility ?? (campaignNote as any).effectiveVisibility ?? "party")}
+        visibility={String((campaignNote as any).effective_visibility ?? (campaignNote as any).effectiveVisibility ?? "gm")}
         defaulted={Boolean((campaignNote as any).defaulted)}
       />
       <div class="rail-gap"></div>

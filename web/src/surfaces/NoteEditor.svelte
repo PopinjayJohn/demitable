@@ -29,7 +29,7 @@
   let ws: WSClient | null = null;
 
   const secrets = $derived(findSecrets(buffer));
-  const effVis = $derived(doc?.effectiveVisibility ?? "");
+  const effVis = $derived(doc?.effectiveVisibility ?? "gm");
   const isDefaulted = $derived(doc?.defaulted ?? false);
   const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
 
