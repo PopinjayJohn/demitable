@@ -530,6 +530,11 @@ var shared = []string{
 	"The Old Salt Road",
 	"The Salt Debt",
 	"The Tideglass",
+	"Alert",
+	"Criminal",
+	"Detect Magic",
+	"Human",
+	"Rogue",
 }
 
 // expected is the exact set of note names each principal may see, under the
@@ -558,6 +563,11 @@ var expected = map[string][]string{
 		"The Salt Debt",
 		"The Tideglass",
 		"Wren Lock",
+		"Alert",
+		"Criminal",
+		"Detect Magic",
+		"Human",
+		"Rogue",
 	},
 	// Ilva owns the journal and the bond, and has discovered the Drowned
 	// Quarter. She has not discovered the Cormorant Stair.
@@ -628,11 +638,12 @@ func TestEveryNoteParsesCleanly(t *testing.T) {
 // contain the things it promises to contain.
 func TestTheCampaignIsWhole(t *testing.T) {
 	ix := loadVault(t)
-	if len(ix.notes) != 21 {
-		t.Errorf("expected 21 notes, got %d", len(ix.notes))
+	if len(ix.notes) != 26 {
+		t.Errorf("expected 26 notes, got %d", len(ix.notes))
 	}
 	want := map[string]int{
 		"campaign":  1,
+		"content":   5,
 		"character": 6,
 		"encounter": 1,
 		"event":     1,

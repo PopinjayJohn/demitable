@@ -47,32 +47,37 @@ var demoExpected = map[string][]string{
 		"Saltmere Faces", "Session 01 - The Cormorant Wreck", "The Bond of Salt",
 		"The Brinebacks", "The Causeway Notice", "The Drowned Quarter",
 		"The Night of the Cormorant", "The Old Salt Road", "The Salt Debt",
-		"The Tideglass", "Wren Lock",
+		"The Tideglass", "Wren Lock", "Alert", "Criminal", "Detect Magic",
+		"Human", "Rogue",
 	},
 	"p_ilva": {
 		"Bel Orrery", "Hessa Cray", "Ilva Sarn", "Ilva - Salt and Iron",
 		"Orson Pike", "Pay the Tide", "Saltmere", "Saltmere Faces",
 		"Session 01 - The Cormorant Wreck", "The Bond of Salt", "The Brinebacks",
 		"The Causeway Notice", "The Drowned Quarter", "The Night of the Cormorant",
-		"The Old Salt Road", "The Salt Debt", "The Tideglass",
+		"The Old Salt Road", "The Salt Debt", "The Tideglass", "Alert",
+		"Criminal", "Detect Magic", "Human", "Rogue",
 	},
 	"p_orson": {
 		"Bel Orrery", "Cormorant Stair", "Hessa Cray", "Ilva Sarn", "Orson Pike",
 		"Pay the Tide", "Saltmere", "Saltmere Faces", "Session 01 - The Cormorant Wreck",
 		"The Bond of Salt", "The Brinebacks", "The Causeway Notice", "The Drowned Quarter",
 		"The Night of the Cormorant", "The Old Salt Road", "The Salt Debt", "The Tideglass",
+		"Alert", "Criminal", "Detect Magic", "Human", "Rogue",
 	},
 	"p_wren": {
 		"Bel Orrery", "Hessa Cray", "Ilva Sarn", "Orson Pike", "Pay the Tide",
 		"Saltmere", "Saltmere Faces", "Session 01 - The Cormorant Wreck", "The Brinebacks",
 		"The Causeway Notice", "The Drowned Quarter", "The Night of the Cormorant",
-		"The Old Salt Road", "The Salt Debt", "The Tideglass", "Wren Lock",
+		"The Old Salt Road", "The Salt Debt", "The Tideglass", "Wren Lock", "Alert",
+		"Criminal", "Detect Magic", "Human", "Rogue",
 	},
 	"display": {
 		"Bel Orrery", "Hessa Cray", "Ilva Sarn", "Orson Pike", "Pay the Tide",
 		"Saltmere", "Saltmere Faces", "Session 01 - The Cormorant Wreck",
 		"The Brinebacks", "The Drowned Quarter", "The Night of the Cormorant",
-		"The Old Salt Road", "The Salt Debt", "The Tideglass",
+		"The Old Salt Road", "The Salt Debt", "The Tideglass", "Alert",
+		"Criminal", "Detect Magic", "Human", "Rogue",
 	},
 	"anonymous": {"The Causeway Notice"},
 }
@@ -80,8 +85,8 @@ var demoExpected = map[string][]string{
 func TestM5DemoProjectionBothDirections(t *testing.T) {
 	v := loadDemoVault(t)
 	notes := v.AllNotes()
-	if len(notes) != 21 {
-		t.Fatalf("expected 21 notes, got %d", len(notes))
+	if len(notes) != 26 {
+		t.Fatalf("expected 26 notes, got %d", len(notes))
 	}
 	principals := []struct {
 		key  string
