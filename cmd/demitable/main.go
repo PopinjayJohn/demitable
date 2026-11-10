@@ -315,6 +315,48 @@ func registerFallback(m *http.ServeMux) {
 // muxWithVault wraps mux() with vault-backed routes. Optional extras may
 // carry an *logging.Audit and a config.Config (in any order) so the auth
 // routes can record audit events and read the public scheme.
+// canEditVisibility reports whether the principal may change a note's
+// visibility or ownership: the GM, or the note owner's account (or a
+// seat bound to the owned character). See ADR-0067.
+func canEditVisibility(principal vault.Principal, n *vault.Note) bool {
+	if principal.IsGM() {
+		return true
+	}
+	if n.Player == "" {
+		return false
+	}
+	return principal.ID == n.Player || principal.Bound == n.Player
+}
+
+// visibilityOrOwnerChanged reports whether saving content would change
+// the note's effective visibility or owner. Unparseable content (or
+// content with no frontmatter block) is read as carrying no keys, so
+// its effective values are the defaults — a body-only save over a
+// defaulted note is not a change. See ADR-0067.
+func visibilityOrOwnerChanged(n *vault.Note, content []byte) bool {
+	newVis, newPlayer := "", ""
+	hasVis, hasCampaign := false, false
+	if doc, err := frontmatter.Parse(content); err == nil && doc.HasBlock {
+		if v, ok := doc.Block.Get("visibility"); ok {
+			newVis, hasVis = v.String(), true
+		}
+		if v, ok := doc.Block.Get("player"); ok {
+			newPlayer = v.String()
+		}
+		if v, ok := doc.Block.Get("campaign"); ok && !v.IsZero() {
+			hasCampaign = true
+		}
+	}
+	if !hasVis {
+		if hasCampaign || n.Campaign != "" {
+			newVis = "party"
+		} else {
+			newVis = "gm"
+		}
+	}
+	return newVis != n.Visibility || newPlayer != n.Player
+}
+
 func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 	var audit *logging.Audit
 	var cfg config.Config
@@ -629,6 +671,7 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 		}
 		_ = json.NewEncoder(w).Encode(payload)
 	})
+
 	m.HandleFunc("PUT /api/v1/notes/{uid}", func(w http.ResponseWriter, r *http.Request) {
 		uid := r.PathValue("uid")
 		n := vlt.GetNote(uid)
@@ -674,6 +717,12 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 					return
 				}
 			}
+		}
+		// ADR-0067: a full-file save may not smuggle a visibility or
+		// ownership change past the PATCH rule.
+		if !canEditVisibility(principal, n) && visibilityOrOwnerChanged(n, []byte(content)) {
+			http.Error(w, "only the owner or GM may change visibility", http.StatusForbidden)
+			return
 		}
 		if err := vlt.SaveNote(uid, []byte(content)); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -754,6 +803,20 @@ func muxWithVault(vlt *vault.Vault, extras ...any) http.Handler {
 					continue
 				}
 				fields[k] = val
+			}
+		}
+
+		// ADR-0067: only the GM or the note's owner may change visibility
+		// or ownership. Anyone who can view the note could otherwise
+		// re-audience it — or take ownership first, then re-audience it
+		// as owner.
+		for k := range fields {
+			if lk := strings.ToLower(k); lk == "visibility" || lk == "player" {
+				if !canEditVisibility(principal, n) {
+					http.Error(w, "only the owner or GM may change visibility", http.StatusForbidden)
+					return
+				}
+				break
 			}
 		}
 

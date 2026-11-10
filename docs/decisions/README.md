@@ -70,6 +70,7 @@ one means writing a new ADR that supersedes it.
 | [0064](0064-the-ui-reads-audiences-not-ordered-rules.md) | The UI reads audiences, not ordered rules (amends ADR-0052) | Accepted |
 | [0065](0065-un-reveal-revokes-audience.md) | Un-reveal revokes a revealed audience, it does not erase the broadcast (amends ADR-0035) | Accepted |
 | [0066](0066-campaign-fields-inherit-note-audience.md) | Campaign-declared fields inherit the note's audience (amends ADR-0033) | Accepted |
+| [0067](0067-owner-or-gm-may-change-visibility.md) | Only the GM or the note's owner may change visibility or ownership | Accepted |
 
 ## The shape of the decisions
 
