@@ -356,6 +356,7 @@ Alias spellings are registered for each group (`/review`, `/transcript/review/se
   `original` / `wrong`; validates the term (no newlines, no path escape); writes a
   character note under `Characters/` and rewrites the mangled form in segments;
   journals `transcript.promote`. Returns `{ session_id, promoted, from, path, term }`.
+  A closed session → `409 session_closed` (same guard as review/propose).
 - Preview returns `{ session_id, path, proposal, content, marked_section, digest,
   preserved }` without writing. Apply checks an optional `digest` (also
   `preview_digest`, `resolution_digest`, `previewDigest`) against the computed
@@ -367,7 +368,7 @@ Alias spellings are registered for each group (`/review`, `/transcript/review/se
   review / segment / promote / preview / apply / propose. Review returns `404` to
   non-GM (no existence oracle); the others return `403 forbidden`. The
   session-log read is audience-governed (any visible principal).
-- Closed-session guard: review writes, segment edits, and propose/apply/preview
+- Closed-session guard: review writes, segment edits, promote, and propose/apply/preview
   return `409 session_closed` when the session is closed.
 - Error codes: `not_found` (missing session / segment / note, or non-GM for
   review), `forbidden` (non-GM for segment / promote / propose), `method_not_allowed`,
