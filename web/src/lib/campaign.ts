@@ -23,33 +23,3 @@ export function campaignMatches(note: unknown, filter: CampaignFilter): boolean 
 export function filterByCampaign<T = NoteSummary>(notes: readonly T[], filter: CampaignFilter): T[] {
   return (notes ?? []).filter((n) => campaignMatches(n, filter));
 }
-
-// Aliases — keep a single implementation behind many names so callers and
-// tests can use whichever wording they prefer.
-export const matchesCampaign = campaignMatches;
-export const matchCampaign = campaignMatches;
-export const inCampaign = campaignMatches;
-export const isCampaignMatch = campaignMatches;
-export const campaignMatch = campaignMatches;
-export const noteInCampaign = campaignMatches;
-export const noteMatchesCampaign = campaignMatches;
-export const campaignFilterNotes = filterByCampaign;
-export const filterCampaignNotes = filterByCampaign;
-export const filterNotesByCampaign = filterByCampaign;
-
-const api = {
-  campaignOf,
-  campaignMatches,
-  matchesCampaign,
-  matchCampaign,
-  inCampaign,
-  isCampaignMatch,
-  campaignMatch,
-  noteInCampaign,
-  noteMatchesCampaign,
-  filterByCampaign,
-  campaignFilterNotes,
-  filterCampaignNotes,
-  filterNotesByCampaign,
-};
-export default api;

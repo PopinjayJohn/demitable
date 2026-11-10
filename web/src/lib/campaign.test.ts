@@ -1,12 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  campaignOf,
-  campaignMatches,
-  matchesCampaign,
-  inCampaign,
-  filterByCampaign,
-  filterNotesByCampaign,
-} from "./campaign";
+import { campaignOf, campaignMatches, filterByCampaign } from "./campaign";
 
 describe("campaignOf", () => {
   it("defaults missing/empty campaign to 'No campaign'", () => {
@@ -38,12 +31,6 @@ describe("campaignMatches (filter predicate)", () => {
     expect(campaignMatches({ campaign: "" }, "No campaign")).toBe(true);
     expect(campaignMatches({}, "stormdark")).toBe(false);
   });
-
-  it("aliases agree", () => {
-    const n = { campaign: "x" };
-    expect(matchesCampaign(n, "x")).toBe(true);
-    expect(inCampaign(n, "x")).toBe(true);
-  });
 });
 
 describe("filterByCampaign", () => {
@@ -56,10 +43,5 @@ describe("filterByCampaign", () => {
     const notes = [{ campaign: "a" }, { campaign: "b" }, { campaign: "" }] as any;
     expect(filterByCampaign(notes, "a")).toHaveLength(1);
     expect(filterByCampaign(notes, "No campaign")).toHaveLength(1);
-  });
-
-  it("alias filterNotesByCampaign works", () => {
-    const notes = [{ campaign: "a" }] as any;
-    expect(filterNotesByCampaign(notes, "a")).toHaveLength(1);
   });
 });

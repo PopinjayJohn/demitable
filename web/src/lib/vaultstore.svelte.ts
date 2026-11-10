@@ -60,4 +60,3 @@ class VaultStore {
 
 export const vaultStore = new VaultStore();
 
-export * from "./campaign";

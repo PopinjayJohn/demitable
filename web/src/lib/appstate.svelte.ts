@@ -139,4 +139,3 @@ export function revealedIds(v: unknown): string[] {
   return v.map((r) => (typeof r === "string" ? r : String((r as any)?.id ?? ""))).filter(Boolean);
 }
 
-export * from "./campaign";
