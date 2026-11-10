@@ -53,7 +53,7 @@ func TestHTTPNotesCountGMvsAnonymous(t *testing.T) {
 	tk := tokenKeyFor(v)
 	gmTok, _ := issueToken(tk, tokenClaims{Kind: "gm"})
 
-	// GM -> 21
+	// GM -> 26
 	greq, _ := http.NewRequest("GET", srv.URL+"/api/v1/notes", nil)
 	greq.Header.Set("Authorization", "Bearer "+gmTok)
 	gresp, err := http.DefaultClient.Do(greq)
@@ -65,8 +65,8 @@ func TestHTTPNotesCountGMvsAnonymous(t *testing.T) {
 	io.Copy(io.Discard, gresp.Body)
 	gresp.Body.Close()
 	gitems, _ := gout["items"].([]any)
-	if len(gitems) != 21 {
-		t.Fatalf("GM count=%d want 21", len(gitems))
+	if len(gitems) != 26 {
+		t.Fatalf("GM count=%d want 26", len(gitems))
 	}
 
 	// anonymous -> 1

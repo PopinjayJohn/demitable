@@ -7,10 +7,13 @@ kind: pc
 player: p_ilva
 workflow: active
 visibility: party
-system: example
+system: dnd5e
 data:
-  species: human
-  occupation: courier
+  species: Human
+  class: Rogue
+  background: Criminal
+  alignment: Neutral Good
+  hit_points: 24
 discovered:
   - "[[The Drowned Quarter]]"
 ---
@@ -31,6 +34,10 @@ She has been to the [[The Drowned Quarter|Drowned Quarter]] — every part
 of it, in daylight, since she was nine years old — and she was the one who
 said the wreck was in the wrong channel before anyone else would listen
 to her.
+
+Her sheet leans on [[Human]] stock, [[Rogue]] training, and a
+[[Criminal]] past; she has picked up the [[Alert]] feat and keeps
+[[Detect Magic]] by rote.
 
 > [!secret] Why she has not said anything
 > She has worked out, in the hour since, that a courier who is paid eleven

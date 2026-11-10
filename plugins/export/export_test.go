@@ -101,8 +101,8 @@ func TestExportHTMLVisibleSetBothDirections(t *testing.T) {
 			t.Errorf("leaked invisible note body: %s", n.Name)
 		}
 	}
-	if len(visible) != 20 {
-		t.Errorf("visible count = %d, want 20", len(visible))
+	if len(visible) != 25 {
+		t.Errorf("visible count = %d, want 25", len(visible))
 	}
 }
 
@@ -122,16 +122,16 @@ func TestExportPlayerVisibleSet(t *testing.T) {
 	s := string(data)
 
 	visible := visibleNames(v, p)
-	if len(visible) != 17 {
-		t.Fatalf("expected 17 visible, got %d", len(visible))
+	if len(visible) != 22 {
+		t.Fatalf("expected 22 visible, got %d", len(visible))
 	}
 	for _, name := range visible {
 		if !strings.Contains(s, name) {
 			t.Errorf("missing visible note: %s", name)
 		}
 	}
-	if got := countSubstring(s, `<section id="note-`); got != 17 {
-		t.Errorf("section count = %d, want 17", got)
+	if got := countSubstring(s, `<section id="note-`); got != 22 {
+		t.Errorf("section count = %d, want 22", got)
 	}
 	for _, n := range invisibleNotes(v, p) {
 		if len(n.Body) > 20 && strings.Contains(s, n.Body) {

@@ -14,8 +14,8 @@ func TestDemoCampaignRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(v.AllNotes()) != 21 {
-		t.Fatalf("expected 21 notes, got %d", len(v.AllNotes()))
+	if len(v.AllNotes()) != 26 {
+		t.Fatalf("expected 26 notes, got %d", len(v.AllNotes()))
 	}
 	for _, n := range v.AllNotes() {
 		original := append([]byte(nil), n.Raw...)
