@@ -208,6 +208,9 @@ func audioHandlers(m *http.ServeMux, vlt *vault.Vault, st *audio.Store, tk strin
 	}
 
 	// DELETE /api/v1/sessions/:id/audio  (GM only)
+	// Retention posture (T1c, decision 2 = KEEP INDEFINITELY): this is the
+	// only removal path for an audio blob; nothing auto-deletes on review/
+	// propose/apply. See internal/audio.Store.Delete.
 	del := func(w http.ResponseWriter, r *http.Request) {
 		sessionID := r.PathValue("id")
 		if !audio.ValidSessionID(sessionID) {

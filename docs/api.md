@@ -292,6 +292,9 @@ DELETE /api/v1/sessions/:id/transcript     delete all transcript segments (GM)
   everyone else — and a missing blob — is `404` (no existence oracle).
 - `DELETE` returns `{ session_id, deleted: true }` and journals an
   `audio.delete`.
+- Retention (T1c, decision 2 = KEEP INDEFINITELY): the blob persists until
+  this delete affordance is invoked; there is no auto-delete-after-review
+  and no per-campaign retention setting.
 - Auth scope: a GM principal, or a seat of kind `gm` bound to this session.
   A seat from another session is not GM → `404`.
 - Error codes: `not_found` (invalid session id / non-GM / missing blob, as
@@ -311,6 +314,17 @@ DELETE /api/v1/sessions/:id/transcript     delete all transcript segments (GM)
 - Error codes: `not_found` (invalid session / non-GM / missing audio, as
   404), `internal` (transcription failure), `engine_missing` (no engine
   binary, HTTP 503, body `{ "error": "engine_missing", "message": … }`).
+- Download posture (T1c, decision 1 = DEGRADE): there is no per-platform
+  fetch or bundle. A missing whisper.cpp sidecar yields `engine_missing`
+  (503) with `transcribe.MissingEngineMessage`, which names the local
+  sidecar install (`whisper.cpp` or `DEMITABLE_WHISPER_BIN`) and never
+  directs the GM to a remote engine. Audio never leaves the machine unless
+  the GM explicitly opts in to a custom engine (ADR-0018).
+- Retention posture (T1c, decision 2 = KEEP INDEFINITELY): session audio
+  blobs and `session-log-proposals.json` segment text persist until the GM
+  deletes them. The only removal path is `DELETE /audio` (and transcript
+  deletion); there is no auto-delete-after-review and no per-campaign
+  retention setting. The journal/blob story is unchanged (ADR-0015).
 
 ### Transcript review and session-log proposal (P3)
 

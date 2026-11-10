@@ -82,7 +82,14 @@ var (
 
 // MissingEngineMessage is the exact user-facing message when the sidecar is
 // absent. Pinned by test.
-const MissingEngineMessage = "Transcription engine is not installed. Install whisper.cpp (or set DEMITABLE_WHISPER_BIN) and retry."
+//
+// Decided posture (phase-6 maintenance track T1c, human decision 1 =
+// DEGRADE): Demitable transcribes locally by default using a whisper.cpp
+// sidecar. There is no per-platform fetch, no bundle, and no implicit
+// remote/cloud fallback; the message names the local sidecar install step
+// only and never directs the GM to a remote engine. Audio never leaves the
+// machine unless the GM explicitly opts in to a custom engine.
+const MissingEngineMessage = "Transcription engine is not installed. Demitable transcribes locally by default using a whisper.cpp sidecar; install whisper.cpp (or set DEMITABLE_WHISPER_BIN) and retry. No audio leaves this machine unless you explicitly opt in to a custom engine."
 
 // LeavesMachineWarning is the exact opt-in disclosure copy (pinned).
 const LeavesMachineWarning = "This engine sends session audio off this machine for transcription. Only enable it for a campaign whose table has agreed."

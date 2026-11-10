@@ -92,6 +92,11 @@ func p3GetLastProposed(vlt *vault.Vault, notePath string) (string, bool) {
 // .demitable/, is never served to players, and is readable only by the GM
 // principal. Reason: redacting would defeat the ownership-preservation
 // contract (TestP3ReviewEndToEnd). Owner: session-log subsystem maintainer.
+//
+// Retention posture (phase-6 maintenance track T1c, human decision 2 =
+// KEEP INDEFINITELY): session-log-proposals.json segment text persists
+// until the GM deletes it. No auto-delete-after-review and no per-campaign
+// retention setting; this sidecar is not GC'd on propose/apply/review.
 func p3SetLastProposed(vlt *vault.Vault, notePath, content string) {
 	m := p3LoadMap(vlt, p3OwnershipFile)
 	m[notePath] = content
