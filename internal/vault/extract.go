@@ -6,15 +6,63 @@ import (
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
+	"github.com/yuin/goldmark/util"
 )
 
+// mdParser is the normal extraction parser: goldmark + GFM, including the
+// link parser. It preserves the exact markdown-link extraction contract
+// (ADR-0043 conformance) for ordinary notes.
 var mdParser = goldmark.New(goldmark.WithExtensions(extension.GFM))
+
+// mdParserFast is the same parser with goldmark's link parser removed. The
+// link parser is O(n^2) on '['-dense input (each '[' opens a link label
+// state and triggers a reference-resolution attempt), and on such input
+// there are no real markdown links to extract anyway. Used only when the
+// input's '[' density exceeds the safety threshold (see chooseParser).
+var mdParserFast = func() goldmark.Markdown {
+	filtered := make([]util.PrioritizedValue, 0, len(parser.DefaultInlineParsers()))
+	for _, v := range parser.DefaultInlineParsers() {
+		if ip, ok := v.Value.(parser.InlineParser); ok {
+			trig := string(ip.Trigger())
+			if len(trig) == 3 && trig[0] == '!' && trig[1] == '[' && trig[2] == ']' {
+				continue
+			}
+		}
+		filtered = append(filtered, v)
+	}
+	p := parser.NewParser(
+		parser.WithBlockParsers(parser.DefaultBlockParsers()...),
+		parser.WithInlineParsers(filtered...),
+		parser.WithParagraphTransformers(parser.DefaultParagraphTransformers()...),
+	)
+	return goldmark.New(
+		goldmark.WithExtensions(extension.GFM),
+		goldmark.WithParser(p),
+	)
+}()
+
+// chooseParser picks the extraction parser for a body. Ordinary notes keep
+// the full parser (exact output, markdown links extracted). '['-dense input
+// (hostile or pathological) uses the fast parser, which treats '[' as plain
+// text; its output is byte-identical to the full parser's on such input
+// because the full parser also reduces a run of '[' to literal text.
+func chooseParser(src string) goldmark.Markdown {
+	if len(src) == 0 {
+		return mdParser
+	}
+	density := float64(strings.Count(src, "[")) / float64(len(src))
+	if density > 0.05 {
+		return mdParserFast
+	}
+	return mdParser
+}
 
 // extractPlaintext returns searchable prose, headings and links.
 func extractPlaintext(body string, note *Note) (string, []string, []Link) {
 	src := preprocessSource([]byte(body))
-	doc := mdParser.Parser().Parse(text.NewReader(src))
+	doc := chooseParser(string(src)).Parser().Parse(text.NewReader(src))
 	e := &extractor{src: src, note: note}
 	e.walk(doc)
 	headings := headingsOf(src)
@@ -22,7 +70,7 @@ func extractPlaintext(body string, note *Note) (string, []string, []Link) {
 }
 
 func headingsOf(src []byte) []string {
-	doc := mdParser.Parser().Parse(text.NewReader(src))
+	doc := chooseParser(string(src)).Parser().Parse(text.NewReader(src))
 	var out []string
 	// walk all headings recursively
 	var walk func(n ast.Node)
@@ -165,7 +213,7 @@ func (e *extractor) fenceText(fcb *ast.FencedCodeBlock) string {
 		}
 	}
 	content := preprocessSource([]byte(stripYAMLPrefixes(b.String())))
-	doc := mdParser.Parser().Parse(text.NewReader(content))
+	doc := chooseParser(string(content)).Parser().Parse(text.NewReader(content))
 	sub := &extractor{src: content}
 	sub.walk(doc)
 	e.links = append(e.links, sub.links...)
@@ -212,8 +260,12 @@ func resolveWikiLinks(s string, links *[]Link) string {
 		if s[i] == '[' && i+1 < len(s) && s[i+1] == '[' {
 			end := strings.Index(s[i+2:], "]]")
 			if end < 0 {
-				b.WriteByte(s[i])
-				i++
+				// No closing ]] remains anywhere to the right, so no
+				// wikilink can start at this position or later. Copy the
+				// rest verbatim and stop, keeping this O(n) instead of
+				// O(n^2) on '['-dense input.
+				b.WriteString(s[i:])
+				i = len(s)
 				continue
 			}
 			inner := s[i+2 : i+2+end]
@@ -248,8 +300,6 @@ func resolveWikiLinks(s string, links *[]Link) string {
 	}
 	return b.String()
 }
-
-// checkBounds is implemented in bounds.go.
 
 // ExtractMarkdown exposes the Go-side extraction for conformance tooling.
 func ExtractMarkdown(body string) (string, []Link) {
