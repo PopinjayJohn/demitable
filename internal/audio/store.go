@@ -171,6 +171,12 @@ func (s *Store) Read(sessionID string) ([]byte, error) {
 }
 
 // Delete removes all bytes for a session.
+//
+// Retention posture (phase-6 maintenance track T1c, human decision 2 =
+// KEEP INDEFINITELY): session audio blobs persist until the GM explicitly
+// calls this affordance. There is no auto-delete-after-review, no GC timer,
+// and no per-campaign retention setting; this is the one and only removal
+// path. Do not add silent cleanup here.
 func (s *Store) Delete(sessionID string) error {
 	if !ValidSessionID(sessionID) {
 		return nil
