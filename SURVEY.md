@@ -159,3 +159,12 @@ them.
 - Components: 16 (16 conforming; 0 deferred-data).
 - Shell: 1 conforming.
 - Total inventoried: 25.
+
+## Phase-5 surfaces exercised by e2e (T2)
+
+| Surface | Owning file(s) | e2e spec | Notes |
+|---|---|---|---|
+| Browser capture | `web/src/components/CaptureRecorder.svelte`, `web/src/lib/capture.ts`, `cmd/demitable/p1_audio.go` | `e2e/tests/capture.spec.ts` | Consent string pinned; chunked upload + assemble; GM download 404/0 bytes for excluded caller. |
+| Transcription | `cmd/demitable/p2_transcribe.go`, `internal/transcribe` | `e2e/tests/transcription.spec.ts` | Review snapshot renders; missing-engine 503 message; non-GM denied. Runs against mock/local engine only (ADR-0018). |
+| Session review | `web/src/surfaces/SessionReview.svelte`, `cmd/demitable/p3_session_log.go` | `e2e/tests/review.spec.ts` | Review → promote term → propose → marked section visible; closed-session 409 surfacing. |
+| Mood / cues | `cmd/demitable/p4_mood.go`, `web/src/lib/cues.ts`, `web/src/lib/mood.ts` | `e2e/tests/cues.spec.ts` | Mood drives cue selection display; cross-session 401 posture. |

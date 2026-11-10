@@ -204,3 +204,42 @@ vacuous. The remaining cells read a computed value or an event flag that the
 fixture does not synthesise (the browser produces it), and each fails if the
 fixture stops producing the behaviour — R6 and the `isTrusted` assertions were
 added on that basis.
+
+## Phase-5 surfaces (T2, 2026-11-10)
+
+New committed Playwright specs under `e2e/tests/`, each hermetic (own temp
+vault + own server port). Run command: `cd e2e && xvfb-run -a npx playwright test`
+(all three projects). Results below are from the merged tree after T1a/T1b/T1c/T3.
+
+| Spec | Tests | Chromium | Firefox | WebKit |
+|---|---|---|---|---|
+| `capture.spec.ts` | 2 | PASS | PASS | PASS |
+| `transcription.spec.ts` | 3 | PASS | PASS | PASS |
+| `review.spec.ts` | 2 | PASS | PASS | PASS |
+| `cues.spec.ts` | 2 | PASS | PASS | PASS |
+| `shadow-host.spec.ts` | 15 | PASS | PASS | PASS |
+| **Total** | **24** | **24 / 24** | **24 / 24** | **24 / 24** |
+
+Shadow matrix remains 45 / 45 (15 rules × 3 browsers) on the merged tree.
+
+### Real-browser audio gate
+
+Machine: `coder` — `Linux coder 7.0.14-6-pve #1 SMP PREEMPT_DYNAMIC PMX 7.0.14-6 (2026-07-20T14:45Z) x86_64 GNU/Linux`.
+
+Probe evidence:
+- `/dev/snd` does not exist; `arecord`/`aplay`/`pactl` are not installed.
+- Chromium headless and non-headless (under Xvfb): `navigator.mediaDevices` is
+  `undefined`, so `getUserMedia({ audio: true })` throws
+  `TypeError: Cannot read properties of undefined (reading 'getUserMedia')`.
+- Firefox: `browserContext.grantPermissions(['microphone'])` raises
+  "Unknown permission: microphone".
+- `AudioContext` constructs and reaches `running` state (playback API present),
+  but there is no physical audio output device.
+
+Verdict: **FAIL (lack-of-machine)**. Capture (getUserMedia), transcription
+against real audio, and audible cue playback cannot be exercised on this host.
+The specs above pin the drivable remainder (chunked upload, 503 missing-engine
+posture, review→promote→propose, cue selection, cross-session 401) via the
+mock/local engine and HTTP surface. A machine with an ALSA/PulseAudio source
+and a Chromium/Firefox build exposing `mediaDevices` is required to close the
+gate; faking it with jsdom is explicitly not the gate.
