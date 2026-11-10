@@ -11,7 +11,7 @@
   import NoteContext from "../components/NoteContext.svelte";
   import Icon from "../components/Icon.svelte";
   import { appState, findSecrets, revealedIds } from "../lib/appstate.svelte";
-<  import { campaignMatches } from "../lib/campaign";
+  import { campaignMatches } from "../lib/campaign";
   import { getToken, isGM } from "../lib/auth";
   import { onMount } from "svelte";
   import { WSClient } from "../lib/ws";
