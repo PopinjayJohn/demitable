@@ -27,3 +27,5 @@ export function parseHomeLink(content: string): string | null {
   }
   return null;
 }
+
+export * from "./campaign";
