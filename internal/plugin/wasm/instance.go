@@ -5,12 +5,14 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -81,11 +83,27 @@ type Engine struct {
 }
 
 // NewEngine creates a pure-Go wazero runtime and its shared host module.
+// defaultInvokeTimeout is the per-call ceiling applied by Invoke when the
+// caller passes a context with no deadline. It bounds a guest that never
+// returns even when the caller forgot to set one; WithCloseOnContextDone
+// (set on the runtime) is what actually terminates the guest goroutine.
+const defaultInvokeTimeout = 5 * time.Second
+
+// wasmMemoryLimitPages caps each instance's linear memory at 256 pages
+// (16 MiB). The wazero default is 65536 pages (4 GiB); a GM-installed
+// plugin must not be able to consume that. 256 pages is a measured, generous
+// ceiling for a plugin's working set (the demo campaign's largest note is
+// well under a page) while leaving headroom for host marshalling buffers.
+const wasmMemoryLimitPages = 256
+
 func NewEngine(ctx context.Context) (*Engine, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	e := &Engine{rt: wazero.NewRuntime(ctx), ctx: ctx, byModule: map[api.Module]*Instance{}}
+	cfg := wazero.NewRuntimeConfig().
+		WithMemoryLimitPages(wasmMemoryLimitPages).
+		WithCloseOnContextDone(true)
+	e := &Engine{rt: wazero.NewRuntimeWithConfig(ctx, cfg), ctx: ctx, byModule: map[api.Module]*Instance{}}
 	builder := e.rt.NewHostModuleBuilder(HostModule)
 	// host functions resolve the calling instance from the module map.
 	builder.NewFunctionBuilder().WithFunc(func(ctx context.Context, m api.Module, ptr, size uint32) uint32 {
@@ -282,17 +300,28 @@ func (i *Instance) Invoke(ctx context.Context, c Call) Result {
 	if ctx == nil {
 		ctx = i.ctx
 	}
+	// Per-call deadline: a guest without one would otherwise run forever.
+	// WithCloseOnContextDone (set on the runtime) is what actually stops
+	// the goroutine; this deadline is the trigger.
+	if _, ok := ctx.Deadline(); !ok {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, defaultInvokeTimeout)
+		defer cancel()
+	}
+
 	i.lifeMu.RLock()
-	defer i.lifeMu.RUnlock()
 	if i.mod == nil {
+		i.lifeMu.RUnlock()
 		return failResult("not_available", "plugin instance is closed", nil)
 	}
 	fn := i.mod.ExportedFunction("demitable_call")
 	if fn == nil {
+		i.lifeMu.RUnlock()
 		return failResult("invalid", "module exports no demitable_call", nil)
 	}
 	mem := i.mod.ExportedMemory("memory")
 	if mem == nil {
+		i.lifeMu.RUnlock()
 		return failResult("invalid", "module exports no memory", nil)
 	}
 	req, _ := json.Marshal(c)
@@ -304,16 +333,27 @@ func (i *Instance) Invoke(ctx context.Context, c Call) Result {
 			pages = 1
 		}
 		if _, ok := mem.Grow(pages); !ok {
+			i.lifeMu.RUnlock()
 			return failResult("invalid", "memory grow failed", nil)
 		}
 	}
 	if !mem.Write(0, req) {
+		i.lifeMu.RUnlock()
 		return failResult("invalid", "memory write failed", nil)
 	}
 	// null terminate
 	_ = mem.WriteByte(uint32(len(req)), 0)
 
 	res, err := fn.Call(ctx, 0, uint64(len(req)))
+	dead := err != nil && isDeadlineExceeded(err)
+	// Also treat a module that the runtime closed under us as dead.
+	i.lifeMu.RUnlock()
+
+	if dead {
+		// The runtime has closed the module; tear down the instance so
+		// subsequent calls report not_available.
+		i.Close(context.Background())
+	}
 	if err != nil {
 		return failResult("wasm_error", err.Error(), nil)
 	}
@@ -340,6 +380,16 @@ func (i *Instance) InvokeJSON(ctx context.Context, req []byte) ([]byte, error) {
 	r := i.Invoke(ctx, c)
 	b, _ := json.Marshal(r)
 	return b, nil
+}
+
+func isDeadlineExceeded(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return true
+	}
+	return strings.Contains(err.Error(), "context deadline exceeded")
 }
 
 func readUntilNull(mem api.Memory, ptr uint32) []byte {

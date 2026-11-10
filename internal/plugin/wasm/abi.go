@@ -326,3 +326,110 @@ var _ = bytesIndexByte
 var _ = fmt.Errorf
 var _ = bytes.NewBuffer
 var _ = binary.LittleEndian
+
+// InfiniteLoopModule returns a guest module whose demitable_call never
+// returns. Used by tests for the host-side timeout mitigation.
+func InfiniteLoopModule() []byte {
+	t0 := encodeTypeFunc([]byte{valI32, valI32}, []byte{valI32})
+	typeSec := []byte{}
+	typeSec = appendVarUint(typeSec, 1)
+	typeSec = append(typeSec, t0...)
+
+	// no imports
+	importSec := []byte{}
+	importSec = appendVarUint(importSec, 0)
+
+	funcSec := []byte{}
+	funcSec = appendVarUint(funcSec, 1)
+	funcSec = appendVarUint(funcSec, 0)
+
+	memSec := []byte{}
+	memSec = appendVarUint(memSec, 1)
+	memSec = append(memSec, 0x00)
+	memSec = appendVarUint(memSec, 2)
+
+	exportSec := []byte{}
+	exportSec = appendVarUint(exportSec, 2)
+	exportSec = append(exportSec, encodeString("demitable_call")...)
+	exportSec = append(exportSec, 0x00)
+	exportSec = appendVarUint(exportSec, 0) // func index 0 (no imports)
+	exportSec = append(exportSec, encodeString("memory")...)
+	exportSec = append(exportSec, 0x02)
+	exportSec = appendVarUint(exportSec, 0)
+
+	// code: loop (void); br 0; end; i32.const 0; end
+	codeBody := []byte{0x00}
+	codeBody = append(codeBody, 0x03, 0x40) // loop void
+	codeBody = append(codeBody, 0x0c, 0x00) // br 0
+	codeBody = append(codeBody, 0x0b)       // end loop
+	codeBody = append(codeBody, 0x41, 0x00) // i32.const 0 (unreachable, keeps return type valid)
+	codeBody = append(codeBody, 0x0b)       // end func
+	codeSec := []byte{}
+	codeSec = appendVarUint(codeSec, 1)
+	sz := []byte{}
+	sz = appendVarUint(sz, uint32(len(codeBody)))
+	codeSec = append(codeSec, sz...)
+	codeSec = append(codeSec, codeBody...)
+
+	out := []byte{0x00, 'a', 's', 'm', 0x01, 0x00, 0x00, 0x00}
+	out = append(out, section(1, typeSec)...)
+	out = append(out, section(2, importSec)...)
+	out = append(out, section(3, funcSec)...)
+	out = append(out, section(5, memSec)...)
+	out = append(out, section(7, exportSec)...)
+	out = append(out, section(10, codeSec)...)
+	return out
+}
+
+// MemoryGrowModule returns a module exporting grow(n i32) i32 that calls
+// memory.grow and returns its result (-1 on failure). Used by tests for the
+// host-side memory cap.
+func MemoryGrowModule() []byte {
+	// type 0: (i32)->i32
+	t0 := encodeTypeFunc([]byte{valI32}, []byte{valI32})
+	typeSec := []byte{}
+	typeSec = appendVarUint(typeSec, 1)
+	typeSec = append(typeSec, t0...)
+
+	importSec := []byte{}
+	importSec = appendVarUint(importSec, 0)
+
+	funcSec := []byte{}
+	funcSec = appendVarUint(funcSec, 1)
+	funcSec = appendVarUint(funcSec, 0)
+
+	memSec := []byte{}
+	memSec = appendVarUint(memSec, 1)
+	memSec = append(memSec, 0x00)
+	memSec = appendVarUint(memSec, 2)
+
+	exportSec := []byte{}
+	exportSec = appendVarUint(exportSec, 2)
+	exportSec = append(exportSec, encodeString("grow")...)
+	exportSec = append(exportSec, 0x00)
+	exportSec = appendVarUint(exportSec, 0)
+	exportSec = append(exportSec, encodeString("memory")...)
+	exportSec = append(exportSec, 0x02)
+	exportSec = appendVarUint(exportSec, 0)
+
+	// code: local.get 0; memory.grow 0; end
+	codeBody := []byte{0x00}
+	codeBody = append(codeBody, 0x20, 0x00) // local.get 0
+	codeBody = append(codeBody, 0x40, 0x00) // memory.grow 0
+	codeBody = append(codeBody, 0x0b)       // end
+	codeSec := []byte{}
+	codeSec = appendVarUint(codeSec, 1)
+	sz := []byte{}
+	sz = appendVarUint(sz, uint32(len(codeBody)))
+	codeSec = append(codeSec, sz...)
+	codeSec = append(codeSec, codeBody...)
+
+	out := []byte{0x00, 'a', 's', 'm', 0x01, 0x00, 0x00, 0x00}
+	out = append(out, section(1, typeSec)...)
+	out = append(out, section(2, importSec)...)
+	out = append(out, section(3, funcSec)...)
+	out = append(out, section(5, memSec)...)
+	out = append(out, section(7, exportSec)...)
+	out = append(out, section(10, codeSec)...)
+	return out
+}
