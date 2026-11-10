@@ -527,6 +527,15 @@ func promoteHandler(w http.ResponseWriter, r *http.Request, vlt *vault.Vault, se
 		writeErr(w, "forbidden", "gm required", http.StatusForbidden)
 		return
 	}
+	if sessStore != nil {
+		if s, _ := sessStore.GetSession(sid); s == nil {
+			writeErr(w, "not_found", "no such session", http.StatusNotFound)
+			return
+		} else if s.Status == session.StatusClosed {
+			writeErr(w, "session_closed", "session is closed", http.StatusConflict)
+			return
+		}
+	}
 	rawBytes, _ := io.ReadAll(r.Body)
 	var body map[string]any
 	_ = json.Unmarshal(rawBytes, &body)
