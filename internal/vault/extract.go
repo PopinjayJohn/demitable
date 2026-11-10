@@ -18,9 +18,14 @@ var mdParser = goldmark.New(goldmark.WithExtensions(extension.GFM))
 
 // mdParserFast is the same parser with goldmark's link parser removed. The
 // link parser is O(n^2) on '['-dense input (each '[' opens a link label
-// state and triggers a reference-resolution attempt), and on such input
-// there are no real markdown links to extract anyway. Used only when the
-// input's '[' density exceeds the safety threshold (see chooseParser).
+// state and triggers a reference-resolution attempt). Used only when a cheap
+// O(n) byte scan proves no link construct can exist in the input (see
+// chooseParser): an input with no ']' byte cannot contain a closing bracket
+// for any markdown link/image/reference, and cannot contain ']]' for a
+// wikilink, so the full parser has nothing to extract that the fast parser
+// would drop. This keeps the fast path provably output-identical to the full
+// parser (ADR-0021/0049) while retaining the quadratic-avoidance win on
+// hostile '['-dense input that has no closers.
 var mdParserFast = func() goldmark.Markdown {
 	filtered := make([]util.PrioritizedValue, 0, len(parser.DefaultInlineParsers()))
 	for _, v := range parser.DefaultInlineParsers() {
@@ -44,16 +49,24 @@ var mdParserFast = func() goldmark.Markdown {
 }()
 
 // chooseParser picks the extraction parser for a body. Ordinary notes keep
-// the full parser (exact output, markdown links extracted). '['-dense input
-// (hostile or pathological) uses the fast parser, which treats '[' as plain
-// text; its output is byte-identical to the full parser's on such input
-// because the full parser also reduces a run of '[' to literal text.
+// the full parser (exact output, markdown links extracted). The fast parser
+// is used only when a cheap O(n) byte scan proves no link construct can
+// exist in the input: an input containing no ']' byte cannot close any
+// markdown link (needs ']'), image (needs ']'), reference link (needs ']'),
+// or wikilink (needs ']]'), so the full parser has nothing to extract that
+// the fast parser would drop. This is the invariant that makes the fast path
+// provably output-identical to the full parser (ADR-0021/0049); it is NOT a
+// density heuristic, which was proven to silently narrow extraction
+// (link farms, roster notes). Any input containing ']' runs the full parser,
+// preserving today's behavior on adversarial-with-closers input.
+//
+// If you find a link construct that can close without a ']' byte, do not ship
+// this change: report the example instead.
 func chooseParser(src string) goldmark.Markdown {
 	if len(src) == 0 {
 		return mdParser
 	}
-	density := float64(strings.Count(src, "[")) / float64(len(src))
-	if density > 0.05 {
+	if !strings.Contains(src, "]") {
 		return mdParserFast
 	}
 	return mdParser
@@ -144,6 +157,17 @@ type extractor struct {
 	note  *Note
 	out   strings.Builder
 	links []Link
+
+	// hasLastText/lastTextEnd track the source span of the most recent
+	// top-level text node, so adjacent text nodes that goldmark split
+	// (e.g. a run of '[' that the link parser breaks into several text
+	// nodes) are joined without an inserted space. This keeps output
+	// independent of how goldmark tokenises consecutive text, which is
+	// what makes the no-link-parser fast path provably identical to the
+	// full parser. See chooseParser.
+	hasLastText bool
+	lastTextEnd int
+	linkDepth   int
 }
 
 func (e *extractor) write(s string) {
@@ -154,6 +178,38 @@ func (e *extractor) write(s string) {
 		e.out.WriteByte(' ')
 	}
 	e.out.WriteString(s)
+	// A non-text write breaks adjacency tracking for top-level text nodes.
+	e.hasLastText = false
+}
+
+// emitText handles a top-level (or nested) goldmark text node. When two
+// text nodes are adjacent in the source (no gap, no intervening construct
+// such as a link), they are joined without an inserted space, so that
+// goldmark's tokenisation of a run of brackets does not change the output.
+// When a construct sits between them (a gap in source positions), the
+// usual space is inserted, preserving the readable separation of words
+// around links. Inside a link (inLink), the legacy always-space behaviour
+// is retained so link text is unchanged.
+func (e *extractor) emitText(val []byte, start, stop int, inLink bool) {
+	s := resolveWikiLinks(string(val), &e.links)
+	if s == "" {
+		return
+	}
+	needSpace := false
+	if e.out.Len() > 0 {
+		needSpace = true
+		if !inLink && e.hasLastText && start == e.lastTextEnd {
+			needSpace = false
+		}
+	}
+	if needSpace {
+		e.out.WriteByte(' ')
+	}
+	e.out.WriteString(s)
+	if !inLink {
+		e.hasLastText = true
+		e.lastTextEnd = stop
+	}
 }
 
 func (e *extractor) walk(n ast.Node) {
@@ -175,6 +231,8 @@ func (e *extractor) walk(n ast.Node) {
 		}
 		return
 	case ast.KindLink:
+		e.linkDepth++
+		defer func() { e.linkDepth-- }()
 		l := n.(*ast.Link)
 		var text []string
 		for c := n.FirstChild(); c != nil; c = c.NextSibling() {
@@ -186,20 +244,18 @@ func (e *extractor) walk(n ast.Node) {
 		return
 	}
 	if n.Type() == ast.TypeInline && n.Kind() == ast.KindText {
-		e.emit(string(n.(*ast.Text).Segment.Value(e.src)))
+		tt := n.(*ast.Text)
+		seg := tt.Segment
+		e.emitText(seg.Value(e.src), seg.Start, seg.Stop, e.linkDepth > 0)
 		return
 	}
 	if n.Kind() == ast.KindString {
-		e.emit(string(n.(*ast.String).Value))
+		e.write(string(n.(*ast.String).Value))
 		return
 	}
 	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
 		e.walk(c)
 	}
-}
-
-func (e *extractor) emit(s string) {
-	e.write(resolveWikiLinks(s, &e.links))
 }
 
 func (e *extractor) fenceText(fcb *ast.FencedCodeBlock) string {
