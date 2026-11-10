@@ -27,3 +27,4 @@ export function parseHomeLink(content: string): string | null {
   }
   return null;
 }
+

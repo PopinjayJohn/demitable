@@ -11,6 +11,7 @@
   import NoteContext from "../components/NoteContext.svelte";
   import Icon from "../components/Icon.svelte";
   import { appState, findSecrets, revealedIds } from "../lib/appstate.svelte";
+<  import { campaignMatches } from "../lib/campaign";
   import { getToken, isGM } from "../lib/auth";
   import { onMount } from "svelte";
   import { WSClient } from "../lib/ws";
@@ -46,8 +47,7 @@
         if (filter !== "all" && vis(n) !== filter) return false;
         if (typeFilter && String((n as any).type ?? "") !== typeFilter) return false;
         if (workflowFilter && String((n as any).workflow ?? "") !== workflowFilter) return false;
-        const cf = appState.campaignFilter;
-        if (cf && String((n as any).campaign || "No campaign") !== cf) return false;
+        if (!campaignMatches(n, appState.campaignFilter)) return false;
         const pf = appState.pathFilter;
         if (pf) {
           const p = String((n as any).path ?? "");

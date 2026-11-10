@@ -138,3 +138,4 @@ export function revealedIds(v: unknown): string[] {
   if (!Array.isArray(v)) return [];
   return v.map((r) => (typeof r === "string" ? r : String((r as any)?.id ?? ""))).filter(Boolean);
 }
+

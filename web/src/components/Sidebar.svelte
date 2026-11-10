@@ -9,8 +9,13 @@
   import SideSection from "./SideSection.svelte";
   import Icon from "./Icon.svelte";
   import { displayName } from "../lib/display";
+  import { campaignMatches } from "../lib/campaign";
 
   const collapsed = $derived(appState.sidebarCollapsed);
+
+  const filteredVaultNotes = $derived(
+    vaultStore.notes.filter((n) => campaignMatches(n, appState.campaignFilter)),
+  );
 
   function openNote(uid: string) {
     appState.selectedUid = uid;
@@ -60,7 +65,13 @@
     </SideSection>
 
     <SideSection id="wiki-vault" title="Vault">
-      <VaultTree notes={vaultStore.notes} />
+      <VaultTree notes={filteredVaultNotes} />
+      {#if appState.campaignFilter}
+        <div class="campaign-chip">
+          <span class="tag"><Icon name="scroll" size={11} /> {appState.campaignFilter}</span>
+          <button class="btn btn--sm" onclick={() => (appState.campaignFilter = null)}>Clear</button>
+        </div>
+      {/if}
     </SideSection>
 
     <SideSection id="wiki-attention" title="Needs attention" count={vaultStore.attention.length}>
@@ -176,4 +187,5 @@
   .field { display: flex; flex-direction: column; gap: 2px; font-size: var(--text-xs); color: var(--fg-muted); margin-block-end: var(--space-2); }
   .field input { padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: var(--text-sm); }
   .check { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); color: var(--fg-muted); }
+  .campaign-chip { display: flex; align-items: center; gap: var(--space-1); margin-block-start: var(--space-2); }
 </style>

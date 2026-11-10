@@ -59,3 +59,4 @@ class VaultStore {
 }
 
 export const vaultStore = new VaultStore();
+
