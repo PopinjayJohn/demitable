@@ -32,7 +32,7 @@
 
   const secrets = $derived(findSecrets(buffer));
   const revealedSet = $derived(new Set(revealedIds((doc as any)?.revealed)));
-  const effVis = $derived(doc?.effectiveVisibility ?? "gm");
+  const effVis = $derived((doc as any)?.effectiveVisibility ?? (doc as any)?.effective_visibility ?? "gm");
   const isDefaulted = $derived(doc?.defaulted ?? false);
   const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
 

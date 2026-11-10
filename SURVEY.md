@@ -71,10 +71,27 @@ client-side projection or client-side note authority.
 that use it: `PlayerView`, `Tabletop` (load), `VaultExplorer` (badge, inside
 try/catch), and the dashboard counts in `dashboard.ts`. **Readers that bypass
 it** (read `effective_visibility` directly, with a fallback that can mask a
-missing projection): `NoteEditor` (`effVis`), `Home` (badge fallback `"party"`),
+missing projection): `NoteEditor` (`effVis`), `Home` (badge fallback `"gm"`),
 `NoteContext` (`vis()` fallback `"gm"`), `VaultExplorer.vis()` catch
-(fallback `"gm"`). Flagged here; no code change in this pass — the
-fail-closed behaviour is the amendment's to settle.
+(fallback `"gm"`). These four are the ADR-0064 D3 surfaces; their
+fail-closed (`?? "gm"`) fallback is pinned by the component harness in
+`web/src/test/harness.ts` — see "Component test harness (T1b)" below.
+
+## Component test harness (T1b)
+
+First minimal component-test harness for web surfaces: `web/src/test/harness.ts`,
+built on Svelte 5 `mount`/`unmount` into a jsdom container (vitest, browser
+conditions). One canonical mechanism — no testing-library dependency.
+
+Pins (ADR-0064 D3 — a missing projection renders `gm`, never `party`/`public`):
+- `web/src/surfaces/VaultExplorer.test.ts` — `VaultExplorer D3 fallback`
+- `web/src/surfaces/NoteEditor.test.ts` — `NoteEditor D3 fallback`
+- `web/src/surfaces/Home.test.ts` — `Home D3 fallback`
+- `web/src/components/NoteContext.test.ts` — `NoteContext D3 fallback`
+
+Each covers: projection missing entirely (null/undefined note or doc) → `gm`;
+one spelling present → that value used; both absent → `gm`; present permissive
+value → rendered as given; no permissive label on the missing-projection path.
 
 ## Shadow mount (ADR-0029)
 
@@ -94,7 +111,9 @@ additionally asserts zero client vault reads for its own request set.
 - Chat authorship rule — P0b carries it (creation must see the channel's
   audience); reads stay projection-governed.
 - Fail-open `surfaceVisibility` fallbacks in `VaultExplorer`, `NoteEditor`,
-  `Home`, `NoteContext` — flagged above for the ADR-0052 amendment.
+  `Home`, `NoteContext` — pinned fail-closed (`gm`) by the component
+  harness (T1b); see "Component test harness (T1b)" below. Narrowing the
+  fallback itself remains a security change requiring its own ADR.
 
 ## ADR-0052 ordered-rules residue (evidence for the amendment)
 
