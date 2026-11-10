@@ -1,28 +1,33 @@
 <script lang="ts">
   // Shared note context for the right rail, used by both the vault
-  // explorer and the viewer: effective badge, inspector, secrets with
+  // explorer and the viewer: effective badge, permissions, secrets with
   // reveal controls, and a jump to the editor.
   import VisibilityBadge from "./VisibilityBadge.svelte";
-  import VisibilityInspector from "./VisibilityInspector.svelte";
   import Icon from "./Icon.svelte";
   import { appState } from "../lib/appstate.svelte";
   import type { SecretRef } from "../lib/appstate.svelte";
   import type { NoteSummary } from "../lib/api";
+  import { isGM } from "../lib/auth";
+  import { patchNote } from "../lib/api";
+  import { vaultStore } from "../lib/vaultstore.svelte";
 
   let {
     note = null,
     secrets = [],
     revealed = [],
     onReveal,
+    onUnreveal,
   }: {
     note: NoteSummary | null;
     secrets: SecretRef[];
     revealed?: string[];
     onReveal: (blockId: string, audience?: any) => void;
+    onUnreveal?: (blockId: string, audience?: any) => void;
   } = $props();
 
   const revealedSet = $derived(new Set(revealed));
   let revealInputs = $state<Record<string, string>>({});
+  let unrevealInputs = $state<Record<string, string>>({});
 
   function vis(n: NoteSummary): string {
     return String((n as any).effective_visibility ?? (n as any).effectiveVisibility ?? "gm");
@@ -30,15 +35,49 @@
   function defaulted(n: NoteSummary): boolean {
     return Boolean((n as any).defaulted) || (n as any).visibility === undefined;
   }
+
+  const VISIBILITY_VALUES = ["public", "party", "owner", "private", "discovered", "gm"];
+
+  async function changeVisibility(value: string) {
+    if (!note?.uid || !isGM()) return;
+    try {
+      await patchNote(String(note.uid), { visibility: value });
+      await vaultStore.load();
+    } catch {
+      /* server enforces; ignore client-side */
+    }
+  }
 </script>
 
 {#if note}
   <div class="rail-block">
     <h3 class="rail-title">Visibility</h3>
     <VisibilityBadge visibility={vis(note)} defaulted={defaulted(note)} />
+    <div class="rail-gap"></div>
+    <div class="permissions">
+      <div class="perm-row">
+        <span class="perm-label">Owner</span>
+        <span class="perm-value">{String((note as any).player ?? "").trim() || "—"}</span>
+      </div>
+      <div class="perm-row">
+        <span class="perm-label">Visibility</span>
+        {#if isGM()}
+          <select
+            class="perm-select"
+            value={vis(note)}
+            onchange={(e) => changeVisibility((e.currentTarget as HTMLSelectElement).value)}
+          >
+            {#each VISIBILITY_VALUES as v}
+              <option value={v}>{v}</option>
+            {/each}
+          </select>
+        {:else}
+          <span class="perm-value">{vis(note)}{defaulted(note) ? " (defaulted)" : ""}</span>
+        {/if}
+      </div>
+    </div>
     {#if appState.showInspector}
       <div class="rail-gap"></div>
-      <VisibilityInspector uid={note?.uid ?? ""} />
     {/if}
   </div>
   <div class="rail-block">
@@ -53,6 +92,14 @@
             <span class="secret__id mono">^{s.id}</span>
             {#if revealedSet.has(s.id)}
               <span class="tag tag--revealed">Revealed</span>
+              {#if isGM()}
+                <div class="reveal-row">
+                  <button class="btn btn--sm" onclick={() => onUnreveal?.(s.id, { all: true })}>Un-reveal from table</button>
+                  <button class="btn btn--sm" onclick={() => onUnreveal?.(s.id, { display: true })}>Un-reveal from display</button>
+                  <input class="reveal-players" placeholder="player ids" bind:value={unrevealInputs[s.id]} />
+                  <button class="btn btn--sm" onclick={() => onUnreveal?.(s.id, { players: (unrevealInputs[s.id] ?? "").split(",").map((x) => x.trim()).filter(Boolean) })}>Un-reveal from players</button>
+                </div>
+              {/if}
             {:else}
               <div class="reveal-row">
                 <button class="btn btn--sm" onclick={() => onReveal(s.id, { all: true })}>Reveal to table</button>
@@ -88,4 +135,9 @@
   .secret__id { font-size: var(--text-2xs); color: var(--fg-subtle); }
   .reveal-row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block-start: var(--space-2); }
   .reveal-players { font-size: var(--text-xs); }
+  .permissions { display: flex; flex-direction: column; gap: var(--space-2); }
+  .perm-row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); }
+  .perm-label { color: var(--fg-subtle); min-width: 5rem; }
+  .perm-value { color: var(--fg-default); }
+  .perm-select { font-size: var(--text-xs); }
 </style>

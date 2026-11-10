@@ -13,6 +13,7 @@
   import MarkdownView from "../components/MarkdownView.svelte";
   import Icon from "../components/Icon.svelte";
   import { appState, findSecrets, revealedIds } from "../lib/appstate.svelte";
+  import { isGM } from "../lib/auth";
 
   let uid = $derived(appState.selectedUid);
   let doc = $state<NoteDoc | null>(null);
@@ -21,6 +22,7 @@
   let previewRevealed = $state<string[]>([]);
   let status = $state("idle");
   let revealPlayers = $state<Record<string, string>>({});
+  let unrevealPlayers = $state<Record<string, string>>({});
   let conflict = $state<NoteDoc | null>(null);
   let fmVisibility = $state(""), fmWorkflow = $state(""), fmGrants = $state(""),
       fmCampaign = $state(""), fmKind = $state(""), fmPlayer = $state(""),
@@ -29,6 +31,7 @@
   let ws: WSClient | null = null;
 
   const secrets = $derived(findSecrets(buffer));
+  const revealedSet = $derived(new Set(revealedIds((doc as any)?.revealed)));
   const effVis = $derived(doc?.effectiveVisibility ?? "gm");
   const isDefaulted = $derived(doc?.defaulted ?? false);
   const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
@@ -102,6 +105,11 @@
     ws?.revealSecret(uid, blockId, audience);
     setTimeout(() => void renderPreview(), 600);
   }
+  function unreveal(blockId: string, audience: any = { all: true }) {
+    if (!uid) return;
+    ws?.unrevealSecret(uid, blockId, audience);
+    setTimeout(() => void renderPreview(), 600);
+  }
 
   $effect(() => { if (uid) void open(uid); });
   // The eye moves the preview, never the source.
@@ -125,6 +133,7 @@
     ws = new WSClient({
       onNoteSaved: (d) => { if (d?.uid === uid) void open(uid!); },
       onSecretRevealed: () => { if (uid) void renderPreview(); },
+      onSecretUnrevealed: () => { if (uid) void renderPreview(); },
       onVaultChanged: () => { if (uid) void open(uid!); },
     });
     ws.connect();
@@ -154,15 +163,27 @@
       {:else}
         <ul class="secrets">
           {#each secrets as s (s.id)}
-            <li class="secret">
+            <li class="secret" class:is-revealed={revealedSet.has(s.id)}>
               <span class="secret__label">{s.label}</span>
               <span class="secret__id mono">^{s.id}</span>
-              <div class="reveal-row">
-                <button class="btn btn--sm" onclick={() => reveal(s.id, { all: true })}>Reveal to table</button>
-                <button class="btn btn--sm" onclick={() => reveal(s.id, { display: true })}>Reveal to display</button>
-                <input class="reveal-players" placeholder="player ids (comma-separated)" bind:value={revealPlayers[s.id]} />
-                <button class="btn btn--sm" onclick={() => reveal(s.id, { players: (revealPlayers[s.id] ?? "").split(",").map((x) => x.trim()).filter(Boolean) })}>Reveal to players</button>
-              </div>
+              {#if revealedSet.has(s.id)}
+                <span class="tag tag--revealed">Revealed</span>
+                {#if isGM()}
+                  <div class="reveal-row">
+                    <button class="btn btn--sm" onclick={() => unreveal(s.id, { all: true })}>Un-reveal from table</button>
+                    <button class="btn btn--sm" onclick={() => unreveal(s.id, { display: true })}>Un-reveal from display</button>
+                    <input class="reveal-players" placeholder="player ids (comma-separated)" bind:value={unrevealPlayers[s.id]} />
+                    <button class="btn btn--sm" onclick={() => unreveal(s.id, { players: (unrevealPlayers[s.id] ?? "").split(",").map((x) => x.trim()).filter(Boolean) })}>Un-reveal from players</button>
+                  </div>
+                {/if}
+              {:else}
+                <div class="reveal-row">
+                  <button class="btn btn--sm" onclick={() => reveal(s.id, { all: true })}>Reveal to table</button>
+                  <button class="btn btn--sm" onclick={() => reveal(s.id, { display: true })}>Reveal to display</button>
+                  <input class="reveal-players" placeholder="player ids (comma-separated)" bind:value={revealPlayers[s.id]} />
+                  <button class="btn btn--sm" onclick={() => reveal(s.id, { players: (revealPlayers[s.id] ?? "").split(",").map((x) => x.trim()).filter(Boolean) })}>Reveal to players</button>
+                </div>
+              {/if}
             </li>
           {/each}
         </ul>
@@ -217,7 +238,7 @@
       <div class="eye-note" role="status">Preview of the last <strong>save</strong> as {eyeAs} — save to refresh.</div>
     {/if}
     <div class="preview">
-      <MarkdownView source={previewSource} noteUid={uid ?? ""} canReveal={false} revealed={previewRevealed} />
+      <MarkdownView source={previewSource} noteUid={uid ?? ""} canReveal={false} canUnreveal={false} onUnreveal={unreveal} revealed={previewRevealed} />
     </div>
   </section>
 </div>
@@ -245,6 +266,7 @@
   .secret { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2); border: 1px dashed var(--secret-border); border-radius: var(--radius-md); background: var(--bg-surface); }
   .secret__label { font-size: var(--text-xs); font-weight: var(--weight-semibold); }
   .secret__id { font-size: var(--text-2xs); color: var(--fg-subtle); }
+  .tag--revealed { color: var(--success); border-color: var(--success-border, var(--success)); background: var(--success-subtle); }
   .fm-edit { margin-block-start: var(--space-3); }
   .fm-edit label { display: flex; flex-direction: column; gap: 2px; font-size: var(--text-xs); margin-block: var(--space-1); }
   .fm-edit input { padding: var(--space-1) var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); }

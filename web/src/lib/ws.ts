@@ -16,6 +16,7 @@ export interface WSClientOptions {
   token?: string | null;
   onVaultChanged?: (data: any) => void;
   onSecretRevealed?: (data: any) => void;
+  onSecretUnrevealed?: (data: any) => void;
   onNoteSaved?: (data: any) => void;
   onRollResult?: (data: any) => void;
   onSessionState?: (data: any) => void;
@@ -67,6 +68,12 @@ export class WSClient {
         case "secret.revealed":
           this.opts.onSecretRevealed?.(env.data);
           break;
+        case "secret.unrevealed":
+        case "secret.concealed":
+        case "secret.revoked":
+        case "secret.hidden":
+          this.opts.onSecretUnrevealed?.(env.data);
+          break;
         case "note.saved":
           this.opts.onNoteSaved?.(env.data);
           break;
@@ -105,6 +112,10 @@ export class WSClient {
     this.send("secret.reveal", { note_uid: noteUid, block_id: blockId, audience });
   }
 
+  unrevealSecret(noteUid: string, blockId: string, audience: any = { all: true }): void {
+    this.send("secret.unreveal", { note_uid: noteUid, block_id: blockId, audience });
+  }
+
   ping(): void {
     this.send("ping");
   }
@@ -123,7 +134,3 @@ export function connectWS(opts: WSClientOptions = {}): WSClient {
   return c;
 }
 
-// Secret-reveal helper used by UI.
-export function revealSecret(noteUid: string, blockId: string, audience?: any): void {
-  // no-op standalone; callers use a client instance
-}

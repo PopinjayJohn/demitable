@@ -36,6 +36,7 @@ const CLASS_ALLOW = [
   "callout__label",
   "secret--revealed",
   "secret-reveal",
+  "secret-unreveal",
 ];
 const CLASS_RE = [/^callout-/, /^admonition-/, /^language-/];
 
@@ -58,7 +59,7 @@ const schema = {
   tagNames: [...(defaultSchema.tagNames ?? []), "button"],
   attributes: {
     ...defaultSchema.attributes,
-    "*": [...(attrs["*"] ?? []), "dataBlockId", "dataUid", "dataRevealBlock"],
+    "*": [...(attrs["*"] ?? []), "dataBlockId", "dataUid", "dataRevealBlock", "dataUnrevealBlock"],
     a: allowClasses(attrs["a"]),
     blockquote: allowClasses(attrs["blockquote"]),
     button: allowClasses(attrs["button"]),
@@ -155,9 +156,10 @@ function firstTextNode(el: HastElement): HastText | null {
   return found;
 }
 
-function rehypeCallouts(options?: { revealed?: string[]; revealButtons?: boolean }) {
+function rehypeCallouts(options?: { revealed?: string[]; revealButtons?: boolean; unrevealButtons?: boolean }) {
   const revealed = new Set(options?.revealed ?? []);
   const revealButtons = options?.revealButtons ?? false;
+  const unrevealButtons = options?.unrevealButtons ?? false;
   return (tree: HastRoot) => {
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "blockquote") return;
@@ -197,6 +199,14 @@ function rehypeCallouts(options?: { revealed?: string[]; revealButtons?: boolean
             tagName: "button",
             properties: { className: ["secret-reveal"], dataRevealBlock: idm[1] },
             children: [{ type: "text", value: "Reveal" }],
+          } as any);
+        }
+        if (unrevealButtons && idm && isRevealed) {
+          el.children.push({
+            type: "element",
+            tagName: "button",
+            properties: { className: ["secret-unreveal"], dataUnrevealBlock: idm[1] },
+            children: [{ type: "text", value: "Un-reveal" }],
           } as any);
         }
       } else {
@@ -265,6 +275,8 @@ export interface RenderOptions {
   revealed?: string[];
   /** Append a hover reveal button to unrevealed secrets (GM view). */
   revealButtons?: boolean;
+  /** Append a hover un-reveal button to revealed secrets (GM view). */
+  unrevealButtons?: boolean;
 }
 
 export function renderMarkdown(src: string, opts: RenderOptions = {}): string {
@@ -275,7 +287,7 @@ export function renderMarkdown(src: string, opts: RenderOptions = {}): string {
       .use(remarkGfm)
       .use(remarkWikilinks as any, opts.resolveWiki)
       .use(remarkRehype)
-      .use(rehypeCallouts as any, { revealed: opts.revealed, revealButtons: opts.revealButtons })
+      .use(rehypeCallouts as any, { revealed: opts.revealed, revealButtons: opts.revealButtons, unrevealButtons: opts.unrevealButtons })
       .use(rehypeBlockRefs as any)
       .use(rehypeStatblocks as any)
       .use(rehypeSanitize, schema as any)

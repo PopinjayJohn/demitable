@@ -11,7 +11,9 @@
   import NoteContext from "../components/NoteContext.svelte";
   import Icon from "../components/Icon.svelte";
   import { appState, findSecrets, revealedIds } from "../lib/appstate.svelte";
-  import { getToken } from "../lib/auth";
+  import { getToken, isGM } from "../lib/auth";
+  import { onMount } from "svelte";
+  import { WSClient } from "../lib/ws";
   import type { NoteSummary } from "../lib/api";
 
   let textFilter = $state("");
@@ -23,6 +25,7 @@
   let source = $state("");
   let previewError = $state("");
   let revealed: string[] = $state([]);
+  let ws: WSClient | null = $state(null);
 
   const eyeAs = $derived(appState.playerEye && appState.eyeTarget ? appState.eyeTarget : "");
 
@@ -103,6 +106,33 @@
     ws.onmessage = () => loadPreview();
   }
 
+  function unreveal(blockId: string, audience: any = { all: true }) {
+    const uid = appState.selectedUid;
+    if (!uid) return;
+    const t = getToken();
+    if (!t) return;
+    const proto = location.protocol === "https:" ? "wss" : "ws";
+    const w = new WebSocket(`${proto}://${location.host}/ws?token=${encodeURIComponent(t)}`);
+    w.onopen = () => {
+      w.send(JSON.stringify({ v: 1, type: "secret.unreveal", data: { note_uid: uid, block_id: blockId, audience } }));
+      setTimeout(() => w.close(), 500);
+    };
+    w.onmessage = () => loadPreview();
+  }
+
+  onMount(() => {
+    const t = getToken();
+    if (!t) return;
+    ws = new WSClient({
+      onSecretRevealed: () => { void loadPreview(); },
+      onSecretUnrevealed: () => { void loadPreview(); },
+      onNoteSaved: () => { void loadPreview(); },
+      onVaultChanged: () => { void loadPreview(); },
+    });
+    ws.connect();
+    return () => { ws?.close(); ws = null; };
+  });
+
   $effect(() => { void appState.selectedUid; void eyeAs; void loadPreview(); });
   $effect(() => {
     if (!appState.selectedUid && vaultStore.notes.length) {
@@ -116,7 +146,7 @@
 </script>
 
 {#snippet railContent()}
-  <NoteContext note={selected} {secrets} {revealed} onReveal={reveal} />
+  <NoteContext note={selected} {secrets} {revealed} onReveal={reveal} onUnreveal={unreveal} />
 {/snippet}
 
 <section class="explorer" aria-label="Vault explorer">
@@ -201,7 +231,9 @@
             {source}
             noteUid={String(selected.uid)}
             canReveal={!eyeAs}
+            canUnreveal={!eyeAs && isGM()}
             onReveal={reveal}
+            onUnreveal={unreveal}
             {revealed}
             resolveWiki={(name) => wikiIndex().get(name) ?? null}
             onOpenNote={(uid) => (appState.selectedUid = uid)}

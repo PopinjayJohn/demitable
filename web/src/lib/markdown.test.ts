@@ -54,6 +54,14 @@ describe("renderMarkdown", () => {
     const html2 = renderMarkdown("> [!secret] hidden words ^blk1\n", { revealButtons: true, revealed: ["blk1"] });
     expect(html2).not.toContain("secret-reveal");
   });
+  it("adds a hover un-reveal button on revealed secrets", () => {
+    const html = renderMarkdown("> [!secret] hidden words ^blk1\n", { unrevealButtons: true, revealed: ["blk1"] });
+    expect(html).toContain("secret-unreveal");
+    expect(html).toContain('data-unreveal-block="blk1"');
+    expect(html).toContain("Un-reveal");
+    const html2 = renderMarkdown("> [!secret] hidden words ^blk1\n", { unrevealButtons: true });
+    expect(html2).not.toContain("secret-unreveal");
+  });
   it("strips the title line from admonition and statblock heads", () => {
     const html = renderMarkdown("```ad-tip\ntitle: Running it\nBody text\n```\n");
     expect(html).toContain("Running it");
