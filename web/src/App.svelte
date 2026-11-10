@@ -124,6 +124,7 @@
       onVaultChanged: () => { void vaultStore.load(eyeAs); void doSearch(); },
       onNoteSaved: () => { void vaultStore.load(eyeAs); void doSearch(); },
       onSecretRevealed: () => { void vaultStore.load(eyeAs); void doSearch(); },
+      onSecretUnrevealed: () => { void vaultStore.load(eyeAs); void doSearch(); },
       onRollResult: (d) => { appState.diceLog = [...appState.diceLog, d].slice(-20); },
     });
     ws.connect();

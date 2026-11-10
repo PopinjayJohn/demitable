@@ -12,6 +12,8 @@
     noteUid = "",
     canReveal = false,
     onReveal = undefined,
+    canUnreveal = false,
+    onUnreveal = undefined,
     revealed = [],
     resolveWiki = undefined,
     onOpenNote = undefined,
@@ -22,6 +24,8 @@
     noteUid?: string;
     canReveal?: boolean;
     onReveal?: (blockId: string) => void;
+    canUnreveal?: boolean;
+    onUnreveal?: (blockId: string) => void;
     revealed?: string[];
     resolveWiki?: (name: string) => string | null;
     onOpenNote?: (uid: string) => void;
@@ -32,7 +36,7 @@
     twoCol?: boolean;
   } = $props();
 
-  const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed, revealButtons: canReveal }));
+  const html = $derived(renderMarkdown(source ?? "", { resolveWiki, revealed, revealButtons: canReveal, unrevealButtons: canUnreveal }));
 
   let colsEl: HTMLDivElement | null = $state(null);
   let colA: HTMLDivElement | null = $state(null);
@@ -90,6 +94,11 @@
     const revealBtn = t.closest?.("[data-reveal-block]") as HTMLElement | null;
     if (revealBtn && onReveal) {
       onReveal(revealBtn.getAttribute("data-reveal-block") ?? "");
+      return;
+    }
+    const unrevealBtn = t.closest?.("[data-unreveal-block]") as HTMLElement | null;
+    if (unrevealBtn && onUnreveal) {
+      onUnreveal(unrevealBtn.getAttribute("data-unreveal-block") ?? "");
       return;
     }
     const link = t.closest?.("a.wikilink[data-uid]") as HTMLAnchorElement | null;
