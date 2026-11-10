@@ -93,6 +93,19 @@ Each covers: projection missing entirely (null/undefined note or doc) → `gm`;
 one spelling present → that value used; both absent → `gm`; present permissive
 value → rendered as given; no permissive label on the missing-projection path.
 
+D2 why-nots (ADR-0064 D2 — a surface that bypasses `surfaceVisibility()` records
+why). The helper throws on a missing projection, while D3 requires rendering the
+fail-closed `gm` default, so the three surfaces below read
+`effective_visibility`/`effectiveVisibility` inline with a `?? "gm"` fallback
+instead of calling the helper:
+
+- `NoteEditor` (`effVis`) — inline `?? "gm"`; `surfaceVisibility()` would throw
+  on a missing projection where the editor must still render `gm`.
+- `Home` (campaign-note badge) — inline `?? "gm"`; same reason, the badge must
+  render `gm` rather than throw when no projection is present.
+- `NoteContext` (`vis()`) — inline `?? "gm"`; same reason, the rail badge must
+  render `gm` rather than throw when no projection is present.
+
 ## Shadow mount (ADR-0029)
 
 Core surfaces and components render in the app document (light DOM). No
@@ -110,7 +123,7 @@ additionally asserts zero client vault reads for its own request set.
 
 - Chat authorship rule — P0b carries it (creation must see the channel's
   audience); reads stay projection-governed.
-- Fail-open `surfaceVisibility` fallbacks in `VaultExplorer`, `NoteEditor`,
+- Fail-closed `surfaceVisibility` fallbacks in `VaultExplorer`, `NoteEditor`,
   `Home`, `NoteContext` — pinned fail-closed (`gm`) by the component
   harness (T1b); see "Component test harness (T1b)" below. Narrowing the
   fallback itself remains a security change requiring its own ADR.
